@@ -208,7 +208,11 @@ with tab_data:
         st.write("**Distribuição de Classes (Treino):**")
         unique, counts = np.unique(y_train, return_counts=True)
         dist_df = pd.DataFrame({"Classe": unique, "Contagem": counts})
-        st.bar_chart(dist_df.set_index("Classe"))
+        fig_bar, ax_bar = plt.subplots(figsize=(5, 2.5))
+        ax_bar.bar([f'Classe {c}' for c in unique], counts, color='#38bdf8')
+        ax_bar.set_ylabel('Amostras')
+        st.pyplot(fig_bar)
+        plt.close(fig_bar)
 
         st.write("**Pré-visualização (primeiras 5 amostras):**")
         feature_names = [f"feat_{i}" for i in range(X_train.shape[1])]
@@ -345,7 +349,7 @@ with tab_train:
             train_loss_ph = metrics_col1.empty()
             test_loss_ph = metrics_col2.empty()
 
-            loss_chart = st.line_chart()
+            loss_chart_ph = st.empty()
 
             try:
                 total_loss = 0.0
@@ -397,19 +401,17 @@ with tab_train:
                     test_loss_ph.metric("Test Loss", f"{test_loss:.4f}")
 
                     hist = st.session_state.training_history
-                    loss_df = pd.DataFrame(
-                        {
-                            "Época": range(1, len(hist["loss"]) + 1),
-                            "Train Loss": hist["loss"],
-                            "Test Loss": [test_loss] * len(hist["loss"]),  # simplified
-                        }
-                    )
-                    loss_chart.line_chart(loss_df.set_index("Época"))
-
-                    progress_bar.progress((epoch + 1) / epochs)
-                    status_text.text(
-                        f"Época {epoch + 1}/{epochs} | Train Loss: {avg_loss:.4f} | Test Loss: {test_loss:.4f} | Acc: {accuracy:.2%}"
-                    )
+        fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
+        ax1.plot(range(1, len(hist['loss']) + 1), hist['loss'], color='#ef4444', lw=2)
+        ax1.set_title('Evolucao da Perda (Loss)')
+        ax1.set_xlabel('Epoca')
+        ax1.grid(True, linestyle='--', alpha=0.5)
+        ax2.plot(range(1, len(hist['acc']) + 1), hist['acc'], color='#3b82f6', lw=2)
+        ax2.set_title('Evolucao da Acuracia')
+        ax2.set_xlabel('Epoca')
+        ax2.grid(True, linestyle='--', alpha=0.5)
+        st.pyplot(fig_curves)
+        plt.close(fig_curves)
 
                     # Allow UI to update
                     time.sleep(0.01)
@@ -462,19 +464,17 @@ with tab_results:
         if hist["loss"]:
             col1, col2 = st.columns(2)
             with col1:
-                loss_df = pd.DataFrame(
-                    {
-                        "Época": range(1, len(hist["loss"]) + 1),
-                        "Train Loss": hist["loss"],
-                    }
-                )
-                st.line_chart(loss_df.set_index("Época"))
-            with col2:
-                acc_df = pd.DataFrame(
-                    {"Época": range(1, len(hist["acc"]) + 1), "Train Acc": hist["acc"]}
-                )
-                st.line_chart(acc_df.set_index("Época"))
-
+        fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
+        ax1.plot(range(1, len(hist['loss']) + 1), hist['loss'], color='#ef4444', lw=2)
+        ax1.set_title('Evolucao da Perda (Loss)')
+        ax1.set_xlabel('Epoca')
+        ax1.grid(True, linestyle='--', alpha=0.5)
+        ax2.plot(range(1, len(hist['acc']) + 1), hist['acc'], color='#3b82f6', lw=2)
+        ax2.set_title('Evolucao da Acuracia')
+        ax2.set_xlabel('Epoca')
+        ax2.grid(True, linestyle='--', alpha=0.5)
+        st.pyplot(fig_curves)
+        plt.close(fig_curves)
         # Network summary
         st.write("**Resumo da Rede:**")
         st.code(net.summary())
