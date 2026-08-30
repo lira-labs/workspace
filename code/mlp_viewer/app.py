@@ -1,3 +1,13 @@
+
+def show_table(data_obj):
+    """Renderiza tabelas em HTML puro sem disparar pyarrow/DLL."""
+    if isinstance(data_obj, pd.DataFrame):
+        st.markdown(data_obj.to_html(index=False), unsafe_allow_html=True)
+    elif isinstance(data_obj, list):
+        st.markdown(pd.DataFrame(data_obj).to_html(index=False), unsafe_allow_html=True)
+    else:
+        st.write(data_obj)
+
 """Streamlit app for MLP from Scratch - Interactive Training & Visualization.
 
 Uses Professor's Network implementation (graph-based, step-by-step forward, MSE backprop).
@@ -204,7 +214,7 @@ with tab_data:
         feature_names = [f"feat_{i}" for i in range(X_train.shape[1])]
         df_preview = pd.DataFrame(X_train[:5], columns=feature_names)
         df_preview["target"] = y_train[:5]
-        st.table(df_preview.head(5))
+        show_table(df_preview.head(5))
 
 
 # ==================== TAB: ARQUITETURA ====================
@@ -229,7 +239,7 @@ with tab_arch:
                 "Ativação": ["identity"] + all_activations,
             }
         )
-        st.table(arch_df)
+        show_table(arch_df)
 
         total_params = sum(
             (layer_sizes[i] + 1) * layer_sizes[i + 1]
@@ -546,7 +556,7 @@ with tab_inference:
                     }
                 )
 
-            st.table(pd.DataFrame(results))
+            show_table(pd.DataFrame(results))
 
 
 # Footer
