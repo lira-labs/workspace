@@ -400,18 +400,8 @@ with tab_train:
                     train_loss_ph.metric("Train Loss", f"{avg_loss:.4f}")
                     test_loss_ph.metric("Test Loss", f"{test_loss:.4f}")
 
-                    hist = st.session_state.training_history
-        fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
-        ax1.plot(range(1, len(hist['loss']) + 1), hist['loss'], color='#ef4444', lw=2)
-        ax1.set_title('Evolucao da Perda (Loss)')
-        ax1.set_xlabel('Epoca')
-        ax1.grid(True, linestyle='--', alpha=0.5)
-        ax2.plot(range(1, len(hist['acc']) + 1), hist['acc'], color='#3b82f6', lw=2)
-        ax2.set_title('Evolucao da Acuracia')
-        ax2.set_xlabel('Epoca')
-        ax2.grid(True, linestyle='--', alpha=0.5)
-        st.pyplot(fig_curves)
-        plt.close(fig_curves)
+                    progress_bar.progress((epoch + 1) / epochs)
+                    status_text.text(f"?poca {epoch + 1}/{epochs} - Train Loss: {avg_loss:.4f} - Test Loss: {test_loss:.4f}")
 
                     # Allow UI to update
                     time.sleep(0.01)
@@ -459,22 +449,23 @@ with tab_results:
         col2.metric("Test Accuracy", f"{test_acc:.2%}")
         col3.metric("Épocas Treinadas", len(st.session_state.training_history["loss"]))
 
-        # Training curves
+        # Training curves via Matplotlib (100% PyArrow Free)
         hist = st.session_state.training_history
-        if hist["loss"]:
-            col1, col2 = st.columns(2)
-            with col1:
-        fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
-        ax1.plot(range(1, len(hist['loss']) + 1), hist['loss'], color='#ef4444', lw=2)
-        ax1.set_title('Evolucao da Perda (Loss)')
-        ax1.set_xlabel('Epoca')
-        ax1.grid(True, linestyle='--', alpha=0.5)
-        ax2.plot(range(1, len(hist['acc']) + 1), hist['acc'], color='#3b82f6', lw=2)
-        ax2.set_title('Evolucao da Acuracia')
-        ax2.set_xlabel('Epoca')
-        ax2.grid(True, linestyle='--', alpha=0.5)
-        st.pyplot(fig_curves)
-        plt.close(fig_curves)
+        if hist.get("loss"):
+            fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
+            ax1.plot(range(1, len(hist["loss"]) + 1), hist["loss"], color="#ef4444", lw=2)
+            ax1.set_title("Evolucao da Perda (Loss)")
+            ax1.set_xlabel("Epoca")
+            ax1.grid(True, linestyle="--", alpha=0.5)
+
+            ax2.plot(range(1, len(hist["acc"]) + 1), hist["acc"], color="#3b82f6", lw=2)
+            ax2.set_title("Evolucao da Acuracia")
+            ax2.set_xlabel("Epoca")
+            ax2.grid(True, linestyle="--", alpha=0.5)
+
+            st.pyplot(fig_curves)
+            plt.close(fig_curves)
+
         # Network summary
         st.write("**Resumo da Rede:**")
         st.code(net.summary())
