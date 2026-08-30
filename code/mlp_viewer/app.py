@@ -454,13 +454,13 @@ with tab_results:
         if hist.get("loss"):
             fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
             ax1.plot(range(1, len(hist["loss"]) + 1), hist["loss"], color="#ef4444", lw=2)
-            ax1.set_title("Evolucao da Perda (Loss)")
-            ax1.set_xlabel("Epoca")
+            ax1.set_title("Evolu??o da Perda (Loss)")
+            ax1.set_xlabel("?poca")
             ax1.grid(True, linestyle="--", alpha=0.5)
 
             ax2.plot(range(1, len(hist["acc"]) + 1), hist["acc"], color="#3b82f6", lw=2)
-            ax2.set_title("Evolucao da Acuracia")
-            ax2.set_xlabel("Epoca")
+            ax2.set_title("Evolu??o da Acur?cia")
+            ax2.set_xlabel("?poca")
             ax2.grid(True, linestyle="--", alpha=0.5)
 
             st.pyplot(fig_curves)
