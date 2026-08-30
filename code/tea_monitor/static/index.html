@@ -24,8 +24,8 @@
             <div class="brand">
                 <div class="logo-icon">🧠</div>
                 <div>
-                    <h1>TEA Monitor <span class="badge-pro">FACS + IA</span></h1>
-                    <p class="subtitle">Visão Espaço-Temporal & Microexpressões</p>
+                    <h1>TEA Monitor <span class="badge-pro">Multimodal + rPPG</span></h1>
+                    <p class="subtitle">Visão Computacional & Biomarcadores Sem Contato</p>
                 </div>
             </div>
             <div class="header-status">
@@ -37,7 +37,7 @@
         <nav class="nav-tabs">
             <button class="nav-tab active" data-tab="tab-live">📹 Ao Vivo</button>
             <button class="nav-tab" data-tab="tab-timeline">📈 Gráficos</button>
-            <button class="nav-tab" data-tab="tab-report">📑 Relatório</button>
+            <button class="nav-tab" data-tab="tab-report">📑 Relatório ABA</button>
             <button class="nav-tab" data-tab="tab-settings">⚙️ Perfil Aluno</button>
         </nav>
 
@@ -48,7 +48,7 @@
                 <span id="alertIcon" class="alert-icon">🟢</span>
                 <div class="alert-content">
                     <strong id="alertStageName">Estágio 1: Calmo & Regulado</strong>
-                    <span id="alertDesc">Ambiente em 52 dB. Tensão facial basal.</span>
+                    <span id="alertDesc">Ambiente em 52 dB. Pulso cardíaco basal (75 BPM).</span>
                 </div>
             </div>
 
@@ -69,6 +69,11 @@
                     <!-- HUD com Barras Rápidas no Vídeo -->
                     <div class="video-overlay-hud">
                         <div class="hud-metric">
+                            <span class="hud-label">❤️ Pulso rPPG</span>
+                            <div class="progress-bar"><div id="hudBpmBar" class="progress-fill" style="width: 50%"></div></div>
+                            <span id="hudBpmText" style="font-size: 10px; font-weight: 700; color: #fff; width: 55px; text-align: right;">75 BPM</span>
+                        </div>
+                        <div class="hud-metric">
                             <span class="hud-label">🔊 Ruído da Sala</span>
                             <div class="progress-bar"><div id="hudNoiseBar" class="progress-fill" style="width: 40%"></div></div>
                             <span id="hudNoiseText" style="font-size: 10px; font-weight: 700; color: #fff; width: 45px; text-align: right;">50 dB</span>
@@ -80,10 +85,6 @@
                         <div class="hud-metric">
                             <span class="hud-label">🖐️ Flapping</span>
                             <div class="progress-bar"><div id="hudFlappingBar" class="progress-fill" style="width: 0%"></div></div>
-                        </div>
-                        <div class="hud-metric">
-                            <span class="hud-label">🎧 Defesa Auditiva</span>
-                            <div class="progress-bar"><div id="hudSensoryBar" class="progress-fill" style="width: 0%"></div></div>
                         </div>
                     </div>
 
@@ -120,11 +121,20 @@
             <!-- Grid de Métricas Biomecânicas, Faciais e Acústicas -->
             <section class="dashboard-section">
                 <div class="section-header">
-                    <h2>📊 Telemetria Multimodal & FACS</h2>
+                    <h2>📊 Telemetria Multimodal & rPPG</h2>
                     <span class="fps-counter">FPS: <span id="fpsValue">0</span></span>
                 </div>
 
                 <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span>Frequência Cardíaca (rPPG)</span>
+                            <span id="bpmStatus" class="metric-badge">Basal</span>
+                        </div>
+                        <div class="metric-value"><span id="bpmValue">75</span> <small style="font-size: 11px;">BPM</small></div>
+                        <small>Fotopletismografia sem contato</small>
+                    </div>
+
                     <div class="metric-card">
                         <div class="metric-header">
                             <span>FACS AU04 (Cenho)</span>
@@ -132,15 +142,6 @@
                         </div>
                         <div class="metric-value"><span id="au04Score">0</span>%</div>
                         <small>Franzir sobrancelha/frustração</small>
-                    </div>
-
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <span>FACS AU24 (Lábios)</span>
-                            <span id="au24Status" class="metric-badge">Relaxado</span>
-                        </div>
-                        <div class="metric-value"><span id="au24Score">0</span>%</div>
-                        <small>Tensão mandibular/labial</small>
                     </div>
 
                     <div class="metric-card">
@@ -163,20 +164,20 @@
 
                     <div class="metric-card">
                         <div class="metric-header">
-                            <span>Defesa Auditiva</span>
-                            <span id="sensoryStatus" class="metric-badge">Normal</span>
+                            <span>Balanço de Tronco</span>
+                            <span id="rockingStatus" class="metric-badge">0°</span>
                         </div>
-                        <div class="metric-value"><span id="sensoryScore">0</span>%</div>
-                        <small>Mãos nos ouvidos / cabeça</small>
+                        <div class="metric-value"><span id="rockingScore">0</span>%</div>
+                        <small>Amplitude angular do tronco</small>
                     </div>
 
                     <div class="metric-card">
                         <div class="metric-header">
-                            <span>Atenção & Olhar</span>
-                            <span id="gazeStatus" class="metric-badge">Frontal</span>
+                            <span>Latência Sensorial (Δt)</span>
+                            <span id="latencyStatus" class="metric-badge">0.0s</span>
                         </div>
-                        <div class="metric-value"><span id="gazeScore">100</span>%</div>
-                        <small>Direcionamento do olhar/face</small>
+                        <div class="metric-value"><span id="latencyScore">0.0</span> <small style="font-size: 11px;">s</small></div>
+                        <small>Tempo pós-pico de ruído</small>
                     </div>
                 </div>
             </section>
@@ -185,7 +186,7 @@
         <!-- ABA 2: LINHA DO TEMPO & GRÁFICO CONTÍNUO -->
         <div id="tab-timeline" class="tab-content">
             <div class="card-timeline">
-                <h3>📈 Curva de Nível de Estresse & FACS (Últimos 60s)</h3>
+                <h3>📈 Curva de Estresse, rPPG & Ruído (Últimos 60s)</h3>
                 <p class="card-desc">Linha azul: Estresse corporal e facial. Linha tracejada vermelha: Limiar crítico.</p>
                 <div class="chart-wrapper">
                     <canvas id="timelineChart" width="500" height="200"></canvas>
@@ -208,8 +209,8 @@
             <div class="clinical-report-card">
                 <div class="report-header">
                     <div>
-                        <h2>📑 Relatório de Observação Comportamental</h2>
-                        <p class="card-desc">Ponte Escola ⇄ Psicólogo (ABA / TCC)</p>
+                        <h2>📑 Relatório de Observação Comportamental & ABA</h2>
+                        <p class="card-desc">Ponte Escola ⇄ Psicólogo (Métricas Quantitativas)</p>
                     </div>
                     <button id="btnExportReport" class="btn btn-primary">
                         📥 Exportar Relatório (JSON)
@@ -222,6 +223,10 @@
                 </div>
 
                 <div class="behavior-counters-grid">
+                    <div class="counter-item">
+                        <span class="counter-num" id="cntBpmAvg">75</span>
+                        <span class="counter-lbl">BPM Médio (rPPG)</span>
+                    </div>
                     <div class="counter-item">
                         <span class="counter-num" id="cntFacial">0</span>
                         <span class="counter-lbl">Tensão Facial (FACS)</span>
@@ -239,21 +244,17 @@
                         <span class="counter-lbl">Defesa Auditiva</span>
                     </div>
                     <div class="counter-item">
-                        <span class="counter-num" id="cntVisual">0</span>
-                        <span class="counter-lbl">Defesa Visual</span>
-                    </div>
-                    <div class="counter-item">
                         <span class="counter-num" id="cntFreeze">0</span>
                         <span class="counter-lbl">Shutdown</span>
                     </div>
                 </div>
 
                 <div class="clinical-guidance-box">
-                    <h4>📋 Modelo ABC de Análise Comportamental</h4>
+                    <h4>📋 Métricas Analíticas de Interoperabilidade Clínica</h4>
                     <ul>
-                        <li><strong>A (Antecedente):</strong> Nível de ruído em dB, transição de aula, atividade.</li>
-                        <li><strong>B (Comportamento):</strong> Estereotipia ou microexpressão FACS registrada com timestamp.</li>
-                        <li><strong>C (Consequência):</strong> Ação pedagógica recomendada e resposta do aluno.</li>
+                        <li><strong>⏱️ Latência Sensorial ($\Delta t$):</strong> Tempo decorrido entre o pico de ruído ($>78\text{ dB}$) e o início da defesa.</li>
+                        <li><strong>📐 Topografia e Amplitude Angular:</strong> Grau de inclinação corporal máxima no balanço.</li>
+                        <li><strong>❤️ Efeito da Acomodação:</strong> Velocidade de normalização da frequência cardíaca pós-intervenção.</li>
                     </ul>
                 </div>
             </div>
@@ -326,6 +327,7 @@
     </div>
 
     <!-- Scripts da Aplicação -->
+    <script src="js/rppg_engine.js"></script>
     <script src="js/stimming_detector.js"></script>
     <script src="js/mediapipe_camera.js"></script>
 </body>

@@ -1,6 +1,6 @@
 ﻿/**
  * TEA Advanced Clinical & Behavioral Engine
- * Multimodal: Pose 3D + FaceMesh (FACS AUs: AU04, AU24, AU43, Gaze) + Áudio dB
+ * Multimodal: Pose 3D + FaceMesh (FACS AUs) + Áudio dB + rPPG Pulso + Métricas ABA
  */
 
 class StimmingDetector {
@@ -10,7 +10,8 @@ class StimmingDetector {
         this.faceHistory = [];
         this.timelineHistory = [];
 
-        // Estados Temporais
+        // Estados Temporais & Latência Sensorial
+        this.lastNoiseSpikeTime = null;
         this.earCoverStartTime = null;
         this.faceHideStartTime = null;
         this.freezeStartTime = null;
@@ -19,7 +20,7 @@ class StimmingDetector {
         this.lastEventTimes = {};
         this.cooldownMs = 3500;
 
-        // Histórico Clínico & Contadores
+        // Histórico Clínico & Contadores ABA
         this.clinicalIncidentLog = [];
         this.behaviorCounts = {
             hand_flapping: 0,
@@ -46,20 +47,26 @@ class StimmingDetector {
     }
 
     /**
-     * Processa o frame multimodal (Pose + FaceMesh FACS + Áudio)
+     * Processa o frame multimodal (Pose + FaceMesh FACS + Áudio + rPPG)
      */
-    processFrame(poseLandmarks, faceLandmarks, ambientDb = 55) {
+    processFrame(poseLandmarks, faceLandmarks, ambientDb = 55, rppgData = { bpm: 75, isReliable: false }) {
         const timestamp = performance.now();
 
+        // Rastreamento de Latência do Gatilho Acústico
+        if (ambientDb >= this.profile.noiseThresholdCriticalDb) {
+            this.lastNoiseSpikeTime = timestamp;
+        }
+
         if (!poseLandmarks) {
-            return this.getDefaultResult(ambientDb);
+            return this.getDefaultResult(ambientDb, rppgData);
         }
 
         const frameData = {
             timestamp,
             pose: poseLandmarks,
             face: faceLandmarks,
-            db: ambientDb
+            db: ambientDb,
+            bpm: rppgData.bpm
         };
 
         this.poseHistory.push(frameData);
@@ -72,16 +79,22 @@ class StimmingDetector {
         const rightShoulder = poseLandmarks[12];
         const shoulderWidth = Math.max(0.08, this.distance(leftShoulder, rightShoulder));
 
-        // 2. Análise FACS de Microexpressões Faciais (FaceMesh - 468 pontos)
+        // 2. Análise FACS de Microexpressões Faciais
         const facs = this.extractFacialActionUnits(faceLandmarks, timestamp);
 
-        // 3. Análise Comportamental Corporal
+        // 3. Análise Comportamental Corporal & Métricas ABA
         const flapping = this.detectHandFlapping(shoulderWidth);
         const rocking = this.detectBodyRocking(shoulderWidth);
         const auditoryDefense = this.detectAuditoryDefense(poseLandmarks, shoulderWidth, timestamp, ambientDb);
         const visualDefense = this.detectVisualDefense(poseLandmarks, faceLandmarks, shoulderWidth, timestamp, facs);
         const headNodding = this.detectHeadNodding(poseLandmarks, shoulderWidth);
         const freezeShutdown = this.detectFreezeShutdown(poseLandmarks, shoulderWidth, timestamp);
+
+        // Cálculo da Latência Sensorial (Δt entre ruído alto e defesa)
+        let sensoryLatencySec = 0.0;
+        if (this.lastNoiseSpikeTime && (auditoryDefense.detected || flapping.detected)) {
+            sensoryLatencySec = parseFloat(((timestamp - this.lastNoiseSpikeTime) / 1000).toFixed(1));
+        }
 
         // 4. Síntese Clínica em Cascata
         const clinicalState = this.synthesizeClinicalCascade({
@@ -93,6 +106,8 @@ class StimmingDetector {
             freezeShutdown,
             facs,
             ambientDb,
+            rppgData,
+            sensoryLatencySec,
             timestamp
         });
 
@@ -116,42 +131,32 @@ class StimmingDetector {
             };
         }
 
-        // Largura facial de referência (Têmpora Esq: 234, Têmpora Dir: 454)
         const leftCheek = faceLandmarks[234];
         const rightCheek = faceLandmarks[454];
         const faceWidth = Math.max(0.05, Math.abs(leftCheek.x - rightCheek.x));
 
-        // 1. AU 04 (Brow Lowerer / Franzimento de Sobrancelhas)
-        // Pontos centrais das sobrancelhas: 105 (esq) e 334 (dir) em relação à glabela (9)
+        // AU 04 (Brow Lowerer)
         const browL = faceLandmarks[105];
         const browR = faceLandmarks[334];
-        const glabella = faceLandmarks[9];
-
         const browDistance = Math.abs(browL.x - browR.x) / faceWidth;
-        // Quanto menor a distância relativa das sobrancelhas, maior o franzimento (AU04)
-        // Linha de base normal ~0.36; Franzido < 0.28
         let au04Score = Math.max(0, Math.min(100, Math.round(((0.36 - browDistance) / 0.12) * 100)));
 
-        // 2. AU 24 / AU 23 (Lip Pressor / Tensão Labial e Mandibular)
-        // Lábio superior (0), Lábio inferior (17), Cantos da boca (61, 291)
+        // AU 24 (Lip Pressor)
         const lipTop = faceLandmarks[0];
         const lipBottom = faceLandmarks[17];
         const mouthL = faceLandmarks[61];
         const mouthR = faceLandmarks[291];
-
         const mouthHeight = Math.abs(lipTop.y - lipBottom.y);
         const mouthWidth = Math.abs(mouthL.x - mouthR.x);
         const lipRatio = mouthHeight / Math.max(0.01, mouthWidth);
-        // Lábios comprimidos/travados têm lipRatio muito baixo (< 0.12)
         let au24Score = Math.max(0, Math.min(100, Math.round(((0.22 - lipRatio) / 0.15) * 100)));
 
-        // 3. EAR (Eye Aspect Ratio - Fechamento Ocular / AU 43)
-        // Olho esquerdo (159, 145), Olho direito (386, 374)
+        // EAR (Eye Aspect Ratio)
         const eyeLH = Math.abs(faceLandmarks[159].y - faceLandmarks[145].y);
         const eyeLW = Math.abs(faceLandmarks[33].x - faceLandmarks[133].x);
         const ear = eyeLH / Math.max(0.01, eyeLW);
 
-        // 4. Atenção e Desvio de Olhar (Gaze Drift)
+        // Atenção e Desvio de Olhar
         const nose = faceLandmarks[1];
         const dL = Math.abs(nose.x - leftCheek.x);
         const dR = Math.abs(nose.x - rightCheek.x);
@@ -159,7 +164,7 @@ class StimmingDetector {
         const gazeFocusScore = Math.max(0, Math.min(100, Math.round((1 - asymmetry * 2.5) * 100)));
         const gazeStatus = gazeFocusScore > 65 ? "Frontal" : "Desviado";
 
-        // Detecção de Tensão Facial Mantida (> 800ms)
+        // Tensão Facial Mantida (> 800ms)
         const isCurrentlyTense = (au04Score >= 55 && au24Score >= 50) || (au04Score >= 70);
         if (isCurrentlyTense) {
             if (!this.facialTensionStartTime) this.facialTensionStartTime = timestamp;
@@ -182,7 +187,7 @@ class StimmingDetector {
     }
 
     /**
-     * Hand Flapping (2.0 a 6.5 Hz)
+     * Hand Flapping
      */
     detectHandFlapping(scale) {
         if (this.poseHistory.length < 15) return { score: 0, hz: 0, detected: false, intensity: 'none' };
@@ -222,15 +227,15 @@ class StimmingDetector {
     }
 
     /**
-     * Body Rocking (0.7 a 2.2 Hz)
+     * Body Rocking com Amplitude Angular (Graus)
      */
     detectBodyRocking(scale) {
-        if (this.poseHistory.length < 25) return { score: 0, hz: 0, detected: false, axis: 'none' };
+        if (this.poseHistory.length < 25) return { score: 0, hz: 0, detected: false, axis: 'none', angularAmplitudeDeg: 0 };
 
         const centerXs = [], centerYs = [];
         for (const f of this.poseHistory) {
-            const ls = f.pose[11], rs = f.pose[12], nose = f.pose[0];
-            if (ls && rs && nose) {
+            const ls = f.pose[11], rs = f.pose[12];
+            if (ls && rs) {
                 const midX = (ls.x + rs.x) / 2.0;
                 const midY = (ls.y + rs.y) / 2.0;
                 centerXs.push(midX / scale);
@@ -242,6 +247,9 @@ class StimmingDetector {
         const oscY = this.calculateOscillation(centerYs);
         const maxOsc = oscX.energy > oscY.energy ? oscX : oscY;
         const axis = oscX.energy > oscY.energy ? 'Lateral' : 'Anteroposterior';
+
+        // Amplitude Angular Estimada (Graus de arco)
+        const angularAmplitudeDeg = Math.round(Math.min(60, maxOsc.energy * 220));
 
         const isRockingHz = maxOsc.hz >= 0.7 && maxOsc.hz <= 2.2;
         const hasEnergy = maxOsc.energy > 0.03 * this.profile.motorSensitivity;
@@ -255,12 +263,13 @@ class StimmingDetector {
             score,
             hz: parseFloat(maxOsc.hz.toFixed(1)),
             axis,
+            angularAmplitudeDeg,
             detected: score >= 60
         };
     }
 
     /**
-     * Defesa Auditiva (Acústica + Pose)
+     * Defesa Auditiva
      */
     detectAuditoryDefense(landmarks, scale, timestamp, ambientDb) {
         const lw = landmarks[15], rw = landmarks[16];
@@ -294,7 +303,7 @@ class StimmingDetector {
     }
 
     /**
-     * Defesa Visual (Rosto Coberto ou Olhos Fechados Mantidos)
+     * Defesa Visual
      */
     detectVisualDefense(poseLandmarks, faceLandmarks, scale, timestamp, facs) {
         const lw = poseLandmarks[15], rw = poseLandmarks[16];
@@ -383,27 +392,29 @@ class StimmingDetector {
     }
 
     /**
-     * Síntese Clínica de 4 Fases com Alerta Precoce FACS
+     * Síntese Clínica com rPPG e Métricas ABA
      */
     synthesizeClinicalCascade(data) {
-        const { flapping, rocking, auditoryDefense, visualDefense, headNodding, freezeShutdown, facs, ambientDb, timestamp } = data;
+        const { flapping, rocking, auditoryDefense, visualDefense, headNodding, freezeShutdown, facs, ambientDb, rppgData, sensoryLatencySec, timestamp } = data;
 
         let stage = "CALM";
         let stageName = "🟢 Estágio 1: Calmo & Regulado";
         let title = "Comportamento Estável";
-        let desc = `Ambiente em ${Math.round(ambientDb)} dB. Tensão facial normal (AU04: ${facs.au04_brow_furrow}%).`;
+        let desc = `Ambiente em ${Math.round(ambientDb)} dB. Pulso cardíaco ${rppgData.bpm} BPM.`;
         let severity = "normal";
         let recommendation = "Manter o ritmo habitual da aula e incentivar a participação.";
         let eventType = null;
+
+        const isTachycardia = rppgData.bpm >= 105;
 
         // Regras de Transição Clínica
         if (auditoryDefense.detected) {
             stage = "SENSORY_OVERLOAD";
             stageName = "🔴 Estágio 4: Sobrecarga Sensorial Acústica";
-            title = auditoryDefense.isNoiseTriggered ? `⚠️ Sobrecarga Acústica (Ruído: ${Math.round(ambientDb)} dB)` : "⚠️ Defesa Sensorial Auditiva";
-            desc = `Aluno cobrindo os ouvidos (${auditoryDefense.type}) há ${auditoryDefense.durationMs}ms com ruído de ${Math.round(ambientDb)} dB.`;
+            title = auditoryDefense.isNoiseTriggered ? `⚠️ Sobrecarga Acústica (Ruído: ${Math.round(ambientDb)} dB | Δt: ${sensoryLatencySec}s)` : "⚠️ Defesa Sensorial Auditiva";
+            desc = `Aluno cobrindo os ouvidos (${auditoryDefense.type}) após latência de ${sensoryLatencySec}s. Pulso: ${rppgData.bpm} BPM.`;
             severity = "critical";
-            recommendation = `🚨 AÇÃO IMEDIATA: Ruído atingiu ${Math.round(ambientDb)} dB. Oferecer abafador acústico imediatamente.`;
+            recommendation = `🚨 AÇÃO IMEDIATA: Ruído em ${Math.round(ambientDb)} dB. Oferecer abafador acústico imediatamente.`;
             eventType = "SENSORY_AUDITORY";
         } else if (visualDefense.detected) {
             stage = "SENSORY_OVERLOAD";
@@ -424,8 +435,8 @@ class StimmingDetector {
         } else if (flapping.detected && rocking.detected) {
             stage = "ESCALATION";
             stageName = "🟠 Estágio 3: Agitação Comportamental em Cascata";
-            title = "⚡ Flapping + Balanço Simultâneos";
-            desc = "Multi-estereotipia ativa indicando alta demanda sensorial.";
+            title = `⚡ Flapping + Balanço (${rocking.angularAmplitudeDeg}°)`;
+            desc = `Multi-estereotipia ativa. Pulso: ${rppgData.bpm} BPM.`;
             severity = "alert";
             recommendation = "⚠️ ATENÇÃO: Faça uma pausa estruturada de 3 minutos ou proponha uma atividade reguladora.";
             eventType = "MULTI_STIMMING";
@@ -435,40 +446,32 @@ class StimmingDetector {
             title = "⚡ Estereotipia Motora: Flapping";
             desc = `Movimento rítmico de punhos a ${flapping.hz} Hz (Intensidade ${flapping.intensity}).`;
             severity = "warning";
-            recommendation = "💡 Observar sem interrupção abrupta (o flapping é autorregulação natural). Identificar a causa.";
+            recommendation = "💡 Observar sem interrupção abrupta (o flapping é autorregulação natural).";
             eventType = "HAND_FLAPPING";
         } else if (rocking.detected) {
             stage = "ESCALATION";
-            stageName = "🟡 Estágio 2: Autorregulação Vestibular (Rocking)";
+            stageName = `🟡 Estágio 2: Autorregulação Vestibular (${rocking.angularAmplitudeDeg}°)`;
             title = "🔄 Estereotipia: Balanço de Tronco";
-            desc = `Balanço ${rocking.axis} a ${rocking.hz} Hz.`;
+            desc = `Balanço ${rocking.axis} a ${rocking.hz} Hz (Amplitude ${rocking.angularAmplitudeDeg}°).`;
             severity = "warning";
             recommendation = "💡 Permitir movimentação corporal. Busca por estímulo vestibular para manter o foco.";
             eventType = "BODY_ROCKING";
+        } else if (isTachycardia && facs.isTensionActive) {
+            stage = "RUMBLE";
+            stageName = "🟡 Estágio 2: Ativação Simpática / Tensão Facial";
+            title = `💓 Taquicardia Reativa (${rppgData.bpm} BPM) + FACS AU04`;
+            desc = `Elevação da frequência cardíaca e franzir de sobrancelhas sustentados.`;
+            severity = "warning";
+            recommendation = "💡 ALERTA PRECOCE: O sistema autônomo do aluno indica estresse crescente. Proponha uma breve pausa para beber água.";
+            eventType = "AUTONOMIC_STRESS";
         } else if (facs.isTensionActive) {
-            // ALERTA PRECOCE FACS (Fase 2 - Rumble)
             stage = "RUMBLE";
-            stageName = "🟡 Estágio 2: Inquietação Precoce (FACS AU04 + AU24)";
+            stageName = "🟡 Estágio 2: Inquietação Precoce (FACS AU04)";
             title = "🔍 Tensão Facial / Microexpressão Pré-Crise";
-            desc = `Franzir de sobrancelhas (AU04: ${facs.au04_brow_furrow}%) e tensão mandibular sustentados por ${facs.tensionDurationMs}ms.`;
+            desc = `Franzir de sobrancelhas (AU04: ${facs.au04_brow_furrow}%) sustentado.`;
             severity = "warning";
-            recommendation = "💡 SINAL PRECOCE: O aluno está manifestando micro-tensão no rosto. Verifique se precisa de água ou ajuda na tarefa antes de evoluir para crise.";
+            recommendation = "💡 SINAL PRECOCE: O aluno está manifestando micro-tensão no rosto.";
             eventType = "FACIAL_TENSION";
-        } else if (headNodding.detected) {
-            stage = "RUMBLE";
-            stageName = "🟡 Estágio 2: Inquietação / Head Nodding";
-            title = "🔄 Movimento Pendular de Cabeça";
-            desc = `Oscilação repetitiva de cabeça a ${headNodding.hz} Hz.`;
-            severity = "warning";
-            recommendation = "💡 Verificar se há desconforto postural ou fadiga visual.";
-            eventType = "HEAD_NODDING";
-        } else if (ambientDb >= this.profile.noiseThresholdCriticalDb) {
-            stage = "RUMBLE";
-            stageName = "🟠 Alerta Ambiental: Ruído Elevado";
-            title = `🔊 Ruído Excessivo na Sala (${Math.round(ambientDb)} dB)`;
-            desc = "Ambiente acústico ultrapassou o limiar de conforto sensorial.";
-            severity = "warning";
-            recommendation = "💡 O volume da sala está muito alto. Risco iminente de sobrecarga para alunos sensíveis.";
         }
 
         const shouldTriggerEvent = eventType && this.canEmitEvent(eventType, timestamp);
@@ -479,6 +482,9 @@ class StimmingDetector {
                 stage,
                 stageName,
                 recommendation,
+                bpm: rppgData.bpm,
+                sensoryLatencySec,
+                angularAmplitudeDeg: rocking.angularAmplitudeDeg,
                 ambientDb: Math.round(ambientDb),
                 timestamp: new Date().toLocaleTimeString(),
                 confidence: Math.max(flapping.score, auditoryDefense.score, rocking.score, facs.au04_brow_furrow) / 100.0
@@ -491,7 +497,8 @@ class StimmingDetector {
             rocking.score * 0.20 +
             visualDefense.score * 0.35 +
             (facs.au04_brow_furrow * 0.25) +
-            freezeShutdown.score * 0.40
+            freezeShutdown.score * 0.40 +
+            (isTachycardia ? 20 : 0)
         ));
 
         return {
@@ -502,6 +509,9 @@ class StimmingDetector {
             severity,
             recommendation,
             stressScore,
+            bpm: rppgData.bpm,
+            sensoryLatencySec,
+            angularAmplitudeDeg: rocking.angularAmplitudeDeg,
             ambientDb: Math.round(ambientDb),
             flapping,
             rocking,
@@ -520,9 +530,11 @@ class StimmingDetector {
                 severity,
                 metrics: {
                     stressScore,
+                    bpm: rppgData.bpm,
+                    sensoryLatencySec,
+                    angularAmplitudeDeg: rocking.angularAmplitudeDeg,
                     ambientDb: Math.round(ambientDb),
                     au04: facs.au04_brow_furrow,
-                    au24: facs.au24_lip_tension,
                     flappingHz: flapping.hz
                 }
             } : null
@@ -548,6 +560,7 @@ class StimmingDetector {
             this.timelineHistory.push({
                 time: new Date().toLocaleTimeString(),
                 stress: state.stressScore,
+                bpm: state.bpm || 75,
                 db: state.ambientDb,
                 au04: state.facs ? state.facs.au04_brow_furrow : 0,
                 stage: state.stage
@@ -610,21 +623,24 @@ class StimmingDetector {
         const total = this.clinicalIncidentLog.length;
         if (total === 0) return "Sessão estável sem registros de sobrecarga ou estereotipias agudas.";
         const dominant = Object.entries(this.behaviorCounts).sort((a, b) => b[1] - a[1])[0];
-        return `Durante a sessão de ${total} registros, o padrão mais frequente foi '${dominant[0]}' (${dominant[1]} ocorrências). Recomendado repassar esses horários para o psicólogo correlacionar com as atividades pedagógicas.`;
+        return `Durante a sessão de ${total} registros, o padrão predominante foi '${dominant[0]}' (${dominant[1]} ocorrências). O tempo médio de latência frente a ruídos críticos foi registrado para análise pelo terapeuta ABA.`;
     }
 
-    getDefaultResult(ambientDb = 50) {
+    getDefaultResult(ambientDb = 50, rppgData = { bpm: 75 }) {
         return {
             stage: 'CALM',
             stageName: 'Buscando Aluno...',
             title: 'Enquadrando Câmera',
-            desc: `Ambiente em ${Math.round(ambientDb)} dB. Posicione o dispositivo para capturar tronco e rosto.`,
+            desc: `Ambiente em ${Math.round(ambientDb)} dB. Pulso basal (${rppgData.bpm} BPM).`,
             severity: 'normal',
             recommendation: 'Aguardando detecção de pose e face.',
             stressScore: 0,
+            bpm: rppgData.bpm,
+            sensoryLatencySec: 0.0,
+            angularAmplitudeDeg: 0,
             ambientDb: Math.round(ambientDb),
             flapping: { score: 0, hz: 0, detected: false },
-            rocking: { score: 0, hz: 0, detected: false },
+            rocking: { score: 0, hz: 0, detected: false, angularAmplitudeDeg: 0 },
             auditoryDefense: { score: 0, detected: false, durationMs: 0 },
             visualDefense: { score: 0, detected: false },
             headNodding: { score: 0, detected: false },

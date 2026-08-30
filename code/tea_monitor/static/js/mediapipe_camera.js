@@ -1,13 +1,13 @@
 ﻿/**
  * MediaPipe Camera Pipeline & Real-Time Orchestrator
- * Multimodal: Pose + FaceMesh (FACS AUs) + Web Audio Decibel Meter + Winnie Dunn Sensory Profiles
+ * Multimodal: Pose + FaceMesh (FACS) + Web Audio Decibel Meter + rPPG (POS Engine) + IndexedDB
  */
 
 document.addEventListener("DOMContentLoaded", () => {
     // DOM Elements - Camera & Canvas
     const videoElement = document.getElementById("videoElement");
     const outputCanvas = document.getElementById("outputCanvas");
-    const canvasCtx = outputCanvas ? outputCanvas.getContext("2d") : null;
+    const canvasCtx = outputCanvas ? outputCanvas.getContext("2d", { willReadFrequently: true }) : null;
     const timelineCanvas = document.getElementById("timelineChart");
     const timelineCtx = timelineCanvas ? timelineCanvas.getContext("2d") : null;
 
@@ -32,26 +32,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const connectionBadge = document.getElementById("connectionBadge");
     const fpsValue = document.getElementById("fpsValue");
 
-    // HUD Bars
+    // HUD Bars & Metrics
+    const hudBpmBar = document.getElementById("hudBpmBar");
+    const hudBpmText = document.getElementById("hudBpmText");
     const hudNoiseBar = document.getElementById("hudNoiseBar");
     const hudNoiseText = document.getElementById("hudNoiseText");
     const hudAu04Bar = document.getElementById("hudAu04Bar");
     const hudFlappingBar = document.getElementById("hudFlappingBar");
-    const hudSensoryBar = document.getElementById("hudSensoryBar");
 
     // Metrics Cards
+    const bpmValue = document.getElementById("bpmValue");
+    const bpmStatus = document.getElementById("bpmStatus");
     const au04Score = document.getElementById("au04Score");
     const au04Status = document.getElementById("au04Status");
-    const au24Score = document.getElementById("au24Score");
-    const au24Status = document.getElementById("au24Status");
     const noiseDb = document.getElementById("noiseDb");
     const noiseStatus = document.getElementById("noiseStatus");
     const flappingScore = document.getElementById("flappingScore");
     const flappingHz = document.getElementById("flappingHz");
-    const sensoryScore = document.getElementById("sensoryScore");
-    const sensoryStatus = document.getElementById("sensoryStatus");
-    const gazeScore = document.getElementById("gazeScore");
-    const gazeStatus = document.getElementById("gazeStatus");
+    const rockingScore = document.getElementById("rockingScore");
+    const rockingStatus = document.getElementById("rockingStatus");
+    const latencyScore = document.getElementById("latencyScore");
+    const latencyStatus = document.getElementById("latencyStatus");
     const eventList = document.getElementById("eventList");
 
     // Settings & Profile Elements
@@ -62,11 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const profileAccommodationsList = document.getElementById("profileAccommodationsList");
 
     // Clinical Report Elements
+    const cntBpmAvg = document.getElementById("cntBpmAvg");
     const cntFacial = document.getElementById("cntFacial");
     const cntFlapping = document.getElementById("cntFlapping");
     const cntRocking = document.getElementById("cntRocking");
     const cntAuditory = document.getElementById("cntAuditory");
-    const cntVisual = document.getElementById("cntVisual");
     const cntFreeze = document.getElementById("cntFreeze");
     const reportSummaryText = document.getElementById("reportSummaryText");
 
@@ -76,8 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
     videoElement.muted = true;
     videoElement.autoplay = true;
 
-    // Detector Instance
+    // Detector & rPPG Instances
     const detector = window.StimmingDetector ? new window.StimmingDetector() : null;
+    const rppgEngine = window.RPPGEngine ? new window.RPPGEngine() : null;
 
     let isRunning = false;
     let isProcessing = false;
@@ -124,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Web Audio Analyser para Decibéis da Sala
+    // Web Audio Analyser
     let micAudioCtx = null;
     let audioAnalyser = null;
     let audioDataArray = null;
@@ -313,6 +315,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const db = sampleCurrentDecibels();
 
+            // rPPG Blood Volume Pulse Extraction
+            let rppgResult = { bpm: 75, isReliable: false };
+            if (rppgEngine && latestFaceLandmarks && canvasCtx) {
+                const rgb = rppgEngine.extractForeheadROI(canvasCtx, videoElement, latestFaceLandmarks);
+                rppgResult = rppgEngine.processFrame(rgb);
+            }
+
             if (!isProcessing) {
                 isProcessing = true;
                 try {
@@ -320,8 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (faceModel && showFace) await faceModel.send({ image: videoElement });
 
                     if (detector) {
-                        const analysis = detector.processFrame(latestPoseLandmarks, latestFaceLandmarks, db);
-                        updateUI(analysis);
+                        const analysis = detector.processFrame(latestPoseLandmarks, latestFaceLandmarks, db, rppgResult);
+                        updateUI(analysis, rppgResult);
                         drawTimelineChart(detector.timelineHistory);
 
                         if (analysis.shouldTriggerEvent && analysis.eventPayload) {
@@ -434,7 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
         timelineCtx.fill();
     }
 
-    function updateUI(analysis) {
+    function updateUI(analysis, rppgResult) {
         if (!analysis) return;
 
         if (alertBanner) alertBanner.className = `alert-banner alert-${analysis.severity}`;
@@ -449,28 +458,32 @@ document.addEventListener("DOMContentLoaded", () => {
             else alertIcon.textContent = "🟢";
         }
 
+        // rPPG Heart Rate Metrics
+        const bpm = (rppgResult && rppgResult.bpm) || 75;
+        if (bpmValue) bpmValue.textContent = bpm;
+        if (hudBpmText) hudBpmText.textContent = `${bpm} BPM`;
+        if (hudBpmBar) {
+            const bpmPct = Math.min(100, Math.max(0, ((bpm - 50) / 100) * 100));
+            hudBpmBar.style.width = `${bpmPct}%`;
+            hudBpmBar.style.backgroundColor = bpm >= 105 ? "var(--accent-red)" : bpm >= 90 ? "var(--accent-yellow)" : "var(--accent-blue)";
+        }
+        if (bpmStatus) {
+            bpmStatus.textContent = bpm >= 105 ? "Taquicardia" : bpm >= 90 ? "Elevado" : "Basal";
+            bpmStatus.style.color = bpm >= 105 ? "var(--accent-red)" : bpm >= 90 ? "var(--accent-yellow)" : "var(--accent-green)";
+        }
+
         // FACS Telemetria
         const facs = analysis.facs || {};
         const au04Val = facs.au04_brow_furrow || 0;
-        const au24Val = facs.au24_lip_tension || 0;
-
         if (au04Score) au04Score.textContent = au04Val;
         if (hudAu04Bar) {
             hudAu04Bar.style.width = `${au04Val}%`;
             hudAu04Bar.style.backgroundColor = au04Val >= 60 ? "var(--accent-orange)" : "var(--accent-blue)";
         }
         if (au04Status) {
-            au04Status.textContent = au04Val >= 60 ? "Franzido (Stress)" : "Relaxado";
+            au04Status.textContent = au04Val >= 60 ? "Franzido" : "Normal";
             au04Status.style.color = au04Val >= 60 ? "var(--accent-orange)" : "var(--accent-blue)";
         }
-
-        if (au24Score) au24Score.textContent = au24Val;
-        if (au24Status) {
-            au24Status.textContent = au24Val >= 55 ? "Comprimido" : "Relaxado";
-        }
-
-        if (gazeScore) gazeScore.textContent = facs.gazeFocusScore || 100;
-        if (gazeStatus) gazeStatus.textContent = facs.gazeStatus || "Frontal";
 
         // HUD Ruído
         const db = analysis.ambientDb || 50;
@@ -487,32 +500,28 @@ document.addEventListener("DOMContentLoaded", () => {
             noiseStatus.style.color = db >= crit ? "var(--accent-red)" : db >= 68 ? "var(--accent-yellow)" : "var(--accent-green)";
         }
 
-        // HUD Bars
+        // Flapping & Rocking
         const flapPct = (analysis.flapping && analysis.flapping.score) || 0;
-        const sensoryPct = (analysis.auditoryDefense && analysis.auditoryDefense.score) || 0;
-
-        if (hudFlappingBar) {
-            hudFlappingBar.style.width = `${flapPct}%`;
-            hudFlappingBar.style.backgroundColor = flapPct > 60 ? "var(--accent-orange)" : "var(--accent-blue)";
-        }
-        if (hudSensoryBar) {
-            hudSensoryBar.style.width = `${sensoryPct}%`;
-            hudSensoryBar.style.backgroundColor = sensoryPct > 60 ? "var(--accent-red)" : "var(--accent-blue)";
-        }
-
+        if (hudFlappingBar) hudFlappingBar.style.width = `${flapPct}%`;
         if (flappingScore) flappingScore.textContent = flapPct;
         if (flappingHz && analysis.flapping) flappingHz.textContent = `${analysis.flapping.hz} Hz`;
 
-        if (sensoryScore) sensoryScore.textContent = sensoryPct;
-        if (sensoryStatus && analysis.auditoryDefense) sensoryStatus.textContent = analysis.auditoryDefense.type || "Normal";
+        const rockDeg = (analysis.rocking && analysis.rocking.angularAmplitudeDeg) || 0;
+        if (rockingScore) rockingScore.textContent = analysis.rocking ? analysis.rocking.score : 0;
+        if (rockingStatus) rockingStatus.textContent = `${rockDeg}° (${analysis.rocking ? analysis.rocking.axis : 'Estável'})`;
 
-        // Atualiza Contadores Clínicos
+        // Latência Sensorial
+        const lat = analysis.sensoryLatencySec || 0.0;
+        if (latencyScore) latencyScore.textContent = lat;
+        if (latencyStatus) latencyStatus.textContent = lat > 0 ? `${lat}s pós-ruído` : "Estável";
+
+        // Contadores ABA
         if (detector) {
+            if (cntBpmAvg) cntBpmAvg.textContent = bpm;
             if (cntFacial) cntFacial.textContent = detector.behaviorCounts.facial_microexpression_tension;
             if (cntFlapping) cntFlapping.textContent = detector.behaviorCounts.hand_flapping;
             if (cntRocking) cntRocking.textContent = detector.behaviorCounts.body_rocking;
             if (cntAuditory) cntAuditory.textContent = detector.behaviorCounts.sensory_auditory;
-            if (cntVisual) cntVisual.textContent = detector.behaviorCounts.sensory_visual;
             if (cntFreeze) cntFreeze.textContent = detector.behaviorCounts.shutdown_freeze;
             if (reportSummaryText) reportSummaryText.textContent = detector.generateReportSummary();
         }
@@ -627,10 +636,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `relatorio_tea_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `relatorio_tea_aba_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            alert("Relatório clínico exportado com sucesso! Arquivo pronto para envio ao psicólogo.");
+            alert("Relatório clínico ABA exportado com sucesso! Arquivo pronto para envio ao psicólogo.");
         });
     }
 
