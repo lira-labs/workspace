@@ -204,7 +204,7 @@ with tab_data:
         feature_names = [f"feat_{i}" for i in range(X_train.shape[1])]
         df_preview = pd.DataFrame(X_train[:5], columns=feature_names)
         df_preview["target"] = y_train[:5]
-        st.dataframe(df_preview)
+        st.table(df_preview.head(5))
 
 
 # ==================== TAB: ARQUITETURA ====================
@@ -229,7 +229,7 @@ with tab_arch:
                 "Ativação": ["identity"] + all_activations,
             }
         )
-        st.dataframe(arch_df, hide_index=True)
+        st.table(arch_df)
 
         total_params = sum(
             (layer_sizes[i] + 1) * layer_sizes[i + 1]
@@ -546,7 +546,7 @@ with tab_inference:
                     }
                 )
 
-            st.dataframe(pd.DataFrame(results), hide_index=True)
+            st.table(pd.DataFrame(results))
 
 
 # Footer
