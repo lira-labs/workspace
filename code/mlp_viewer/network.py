@@ -298,6 +298,10 @@ class Network:
             return output * (1.0 - output)
         elif self.activation_name == "relu":
             return 1.0 if input_sum > 0 else 0.0
+        elif self.activation_name == "tanh":
+            return 1.0 - output * output
+        elif self.activation_name == "leaky_relu":
+            return 1.0 if input_sum > 0 else 0.01
         return 1.0
 
     def set_activation(self, name: str):
@@ -308,6 +312,10 @@ class Network:
             self._activation_fn = lambda x: 1.0 / (1.0 + math.exp(-x))
         elif name == "relu":
             self._activation_fn = lambda x: x if x > 0 else 0.0
+        elif name == "tanh":
+            self._activation_fn = lambda x: math.tanh(x)
+        elif name == "leaky_relu":
+            self._activation_fn = lambda x: x if x > 0 else 0.01 * x
         else:
             raise ValueError("unknown activation")
         self.activation_name = name
