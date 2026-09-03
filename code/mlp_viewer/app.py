@@ -87,7 +87,10 @@ def reset_training_state():
 
 def load_heart_disease():
     """Load and preprocess Heart Disease dataset."""
-    loader = Loader("rsc/heart.csv")
+    import os
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                csv_path = os.path.join(base_dir, "rsc", "heart.csv")
+                loader = Loader(csv_path)
     # Loader assumes first row is header, last column is target
     rows = loader.rows
 

@@ -638,7 +638,10 @@ class NetworkViewerWindow(QMainWindow):
     # Dataset handlers
     def _on_load_dataset(self):
         try:
-            loader = Loader("rsc/heart.csv")
+            import os
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            csv_path = os.path.join(base_dir, "rsc", "heart.csv")
+            loader = Loader(csv_path)
             self.network.load_dataset_rows(loader.rows)
             if self.network.dataset_inputs:
                 self._dataset_loaded = True
