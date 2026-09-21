@@ -39,14 +39,14 @@ with col1:
     if input_type == "Upload de Print (Screenshot)":
         image_file = st.file_uploader("Suba o Print do Anúncio (JPG/PNG)", type=["jpg", "png", "jpeg"])
         if image_file:
-            st.image(image_file, caption="Print capturado", use_container_width=True)
+            st.image(image_file, caption="Print capturado", width='stretch')
             st.success("Print carregado. O motor de OCR (Extração de Texto) será acionado na análise.")
     else:
         url_input = st.text_input("Cole o Link do Marketplace (Ex: MercadoLivre, OLX, eBay)")
         if url_input:
             st.info("O Web Scraper varrerá o link em busca de imagens e descrições ocultas.")
 
-    analyze_btn = st.button("🔍 Iniciar Varredura de Ameaça", use_container_width=True, type="primary")
+    analyze_btn = st.button("🔍 Iniciar Varredura de Ameaça", width='stretch', type="primary")
 
 with col2:
     st.header("2. Relatório de Inteligência")
@@ -114,3 +114,4 @@ with col2:
                         st.error("Erro ao conectar com a API CyberGuard. Verifique se o uvicorn está rodando na porta 8000.")
                 except Exception as e:
                     st.error(f"O servidor FastAPI não está respondendo. Lembre-se de rodar 'python -m uvicorn api.main:app' primeiro. Erro: {e}")
+
