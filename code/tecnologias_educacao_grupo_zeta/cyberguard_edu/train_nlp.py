@@ -14,14 +14,22 @@ def train_cyberguard():
     tokenizer = BertTokenizer.from_pretrained(model_name)
     model = BertForSequenceClassification.from_pretrained(model_name, num_labels=2).to(device)
 
-    # Carrega dados do dataset clonado (ec-darkpattern)
-    # Para o MVP, usaremos dados fictícios se o dataset não estiver formatado perfeitamente
-    # No mundo real, aqui fazemos o parse do CSV deles.
-    texts = ["Buy now or lose everything!", "Normal product description here.", "Hidden message 123", "Sale ends in 5 mins!"]
-    labels = [1, 0, 1, 1]  # 1 = Suspeito/Dark Pattern, 0 = Normal
+    # Carrega dados reais do dataset clonado (ec-darkpattern)
+    dataset_path = "data/raw/ec-darkpattern/dataset/dataset.tsv"
+    print(f"Carregando dataset de: {dataset_path}")
+    
+    df = pd.read_csv(dataset_path, sep='\t')
+    # Remove linhas vazias e garante tipo string/int
+    df = df.dropna(subset=['text', 'label'])
+    texts = df['text'].astype(str).tolist()
+    labels = df['label'].astype(int).tolist()
+
+    # Reduzindo para uma amostra para teste rápido, se necessário
+    # texts = texts[:100]
+    # labels = labels[:100]
 
     dataset = CyberGuardDataset(texts, labels, tokenizer)
-    dataloader = DataLoader(dataset, batch_size=2, shuffle=True)
+    dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     optimizer = AdamW(model.parameters(), lr=2e-5)
 
@@ -29,26 +37,30 @@ def train_cyberguard():
     for epoch in range(epochs):
         model.train()
         epoch_loss = 0
-        for batch in dataloader:
+        for i, batch in enumerate(dataloader):
             optimizer.zero_grad()
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
-            labels = batch['labels'].to(device)
+            batch_labels = batch['labels'].to(device)
 
-            outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
+            outputs = model(input_ids, attention_mask=attention_mask, labels=batch_labels)
             loss = outputs.loss
             loss.backward()
             optimizer.step()
 
             epoch_loss += loss.item()
+            
+            # Print de progresso a cada 100 batches
+            if (i+1) % 100 == 0:
+                print(f"Batch {i+1}/{len(dataloader)} - Loss: {loss.item():.4f}")
 
-        print(f"Epoch {epoch+1}/{epochs} - Loss NLP: {epoch_loss/len(dataloader):.4f}")
+        print(f"Epoch {epoch+1}/{epochs} - Loss NLP Média: {epoch_loss/len(dataloader):.4f}")
 
     # Salva o modelo treinado
     os.makedirs("src/models/weights", exist_ok=True)
     model.save_pretrained("src/models/weights/cyberguard_bert")
     tokenizer.save_pretrained("src/models/weights/cyberguard_bert")
-    print("Modelo BERT salvo com sucesso.")
+    print("Modelo BERT salvo com sucesso na pasta src/models/weights.")
 
 if __name__ == "__main__":
     train_cyberguard()
