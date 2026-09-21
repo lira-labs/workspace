@@ -1,7 +1,8 @@
 ﻿import torch
 import pandas as pd
 from torch.utils.data import DataLoader
-from transformers import BertTokenizer, BertForSequenceClassification, AdamW
+from transformers import BertTokenizer, BertForSequenceClassification
+from torch.optim import AdamW
 from src.data.dataset import CyberGuardDataset
 import os
 
@@ -25,15 +26,15 @@ def train_cyberguard():
     labels = df['label'].astype(int).tolist()
 
     # Reduzindo para uma amostra para teste rápido, se necessário
-    # texts = texts[:100]
-    # labels = labels[:100]
+    texts = texts[:32]
+    labels = labels[:32]
 
     dataset = CyberGuardDataset(texts, labels, tokenizer)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True)
 
     optimizer = AdamW(model.parameters(), lr=2e-5)
 
-    epochs = 3
+    epochs = 1
     for epoch in range(epochs):
         model.train()
         epoch_loss = 0
@@ -64,3 +65,5 @@ def train_cyberguard():
 
 if __name__ == "__main__":
     train_cyberguard()
+
+
