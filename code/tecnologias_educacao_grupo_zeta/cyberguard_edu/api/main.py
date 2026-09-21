@@ -5,11 +5,10 @@ import json
 
 app = FastAPI(
     title="CyberGuard Edu: Multimodal Threat Intel", 
-    description="Detecção de Tráfico Humano e Redes de Exploração em Marketplaces usando NLP (BERT) e Visão Computacional.",
-    version="2.0.0"
+    description="Metodologia baseada nos frameworks MATCHED e Trafficking-10k para Human Trafficking Risk Prediction (HTRP).",
+    version="3.0.0"
 )
 
-# Carrega o modelo de NLP que já treinamos na Fase 1
 try:
     tokenizer = BertTokenizer.from_pretrained("src/models/weights/cyberguard_bert")
     model = BertForSequenceClassification.from_pretrained("src/models/weights/cyberguard_bert")
@@ -20,14 +19,14 @@ except:
 
 @app.post("/scan_marketplace_listing")
 async def scan_marketplace_listing(
-    title: str = Form(..., description="Título do anúncio no marketplace"),
-    description: str = Form(..., description="Descrição detalhada (busca por esteganografia de dados humanos)"),
-    price_usd: float = Form(..., description="Preço listado do produto"),
-    product_image: UploadFile = File(..., description="Imagem do anúncio para análise de anomalia visual")
+    title: str = Form(..., description="Título do anúncio"),
+    description: str = Form(..., description="Descrição detalhada (análise de linguagem)"),
+    price_usd: float = Form(..., description="Metadado: Preço listado do produto"),
+    product_image: UploadFile = File(..., description="Análise CV: Imagem do anúncio")
 ):
     text_context = f"{title}. {description}"
     
-    # 1. Análise NLP (Usando nosso BERT Real)
+    # 1. NLP (Texto)
     nlp_threat = False
     if model and tokenizer:
         inputs = tokenizer(text_context, return_tensors="pt", truncation=True, padding=True)
@@ -36,26 +35,28 @@ async def scan_marketplace_listing(
             prediction = torch.argmax(outputs.logits, dim=1).item()
             nlp_threat = (prediction == 1)
 
-    # 2. Detecção de Anomalia de Preço (InfoShield approach)
-    # Produtos comuns (como bonecas, armários) não deveriam custar valores exorbitantes
+    # 2. Metadados (Rede/Preço)
     price_anomaly = price_usd > 2000.0
 
-    # 3. Análise Multimodal Cruzada
-    # Se há discrepância de preço + texto suspeito, o alerta de tráfico dispara.
+    # 3. CV (Contextual) - Discrepância de imagem (Mock pipeline)
+    vision_flag = True if product_image else False
+
+    # Risk Assessment (HTRP)
     confidence_score = 0
     if nlp_threat: confidence_score += 40
-    if price_anomaly: confidence_score += 45
-    if "age" in text_context.lower() or "height" in text_context.lower(): confidence_score += 15
+    if price_anomaly: confidence_score += 40
+    if "age" in text_context.lower() or "height" in text_context.lower(): confidence_score += 20
 
-    status = "ALERTA CRÍTICO: Possível Tráfico Humano" if confidence_score >= 80 else "Anúncio Padrão"
+    requires_review = confidence_score >= 80
     
     return {
-        "status_geral": status,
-        "confidence_score": f"{confidence_score}%",
-        "analysis_details": {
-            "nlp_analysis": "Padrão suspeito detectado (Linguagem codificada)" if nlp_threat else "Linguagem padrão",
-            "price_analysis": f"Anomalia financeira grave ()" if price_anomaly else "Preço compatível",
-            "vision_analysis": f"Imagem '{product_image.filename}' recebida. Discrepância detectada entre imagem (brinquedo/móvel) e descrição (humanóide)."
+        "human_trafficking_risk_prediction": {
+            "requires_human_review": requires_review,
+            "system_recommendation": "Este conjunto de anúncios apresenta características que justificam uma avaliação especializada." if requires_review else "Anúncio não apresenta anomalias graves no cruzamento multimodal."
         },
-        "engine": "CyberGuard Multimodal (BERT + CNN Anomaly + Price Clustering)"
+        "modules_analysis": {
+            "nlp_module": "Linguagem suspeita/codificada identificada." if nlp_threat else "Linguagem dentro do padrão.",
+            "metadata_module": f"Anomalia detectada no metadado de preço ()." if price_anomaly else "Metadados normais.",
+            "cv_module": f"Imagem '{product_image.filename}' recebida para extração de features e comparação semântica."
+        }
     }
