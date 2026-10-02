@@ -4,12 +4,14 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 28/08/2026 22:35
-- **Branch Ativo:** `main` (sincronizado com `develop`)
+- **Ultima Atualizacao:** 02/10/2026 19:54
+- **Branch Ativo:** `main`
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
-- **Unidade de Trabalho:** `D:\workspace` (465 GB livres)
+- **Ambientes Sincronizados:**
+  - *Notebook*: `D:\workspace`
+  - *Desktop*: `C:\Users\ccunh\Documents\workspace`
 
 ---
 
@@ -20,6 +22,8 @@
 - [x] Configuração de normas do agente em `AGENTS.md`, contextos modulares (`CONTEXT.md`) e `INBOX.md`.
 - [x] Estrutura de GitFlow configurada e sincronizada com `https://github.com/lira-labs/workspace.git`.
 - [x] Modo **Turbo** ativado no Antigravity para iteração autônoma sem popups de permissão.
+- [x] Sincronização multi-máquina configurada: clone completo no Desktop (`C:\Users\ccunh\Documents\workspace`).
+- [x] Sistema de **Auto-Handoff** implementado: regras canônicas em `AGENTS.md`, regras em `.agent/rules/`, skill `.agent/skills/auto-handoff` e script automatizado `core/tools/handoff.ps1` com modos `-Pull`, `-Push` e `-Status`.
 
 ### 2. Projetos Práticos de Código (`code/`)
 - [x] **`code/mlp_viewer/`**: Implementação de Multi-Layer Perceptron como grafo explícito com PyQt6 e demo Streamlit.

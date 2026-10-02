@@ -1,10 +1,12 @@
-﻿# Workspace Root - Normas do Agente
+# Workspace Root - Normas do Agente
 > Ponto de entrada canônico do Workspace. Lido obrigatoriamente antes de qualquer tarefa por qualquer Harness (Antigravity, OpenCode, Claude Code).
 
 <!-- norms:start -->
 - **SISTEMA DE ARQUIVOS É A FONTE DA VERDADE**: Nada vive apenas na memória do chat ou em configs voláteis. Se existe e importa, é um arquivo versionado.
 - **STORAGE AGNÓSTICO DE HARNESS**: O workspace é o dono do seu estado, nunca o harness. Antigravity (principal) e OpenCode (backup) operam sobre os mesmos arquivos.
-- **DISCIPLINA DE HANDOFF**: Ao finalizar uma sessão ou marco de desenvolvimento, atualize o `HANDOFF.md` com o resumo do que foi feito e os próximos passos para que a próxima sessão recomece sem perda de contexto.
+- **PROTOCOLO AUTOMÁTICO DE CONTINUIDADE (AUTO-HANDOFF)**:
+  - *No Início de Sessão*: O agente DEVE executar `git pull` e ler `HANDOFF.md` imediatamente para carregar o contexto da última máquina e reportar o status e próximos passos ao usuário.
+  - *Na Conclusão de Tarefa / Fim de Sessão*: O agente DEVE atualizar `HANDOFF.md` com os metadados (data/hora), progresso alcançado e pendências, e realizar o commit e push para o GitHub automaticamente.
 - **SEGREDOS FORA DO GIT**: Senhas, tokens, chaves de API e credenciais ficam em `.env` ou `segredos.env` (sempre no `.gitignore`).
 - **NÃO ASSUMA, PERGUNTE**: Em caso de ambiguidade sobre o desenho experimental, requisitos ou estrutura do artigo, entreviste o usuário.
 - **EDITAR > CRIAR**: Prefira refatorar, modularizar e aprimorar arquivos existentes a criar novos arquivos dispersos.
