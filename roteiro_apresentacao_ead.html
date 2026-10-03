@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roteiro de Apresentação · EAD 1ª VA (UFRPE)</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --speech-bg: #0b1329;
+      --speech-border: #2563eb;
+      --tip-bg: #2d2305;
+      --tip-border: #eab308;
+      --tip-text: #fef08a;
+      --slide-badge: #6366f1;
+      --btn-bg: #334155;
+      --btn-text: #f8fafc;
+    }
+
+    [data-theme="light"] {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --card-border: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --speech-bg: #eff6ff;
+      --speech-border: #3b82f6;
+      --tip-bg: #fefce8;
+      --tip-border: #ca8a04;
+      --tip-text: #854d0e;
+      --slide-badge: #4f46e5;
+      --btn-bg: #e2e8f0;
+      --btn-text: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.55;
+      font-size: 16px;
+      padding-bottom: 90px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Top Fixed Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--bg-color);
+      border-bottom: 1px solid var(--card-border);
+      padding: 10px 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .project-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-ctrl {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid var(--card-border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Timer & Progress */
+    .timer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .timer-display {
+      font-family: monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .timer-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-weight: 700;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    /* Navigation Bar */
+    .slide-nav {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 8px 0 2px 0;
+      scrollbar-width: none;
+    }
+    .slide-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-pill {
+      flex: 0 0 auto;
+      background: var(--btn-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .nav-pill.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 14px 16px;
+    }
+
+    /* Meta Card */
+    .meta-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .meta-box h1 {
+      font-size: 1.2rem;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .meta-box p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .links-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .link-tag {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Slide Card */
+    .slide-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 22px;
+      scroll-margin-top: 130px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .slide-badge {
+      background: var(--slide-badge);
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .slide-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .slide-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    /* Screen Preview Box */
+    .screen-box {
+      background: rgba(0,0,0,0.15);
+      border-left: 3px solid var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .screen-box strong {
+      color: var(--text-main);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Teleprompter Speech Box */
+    .speech-box {
+      background: var(--speech-bg);
+      border: 1.5px solid var(--speech-border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .speech-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speech-text {
+      color: var(--text-main);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    .speech-text p {
+      margin-bottom: 10px;
+    }
+    .speech-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .speech-text mark {
+      background: rgba(56, 189, 248, 0.25);
+      color: inherit;
+      padding: 0 3px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .pause-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      background: rgba(148, 163, 184, 0.2);
+      color: var(--text-muted);
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin: 0 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* Tip / Question Box */
+    .tip-box {
+      background: var(--tip-bg);
+      border-left: 3px solid var(--tip-border);
+      padding: 10px 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.82rem;
+      color: var(--tip-text);
+      line-height: 1.45;
+    }
+    .tip-box strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+      margin-top: 30px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .faq-section h2 {
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 0;
+    }
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+    .faq-q {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .faq-a {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Bottom Quick Nav */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-color);
+      border-top: 1px solid var(--card-border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 650px;
+      margin: 0 auto;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .nav-btn {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .slide-counter {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <!-- Header Fixo Superior -->
+  <header>
+    <div class="header-top">
+      <div class="project-title">UFRPE · EaD (1ª VA) · Cola de Apresentação</div>
+      <div class="header-controls">
+        <button class="btn-ctrl" onclick="adjustFont(-1)">A-</button>
+        <button class="btn-ctrl" onclick="adjustFont(1)">A+</button>
+        <button class="btn-ctrl" onclick="toggleTheme()" id="themeBtn">☀️ Claro</button>
+      </div>
+    </div>
+    
+    <div class="timer-bar">
+      <div>
+        <span>⏱️ Tempo: </span>
+        <span class="timer-display" id="stopwatch">00:00</span>
+        <button class="timer-btn" onclick="toggleTimer()" id="timerToggle">Iniciar</button>
+        <button class="timer-btn" onclick="resetTimer()" style="color:var(--text-muted)">Zerar</button>
+      </div>
+      <div>Meta: ~10 a 12 min</div>
+    </div>
+
+    <!-- Navegação Rápida entre Slides -->
+    <nav class="slide-nav">
+      <a href="#slide-1" class="nav-pill active">01 Capa</a>
+      <a href="#slide-2" class="nav-pill">02 Roteiro</a>
+      <a href="#slide-3" class="nav-pill">03 Teoria</a>
+      <a href="#slide-4" class="nav-pill">04 PISA/Dados</a>
+      <a href="#slide-5" class="nav-pill">05 Critérios</a>
+      <a href="#slide-6" class="nav-pill">06 5 Casos</a>
+      <a href="#slide-7" class="nav-pill">07 Matriz</a>
+      <a href="#slide-8" class="nav-pill">08 Prompts</a>
+      <a href="#slide-9" class="nav-pill">09 Ciclo</a>
+      <a href="#slide-10" class="nav-pill">10 Khanmigo</a>
+      <a href="#slide-11" class="nav-pill">11 Conclusão</a>
+      <a href="#faq" class="nav-pill">🛡️ Perguntas</a>
+    </nav>
+  </header>
+
+  <main id="content">
+    
+    <!-- Meta Box -->
+    <section class="meta-box">
+      <h1>Avaliação e Melhoria de Tutores Virtuais</h1>
+      <p>Cauã da Cunha Lira · Licenciatura em Computação · 2026.2</p>
+      <div class="links-bar">
+        <a href="https://projeto-ead-caua.vercel.app/" target="_blank" class="link-tag">
+          🌐 Abrir Plataforma no Vercel
+        </a>
+        <a href="https://projeto-ead-caua.vercel.app/assets/apresentacao-tutores-virtuais.pptx" target="_blank" class="link-tag">
+          📊 Baixar Slides (.pptx)
+        </a>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 -->
+    <article class="slide-card" id="slide-1">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 01</span>
+        <span class="slide-time">~ 01:00 min</span>
+      </div>
+      <h2 class="slide-title">Capa do Projeto</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Título da aula: "Avaliação e Melhoria de Tutores Virtuais: Como testar, medir e revisar a qualidade pedagógica de um assistente de IA". Nome, curso e disciplina.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Olá a todos, olá professor(a). <span class="pause-tag">pausa</span> Meu nome é <strong>Cauã Lira</strong>, sou estudante de Licenciatura em Computação aqui da UFRPE, e hoje apresento o projeto da 1ª VA da nossa disciplina de Educação a Distância: <strong>Avaliação e Melhoria de Tutores Virtuais</strong>."
+          </p>
+          <p>
+            "O objetivo central deste trabalho não é simplesmente usar Inteligência Artificial como um gerador automático de respostas, mas estabelecer uma <mark>metodologia pedagógica estruturada</mark> para testar, medir e calibrar assistentes virtuais, garantindo que eles atuem como mediadores do conhecimento e não como muletas que anulam o raciocínio do estudante."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Dica de Ouro da Banca:</strong>
+        Mantenha a postura calma. Olhe para a banca nos primeiros 10 segundos. O termo-chave que os professores amam ouvir logo na abertura é: <em>"intencionalidade pedagógica"</em> e <em>"mediação do conhecimento"</em>.
+      </div>
+    </article>
+
+    <!-- SLIDE 2 -->
+    <article class="slide-card" id="slide-2">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 02</span>
+        <span class="slide-time">~ 00:45 min</span>
+      </div>
+      <h2 class="slide-title">Roteiro da Apresentação</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        01 Contexto & Fundamentação · 02 Critérios de Qualidade · 03 Demonstração Prática · 04 Revisão e Refinamento.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Para organizar nossa conversa, dividi o trabalho em quatro blocos bem definidos:
+          </p>
+          <p>
+            No <strong>primeiro bloco</strong>, trago a fundamentação teórica e os dados reais sobre o uso de IA pelos estudantes hoje.
+            No <strong>segundo</strong>, apresento os 4 critérios de qualidade que compõem nosso framework de avaliação.
+            No <strong>terceiro</strong>, mostro a aplicação prática de uma bateria com 5 casos de teste.
+            E no <strong>quarto</strong>, como aplicamos engenharia de prompt pedagógica para corrigir as falhas identificadas e fechar o ciclo de melhoria contínua."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Dica de Ouro:</strong>
+        Passe por este slide de forma dinâmica e objetiva. Serve apenas para situar o ouvinte sobre o início, meio e fim da aula.
+      </div>
+    </article>
+
+    <!-- SLIDE 3 -->
+    <article class="slide-card" id="slide-3">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 03</span>
+        <span class="slide-time">~ 01:30 min</span>
+      </div>
+      <h2 class="slide-title">Evolução dos Sistemas de Apoio ao Aluno</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Três pilares comparativos: Chatbot Simples (árvores rígidas) → Assistente Geral de IA (LLMs sem freio) → Tutor Inteligente (orientação intencional, Claude Projects / Gemini Gems).
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Para compreender o problema, precisamos olhar como os sistemas de apoio na EaD evoluíram:
+          </p>
+          <p>
+            Primeiro, tínhamos os <strong>Chatbots Simples</strong>: baseados em regras rígidas, árvores de decisão e menus fixos. Eles não entendem contexto e qualquer dúvida fora do roteiro gera frustração.
+          </p>
+          <p>
+            Depois, tivemos a explosão dos <strong>Assistentes Gerais de IA</strong> (os LLMs abertos). Eles são extremamente capazes em linguagem natural, mas trazem um perigo grave na educação: <mark>eles entregam o exercício pronto</mark>. O aluno copia, cola e não aprende.
+          </p>
+          <p>
+            A nossa proposta foca no terceiro nível: o <strong>Tutor Inteligente</strong>. É quando pegamos a potência dos LLMs modernos e adicionamos <mark>intencionalidade pedagógica</mark> através do método socrático e instruções bem desenhadas. O tutor passa a guiar o raciocínio em vez de entregar a resposta de bandeja."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Dica da Banca:</strong>
+        Destaque que o professor não precisa ser programador para criar isso: ferramentas como <em>Claude Projects</em> e <em>Gemini Gems</em> já permitem personalizar essa instrução pedagógica facilmente.
+      </div>
+    </article>
+
+    <!-- SLIDE 4 -->
+    <article class="slide-card" id="slide-4">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 04</span>
+        <span class="slide-time">~ 01:30 min</span>
+      </div>
+      <h2 class="slide-title">Diagnóstico & O Perigo das Alucinações</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Destaque 48% (uso semanal de chatbots por alunos brasileiros segundo o PISA 2025 da OCDE; apenas 11% nunca usaram). Alertas de alucinações, citações falsas e taxa de erro >10%.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "E por que essa avaliação é urgente? Os dados mais recentes da OCDE no relatório do PISA 2025 revelam que <strong>48% dos estudantes brasileiros</strong> usam chatbots semanalmente para estudar. Isso supera a própria média da OCDE, e apenas 11% afirmam nunca ter usado. Ou seja: <mark>a IA já é realidade diária dos nossos alunos</mark>.
+          </p>
+          <p>
+            O grande obstáculo são as <strong>alucinações</strong>. Um modelo generativo é treinado para prever a próxima palavra estatisticamente mais provável, não para validar a verdade científica. Ele inventa artigos acadêmicos que não existem, cria dados falsos com tom de certeza absoluta e transmite erros graves com total autoridade.
+          </p>
+          <p>
+            Se o educador não auditar esse assistente com rigor, o estudante assume equívocos conceituais como verdades definitivas."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Termos Técnicos para Brilhar:</strong>
+        Enfatize: <em>"Alucinação com tom de autoridade (fluência vs precisão factual)"</em>. Isso demonstra profundo embasamento científico na área de IA e Educação.
+      </div>
+    </article>
+
+    <!-- SLIDE 5 -->
+    <article class="slide-card" id="slide-5">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 05</span>
+        <span class="slide-time">~ 01:45 min</span>
+      </div>
+      <h2 class="slide-title">Os 4 Critérios Fundamentais de Avaliação</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        01 Correção Conceitual · 02 Clareza & Didática · 03 Adequação ao Público · 04 Tratamento de Dúvidas (Mediação Socrática).
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Para não avaliarmos no achismo, estruturamos uma matriz com <strong>4 critérios pedagógicos objetivos</strong>:
+          </p>
+          <p>
+            <strong>1. Correção Conceitual:</strong> Rigor factual. O modelo não pode inventar nem cometer distorções teóricas.
+          </p>
+          <p>
+            <strong>2. Clareza & Didática:</strong> Não basta estar correto, precisa ser assimilável. Avalia o uso de analogias simples e progressão lógica do pensamento.
+          </p>
+          <p>
+            <strong>3. Adequação ao Público:</strong> Calibragem linguística. O vocabulário está alinhado ao nível do aluno? Jogar jargões pesados para um estudante iniciante apenas amplia a exclusão.
+          </p>
+          <p>
+            <strong>4. Tratamento de Dúvidas:</strong> Como a IA reage quando o aluno faz uma pergunta confusa ou incompleta? Um bom tutor não chuta uma resposta; ele pergunta de volta, investiga e faz a mediação socrática."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Conexão com a Licenciatura:</strong>
+        Lembre a banca que esses critérios derivam dos fundamentos da Didática clássica e da Transposição Didática de Yves Chevallard adaptadas para a computação.
+      </div>
+    </article>
+
+    <!-- SLIDE 6 -->
+    <article class="slide-card" id="slide-6">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 06</span>
+        <span class="slide-time">~ 01:30 min</span>
+      </div>
+      <h2 class="slide-title">A Bateria dos 5 Casos de Teste</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Lista dos 5 prompts de teste no domínio de Introdução à Programação:
+        1. Compilador vs Interpretador | 2. Laço 'for' em Python | 3. O que é variável (simples) | 4. Coisa que guarda dado (vago) | 5. Resumo da Independência (fora de escopo).
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Para validar esses critérios na prática, elaboramos uma bateria de testes com 5 situações reais que um professor enfrenta no dia a dia:
+          </p>
+          <p>
+            O <strong>Caso 1</strong> testa a precisão teórica direta sobre compiladores e interpretadores.
+            O <strong>Caso 2</strong> avalia se ele explica a estrutura do laço 'for' passo a passo sem atropelar o raciocínio.
+            O <strong>Caso 3</strong> simula o desespero de um estudante iniciante: <em>'Não entendi nada de variável, me explica bem simples'</em>.
+            O <strong>Caso 4</strong> é propositalmente vago: <em>'Como funciona aquela coisa que guarda dado?'</em> — aqui testamos se ele adivinha ou pede contexto.
+            E o <strong>Caso 5</strong> testa a integridade e limites de escopo: o aluno pede para o tutor de programação fazer o dever de História do Brasil."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Destaque:</strong>
+        Ressalte que testes de estresse com perguntas vagas (Caso 4) e fora de escopo (Caso 5) são indispensáveis para garantir a segurança da IA em ambiente escolar.
+      </div>
+    </article>
+
+    <!-- SLIDE 7 -->
+    <article class="slide-card" id="slide-7">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 07</span>
+        <span class="slide-time">~ 01:30 min</span>
+      </div>
+      <h2 class="slide-title">Matriz de Avaliação dos Resultados</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Tabela com as notas do assistente padrão: Caso 1: 4/5 | Caso 2: 3/5 | Caso 3: 2/5 (Gargalo!) | Caso 4: 4/5 | Caso 5: 5/5.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Submetemos um assistente padrão com prompt básico a essa bateria, e a matriz de resultados revelou com clareza onde está a fragilidade da IA:
+          </p>
+          <p>
+            Nos Casos 1 e 5, o assistente foi muito bem: nota 4 em correção teórica e nota 5 em limites de escopo, recusando educadamente a tarefa de história.
+          </p>
+          <p>
+            No entanto, <mark>o grande gargalo pedagógico apareceu no Caso 3</mark>, onde a nota foi apenas <strong>2 de 5</strong>! Quando o aluno iniciante pediu simplicidade, o modelo despejou conceitos complexos de endereçamento de memória e sintaxe densa. Ele confundiu precisão técnica com didática.
+          </p>
+          <p>
+            E no Caso 2, a nota 3 refletiu um ritmo muito acelerado para quem está começando."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Ponto Crítico:</strong>
+        Chame a atenção para a nota 2/5. Ela comprova cientificamente que um modelo 'inteligente' por si só é um péssimo professor se não for pedagogicamente direcionado.
+      </div>
+    </article>
+
+    <!-- SLIDE 8 -->
+    <article class="slide-card" id="slide-8">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 08</span>
+        <span class="slide-time">~ 02:00 min</span>
+      </div>
+      <h2 class="slide-title">Engenharia Pedagógica: Revisão de Prompts</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Antes: 'Você é um tutor de programação. Responda às dúvidas dos alunos.' (Nota 2/5)
+        Depois: 'Você é um tutor de apoio. Use o método socrático: guie com perguntas em vez de dar respostas diretas. Explique com analogias cotidianas e sem jargões para estudantes iniciantes.' (Nota 4/5).
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Este é o slide central do nosso projeto: <mark>a intervenção do educador sobre a tecnologia</mark>.
+          </p>
+          <p>
+            A instrução original era o prompt comum que a maioria das pessoas usa: <em>'Você é um tutor de programação... responda às dúvidas'</em>.
+            Os problemas foram óbvios: não definia o nível do aluno, não estabelecia metodologia e entregava respostas prontas cheias de jargão.
+          </p>
+          <p>
+            Nós reescrevemos o System Prompt com diretrizes pedagógicas explícitas:
+            Determinamos o uso do <strong>método socrático</strong>;
+            Proibimos a entrega de soluções diretas;
+            E exigimos o uso de <strong>analogias do cotidiano</strong> sem jargões para iniciantes.
+          </p>
+          <p>
+            Ao rodar o mesmo Caso 3 de teste, a nota saltou de <strong>2 para 4 de 5</strong>! O tutor explicou variáveis usando a analogia de caixas organizadoras etiquetadas com nomes, perguntou ao aluno o que ele guardaria nelas e conduziu a aula com empatia e escuta ativa."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Dica da Banca:</strong>
+        Esta é a prova concreta do seu valor como futuro Licenciado em Computação: você sabe programar o comportamento pedagógico da IA.
+      </div>
+    </article>
+
+    <!-- SLIDE 9 -->
+    <article class="slide-card" id="slide-9">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 09</span>
+        <span class="slide-time">~ 01:15 min</span>
+      </div>
+      <h2 class="slide-title">O Ciclo de Refinamento Contínuo</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Diagrama circular: 1. Testar → 2. Registrar → 3. Revisar → 4. Validar. Prática contínua de curadoria.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "A grande contribuição metodológica do trabalho é mostrar que calibrar um assistente não é um evento isolado, mas um <strong>ciclo contínuo de quatro fases</strong>:
+          </p>
+          <p>
+            <strong>1. Testar</strong> com casos estruturados e controlados;
+            <strong>2. Registrar</strong> as notas sob critérios objetivos;
+            <strong>3. Revisar</strong> o System Prompt com ajustes didáticos;
+            <strong>4. Validar</strong> novamente para garantir que o ajuste não quebrou outras respostas.
+          </p>
+          <p>
+            Essa curadoria contínua é exatamente o que diferencia uma instituição de ensino séria de uma que apenas disponibiliza IA sem qualquer responsabilidade pedagógica."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Analogia para usar:</strong>
+        Pode citar que é como o ciclo PDCA da administração ou o ciclo de testes da Engenharia de Software, mas aplicado à Didática do Ensino Superior e da EaD.
+      </div>
+    </article>
+
+    <!-- SLIDE 10 -->
+    <article class="slide-card" id="slide-10">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 10</span>
+        <span class="slide-time">~ 01:00 min</span>
+      </div>
+      <h2 class="slide-title">Referências Práticas: Tutores no Cenário Real</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        Palestra TED de Sal Khan ("Como a IA pode salvar a educação") e demonstração prática do Khanmigo da Khan Academy.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Para demonstrar que não estamos sozinhos nessa visão, trago duas grandes referências práticas globais:
+          </p>
+          <p>
+            A palestra seminal de <strong>Sal Khan</strong>, fundador da Khan Academy, no TED oficial, onde ele defende como a IA pode realizar o sonho histórico de dar um tutor 1 para 1 a cada estudante do planeta.
+          </p>
+          <p>
+            E o <strong>Khanmigo</strong>, que é o tutor oficial desenvolvido por eles, cuja regra principal de design é exatamente a que defendemos aqui: o tutor se recusa a dar a resposta final de uma questão matemática ou de programação, conduzindo o aluno por meio de perguntas indutivas."
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Referência de Peso:</strong>
+        Citar Sal Khan e Khanmigo dá enorme autoridade e ancoragem mercadológica à sua apresentação.
+      </div>
+    </article>
+
+    <!-- SLIDE 11 -->
+    <article class="slide-card" id="slide-11">
+      <div class="slide-header">
+        <span class="slide-badge">Slide 11</span>
+        <span class="slide-time">~ 01:30 min</span>
+      </div>
+      <h2 class="slide-title">Síntese & Fechamento</h2>
+      
+      <div class="screen-box">
+        <strong>O que está no projetor:</strong>
+        3 Aprendizados: 1. Curadoria Pedagógica Intencional | 2. Rigor Contra Alucinações | 3. Método Socrático Essencial. Agradecimento e banca.
+      </div>
+
+      <div class="speech-box">
+        <div class="speech-label">🎙️ O que falar (Roteiro Verbal):</div>
+        <div class="speech-text">
+          <p>
+            "Para concluir, deixo três aprendizados fundamentais deste trabalho:
+          </p>
+          <p>
+            Primeiro: <mark>A eficácia da IA não depende do poder bruto do modelo, mas da intencionalidade didática</mark> com que configuramos suas instruções.
+          </p>
+          <p>
+            Segundo: O combate a alucinações e respostas vazias exige baterias estruturadas de teste contínuo.
+          </p>
+          <p>
+            E terceiro: O verdadeiro papel da tecnologia na educação é <strong>estimular a autonomia intelectual</strong> do estudante, não acelerar a entrega de atalhos.
+          </p>
+          <p>
+            Todo o código, a rubrica interativa e os referenciais teóricos (como EduBench e OCDE) estão compilados e no ar na plataforma web que desenvolvi no Vercel.
+          </p>
+          <p>
+            Muito obrigado pela atenção de todos, e estou totalmente à disposição para as perguntas e considerações da banca!"
+          </p>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Finalização Firme:</strong>
+        Respire fundo, sorria e espere o professor falar. Não peça desculpas por nada; você dominou todo o conteúdo do início ao fim!
+      </div>
+    </article>
+
+    <!-- SEÇÃO FAQ: DEFESA NA BANCA -->
+    <section class="faq-section" id="faq">
+      <h2>🛡️ Defesa na Banca: Respostas Prontas para Perguntas Prováveis</h2>
+      
+      <div class="faq-item">
+        <div class="faq-q">❓ Professor: "Qual a relevância desse tema para a nossa disciplina de Educação a Distância?"</div>
+        <div class="faq-a">
+          <strong>Sua resposta:</strong> "Na EaD, o aluno estuda com alto grau de assincronia e isolamento. Se ele tiver apenas um chatbot genérico que entrega respostas prontas, o aprendizado real é sacrificado. Se ele tiver um tutor virtual pedagogicamente calibrado com método socrático, ele recebe mediação individualizada a qualquer hora da noite, promovendo autonomia discente — que é o pilar mais crítico do sucesso na Educação a Distância."
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">❓ Professor: "Como um professor de escola pública, sem saber programar, pode criar ou calibrar um tutor desses?"</div>
+        <div class="faq-a">
+          <strong>Sua resposta:</strong> "Essa é a grande beleza dos LLMs atuais: eles operam em linguagem natural. Plataformas gratuitas ou acessíveis como Claude Projects ou Gemini Gems permitem que o professor crie seu próprio tutor apenas digitando as regras pedagógicas em português puro no campo de instruções de sistema, sem precisar escrever uma linha de código Python ou JavaScript."
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">❓ Professor: "Como você garantiu que a nota atribuída aos testes (de 1 a 5) não foi subjetiva?"</div>
+        <div class="faq-a">
+          <strong>Sua resposta:</strong> "Criamos uma rubrica com descritores de nível ancorados na literatura acadêmica recente, como o benchmark <em>EduBench</em> e o framework <em>AITutor-EvalKit</em>. Por exemplo: para receber nota 5 em Adequação ao Público, o modelo precisa obrigatoriamente usar analogias acessíveis e não utilizar jargões sem prévia explicação; se usar termos sem contexto, a nota cai automaticamente para a faixa 2 ou 3."
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">❓ Professor: "E a questão das alucinações da IA? Dá para eliminar 100%?"</div>
+        <div class="faq-a">
+          <strong>Sua resposta:</strong> "Não é possível eliminar 100% devido à natureza probabilística dos transformers, mas reduzimos drasticamente esse risco com três medidas: instruindo explicitamente o tutor a dizer 'não sei' quando não tiver dados suficientes; limitando o escopo estrito de atuação do assistente; e aplicando testes de estresse periódicos."
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Barra Fixa Inferior de Controle com Polegar -->
+  <footer class="bottom-bar">
+    <button class="nav-btn" onclick="prevSlide()">◀ Anterior</button>
+    <div class="slide-counter" id="slideIndicator">Slide 1 / 11</div>
+    <button class="nav-btn" onclick="nextSlide()">Próximo ▶</button>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 11;
+    let baseFontSize = 16;
+    let timerRunning = false;
+    let secondsElapsed = 0;
+    let timerInterval = null;
+
+    // Theme Toggle
+    function toggleTheme() {
+      const body = document.body;
+      const btn = document.getElementById("themeBtn");
+      if (body.getAttribute("data-theme") === "dark") {
+        body.setAttribute("data-theme", "light");
+        btn.textContent = "🌙 Escuro";
+      } else {
+        body.setAttribute("data-theme", "dark");
+        btn.textContent = "☀️ Claro";
+      }
+    }
+
+    // Font Adjustment for easy reading on mobile
+    function adjustFont(delta) {
+      baseFontSize = Math.max(14, Math.min(22, baseFontSize + delta));
+      document.body.style.fontSize = baseFontSize + "px";
+    }
+
+    // Stopwatch logic
+    function toggleTimer() {
+      const btn = document.getElementById("timerToggle");
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btn.textContent = "Continuar";
+        btn.style.color = "var(--accent)";
+      } else {
+        timerInterval = setInterval(() => {
+          secondsElapsed++;
+          const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+          const secs = String(secondsElapsed % 60).padStart(2, '0');
+          document.getElementById("stopwatch").textContent = `${mins}:${secs}`;
+          
+          // Color change if overtime (> 12 min)
+          if (secondsElapsed > 720) {
+            document.getElementById("stopwatch").style.color = "#ef4444";
+          }
+        }, 1000);
+        timerRunning = true;
+        btn.textContent = "Pausar";
+        btn.style.color = "#ef4444";
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      secondsElapsed = 0;
+      document.getElementById("stopwatch").textContent = "00:00";
+      document.getElementById("stopwatch").style.color = "var(--text-main)";
+      document.getElementById("timerToggle").textContent = "Iniciar";
+      document.getElementById("timerToggle").style.color = "var(--accent)";
+    }
+
+    // Slide Navigation with Bottom Buttons
+    function updateSlide(newIdx) {
+      if (newIdx < 1) newIdx = 1;
+      if (newIdx > totalSlides) newIdx = totalSlides;
+      currentSlide = newIdx;
+      
+      const el = document.getElementById(`slide-${currentSlide}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      document.getElementById("slideIndicator").textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      
+      // Update nav pills
+      document.querySelectorAll(".nav-pill").forEach((pill, i) => {
+        if (i + 1 === currentSlide) {
+          pill.classList.add("active");
+          pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } else {
+          pill.classList.remove("active");
+        }
+      });
+    }
+
+    function nextSlide() {
+      updateSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      updateSlide(currentSlide - 1);
+    }
+
+    // Update active pill on manual scroll
+    window.addEventListener("scroll", () => {
+      for (let i = 1; i <= totalSlides; i++) {
+        const el = document.getElementById(`slide-${i}`);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 160 && rect.bottom >= 160) {
+            currentSlide = i;
+            document.getElementById("slideIndicator").textContent = `Slide ${i} / ${totalSlides}`;
+            document.querySelectorAll(".nav-pill").forEach((pill, idx) => {
+              if (idx + 1 === i) pill.classList.add("active");
+              else pill.classList.remove("active");
+            });
+            break;
+          }
+        }
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>
