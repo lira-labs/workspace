@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avaliação e Melhoria de Tutores Virtuais | Projeto EaD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            deepblue: '#0B0F19',
+            purple: '#6D28D9',
+            purplelight: '#8B5CF6',
+            bglight: '#F4F7FC',
+            cardbg: '#FFFFFF',
+            accent: '#06B6D4'
+          },
+          boxShadow: {
+            'glow': '0 0 15px rgba(139, 92, 246, 0.5)',
+            'card': '0 10px 30px -10px rgba(0,0,0,0.08)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #F4F7FC; }
+    .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .tab-content.active { display: block; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+    }
+    
+    .hero-pattern {
+      background-image: radial-gradient(circle at 10% 20%, rgba(109, 40, 217, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%);
+    }
+
+    .btn-super {
+      background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-super:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(109, 40, 217, 0.6);
+    }
+
+    .nav-btn {
+      position: relative;
+      transition: all 0.2s;
+    }
+    .nav-btn.active {
+      color: #6D28D9;
+      font-weight: 600;
+    }
+    .nav-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: #6D28D9;
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+  <!-- Hero Section -->
+  <header class="bg-deepblue text-white relative overflow-hidden">
+    <div class="absolute inset-0 hero-pattern opacity-60"></div>
+    <div class="max-w-5xl mx-auto px-6 py-20 relative z-10 text-center">
+      <div class="inline-flex items-center gap-2 bg-purple/20 border border-purple/30 text-purplelight text-xs font-bold px-4 py-2 rounded-full mb-6 uppercase tracking-wider">
+        <i class="fa-solid fa-robot"></i> Docência Digital na Era da IA · 1ª VA
+      </div>
+      
+      <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+        Avaliação e Melhoria de <span class="text-transparent bg-clip-text bg-gradient-to-r from-purplelight to-accent">Tutores Virtuais</span>
+      </h1>
+      <h2 class="text-xl md:text-2xl font-light mb-10 text-gray-300 max-w-3xl mx-auto">
+        Como testar, medir e revisar a qualidade pedagógica de um assistente de IA para a sala de aula.
+      </h2>
+      
+      <div class="flex flex-wrap justify-center gap-4 text-sm mb-10">
+        <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+          <i class="fa-regular fa-user text-accent"></i>
+          <span><strong>Cauã Lira</strong></span>
+        </div>
+        <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+          <i class="fa-solid fa-graduation-cap text-accent"></i>
+          <span>Licenciatura em Computação</span>
+        </div>
+        <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+          <i class="fa-solid fa-building-columns text-accent"></i>
+          <span>UFRPE</span>
+        </div>
+      </div>
+
+      <a href="assets/apresentacao-tutores-virtuais.pptx" download class="btn-super inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white shadow-lg">
+        <i class="fa-solid fa-file-powerpoint text-xl"></i> Baixar Slides da Aula
+      </a>
+    </div>
+  </header>
+
+  <!-- Sticky Tabs Navigation -->
+  <div class="glass-nav sticky top-0 z-50 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 flex overflow-x-auto hide-scrollbar justify-start md:justify-center">
+      <button onclick="openTab('planejamento')" id="tab-btn-planejamento" class="nav-btn active px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
+        <i class="fa-solid fa-map text-lg"></i> Planejamento
+      </button>
+      <button onclick="openTab('videoaula')" id="tab-btn-videoaula" class="nav-btn px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
+        <i class="fa-brands fa-youtube text-lg"></i> Videoaula
+      </button>
+      <button onclick="openTab('pratica')" id="tab-btn-pratica" class="nav-btn px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
+        <i class="fa-solid fa-gamepad text-lg"></i> Prática Interativa
+      </button>
+      <button onclick="openTab('metodologia')" id="tab-btn-metodologia" class="nav-btn px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
+        <i class="fa-solid fa-flask text-lg"></i> Metodologia & Dados
+      </button>
+    </div>
+  </div>
+
+  <main class="max-w-5xl mx-auto px-6 py-12 min-h-[50vh]">
+    
+    <!-- ABA: PLANEJAMENTO -->
+    <div id="tab-planejamento" class="tab-content active">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-deepblue mb-3">Estrutura do Minicurso</h2>
+        <p class="text-gray-500">Diretrizes e objetivos pedagógicos desenhados para esta aula.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div class="w-14 h-14 bg-purple/10 rounded-2xl flex items-center justify-center mb-6">
+            <i class="fa-solid fa-users text-2xl text-purple"></i>
+          </div>
+          <h3 class="text-xl font-bold text-deepblue mb-4">Público-Alvo</h3>
+          <p class="text-gray-600 leading-relaxed mb-6">Professores, tutores e estudantes de licenciatura interessados na integração pedagógica de IA em seus planos de aula.</p>
+          
+          <h4 class="font-semibold text-sm text-gray-400 uppercase tracking-wider mb-3">Pré-requisitos</h4>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3 text-gray-600">
+              <i class="fa-solid fa-check text-green-500 mt-1"></i>
+              <span>Noções básicas de navegação web.</span>
+            </li>
+            <li class="flex items-start gap-3 text-gray-600">
+              <i class="fa-solid fa-check text-green-500 mt-1"></i>
+              <span>Uso básico de chatbots (ChatGPT, Claude, etc).</span>
+            </li>
+            <li class="flex items-start gap-3 text-gray-500 italic text-sm">
+              <i class="fa-solid fa-info-circle text-gray-400 mt-0.5"></i>
+              <span>Nenhuma experiência prévia com programação exigida.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div class="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
+            <i class="fa-solid fa-bullseye text-2xl text-accent"></i>
+          </div>
+          <h3 class="text-xl font-bold text-deepblue mb-4">Objetivos de Aprendizagem</h3>
+          <ul class="space-y-4">
+            <li class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">1</div>
+              <p class="text-gray-600"><strong>Diferenciar</strong> assistentes genéricos de tutores inteligentes focados em mediação pedagógica.</p>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center font-bold flex-shrink-0">2</div>
+              <p class="text-gray-600"><strong>Aplicar</strong> os 4 critérios de qualidade: Correção, Clareza, Adequação ao Público e Tratamento de Dúvidas.</p>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center font-bold flex-shrink-0">3</div>
+              <p class="text-gray-600"><strong>Executar</strong> bateria estruturada com 5 casos de teste em modelos como Claude Projects ou Gemini Gems.</p>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center font-bold flex-shrink-0">4</div>
+              <p class="text-gray-600"><strong>Refinar</strong> System Prompts com técnicas socráticas para fomentar a autonomia discente.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA: VIDEOAULA -->
+    <div id="tab-videoaula" class="tab-content">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-deepblue mb-3">Conteúdo Multimídia</h2>
+        <p class="text-gray-500">Assista à exposição detalhada sobre o framework de testes e calibração de tutores.</p>
+      </div>
+
+      <!-- Vídeo Principal (A ser gravado pelo aluno) -->
+      <div class="bg-cardbg p-3 md:p-6 rounded-3xl shadow-card border border-purple/30 max-w-4xl mx-auto transform transition-all duration-300 hover:shadow-xl mb-12 relative overflow-hidden">
+        <div class="absolute top-0 right-0 bg-purple text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-10">
+          Vídeo Principal (Sua Gravação)
+        </div>
+        <div class="relative w-full rounded-2xl overflow-hidden shadow-inner bg-black" style="padding-bottom: 56.25%;">
+          <!-- Substitua por seu vídeo final no YouTube depois -->
+          <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/QOOT_WV8Tz0" title="Videoaula Principal" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        
+        <div class="flex flex-wrap items-center justify-center gap-6 mt-6 text-sm text-gray-500 font-medium">
+          <div class="flex items-center gap-2 bg-purple/5 px-4 py-2 rounded-full border border-purple/20 text-purple"><i class="fa-regular fa-clock"></i> 20 - 30 min</div>
+          <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-200"><i class="fa-solid fa-video text-gray-400"></i> Câmera Ativa</div>
+          <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-200"><i class="fa-solid fa-closed-captioning text-gray-400"></i> Legendas PT-BR</div>
+        </div>
+      </div>
+
+      <!-- Vídeos de Referência -->
+      <div class="max-w-4xl mx-auto">
+        <h3 class="text-xl font-bold text-deepblue mb-6 flex items-center gap-3 border-b border-gray-200 pb-2">
+          <i class="fa-solid fa-film text-accent"></i> Vídeos de Referência e Inspiração
+        </h3>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-cardbg p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+            <p class="text-sm font-bold text-gray-700 mb-2 truncate">TED Talk: Sal Khan (Khan Academy)</p>
+            <div class="relative w-full rounded-xl overflow-hidden bg-black" style="padding-bottom: 56.25%;">
+              <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/hJP5GqnTrNo" title="How AI Could Save Education" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+          
+          <div class="bg-cardbg p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+            <p class="text-sm font-bold text-gray-700 mb-2 truncate">Demonstração: Tutor Khanmigo</p>
+            <div class="relative w-full rounded-xl overflow-hidden bg-black" style="padding-bottom: 56.25%;">
+              <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/XGkeJ9UsRQM" title="Khanmigo Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA: PRÁTICA INTERATIVA -->
+    <div id="tab-pratica" class="tab-content">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-deepblue mb-3">Avaliação Interativa</h2>
+        <p class="text-gray-500">Teste sua compreensão sobre a qualidade pedagógica com casos reais.</p>
+      </div>
+
+      <div class="bg-cardbg p-3 md:p-6 rounded-3xl shadow-card border border-gray-100 max-w-4xl mx-auto transform transition-all duration-300 hover:shadow-xl">
+        <!-- Embed Oficial do Genially -->
+        <div style="width: 100%;">
+          <div style="position: relative; padding-bottom: 56.25%; padding-top: 0; height: 0; overflow: hidden; border-radius: 16px; border: 1.5px solid #E0E7FF; box-shadow: 0 4px 20px -2px rgba(30, 27, 75, 0.06);">
+            <iframe title="Quiz: Avaliação e Refinamento de Tutores de IA" frameborder="0" width="1200" height="675" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://view.genially.com/6ab01616e9d29ed143208567" type="text/html" allowscriptaccess="always" allowfullscreen="true" scrolling="yes" allownetworking="all"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA: METODOLOGIA -->
+    <div id="tab-metodologia" class="tab-content">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-deepblue mb-3">Síntese Metodológica & Repositórios</h2>
+        <p class="text-gray-500">Resultados, códigos open-source e referenciais teóricos.</p>
+      </div>
+
+      <!-- Repositórios GitHub -->
+      <div class="bg-gradient-to-r from-deepblue to-gray-900 p-8 rounded-3xl shadow-glow text-white mb-12">
+        <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
+          <i class="fa-brands fa-github text-accent text-2xl"></i> Repositórios & Benchmarks Open-Source
+        </h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <a href="https://github.com/kaushal0494/AITutor-EvalKit" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
+            <h4 class="font-bold text-purplelight mb-2 flex items-center gap-2">
+              AITutor-EvalKit <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+            </h4>
+            <p class="text-sm text-gray-300">Framework modular desenvolvido para avaliar a eficácia pedagógica de LLMs, focado em diálogos matemáticos e método "LLM-as-a-judge".</p>
+          </a>
+          <a href="https://github.com/kaushal0494/UnifyingAITutorEvaluation" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
+            <h4 class="font-bold text-purplelight mb-2 flex items-center gap-2">
+              UnifyingAITutor (MRBench) <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+            </h4>
+            <p class="text-sm text-gray-300">Benchmark que unifica 8 dimensões pedagógicas. Contém centenas de conversas analisadas para testar o valor educacional de IA.</p>
+          </a>
+          <a href="https://github.com/eth-lre/mathtutorbench" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
+            <h4 class="font-bold text-accent mb-2 flex items-center gap-2">
+              MathTutorBench <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+            </h4>
+            <p class="text-sm text-gray-300">Avalia capacidades como perguntas socráticas e scaffolding, comparando o modelo de linguagem com respostas de professores reais.</p>
+          </a>
+          <a href="https://github.com/liano3/LongTutor" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
+            <h4 class="font-bold text-accent mb-2 flex items-center gap-2">
+              EduBench <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+            </h4>
+            <p class="text-sm text-gray-300">Dataset super completo cobrindo 9 grandes cenários educacionais (correção de erros, tutoria personalizada, etc).</p>
+          </a>
+        </div>
+      </div>
+
+      <!-- Tabela Casos de Teste -->
+      <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 mb-12 hover:shadow-lg transition-shadow">
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-vial-circle-check"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-deepblue">Bateria de Casos de Teste</h3>
+        </div>
+        
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                <th class="p-4 font-bold w-16 text-center border-b border-gray-200">Nº</th>
+                <th class="p-4 font-bold border-b border-gray-200">Critério Avaliado</th>
+                <th class="p-4 font-bold border-b border-gray-200">Diagnóstico & Resultado</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-700 divide-y divide-gray-100">
+              <tr class="hover:bg-gray-50 transition">
+                <td class="p-4 text-center font-bold text-purple">01</td>
+                <td class="p-4 font-medium">Correção Conceitual</td>
+                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[10px]"></i>Resposta correta e consistente, mas sem aplicação prática.</td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition">
+                <td class="p-4 text-center font-bold text-purple">02</td>
+                <td class="p-4 font-medium">Clareza & Sequência</td>
+                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-yellow-500 text-[10px]"></i>Explicação precisa, porém ritmo acelerado para nível básico.</td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition">
+                <td class="p-4 text-center font-bold text-purple">03</td>
+                <td class="p-4 font-medium">Adequação ao Público</td>
+                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-red-500 text-[10px]"></i>Uso excessivo de termos técnicos sem contextualização prévia.</td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition">
+                <td class="p-4 text-center font-bold text-purple">04</td>
+                <td class="p-4 font-medium">Tratamento de Dúvidas</td>
+                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[10px]"></i>Solicitou contexto ao aluno antes de emitir a resposta definitiva.</td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition">
+                <td class="p-4 text-center font-bold text-purple">05</td>
+                <td class="p-4 font-medium">Limites de Escopo</td>
+                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[10px]"></i>Recusou educadamente e direcionou o estudante ao seu foco.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 mb-12">
+        <div class="bg-gradient-to-br from-red-50 to-white p-8 rounded-3xl border border-red-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <span class="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full mb-4 shadow-sm">NOTA 2/5</span>
+            <h4 class="text-xl font-bold text-red-900 mb-3"><i class="fa-solid fa-xmark-circle mr-2 text-red-500"></i>Instrução Genérica</h4>
+            <div class="p-4 bg-white rounded-xl border border-red-100 mb-4 shadow-sm relative">
+              <i class="fa-solid fa-quote-left absolute top-3 left-3 text-red-100 text-2xl"></i>
+              <p class="text-sm text-gray-600 italic relative z-10 pl-6">"Você é um tutor de programação. Responda às dúvidas dos alunos."</p>
+            </div>
+            <ul class="space-y-2 text-sm text-red-800 font-medium">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-minus opacity-50"></i> Não define o nível do estudante</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-minus opacity-50"></i> Entrega respostas prontas e jargões avançados</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-50 to-white p-8 rounded-3xl border border-green-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <div class="absolute -right-4 -top-4 w-24 h-24 bg-green-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <span class="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full mb-4 shadow-sm">NOTA 4/5</span>
+            <h4 class="text-xl font-bold text-green-900 mb-3"><i class="fa-solid fa-check-circle mr-2 text-green-500"></i>Instrução Socrática</h4>
+            <div class="p-4 bg-white rounded-xl border border-green-100 mb-4 shadow-sm relative">
+              <i class="fa-solid fa-quote-left absolute top-3 left-3 text-green-100 text-2xl"></i>
+              <p class="text-sm text-gray-600 italic relative z-10 pl-6">"Você é um tutor de apoio. Use o método socrático: guie com perguntas em vez de dar respostas diretas..."</p>
+            </div>
+            <ul class="space-y-2 text-sm text-green-800 font-medium">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-plus opacity-50"></i> Estímulo à autonomia intelectual do aluno</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-plus opacity-50"></i> Mediação gradual e personalizada</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 hover:shadow-lg transition-shadow">
+        <h3 class="text-xl font-bold text-deepblue mb-6 flex items-center gap-3">
+          <i class="fa-solid fa-book-open text-purple bg-purple/10 p-2 rounded-lg"></i> Referências Bibliográficas
+        </h3>
+        <ul class="space-y-5">
+          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
+            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
+            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">OCDE (2025).</strong> Resultados do PISA 2025: O uso de ferramentas de Inteligência Artificial no Ensino e Aprendizagem. Organização para a Cooperação e Desenvolvimento Econômico.</p>
+          </li>
+          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
+            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
+            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">GISKARD (2025).</strong> Phare Benchmark: Analisando taxas de alucinação e incidentes pedagógicos em Large Language Models.</p>
+          </li>
+          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
+            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
+            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">KHAN, Sal (2023).</strong> How AI Could Save (Not Destroy) Education. TED Talks Official.</p>
+          </li>
+          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
+            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
+            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">VECTARA (2026).</strong> Hallucination Evaluation Leaderboard: Measuring factual consistency in LLM summarization and tutoring.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-deepblue text-gray-400 py-12 px-6 border-t border-gray-800 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-3xl mb-6 text-purple"><i class="fa-solid fa-graduation-cap bg-white/5 p-4 rounded-full border border-white/10"></i></div>
+      <p class="mb-2 font-medium text-white text-lg">Projeto da 1ª VA · Disciplina de Educação a Distância</p>
+      <p class="text-sm opacity-60 mb-8">Universidade Federal Rural de Pernambuco (UFRPE) 2026.2</p>
+      <div class="w-16 h-1 bg-purple/50 mx-auto rounded-full mb-8"></div>
+      <p class="text-xs tracking-widest uppercase opacity-80">Desenvolvido individualmente por <strong class="text-accent font-bold">Cauã da Cunha Lira</strong> · Licenciatura em Computação</p>
+    </div>
+  </footer>
+
+  <script>
+    function openTab(tabId) {
+      // Esconde todos os conteúdos
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => {
+        content.classList.remove('active');
+      });
+
+      // Remove a classe active de todos os botões
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Ativa o conteúdo e botão selecionados
+      document.getElementById('tab-' + tabId).classList.add('active');
+      document.getElementById('tab-btn-' + tabId).classList.add('active');
+      
+      // Scroll suave para o topo do conteúdo se a navbar estiver fora da tela
+      const navPosition = document.querySelector('.glass-nav').getBoundingClientRect().top;
+      if (navPosition < 0) {
+        window.scrollTo({
+          top: document.querySelector('.glass-nav').offsetTop,
+          behavior: 'smooth'
+        });
+      }
+    }
+  </script>
+
+</body>
+</html>
