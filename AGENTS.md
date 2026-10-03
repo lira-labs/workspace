@@ -18,6 +18,7 @@
   - `main`: Versão estável (entregas finais de código e artigo compilado).
   - `develop`: Branch de integração ativa.
   - `feature/*`: Novas funcionalidades, seções de texto ou experimentos específicos.
+- **ARMAZENAMENTO PESADO NO GOOGLE DRIVE (5 TB)**: Datasets volumosos, vídeos, checkpoints e pesos de modelos de IA (`.pt`, `.ckpt`, `.safetensors`, `.onnx`) NUNCA são commitados no Git nem consom o SSD local. Ficam sempre em `G:\Meu Drive\IA_Projetos\` (`datasets/`, `checkpoints/`, `outputs/`), compartilhados instantaneamente entre o Notebook e o Desktop.
 - **LIMPEZA E HIGIENE**: Arquivos de build (LaTeX `.aux`, `.log`, caches Python `__pycache__`) nunca são commitados.
 <!-- norms:end -->
 
