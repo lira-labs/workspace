@@ -49,3 +49,4 @@
 
 ## ⚡ Prompt de 1 Linha para o Próximo Agente
 > *"Estou iniciando uma nova sessão. Leia o arquivo `HANDOFF.md` e `AGENTS.md` para se situar no estado atual do workspace e continuar a partir das pendências."*
+- [x] **Experimento Distopia Conclu�do**: Finalizado ciclo de falha sist�mica (Rodadas 01-20) e empacotado em .zip.
