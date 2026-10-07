@@ -159,8 +159,8 @@ class MLP:
             epoch_accs = []
 
             for i in range(0, n_samples, batch_size):
-                X_batch = X_shuffled[i:i + batch_size]
-                y_batch = y_shuffled[i:i + batch_size]
+                X_batch = X_shuffled[i: i + batch_size]
+                y_batch = y_shuffled[i: i + batch_size]
                 loss, acc = self.train_step(X_batch, y_batch)
                 epoch_losses.append(loss)
                 epoch_accs.append(acc)

@@ -201,7 +201,7 @@ class ExperimentHarness:
         )
 
         for idx in indices:
-            x = self.X_test[idx:idx + 1]
+            x = self.X_test[idx: idx + 1]
             y_true = self.y_test[idx]
             y_proba = self.mlp.predict_proba(x)[0]
             y_pred = self.mlp.predict(x)[0]

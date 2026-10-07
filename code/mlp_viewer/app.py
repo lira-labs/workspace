@@ -1,4 +1,3 @@
-
 def show_table(data_obj):
     """Renderiza tabelas em HTML puro sem disparar pyarrow/DLL."""
     if isinstance(data_obj, pd.DataFrame):
@@ -8,23 +7,24 @@ def show_table(data_obj):
     else:
         st.write(data_obj)
 
+
 """Streamlit app for MLP from Scratch - Interactive Training & Visualization.
 
 Uses Professor's Network implementation (graph-based, step-by-step forward, MSE backprop).
 """
 
-import sys
+import sys  # noqa: E402
 
 sys.path.insert(0, ".")  # noqa: E402
 
-import streamlit as st  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
-import matplotlib.pyplot as plt  # noqa: E402
-import time  # noqa: E402
+import streamlit as st  # noqa: E402  # noqa: E402
+import numpy as np  # noqa: E402  # noqa: E402
+import pandas as pd  # noqa: E402  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402  # noqa: E402
+import time  # noqa: E402  # noqa: E402
 
-from network import Network  # noqa: E402
-from loader import Loader  # noqa: E402
+from network import Network  # noqa: E402  # noqa: E402
+from loader import Loader  # noqa: E402  # noqa: E402
 
 # Page config
 st.set_page_config(
@@ -88,9 +88,10 @@ def reset_training_state():
 def load_heart_disease():
     """Load and preprocess Heart Disease dataset."""
     import os
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                csv_path = os.path.join(base_dir, "rsc", "heart.csv")
-                loader = Loader(csv_path)
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(base_dir, "rsc", "heart.csv")
+    loader = Loader(csv_path)
     # Loader assumes first row is header, last column is target
     rows = loader.rows
 
@@ -212,8 +213,8 @@ with tab_data:
         unique, counts = np.unique(y_train, return_counts=True)
         dist_df = pd.DataFrame({"Classe": unique, "Contagem": counts})
         fig_bar, ax_bar = plt.subplots(figsize=(5, 2.5))
-        ax_bar.bar([f'Classe {c}' for c in unique], counts, color='#38bdf8')
-        ax_bar.set_ylabel('Amostras')
+        ax_bar.bar([f"Classe {c}" for c in unique], counts, color="#38bdf8")
+        ax_bar.set_ylabel("Amostras")
         st.pyplot(fig_bar)
         plt.close(fig_bar)
 
@@ -404,7 +405,9 @@ with tab_train:
                     test_loss_ph.metric("Test Loss", f"{test_loss:.4f}")
 
                     progress_bar.progress((epoch + 1) / epochs)
-                    status_text.text(f"?poca {epoch + 1}/{epochs} - Train Loss: {avg_loss:.4f} - Test Loss: {test_loss:.4f}")
+                    status_text.text(
+                        f"?poca {epoch + 1}/{epochs} - Train Loss: {avg_loss:.4f} - Test Loss: {test_loss:.4f}"
+                    )
 
                     # Allow UI to update
                     time.sleep(0.01)
@@ -456,7 +459,9 @@ with tab_results:
         hist = st.session_state.training_history
         if hist.get("loss"):
             fig_curves, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 3.5))
-            ax1.plot(range(1, len(hist["loss"]) + 1), hist["loss"], color="#ef4444", lw=2)
+            ax1.plot(
+                range(1, len(hist["loss"]) + 1), hist["loss"], color="#ef4444", lw=2
+            )
             ax1.set_title("Evolu??o da Perda (Loss)")
             ax1.set_xlabel("?poca")
             ax1.grid(True, linestyle="--", alpha=0.5)

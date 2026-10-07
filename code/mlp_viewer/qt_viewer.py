@@ -518,7 +518,9 @@ class NetworkViewerWindow(QMainWindow):
 
     def _refresh(self):
         self.scene.build(self.network)
-        self.label_status.setText(f"Camadas: {[len(layer) for layer in self.network.layers]}")
+        self.label_status.setText(
+            f"Camadas: {[len(layer) for layer in self.network.layers]}"
+        )
         # se já havia forward iniciado, re-sincronizar inputs
         if self._forward_started:
             self.scene.update_input_values(self.network._fp_inputs)
@@ -639,6 +641,7 @@ class NetworkViewerWindow(QMainWindow):
     def _on_load_dataset(self):
         try:
             import os
+
             base_dir = os.path.dirname(os.path.abspath(__file__))
             csv_path = os.path.join(base_dir, "rsc", "heart.csv")
             loader = Loader(csv_path)
