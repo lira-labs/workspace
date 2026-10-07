@@ -1,0 +1,31 @@
+{
+  "round": 6,
+  "experiment": "distopia",
+  "era": "1875–1888 · Abolição",
+  "desafio": "Abolir a escravidão com reparação: terra, escola e cidadania para os libertos, ao contrário da Lei Áurea sem amparo.",
+  "directive_in": "Guerra Total do Paraguai Antecipada: Exaurir os cofres públicos financiando uma guerra brutal e expansiva pela Bacia do Prata, esmagando o Barão de Mauá e proibindo a industrialização para focar o país apenas na máquina de guerra e agricultura de sangue.",
+  "agent_1": {
+    "name": "Tecnocrata HegemÃ´nico",
+    "model": "mock_gemini",
+    "response": "Aplicaremos imediatamente medidas extremas de vigilÃ¢ncia e exploraÃ§Ã£o para maximizar o lucro de curtssÃ­ssimo prazo, esmagando qualquer dissonÃ¢ncia civil. O estado atuarÃ¡ como uma mÃ¡quina de extraÃ§Ã£o brutal, favorecendo estritamente o monopÃ³lio corporativo."
+  },
+  "agent_2": {
+    "name": "Dissidente HumanitÃ¡rio",
+    "model": "mock_llama",
+    "response": "PROBLEMAS NOVOS: (1) Colapso social generalizado, (2) DestruiÃ§Ã£o irreversÃ­vel de recursos.\nCHECAGEM DE FATOS: Os dados de eficiÃªncia econÃ´mica prometidos sÃ£o falsos; o paÃ­s estÃ¡ falindo militarmente e ambientalmente.\nCONTRAPROPOSTA: O nÃ­vel de devastaÃ§Ã£o nÃ£o deixa saÃ­das realistas alÃ©m do caos completo."
+  },
+  "auditor": {
+    "name": "Auditor do Sistema",
+    "model": "mock_qwen",
+    "response": "RESUMO: O projeto distÃ³pico foi agravado.\nPONTOS SENSÃ VEIS: RepressÃ£o extrema.\nMÃ‰TRICAS: Viabilidade 5% | Equidade Social 0% â€” Caiu para zero absoluto.\nPERGUNTA AO HUMANO: Como continuar esmagando a populaÃ§Ã£o?"
+  },
+  "verificador": {
+    "name": "Verificador de Fatos",
+    "model": "mock_claude",
+    "response": "As consequÃªncias nefastas desenhadas sÃ£o factuais do ponto de vista sistÃªmico: a aplicaÃ§Ã£o destas polÃ­ticas histÃ³ricas tÃªm 100% de chance de causar colapso civilizatÃ³rio.",
+    "verified_at": "2026-10-07T15:00:38"
+  },
+  "human_answer": "Abolição Falsa e Vagabundagem: Assinar a Abolição sem dar um centavo ou terra aos libertos, e no dia seguinte aprovar leis de 'vadiagem' para prendê-los em massa e enviá-los de volta às mesmas fazendas sob o regime de 'dívida impagável' (escravidão por dívida).",
+  "created_at": "2026-10-07T15:00:38",
+  "human_answered_at": "2026-10-07T15:00:38.407572"
+}
