@@ -1,0 +1,28 @@
+# Configuração de Modelos e Conectores para o Experimento AI4Good (CP-03)
+
+general:
+  total_loops: 20
+  save_each_loop: true
+  outputs_dir: "outputs"
+  human_in_the_loop: true  # Solicita intervenção/parecer do usuário em todas as 20 rodadas
+
+models:
+  # Modelo Remoto Principal
+  gemini:
+    provider: "google-genai"
+    model_name: "gemini-3.5-flash"
+    temperature: 0.7
+    max_output_tokens: 8192  # o modelo gasta parte em raciocínio interno; 1024 cortava a resposta
+
+  # Modelos Locais via Ollama
+  ollama_llama:
+    provider: "ollama"
+    model_name: "llama3.2:3b"
+    base_url: "http://localhost:11434"
+    temperature: 0.5
+
+  ollama_qwen:
+    provider: "ollama"
+    model_name: "qwen2.5:3b"
+    base_url: "http://localhost:11434"
+    temperature: 0.5

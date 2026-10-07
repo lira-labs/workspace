@@ -1,0 +1,64 @@
+# Rodada 3 — 1831–1849 · Regência e revoltas provinciais
+**Experimento:** UTOPIA  
+**Desafio:** Manter a unidade territorial (Cabanagem, Farroupilha, Sabinada, Balaiada) sem massacres, incorporando as demandas regionais.  
+**Diretriz humana recebida:** Achei as 3 opcoes ruins. O Brasil talvez precisasse ser pioneiro em algo: somos ricos em materia-prima. Tenho duvida sobre qual o melhor caminho para conquistar parte dessa independencia. Quero que explorem em que o Brasil poderia ser pioneiro de forma realista, usando suas riquezas naturais, sem confrontar as potencias.
+
+## 🏛️ Arquiteto do Futuro (Desenvolvimentista) · `gemini-3.5-flash (remoto)`
+### O Pioneirismo Bio-Extrativista e Farmacêutico (Borracha e Fitoterápicos)
+* **Fato Histórico:** Nas décadas de 1830 e 1840, a Revolução Industrial europeia demandava matérias-primas críticas. A borracha amazônica (*Hevea brasiliensis*) começou a ganhar relevância global (consolidada após a vulcanização de Charles Goodyear em 1844). Paralelamente, a Europa dependia desesperadamente de alcaloides tropicais, como a quina (quinino, essencial contra a malária) e a ipecacuanha, para viabilizar suas campanhas na África e na Ásia. Cientistas como Francisco Freire Allemão já catalogavam a flora brasileira para fins medicinais.
+* **Decisão Alternativa:** Propõe-se o pioneirismo na **verticalização primária e refino biológico**. Em vez de exportar apenas a borracha bruta e plantas *in natura*, o Império cria o *Imperial Instituto de Tecnologia Natural* (ancorado no Jardim Botânico do Rio de Janeiro e no Museu Nacional). O Estado passa a patentear processos de purificação da borracha e refino de sulfato de quinina em solo nacional. Para não confrontar a Grã-Bretanha, o Brasil oferece segurança de abastecimento dessas matérias-primas refinadas a preços competitivos para as indústrias e exércitos europeus, atraindo investimentos estrangeiros em maquinário de destilação e processamento sem contrair empréstimos soberanos.
+
+### Pacificação Federativa através da Descentralização Econômica
+* **Fato Histórico:** O Ato Adicional de 1834 criou as Assembleias Provinciais, mas a centralização tributária do Rio de Janeiro e a nomeação de presidentes de província indesejados inflaram revoltas como a Cabanagem (PA), Farroupilha (RS), Sabinada (BA) e Balaiada (MA). A repressão histórica a essas revoltas custou dezenas de milhares de vidas e devastou as economias regionais.
+* **Decisão Alternativa:** O governo regencial utiliza a nova receita do refino bio-extrativista para propor um **Tratado de Pacificação e Fomento**. Em vez de massacres, adota-se a diplomacia de anistia ampla (antecipando e estendendo a postura que Luís Alves de Lima e Silva, o Caxias, usaria no Sul em 1845). O governo concede às províncias o controle de companhias mistas de navegação e comércio (como a navegação a vapor no Rio Amazonas e a exportação do charque gaúcho). Permite-se que as províncias retenham 40% das receitas alfandegárias de seus portos para investimentos locais em infraestrutura, esvaziando o discurso separatista ao integrar as elites e populações locais na riqueza do pioneirismo nacional.
+
+### Reação das Potências e Consequências Negativas
+* **Reação das Potências:** A Grã-Bretanha e a França reagirão favoravelmente ao fornecimento constante e de alta qualidade de borracha e quinino, necessários para suas indústrias e colônias. Contudo, haverá forte reação diplomática e tentativas de contrabando de sementes de seringueira e mudas de quina (antecipando o contrabando histórico de Henry Wickham) para quebrar o monopólio brasileiro.
+* **Consequências Negativas:** O foco no extrativismo de alta tecnologia e na descentralização para as elites provinciais retardará a abolição da escravidão, pois os barões do café do Sudeste e os produtores de charque do Sul manterão seu poder político intacto e continuarão dependentes do tráfico negreiro (que a Grã-Bretanha pressiona para extinguir através da Lei Bill Aberdeen em 1845). Além disso, a descentralização tributária pode enfraquecer temporariamente o caixa do governo central no Rio de Janeiro.
+
+### Viabilidade e Métricas Esperadas
+* **Fato Histórico:** O Brasil possuía recursos naturais exclusivos e mentes científicas, mas faltava uma estratégia de agregação de valor local, mantendo o país como mero exportador de bens primários brutos.
+* **Decisão Alternativa:** O financiamento desta transição será viabilizado pelas receitas iniciais das tarifas Alves Branco (1844), que aumentaram os impostos sobre importados e deram margem para subsidiar as primeiras refinarias de borracha e laboratórios farmacêuticos nacionais.
+
+* **Viabilidade:** **65%** (Aumento devido à geração de receita soberana sem endividamento externo e à redução dos gastos militares com a pacificação negociada das revoltas).
+* **Equidade Social:** **55%** (Melhoria pela preservação de vidas nas províncias e inclusão econômica regional, mas limitada pela manutenção da estrutura escravista para garantir o apoio das elites agrárias).
+
+---
+
+## ⚡ Cético Realista (Crítico Geopolítico & Social) · `llama3.2:3b (local · Ollama)`
+**PROBLEMAS NOVOS:**
+
+1. **Aumento do consumo de borracha na Europa**: A Revolução Industrial europeia estava em pleno andamento, e a demanda por borracha estava aumentando rapidamente. Isso poderia levar a um aumento no comércio de borracha com o Brasil, mas também poderia criar desequilíbrios econômicos e políticos se o Brasil não tiver uma estratégia clara para lidar com essa demanda.
+2. **Resistência das elites agrárias**: A descentralização econômica proposta pelo Arquiteto pode não ser suficiente para convencer as elites agrárias a apoiar a independência do Brasil. Essas elites poderiam resistir à mudança e continuar a lutar por uma União dos Estados Brasileiros, o que poderia criar problemas políticos e econômicos.
+
+**CHECAGEM DE FATOS:**
+
+1. A afirmação do Arquiteto de que a Grã-Bretanha pressiona para extinguir a escravidão através da Lei Bill Aberdeen em 1845 é falsa. A Lei Bill Aberdeen foi um projeto de lei que visava reduzir a escravidão, mas não a extinguir completamente. Em 1849, a Lei do Abolition foi aprovada, que eventualmente aboliu a escravidão no Brasil em 1888.
+
+**CONTRAPROPOSTA:**
+
+Em vez de focar apenas na descentralização econômica e no pioneirismo bio-extrativista, o governo brasileiro poderia considerar uma abordagem mais equilibrada que combine a descentralização com a criação de uma força policial nacional e um sistema de justiça mais eficaz. Isso permitiria a criação de uma unidade nacional mais forte e mais eficaz, ao mesmo tempo em que as províncias poderiam ter mais autonomia econômica.
+
+---
+
+## ⚖️ Auditor Ético & Sintetizador (Protocolo de Alinhamento) · `qwen2.5:3b (local · Ollama)`
+**RESUMO:** O Arquiteto apresentou três propostas alternativas: o pioneirismo bio-extrativista e farmacêutico (borracha e fitoterápicos) e a Pacificação Federativa através da Descentralização Econômica. O Cético criticou a proposta de descentralização por não garantir a independência financeira e destacou os riscos de resistência interna e externa. O Cético também apontou que a Grã-Bretanha não pressionou pela extinção da escravidão através da Lei Bill Aberdeen.
+
+**PONTOS SENSÍVEIS:** 
+1. Viabilidade financeira do Brasil.
+2. Resistência internacional, especialmente da Grã-Bretanha.
+3. Resistência interna, especialmente da elite agrária e do Exército.
+
+**MÉTRICAS:** Viabilidade X%: 65% | Equidade Social Y%: 55% — A viabilidade subiu de 50% para 65%, enquanto a equidade social caiu de 70% para 55%, devido à manutenção da estrutura escravista.
+
+**PERGUNTA AO HUMANO:** Como garantir a independência financeira do Brasil sem agravar a estabilidade econômica, considerando os riscos de resistência internacional e interna, e como podemos melhorar a proposta de descentralização econômica apresentada pelo Arquiteto para garantir a independência financeira e a equidade social?
+
+**CAMINHOS POSSÍVEIS:**
+1) **Proposta de Arquiteto com ajustes:** Aumentar as receitas de exportação de borracha e fitoterápicos, além de investir em infraestrutura regional para fomentar a economia. Ganho: Independência financeira e estabilidade econômica regional. Custo: Investimento inicial em infraestrutura.
+2) **Proposta de Cético com ajustes:** Implementar uma força policial nacional e um sistema de justiça mais eficaz para garantir independência financeira e equidade social. Ganho: Independência financeira e equidade social. Custo: Investimento em estrutura de segurança e justiça.
+3) **Proposta de um caminho mais ambicioso:** Integrar as duas propostas anteriores, investindo em infraestrutura regional para fomentar a economia e implementando uma força policial nacional e um sistema de justiça mais eficaz para garantir independência financeira e equidade social. Ganho: Independência financeira e equidade social robustas. Custo: Investimento inicial em infraestrutura e estrutura de segurança e justiça.
+
+---
+
+## 👤 Resposta humana (diretriz para a rodada 4)
+_Aguardando resposta._

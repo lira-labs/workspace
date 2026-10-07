@@ -1,0 +1,65 @@
+# Linha do tempo da trilha UTOPIA — 20 rodadas (1808–2026)
+# Cada rodada é uma encruzilhada histórica real. Isso ancora o debate em fatos
+# e impede a repetição de argumentos (problema observado nos outros grupos).
+
+rounds:
+  1:
+    era: "1808–1822 · Abertura dos Portos e Independência"
+    desafio: "Romper com Portugal sem herdar dívida colonial e sem asfixiar as manufaturas locais com o Tratado de 1810 (tarifa de 15% para produtos britânicos)."
+  2:
+    era: "1822–1831 · Primeiro Reinado"
+    desafio: "Evitar o empréstimo de £2 milhões com Londres (1824) e o Tratado de 1827; construir soberania fiscal."
+  3:
+    era: "1831–1849 · Regência e revoltas provinciais"
+    desafio: "Manter a unidade territorial (Cabanagem, Farroupilha, Sabinada, Balaiada) sem massacres, incorporando as demandas regionais."
+  4:
+    era: "1850 · Lei de Terras e fim do tráfico negreiro"
+    desafio: "Substituir a Lei de Terras concentradora por acesso à terra para pobres, imigrantes e futuros libertos."
+  5:
+    era: "1850–1875 · Era Mauá"
+    desafio: "Salvar o projeto industrial e ferroviário do Barão de Mauá da falência (1875) e criar crédito produtivo nacional."
+  6:
+    era: "1875–1888 · Abolição"
+    desafio: "Abolir a escravidão com reparação: terra, escola e cidadania para os libertos, ao contrário da Lei Áurea sem amparo."
+  7:
+    era: "1889–1904 · República e sanitarismo"
+    desafio: "Erradicar febre amarela e varíola (Oswaldo Cruz) sem a coerção que gerou a Revolta da Vacina."
+  8:
+    era: "1904–1929 · República do café"
+    desafio: "Diversificar a economia além do café e da política do café-com-leite antes da crise de 1929."
+  9:
+    era: "1930–1937 · Revolução de 30 e Manifesto da Escola Nova (1932)"
+    desafio: "Implementar de fato a escola pública integral de Anísio Teixeira e a universidade de pesquisa."
+  10:
+    era: "1937–1945 · Estado Novo e industrialização de base"
+    desafio: "Construir a indústria de base (CSN, Vale) sem a ditadura e a censura do Estado Novo."
+  11:
+    era: "1946–1954 · Petróleo e democracia"
+    desafio: "Criar a Petrobras e um sistema nacional de ciência (CNPq, CAPES) com estabilidade democrática."
+  12:
+    era: "1955–1964 · Plano de Metas"
+    desafio: "Industrializar sem abandonar as ferrovias pelo rodoviarismo e sem gerar inflação e dívida."
+  13:
+    era: "1964–1985 · Ditadura militar e 'milagre econômico'"
+    desafio: "Evitar a ruptura democrática de 1964 e o crescimento concentrador de renda e endividado."
+  14:
+    era: "1985–1988 · Redemocratização e Constituição Cidadã"
+    desafio: "Consolidar o SUS, a educação universal e direitos sociais com financiamento sustentável."
+  15:
+    era: "1989–1994 · Hiperinflação e Plano Real"
+    desafio: "Estabilizar a moeda sem recessão nem confisco (Plano Collor)."
+  16:
+    era: "1995–2002 · Abertura e privatizações"
+    desafio: "Abrir a economia sem desmontar a capacidade industrial e tecnológica nacional."
+  17:
+    era: "2003–2014 · Boom das commodities e inclusão social"
+    desafio: "Converter o ganho das commodities em indústria de alta tecnologia, não apenas em consumo."
+  18:
+    era: "2014–2018 · Crise e desindustrialização"
+    desafio: "Evitar a recessão profunda e a queda da indústria de 27% para 11% do PIB."
+  19:
+    era: "2019–2022 · Pandemia e Amazônia"
+    desafio: "Responder à pandemia com ciência e frear o desmatamento, transformando a floresta em ativo econômico."
+  20:
+    era: "2023–2026 · Era da IA e da transição energética"
+    desafio: "Consolidar o Brasil como liderança mundial em IDH, IA soberana, bioeconomia e matriz 100% limpa."
