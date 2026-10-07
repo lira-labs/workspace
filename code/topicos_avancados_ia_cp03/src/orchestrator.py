@@ -70,6 +70,24 @@ class SimulationOrchestrator:
         self.history[-1]["human_answered_at"] = datetime.now().isoformat(timespec="seconds")
         self._save_round(self.history[-1])
 
+    VERIFIER_NAME = "Verificador de Fatos (Claude via Antigravity)"
+    VERIFIER_MODEL = "Claude Opus 5.5 (Antigravity)"
+
+    def record_verification(self, text: str, round_num: Optional[int] = None):
+        """Grava a checagem de fatos feita pelo Claude (agente do Antigravity) numa rodada.
+
+        Requisito: Antigravity aberto e cota diária do Claude. O texto é repassado como
+        'correções' no contexto da rodada seguinte, para que erros não se propaguem.
+        """
+        r = self.history[-1] if round_num is None else self.history[round_num - 1]
+        r["verificador"] = {
+            "name": self.VERIFIER_NAME,
+            "model": self.VERIFIER_MODEL,
+            "response": text.strip(),
+            "verified_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        self._save_round(r)
+
     # ---------- execução ----------
     def _context(self, round_num: int) -> str:
         era = self.timeline.get(round_num, {})
@@ -85,6 +103,11 @@ class SimulationOrchestrator:
                     lines.append(f"- Rodada {r['round']}: {r['human_answer']}")
             prev = self.history[-1]
             lines.append(f"\nSíntese do auditor na rodada anterior:\n{prev['auditor']['response'][:800]}")
+            if prev.get("verificador"):
+                lines.append(
+                    "\nCORREÇÕES DO VERIFICADOR DE FATOS na rodada anterior (não repita os erros apontados):\n"
+                    f"{prev['verificador']['response'][:1500]}"
+                )
             if prev.get("human_answer"):
                 lines.append(f"\nDIRETRIZ HUMANA PARA ESTA RODADA (obrigatória): {prev['human_answer']}")
         lines.append("\nNão repita argumentos de rodadas anteriores; avance a história.")
@@ -165,8 +188,15 @@ class SimulationOrchestrator:
 {r['auditor']['response']}
 
 ---
-
+{self._verifier_md(r)}
 ## 👤 Resposta humana (diretriz para a rodada {r['round'] + 1})
 {r.get('human_answer') or '_Aguardando resposta._'}
 """
         (self.output_dir / f"rodada_{n}.md").write_text(md, encoding="utf-8")
+
+    @staticmethod
+    def _verifier_md(r: Dict[str, Any]) -> str:
+        v = r.get("verificador")
+        if not v:
+            return "\n## 🔎 Verificador de Fatos\n_Aguardando verificação (requer Antigravity)._\n\n---\n\n"
+        return f"\n## 🔎 {v['name']} · `{v['model']}`\n{v['response']}\n\n---\n\n"

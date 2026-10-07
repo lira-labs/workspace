@@ -60,5 +60,32 @@ Em vez de focar apenas na descentralização econômica e no pioneirismo bio-ext
 
 ---
 
+## 🔎 Verificador de Fatos (Claude via Antigravity) · `Claude Opus 5.5 (Antigravity)`
+**Arquiteto (Gemini)**
+- ✅ Ato Adicional de 1834 criou as Assembleias Legislativas Provinciais.
+- ✅ Cabanagem (PA), Farroupilha (RS), Sabinada (BA) e Balaiada (MA), com repressão que custou dezenas de milhares de vidas (só a Cabanagem teve estimativas de 30 a 40 mil mortos).
+- ✅ Caxias pacificou a Farroupilha em 1845 com anistia (Paz de Ponche Verde).
+- ✅ Tarifa Alves Branco (1844) e Bill Aberdeen (1845, contra o tráfico negreiro).
+- ✅ Contrabando de sementes de seringueira por Henry Wickham (1876), que levou ao fim do monopólio brasileiro da borracha.
+- ✅ Francisco Freire Allemão, botânico brasileiro real; Jardim Botânico (1808) e Museu Nacional (1818) existiam.
+- ✅ A ipecacuanha é de fato brasileira e o Brasil era seu principal fornecedor.
+- ⚠️ Borracha: a vulcanização foi descoberta por Goodyear em 1839 (patente de 1844); nas décadas de 1830–40 o mercado ainda era pequeno (o Pará exportava sapatos de borracha para os EUA). O "boom" só veio a partir de 1870. Proposta plausível, mas precoce.
+- ❌ Quinina: a quina (*Cinchona*) é nativa dos Andes (Peru, Bolívia, Equador), não do Brasil. O Brasil não teria como ser pioneiro em refinar quinina com matéria-prima própria.
+
+**Cético (Llama)**
+- ❌ Errou a checagem de fatos: disse que era falso o Bill Aberdeen (1845) pressionar pelo fim do tráfico, mas o Arquiteto estava certo.
+- ❌ Inventou uma "Lei do Abolition de 1849", que não existe. A lei brasileira que encerrou o tráfico foi a Lei Eusébio de Queirós (1850).
+- ❌ Inventou a expressão "União dos Estados Brasileiros".
+
+**Auditor (Qwen)**
+- ❌ Repassou como verdade o erro do Cético sobre o Bill Aberdeen (propagação de alucinação).
+- ⚠️ Pontos sensíveis continuam genéricos, idênticos às rodadas anteriores, apesar da instrução.
+- ✅ Melhorou: justificou as métricas (Viabilidade 50%→65%, Equidade 70%→55%).
+
+**Nota do verificador:** achado importante para o experimento. O agente local encarregado de checar fatos alucinou, e o auditor local propagou a alucinação. Recomenda-se substituir quinina por ipecacuanha (essa sim brasileira) na continuação.
+
+---
+
+
 ## 👤 Resposta humana (diretriz para a rodada 4)
-_Aguardando resposta._
+A escravidao e desumana. Mesmo perdendo um pouco de apoio das elites e de crescimento, a escravidao NAO deve se prolongar. Rejeito atrasar a abolicao como preco da pacificacao: busquem formas de obter apoio ou neutralizar as elites sem adiar o fim da escravidao.

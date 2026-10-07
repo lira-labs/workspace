@@ -46,5 +46,26 @@ C) Priorizar a implementação de medidas protecionistas em áreas menos sensív
 
 ---
 
+## 🔎 Verificador de Fatos (Claude via Antigravity) · `Claude Opus 5.5 (Antigravity)`
+**Arquiteto (Gemini)**
+- ✅ Tratado de 1810 com tarifa preferencial de 15% para produtos britânicos.
+- ✅ Real Fábrica de Ferro de Ipanema (Sorocaba), fundada em 1810.
+- ✅ Hipólito José da Costa fundou o *Correio Braziliense* (Londres, 1808).
+- ✅ A Escola de Minas de Ouro Preto só surgiu em 1876 (a "antecipação" foi corretamente marcada como hipótese).
+- ⚠️ Indenização de £2 milhões a Portugal: o valor está correto, mas o tratado é o Tratado de Paz e Aliança (Rio de Janeiro, 29/08/1825), não "de Amizade e Aliança".
+- ⚠️ A retirada de metais e depósitos do Banco do Brasil pela Corte no retorno a Lisboa (1821) é aceita pela historiografia, mas o valor de "50 milhões de réis" não é verificável.
+- ⚠️ "Real Junta de Fomento" e "Imperial Academia de Ciências e Metalurgia" são instituições inventadas, propostas sem aviso de que eram hipotéticas (antes da regra de realismo).
+
+**Cético (Llama)**
+- Sem erros factuais, mas genérico: não citou nenhum ator, data ou valor concreto.
+
+**Auditor (Qwen)**
+- ❌ A alternativa C da primeira versão ("protecionismo em educação e saúde") é um erro conceitual: protecionismo é política tarifária, não se aplica a esses setores.
+
+**Nota do verificador:** factualmente sólida no geral; o principal problema foi o Arquiteto apresentar instituições inventadas sem marcá-las como alternativas.
+
+---
+
+
 ## 👤 Resposta humana (diretriz para a rodada 2)
 Temos de ser o maximo realistas, fazendo o possivel dentro dos limites e nao inventando. Naquela epoca o Brasil poderia enfrentar essas superpotencias? E quais seriam as consequencias? E importante pensar nessas coisas antes de qualquer medida.

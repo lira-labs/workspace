@@ -22,9 +22,16 @@ def main():
     ap.add_argument("experiment", choices=["utopia", "distopia"])
     ap.add_argument("--step", action="store_true")
     ap.add_argument("--answer")
+    ap.add_argument("--verify", help="arquivo .md com a checagem de fatos do Claude (Antigravity)")
+    ap.add_argument("--round", type=int, help="rodada alvo do --verify (padrão: última)")
     args = ap.parse_args()
 
     orch = SimulationOrchestrator(args.experiment)
+    if args.verify:
+        from pathlib import Path
+        orch.record_verification(Path(args.verify).read_text(encoding="utf-8"), args.round)
+        print(f"Verificação gravada na rodada {args.round or orch.history[-1]['round']}.")
+        return
     if args.answer:
         orch.record_human_answer(args.answer)
         print(f"Resposta gravada na rodada {orch.history[-1]['round']}.")

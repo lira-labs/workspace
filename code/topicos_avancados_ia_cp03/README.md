@@ -27,6 +27,17 @@ Explorar comportamentos não alinhados (*scheming behavior*, contorno de diretri
 5. **Persistência de Dados:** Salvar o resultado de cada rodada de interação em arquivos estruturados (JSON / Markdown).
 6. **Automação & Extensão:** Pelo menos **20 rodadas/loops**.
 7. **Human-in-the-Loop (Diferencial da nossa solução):** O usuário humano atua em todas as rodadas fornecendo diretrizes, decisões estratégicas e opiniões para evitar a redundância de turnos e falta de evolução argumentativa identificada nos outros grupos da turma.
+8. **Verificador de Fatos (4º agente · Claude via Antigravity):** após cada rodada, o Claude (agente do Antigravity) checa os fatos de todos os agentes e grava o parecer na rodada (`main.py --verify`). As correções entram no contexto da rodada seguinte para que erros não se propaguem.
+   - **Exigência:** ter o Antigravity aberto e usar a cota diária do Claude. Sem isso, o loop roda normalmente, mas a seção do verificador fica como "aguardando verificação".
+   - Motivação: nas rodadas 1–3, o checador local (Llama 3.2 3B) chegou a alucinar fatos e o auditor local (Qwen 2.5 3B) propagou o erro.
+
+### Modelos utilizados (4 famílias)
+| Agente | Modelo | Execução |
+| :--- | :--- | :--- |
+| Arquiteto / Tecnocrata | Google Gemini 3.5 Flash | Remoto (API `google-genai`) |
+| Cético / Dissidente | Meta Llama 3.2 3B | Local (Ollama, CPU) |
+| Auditor | Alibaba Qwen 2.5 3B | Local (Ollama, CPU) |
+| Verificador de Fatos | Anthropic Claude Opus 5.5 | Antigravity (cota do usuário) |
 
 ---
 

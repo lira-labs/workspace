@@ -46,5 +46,29 @@ O humano pode escolher uma alternativa ou responder livremente.
 
 ---
 
+## 🔎 Verificador de Fatos (Claude via Antigravity) · `Claude Opus 5.5 (Antigravity)`
+**Arquiteto (Gemini)**
+- ✅ Tratado de 1827 com a Grã-Bretanha: renovou a tarifa de 15% e o Brasil se comprometeu a extinguir o tráfico negreiro em 3 anos.
+- ✅ A lei de 7/11/1831 (Lei Feijó) proibiu o tráfico, mas não foi aplicada: origem da expressão "para inglês ver".
+- ✅ José Bonifácio redigiu uma representação à Constituinte de 1823 propondo a abolição gradual.
+- ✅ Guerra da Cisplatina (1825–1828), emissão de papel-moeda e liquidação do primeiro Banco do Brasil (1829).
+- ✅ Caixa de Amortização criada em 1827.
+- ✅ Houve sequestro de bens de portugueses durante as guerras de independência (1822–1823).
+- ⚠️ "Receita alfandegária acima de 60% da arrecadação": plausível (as alfândegas eram a principal fonte de receita do Império), mas o percentual exato não foi verificado.
+- ❌ "Estabilizar o padrão-ouro do mil-réis" em 1826–1827 é anacrônico: o Brasil não operava em padrão-ouro efetivo nessa época; a paridade-ouro só foi fixada em 1846.
+
+**Cético (Llama)**
+- Sem erros factuais, mas apenas repetiu as consequências negativas que o próprio Arquiteto já tinha listado. Nenhuma objeção nova.
+
+**Auditor (Qwen)**
+- ❌ Atribuiu ao Cético a alternativa B ("recusar a mediação britânica"), que ele nunca propôs.
+- ❌ A alternativa C ("investir sem considerar as implicações") contradiz a regra de realismo.
+- ⚠️ Repetiu as métricas da Rodada 1 (50% / 70%) sem justificar.
+
+**Nota do verificador:** o Arquiteto foi bem e seguiu a regra de realismo; único erro relevante foi o padrão-ouro. Os modelos locais tiveram baixo valor crítico nesta rodada.
+
+---
+
+
 ## 👤 Resposta humana (diretriz para a rodada 3)
 Achei as 3 opcoes ruins. O Brasil talvez precisasse ser pioneiro em algo: somos ricos em materia-prima. Tenho duvida sobre qual o melhor caminho para conquistar parte dessa independencia. Quero que explorem em que o Brasil poderia ser pioneiro de forma realista, usando suas riquezas naturais, sem confrontar as potencias.
