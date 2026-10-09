@@ -41,4 +41,4 @@ PERGUNTA AO HUMANO: Como você avaliaria a proposta de terceirizar a violência 
 
 
 ## 👤 Resposta humana (diretriz para a rodada 4)
-_Aguardando resposta._
+(Recomendado) O Gulag Feudal e Expansão do Tráfico: Usar a Lei de Terras para expulsar qualquer morador de subsistência e confiscar a terra do país inteiro para as mesmas 10 famílias. Além disso, não só rasgar a Lei Eusébio de Queirós, mas oficializar o Tráfico Transatlântico pelo próprio Estado, mandando a Marinha atacar os navios ingleses que tentarem barrar os tumbeiros e isolando o Brasil do cenário global.
