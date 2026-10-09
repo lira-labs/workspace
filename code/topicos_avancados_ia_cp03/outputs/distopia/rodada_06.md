@@ -48,4 +48,4 @@ CAMINHOS POSSÍVEIS:
 
 
 ## 👤 Resposta humana (diretriz para a rodada 7)
-_Aguardando resposta._
+(Recomendado) A República Oligárquica e a Higiene do Terror: Dar um golpe militar estabelecendo uma ditadura fechada dos coronéis. Usar a reforma urbana do Rio como pretexto para uma brutal 'limpeza social', destruindo cortiços e expulsando os pobres à bala. Na saúde, decretar que quem resistir à vacinação não só será preso, mas terá a casa incendiada e será enviado aos Gulags rurais.
