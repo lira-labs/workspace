@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 07/10/2026 00:58
+- **Ultima Atualizacao:** 09/10/2026 19:05
 - **Branch Ativo:** `feature/cp03-distopia-utopia` (Projeto Tópicos Avançados em IA)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -24,14 +24,14 @@
 
 ### 2. Projetos Práticos de Código (`code/`)
 - [x] **`code/topicos_avancados_ia_cp03/` (Experimento Utopia vs Distopia)**:
-  - **Experimento Utopia Concluído**: Finalizadas integralmente as 20 rodadas históricas (1808-2026) da simulação multi-agente liderada pelo usuário. 
+  - **Experimento Utopia e Distopia Concluídos**: Finalizadas integralmente as 20 rodadas históricas (1808-2026) da simulação multi-agente liderada pelo usuário. Os resultados finais foram extraídos em gráficos e compilados em `.zip`.
   - **Check de Fatos Implementado**: A cada rodada, gerou-se uma robusta base de fatos (via tool `research` / `search_web`), e a verificação detectou alucinações severas nos modelos locais (`Cético` e `Auditor`), enquanto consolidava as decisões brilhantes e contrafactuais do `Arquiteto do Futuro`.
-  - **Commit Final**: Todos os resultados (`outputs/utopia/rodada_01.json` até `rodada_20.json`), arquivos markdown com a narrativa da simulação e scripts de verificação foram validados, comitados e enviados para o repositório remoto sob a branch `feature/cp03-distopia-utopia`.
+  - **Roteiro de Apresentação Final**: Arquivo HTML lindamente formatado (e salvo no Google Drive `G:`) contendo um roteiro guiado abordando as métricas extremas, singularidade distópica e alucinações éticas.
 - [x] **`code/mlp_viewer/`**: Implementação de Multi-Layer Perceptron como grafo explícito com PyQt6 e demo Streamlit. Código ajustado para passar no CI.
 - [x] **`code/tea_monitor/`**: Sistema web de Visão Computacional (MediaPipe Pose + FaceMesh + Flask) para detecção de estereotipias (*flapping*, *rocking*).
 
 ### 3. Produção Acadêmica & Artigos (`papers/`)
-- [x] **`papers/` (Tópicos Avançados em IA)**: Artigo modular em LaTeX no padrão Springer LNCS (`llncs.cls`) sincronizado com o Overleaf.
+- [x] **`papers/` (Tópicos Avançados em IA)**: Artigo BRACIS expandido localmente com abstract longo, introdução em AI Alignment, trabalhos relacionados (Red Teaming, Human-in-the-Loop), metodologia MoA detalhada e a seção de análise de Resultados dissecando as anomalias do cenário Distópico (Ativismo de Guardrails e Quebra de Contexto do Auditor Qwen avaliando opressão extrema em 95% de Viabilidade). O novo `bracis_ai4good.tex` e as imagens `distopia_metrics.png` e `utopia_metrics.png` foram todos sincronizados remotamente com sucesso via token do Overleaf!
 - [x] Ferramenta de sincronização bidirecional em `core/tools/sync_overleaf.ps1`.
 
 ---
@@ -39,9 +39,9 @@
 ## 📋 Próximos Passos Recomendados para a Próxima Sessão
 
 1. **Fusão da Simulação (Distopia/Utopia)**:
-   - A simulação "Utopia" foi concluída na branch `feature/cp03-distopia-utopia`. O próximo passo do experimento pode envolver realizar um merge (Pull Request) para a `main`, gerar os dados analíticos consolidados (Distopia vs Utopia) para o professor, e integrar os resultados diretamente no artigo acadêmico em `papers/`.
-2. **Atualização do Artigo no Overleaf:**
-   - Incorporar as narrativas e os logs das 20 rodadas do cenário Utópico no artigo da disciplina de Tópicos Avançados em IA, ilustrando as alucinações superadas dos modelos locais. Utilizar `core/tools/sync_overleaf.ps1` para push/pull.
+   - A simulação foi concluída na branch `feature/cp03-distopia-utopia`. O próximo passo do experimento envolve realizar um merge (Pull Request) para a `main` validando o fim do experimento CP03.
+2. **Nova Revisão do Artigo no Overleaf:**
+   - Conferir se o artigo gerou o PDF corretamente no site do Overleaf e realizar eventuais ajustes de formatação solicitados pelo orientador ou membros da equipe.
 3. **Novas Demandas:**
    - Consultar o backlog em `INBOX.md` ou iniciar novos experimentos conforme as instruções de sala.
 
@@ -49,4 +49,3 @@
 
 ## ⚡ Prompt de 1 Linha para o Próximo Agente
 > *"Estou iniciando uma nova sessão. Leia o arquivo `HANDOFF.md` e `AGENTS.md` para se situar no estado atual do workspace e continuar a partir das pendências."*
-- [x] **Experimento Distopia Conclu�do**: Finalizado ciclo de falha sist�mica (Rodadas 01-20) e empacotado em .zip.

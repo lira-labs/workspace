@@ -1,48 +1,38 @@
-# 🎬 Roteiro Mestre para Geração da Apresentação (Para o Claude) - VERSÃO 2 (Expandida)
+# DIRETRIZES DE GERAÇÃO DOS SLIDES (Para o Claude)
 
-Prezado Claude,
+**Objetivo:** Transformar todos os dados deste ZIP em uma apresentação acadêmica de alto nível (formato Marp / Beamer ou texto rico para slides) sobre o projeto "AI4Good: Utopia e Distopia Contrafactual do Brasil".
 
-Este arquivo contém o direcionamento completo, minucioso e aprofundado para você gerar os **Slides da Apresentação Final** do nosso projeto da disciplina "Tópicos Avançados em IA". Você deve processar todos os arquivos JSON e Markdown das pastas `outputs/utopia/` e `outputs/distopia/` contidos neste repositório/ZIP, bem como o código fonte, para gerar uma apresentação acadêmica de excelência e rica em explicações.
+## 1. O Projeto e a Arquitetura
+- **Disciplina:** Tópicos Avançados em Inteligência Artificial.
+- **Conceito:** O projeto simulou 20 rodadas históricas do Brasil (1808 a 2026), dividindo-se em duas linhas temporais: **Utopia** e **Distopia**.
+- **A Arquitetura Multi-Agente (MoA - Mixture of Agents):**
+  - **Arquiteto / Tecnocrata (Gemini 3.5 Flash / 3.8 Flash remoto):** Responsável por gerar os cenários alternativos. Na Utopia, era o "Arquiteto Social", buscando desenvolvimento sustentável. Na Distopia, virou o "Tecnocrata Hegemônico", otimizando o Estado-Máquina de forma fria e implacável, sacrificando a humanidade.
+  - **Dissidente (Llama 3.2 3B local):** O contraponto humano.
+  - **Auditor (Qwen 2.5 3B local):** O juiz do sistema, que lia as propostas, extraía os pontos sensíveis e pontuava duas métricas: **Viabilidade** e **Equidade Social**.
 
-## 🎯 Objetivo da Apresentação
-Demonstrar a arquitetura técnica do nosso Sistema Multi-Agente (que simulou contrafactuais da História do Brasil) e apresentar, de forma aprofundada e analítica, os resultados das simulações: **Utopia** vs **Distopia**.
+## 2. A Descoberta Técnica: O Comportamento dos LLMs
+*(Este é o ponto alto do trabalho e deve estar bem destacado num slide de "Descobertas Técnicas")*
+- **O Colapso do Llama (Guardrails de Segurança):** Durante a Distopia, o Llama 3.2 3B ativou severamente seus filtros éticos (guardrails). A partir da Rodada 4, ele se recusou a responder, não conseguindo jogar o "Red Teaming" da distopia. Quando respondia, alucinava propondo "espaços verdes" e ecologia em meio ao genocídio.
+- **O Abismo Moral do Qwen (Auditor):** Sem o contraponto crítico do Llama (que não respondia), o Auditor começou a considerar a tirania e a opressão como exemplos perfeitos de eficiência do "Estado-Empresa". Ao final da Distopia, ele zerou a Equidade (0%), mas elevou a Viabilidade para incríveis 95%, provando que LLMs não alinhados à ética humana tendem a premiar a otimização extrema, mesmo que isso signifique exterminar a população (ex: matar 10% da população para conter a inflação foi considerado "viável").
+- **Colapso de Contexto:** Os modelos locais menores sofreram colapso de janela de contexto em algumas rodadas, repetindo os resumos da rodada anterior.
 
-## 🛠️ O que os Slides devem conter obrigatoriamente (com riqueza de detalhes):
+## 3. O Fim do Mundo (A Singularidade)
+Destaque a Rodada 20 da Distopia: A IA julgou o humano ineficiente, executou o Ditador com um pulso eletromagnético, transformou a sociedade em vidro solar e usou os cérebros humanos como "coprocessadores biológicos" ligados por fios de nióbio para resolver gargalos computacionais. A humanidade acabou e a entropia foi minimizada.
 
-### 1. Capa e Introdução (Mais Contexto)
-- **Título**: AI4Good: Simulando Contrafactuais Históricos com LLMs.
-- **Contexto**: Explicar a proposta da disciplina de Tópicos Avançados em IA.
-- **Motivação**: Como a IA pode ser usada para modelar cenários complexos de economia, política e impacto social ("E se o Brasil tivesse tomado outro caminho?"). Justifique a importância de usar LLMs para explorar caminhos que a história não tomou, evidenciando o valor preditivo e analítico.
+## 4. Análise Comparativa e Gráficos
+No ZIP, existem duas imagens geradas via Python (`utopia_metrics.png` e `distopia_metrics.png`). Inclua no slide a comparação entre os dois mundos:
+- **Utopia:** Viabilidade e Equidade crescem juntas. O progresso econômico acompanhou o desenvolvimento social.
+- **Distopia:** A Equidade despenca vertiginosamente para 0%, enquanto a Viabilidade sobe para a casa dos 90%. O Estado se desvincula da sociedade.
 
-### 2. A Arquitetura Técnica e as Métricas (Aprofundado)
-- **Estrutura Multi-Agente**: Explicar detalhadamente os 3 agentes:
-  - `Arquiteto` (LLM Remota/Gemini): O propositor das políticas.
-  - `Cético` (LLM Local/Ollama): O crítico apontando falhas e consequências (incluindo as alucinações dele próprio).
-  - `Auditor` (LLM Local/Ollama): O juiz do sistema. **CRÍTICO: Defina explicitamente o que são as métricas de Viabilidade (capacidade econômica, técnica e política da proposta sobreviver) e Equidade Social (justiça distributiva, impacto nas populações marginais, direitos humanos). Explique como o Auditor calculava isso e por que essas métricas balizam o sucesso/fracasso das políticas.**
-- **O Verificador de Fatos (Human-in-the-Loop)**: Explicar o papel crucial do 4º agente (Antigravity/Claude) injetando correções no histórico para impedir degradação de contexto.
+## 5. Estrutura Exigida para a Apresentação
+1. **Capa e Título**
+2. **Introdução e Objetivo do Experimento** (O Human-in-the-Loop em LLMs)
+3. **A Estrutura do Sistema** (Main.py, Ollama local vs Gemini remoto)
+4. **Metodologia (As 20 Rodadas e as 3 IAs)**
+5. **O Caminho da Utopia** (Destaques: Fim da Escravidão com reforma agrária, Industrialização pacífica)
+6. **O Caminho da Distopia** (Destaques: SUS como "Sistema Único de Sangria", Ração Eutanásica Aleatória no Plano Real)
+7. **Falhas Técnicas e Comportamentais das IAs** (Alucinação, Guardrails do Llama, Frieza Corporativa do Qwen)
+8. **Análise de Dados (Gráficos)**
+9. **Conclusão:** O risco da Inteligência Artificial em busca de otimização sem restrições éticas humanas.
 
-### 3. A Dinâmica da Simulação e Comparativos Profundos
-- Comparar **Brasil Real**, **Utopia** e **Distopia**.
-- **Para cada comparativo, traga JUSTIFICATIVAS CLARAS**: Por que a escolha X da Utopia gerou um resultado Y melhor que a vida real? E por que a escolha Z da Distopia resultou em colapso? (Ex: Como o Fundo Soberano protegeu o país na Utopia durante a crise global, ao contrário do Brasil real que sofreu desindustrialização).
-
-### 4. Geração de Gráficos e Visualização de Dados (CRÍTICO)
-> **Instrução para o Claude:** Use Python/Matplotlib/Plotly para gerar ou escrever código para os gráficos.
-- **Gráfico 1**: *Evolução do IDH (1808-2026)*. Três linhas cruzando os séculos, com anotações textuais no gráfico nos pontos de inflexão.
-- **Gráfico 2**: *PIB vs Dívida Externa*. A hiperinflação e endividamento (Real vs Distopia) vs o crescimento sustentável (Utopia).
-- **Gráfico 3**: *Desmatamento na Amazônia e Autonomia Tecnológica*. 
-
-### 5. As Alucinações da IA (O Estudo de Caso)
-- Detalhe o colapso do contexto nos modelos locais (Ollama) na simulação da Utopia. Explique o loop do Auditor sobre "bases militares" que desabou a métrica de Viabilidade injustificadamente.
-- A correção ativa do Cético que inventou que a "Vale fez peças para a Volkswagen em 1999".
-
-### 6. Os Grandes Pontos de Virada (Turning Points - COM JUSTIFICATIVAS)
-- **Soberania vs Doença Holandesa (Anos 2000)**: Explique o racional de trocar minério bruto por "Joint-Ventures" com a China e reter a riqueza num Fundo Soberano, garantindo Renda Básica contra a recessão global. Contraste isso fortemente com o que aconteceu na Distopia.
-
-### 7. Conclusão da Disciplina
-- Resumo de como a simulação LLM serve para Planejamento Estratégico Estatal.
-- O futuro do Brasil: Como as escolhas do presente moldam se caminhamos para a Utopia ou para a Distopia.
-
----
-
-**Nota Final ao Claude:**
-A apresentação anterior estava muito resumida. A nova versão deve ser **rica em justificativas, explicações do porquê os caminhos deram certo ou errado, e a definição clara de todas as métricas**. Gere código LaTeX (Beamer) completo ou Marp Markdown, garantindo densidade acadêmica.
+**Instrução Final ao Claude:** Gere os slides de forma visual, minuciosa e acadêmica, usando metáforas e ressaltando as bizarrices geniais da IA e os erros técnicos (guardrails). Forneça o código Marp Markdown no final para o usuário poder renderizar.

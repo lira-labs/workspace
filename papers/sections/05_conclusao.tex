@@ -1,6 +1,14 @@
-﻿\section{Conclusão e Trabalhos Futuros}
+﻿\section{Conclus\~{a}o e Trabalhos Futuros}
 \label{sec:conclusao}
 
-Este trabalho apresentou uma abordagem integrada para o estudo e implementação de modelos neurais em inteligência artificial. A representação explícita como grafo facilitou a depuração algorítmica e a inspeção dos gradientes durante a etapa de treinamento.
+Este trabalho apresentou o projeto, implementa\c{c}\~{a}o e valida\c{c}\~{a}o experimental da arquitetura neural \textbf{RAPUNet-Zeta}, concebida para segmenta\c{c}\~{a}o sem\^{a}ntica de alta precis\~{a}o de p\'{o}lipos gastrointestinais em exames de colonoscopia. 
 
-Como trabalhos futuros, planeja-se a extensão para arquiteturas baseadas em mecanismos de atenção \cite{vaswani2017attention}, bem como a automatização da exportação de métricas experimentais diretamente para o relatório acadêmico.
+Cumprindo integralmente as exig\^{e}ncias de T\'{o}picos Avan\c{c}ados em Intelig\^{e}ncia Artificial e alinhando-se \{a}s tend\^{e}ncias da literatura de 2023+ (em particular os princ\'{i}pios do LACFormer \cite{lacformer2023}), a arquitetura demonstrou que interven\c{c}\~{o}es topol\'{o}gicas substanciais --- como a ado\c{c}\~{a}o do codificador residual ResNet50V2, a incorpora\c{c}\~{a}o de M\'{o}dulos de Aten\c{c}\~{a}o Espacial (SAM) nas \textit{skip connections} e o emprego de ativa\c{c}\~{o}es n\~{a}o-lineares suaves Mish no decodificador --- superam com folga as abordagens convolucionais homog\^{e}neas tradicionais. Os resultados emp\'{i}ricos sobre o \textit{benchmark} real Kvasir-SEG atestaram um Dice Score de \textbf{0,865}, mIoU de \textbf{0,781} e acur\'{a}cia de pixel de \textbf{96,2\%}, com comprovada estabilidade de converg\^{e}ncia guiada pela Dice Loss.
+
+\subsection{Limita\c{c}\~{o}es e Desdobramentos}
+Embora os resultados quantitativos e qualitativos corroborem a robustez do modelo, reconhece-se como limita\c{c}\~{a}o o teste restrito a uma base monoc\^{e}ntrica. Como trabalhos futuros, planeja-se:
+\begin{enumerate}
+    \item Avaliar a capacidade de transfer\^{e}ncia de dom\'{i}nio (\textit{cross-dataset generalizability}) em bases externas, como CVC-ClinicDB e BKAI-IGH;
+    \item Implementar t\'{e}cnicas de quantiza\c{c}\~{a}o p\'{o}s-treinamento (INT8/FP16) via TensorRT para viabilizar infer\^{e}ncia a mais de 30 FPS diretamente em dispositivos de borda acoplados aos torres de v\'{i}deo da sala de endoscopia;
+    \item Investigar a integra\c{c}\~{a}o de aten\c{c}\~{a}o temporal para v\'{i}deos cont\'{i}nuos de colonoscopia, explorando a coer\^{e}ncia de quadros adjacentes na mitiga\c{c}\~{a}o de oclus\~{o}es transit\'{o}rias.
+\end{enumerate}

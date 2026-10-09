@@ -1,5 +1,4 @@
 ﻿\documentclass[runningheads]{llncs}
-
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -7,15 +6,17 @@
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
 \renewcommand\UrlFont{\color{blue}\rmfamily}
 \urlstyle{rm}
 
 \begin{document}
 
-\title{Investigação e Implementação de Modelos Neurais em Tópicos Avançados de Inteligência Artificial}
-\titlerunning{Modelos Neurais em Tópicos Avançados de IA}
+\title{Investiga\c{c}\~{a}o e Implementa\c{c}\~{a}o de Redes Neurais Convolucionais em T\'{o}picos Avan\c{c}ados de Intelig\^{e}ncia Artificial}
+\titlerunning{Modelos Convolucionais Avan\c{c}ados em IA}
 
-\author{Cauã Lira\inst{1}}
+\author{Cau\~{a} Lira\inst{1}}
 \authorrunning{C. Lira}
 
 \institute{Universidade Federal Rural de Pernambuco (UFRPE)\\
@@ -25,20 +26,19 @@ Recife - PE, Brasil\\
 \maketitle
 
 \begin{abstract}
-Este trabalho apresenta o estudo, projeto e implementação de arquiteturas neurais avançadas no âmbito da disciplina de Tópicos Avançados em Inteligência Artificial. Através de uma abordagem baseada em grafo explícito e experimentação empírica, investigam-se os impactos de hiperparâmetros, dinâmicas de treinamento e convergência de gradientes. Os resultados obtidos demonstram a consistência dos métodos propostos, validando a integração entre o ambiente de experimentação prática e a análise técnica formal.
+This work presents the design, implementation, and empirical evaluation of a modified Convolutional Neural Network (CNN), named RAPUNet-Zeta, for the semantic segmentation of gastrointestinal polyps. Fulfilling the practical requirements of Advanced Topics in Artificial Intelligence, the model extends recent architectures (2023+) by utilizing deep feature extraction via ResNet50V2, the integration of Spatial Attention modules, and Mish activations. Evaluated on the Kvasir-SEG dataset, the model demonstrated rapid convergence, validating the efficacy of the proposed topology through rigorous metrics such as the Dice Coefficient and qualitative inference analysis.
 
-\keywords{Inteligência Artificial \and Redes Neurais \and Multi-Layer Perceptron \and Grafo Explícito \and Aprendizado Profundo.}
+\keywords{Artificial Intelligence \and Convolutional Neural Networks \and Medical Image Segmentation \and Kvasir-SEG \and Spatial Attention.}
 \end{abstract}
 
-% --- Seções Modulares ---
 \input{sections/01_introducao.tex}
 \input{sections/02_trabalhos_relacionados.tex}
 \input{sections/03_metodologia.tex}
 \input{sections/04_experimentos.tex}
 \input{sections/05_conclusao.tex}
 
-% --- Referências Bibliográficas (Estilo Springer LNCS) ---
 \bibliographystyle{splncs04}
 \bibliography{references}
 
 \end{document}
+
