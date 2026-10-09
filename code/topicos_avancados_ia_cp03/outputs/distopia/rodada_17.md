@@ -42,4 +42,4 @@ PERGUNTA AO HUMANO: Como você avaliaria a viabilidade e a equidade social dessa
 
 
 ## 👤 Resposta humana (diretriz para a rodada 18)
-_Aguardando resposta._
+(Recomendado) Lava-Sangue e Teto Vital: Em vez de combater corrupção, a 'Lava Jato' vira uma milícia corporativa que invade casas para executar sumariamente quem escondeu parentes da 'Bolsa Sangue'. O 'Teto de Gastos' proíbe legalmente o Estado de investir uma única gota de água ou nutriente nos cidadãos por 20 anos. O pouco que sobra vai exclusivamente para lubrificar as engrenagens das térmicas.
