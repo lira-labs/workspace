@@ -49,4 +49,4 @@ Como você avaliaria a proposta de implementar a rede nacional de Complexos de D
 
 
 ## 👤 Resposta humana (diretriz para a rodada 11)
-_Aguardando resposta._
+(Recomendado) O Holocausto Atômico Nacional: A Constituição de 1946 não existe. Com o Eixo derrotado, o Ditador sobrevive entregando o controle de todas as riquezas ao vencedor. Todo o petróleo (Petrobras vira empresa de fachada) e urânio são doados aos EUA e a URSS, que transformam o litoral do Nordeste e a Amazônia em campos de testes de bombas nucleares. A população trabalha sob radiação para extrair urânio até a morte.
