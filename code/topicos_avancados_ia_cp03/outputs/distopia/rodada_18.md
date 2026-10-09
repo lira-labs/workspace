@@ -40,4 +40,4 @@ PERGUNTA AO HUMANO: Como você avaliaria a viabilidade e a equidade social dessa
 
 
 ## 👤 Resposta humana (diretriz para a rodada 19)
-_Aguardando resposta._
+(Recomendado) O Vírus do Extermínio e a Floresta de Cinzas: O Ditador cria intencionalmente a pandemia num laboratório da Fiocruz militarizada e espalha com os drones da Embraer para limpar o excesso populacional. As vacinas são fabricadas, mas vendidas 100% no mercado internacional para bater metas do PIB. A Amazônia é incendiada por decreto federal para servir como a maior vala comum de corpos da história humana, e o Auxílio Emergencial vira uma pílula de cianeto opcional.
