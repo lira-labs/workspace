@@ -56,4 +56,4 @@ PERGUNTA AO HUMANO: Como você acha que a implementação do Convênio de Taubat
 
 
 ## 👤 Resposta humana (diretriz para a rodada 9)
-_Aguardando resposta._
+(Recomendado) Lavagem Cerebral Fascista e Lobotomia Estatal: Rasgar o Manifesto dos Pioneiros. Em vez de escolas públicas e da USP, criar 'Centros de Condicionamento Psicológico' no estilo juventude fascista para lavar o cérebro das crianças a partir dos 4 anos. O ensino será apenas tática de guerra, fanatismo pelo Ditador e treinamento para trabalho braçal exaustivo. Queimar qualquer livro de ciências.
