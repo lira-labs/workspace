@@ -61,4 +61,4 @@ CAMINHOS POSSÍVEIS:
 
 
 ## 👤 Resposta humana (diretriz para a rodada 3)
-_Aguardando resposta._
+Senhores da Guerra Provinciais: Desistir de um Exército unificado e terceirizar a violência. Dar plenos poderes às milícias privadas dos barões locais para que cometam limpeza étnica e massacre indiscriminado contra as rebeliões, afundando o país na mais pura anarquia feudal.
