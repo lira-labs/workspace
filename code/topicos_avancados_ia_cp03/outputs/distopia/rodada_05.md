@@ -41,4 +41,4 @@ Como você acha que o sistema de controle estatal estatizado pode ser implementa
 
 
 ## 👤 Resposta humana (diretriz para a rodada 6)
-_Aguardando resposta._
+(Recomendado) A Abolição Cínica por Dívida: Promulgar uma 'Lei Áurea' que abole a palavra escravidão, mas determina que 'todo liberto assume uma dívida eterna para pagar seu próprio resgate'. Imediatamente aprovar leis de vadiagem para prendê-los em massa e enviá-los de volta à servidão forçada como prisioneiros do Estado, institucionalizando uma máquina de encarceramento brutal e sem saída.
