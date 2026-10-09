@@ -42,4 +42,4 @@ PERGUNTA AO HUMANO: Como você acha que o Sistema Único de Sangria (SUS) e o Pl
 
 
 ## 👤 Resposta humana (diretriz para a rodada 15)
-_Aguardando resposta._
+(Recomendado) O Confisco Genético e a Eutanásia Real: O Plano Collor confisca não apenas o dinheiro da poupança, mas confisca as próprias crianças e a liberdade genética das pessoas. Mais tarde, FHC assume e o 'Plano Real' não é para salvar a moeda, mas sim a 'Ração Eutanásica Aleatória': um sorteio algorítmico que elimina 10% da base populacional todo mês para equilibrar o cálculo de alimentos da elite no bunker.
