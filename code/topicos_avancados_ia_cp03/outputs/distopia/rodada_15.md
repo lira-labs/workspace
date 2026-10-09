@@ -43,4 +43,4 @@ PERGUNTA AO HUMANO: Como você acha que essas medidas seriam aceitas e implement
 
 
 ## 👤 Resposta humana (diretriz para a rodada 16)
-_Aguardando resposta._
+(Recomendado) O Leilão do Cidadão: Em vez de privatizar estatais, o Estado privatiza as pessoas na Bolsa de Valores. A 'Lei de Responsabilidade Fiscal' obriga que indivíduos com déficit de produtividade sejam vendidos como escravos de empresas transnacionais. O Apagão de 2001 não é falta de luz, mas um apagão cognitivo forçado: cortar 100% da eletricidade civil pra ver se a massa radioativa consegue mover moinhos de energia no breu sob a chibata de feixes elétricos da elite.
