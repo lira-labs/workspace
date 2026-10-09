@@ -42,4 +42,4 @@ PERGUNTA AO HUMANO: Como você avaliaria a proposta de racionamento de energia c
 
 
 ## 👤 Resposta humana (diretriz para a rodada 17)
-_Aguardando resposta._
+(Recomendado) A Bolsa-Fome Extrativista e o Abismo do Pré-Sal: O 'Bolsa Família' é implementado como 'Bolsa Sangue': a família só ganha água se extrair e doar os rins ou córneas dos recém-nascidos para exportação à China. O 'Pré-Sal' é o nome dado a uma fossa oceânica vulcânica para onde os indivíduos exaustos são atirados para derreter e alimentar térmicas da elite. O ProUni treina apenas carrascos para o Bunker.
