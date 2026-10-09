@@ -61,4 +61,4 @@ PERGUNTA AO HUMANO: Como você acha que podemos equilibrar a necessidade de prot
 
 
 ## 👤 Resposta humana (diretriz para a rodada 13)
-_Aguardando resposta._
+O Colapso do Bloqueio e o Breu Absoluto: A Ditadura tenta instalar uma réplica de Cuba no Brasil para criar terror contra os EUA. Os americanos promovem um bloqueio marítimo absoluto. Toda a energia elétrica do país é cortada ou destruída. O AI-5 opera na escuridão total, com esquadrões da morte noturnos caçando qualquer opositor usando a infraestrutura abandonada da Petrobras.
