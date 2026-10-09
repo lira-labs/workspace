@@ -45,4 +45,4 @@ Como você acha que seria possível equilibrar a ideia de criar centros de condi
 
 
 ## 👤 Resposta humana (diretriz para a rodada 10)
-_Aguardando resposta._
+(Recomendado) O Eixo Tropical e Campos de Concentração: Em vez de se aliar aos EUA, Vargas se alia abertamente à Alemanha Nazista. A siderúrgica de Volta Redonda (CSN) se torna a principal fornecedora de aço para os submarinos do Eixo. O DIP vira uma Gestapo tropical, e a CLT é revertida num 'Estatuto da Pureza Racial e Trabalho Compulsório', com campos de extermínio sendo abertos no interior da Amazônia para dissidentes e 'indesejáveis'.
