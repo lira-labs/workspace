@@ -42,4 +42,4 @@ PERGUNTA AO HUMANO: Como você avaliaria a viabilidade e equidade da proposta de
 
 
 ## 👤 Resposta humana (diretriz para a rodada 14)
-_Aguardando resposta._
+(Recomendado) O 'Diretas Jamais' e o SUS Reverso: A ditadura esmaga os civis. A Constituição de 1988 vira a 'Constituição de Casta Feudal'. O SUS (Sistema Único de Saúde) é criado na forma invertida: 'Sistema Único de Sangria', feito para extrair plasma e sangue da população escravizada para exportar aos hospitais dos EUA e abater os juros do FMI. O 'Plano Cruzado' é apenas o confisco de qualquer talher ou ferramenta metálica que possa virar arma.
