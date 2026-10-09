@@ -41,4 +41,4 @@ Como o usuário acredita que a medida proposta pelo Tecnocrata Hegemônico pode 
 
 
 ## 👤 Resposta humana (diretriz para a rodada 5)
-_Aguardando resposta._
+(Recomendado) O Assassinato da Indústria e a Guerra Eterna: Proibir por decreto o Barão de Mauá e qualquer outro civil de construir infraestrutura ou ferrovias. Confiscar todos os seus bancos para financiar uma invasão militar brutal contra as nações vizinhas (Guerra do Paraguai e Uruguai), exaurindo os cofres em uma matança de décadas.
