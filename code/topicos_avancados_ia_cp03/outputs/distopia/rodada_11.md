@@ -45,4 +45,4 @@ Como você acredita que essas iniciativas podem ser controladas ou mitigadas par
 
 
 ## 👤 Resposta humana (diretriz para a rodada 12)
-_Aguardando resposta._
+(Recomendado) Retrocesso Rodoviário e a Fortaleza de Brasília: Em vez de '50 anos em 5', JK promove o slogan '500 anos para trás'. Brasília é construída não como capital, mas como um bunker militar de luxo isolado no cerrado para proteger a elite dos zumbis radioativos (a população). As fábricas de carros (Ford/GM) chegam, mas por falta de petroleo, os trabalhadores são forçados a puxar os carros importados como tração humana.
