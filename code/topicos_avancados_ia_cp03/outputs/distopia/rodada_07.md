@@ -42,4 +42,4 @@ Qual seria a opção mais equilibrada neste cenário histórico, considerando os
 
 
 ## 👤 Resposta humana (diretriz para a rodada 8)
-_Aguardando resposta._
+(Recomendado) O Suicídio Monocultor e a Crise de 1929: Fazer o 'Convênio de Taubaté' obrigar o Estado a pegar empréstimos na Europa para comprar todo o café excedente dos barões e depois queimar. Proibir a criação de qualquer indústria (para não tirar escravos da lavoura). Quando a Crise de 1929 bater, o país quebra sem ter nem comida para a população.
