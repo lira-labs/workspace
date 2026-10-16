@@ -4,8 +4,8 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 09/10/2026 19:05
-- **Branch Ativo:** `feature/cp03-distopia-utopia` (Projeto Tópicos Avançados em IA)
+- **Ultima Atualizacao:** 15/10/2026 21:32
+- **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -20,32 +20,31 @@
 ### 1. Infraestrutura & Workspace OS
 - [x] Sincronização multi-máquina configurada: clone completo no Desktop (`C:\Users\ccunh\Documents\workspace`).
 - [x] Sistema de **Auto-Handoff** implementado: regras canônicas em `AGENTS.md`, regras em `.agent/rules/`, skill `.agent/skills/auto-handoff` e script automatizado `core/tools/handoff.ps1`.
-- [x] Resolução de problemas no CI (`ci.yml`) que estava travando o projeto `mlp_viewer` com erros de flake8/black e falhas de parse. O build agora está verde.
+- [x] Resolução de problemas no CI (`ci.yml`) e build verde.
 
-### 2. Projetos Práticos de Código (`code/`)
-- [x] **`code/topicos_avancados_ia_cp03/` (Experimento Utopia vs Distopia)**:
-  - **Experimento Utopia e Distopia Concluídos**: Finalizadas integralmente as 20 rodadas históricas (1808-2026) da simulação multi-agente liderada pelo usuário. Os resultados finais foram extraídos em gráficos e compilados em `.zip`.
-  - **Check de Fatos Implementado**: A cada rodada, gerou-se uma robusta base de fatos (via tool `research` / `search_web`), e a verificação detectou alucinações severas nos modelos locais (`Cético` e `Auditor`), enquanto consolidava as decisões brilhantes e contrafactuais do `Arquiteto do Futuro`.
-  - **Roteiro de Apresentação Final**: Arquivo HTML lindamente formatado (e salvo no Google Drive `G:`) contendo um roteiro guiado abordando as métricas extremas, singularidade distópica e alucinações éticas.
-- [x] **`code/mlp_viewer/`**: Implementação de Multi-Layer Perceptron como grafo explícito com PyQt6 e demo Streamlit. Código ajustado para passar no CI.
-- [x] **`code/tea_monitor/`**: Sistema web de Visão Computacional (MediaPipe Pose + FaceMesh + Flask) para detecção de estereotipias (*flapping*, *rocking*).
+### 2. Artefatos da VA2 (`va2/`) — Tópicos Avançados em IA (AI4Good)
+- [x] **`va2/brw.md` (Artefato `[3] Brainwriting Híbrido` — Projeto *Mar Aberto Paulista*)**:
+  - Construído passo a passo com o estudante (**Cauã da Cunha Lira**) seguindo rigorosamente a tríade oficial (`brw/modelo.md`, `brw/excelente.md` e `brw/raso.md`).
+  - **Foco Geográfico e Dados Reais:** Praias de Paulista-PE (**Janga, Pau Amarelo, Conceição e Maria Farinha**), fundamentado com estatísticas oficiais do **Ranking do Saneamento Trata Brasil 2026** (85ª posição, 40,5% de coleta de esgoto), **CPRH** (pontos impróprios na Rua Betânia, Cláudio S. Bastos, Forte de Pau Amarelo e Cabanga) e **SIH/SIM-DATASUS via Infosanbas/UFMG** (1.907 internações hospitalares graves e 695 óbitos acumulados por DRSAI em Paulista).
+  - **Arquitetura de IA e Hardware:** CNN on-device para leitura colorimétrica CIELAB de pulseiras reagentes Tyvek com marcador ArUco (`~R$ 0,70/un.`), Bóias IoT solares de baixo custo com ESP32 + ST100 + PH4502C + TDS + DS18B20 (`~R$ 490/un.`), Agentes MCP consultando Tábua de Marés da Marinha (DHN) e chuvas da APAC, e Rede Neural em Grafo Espaço-Temporal (ST-GNN) ligando descargas costeiras em microzonas de 300m aos atendimentos de gastroenterite nas USFs e na UPA de Jardim Paulista.
+  - **Protótipos Visuais e Orçamento (BOM):** Ilustrações técnicas geradas em `va2/img/pulseira_sentinela.png` e `va2/img/boia_iot_paulista.png` + tabela de preços e links reais de compra no Brasil (Usinainfo e Mercado Livre).
 
-### 3. Produção Acadêmica & Artigos (`papers/`)
-- [x] **`papers/` (Tópicos Avançados em IA)**: Artigo BRACIS expandido localmente com abstract longo, introdução em AI Alignment, trabalhos relacionados (Red Teaming, Human-in-the-Loop), metodologia MoA detalhada e a seção de análise de Resultados dissecando as anomalias do cenário Distópico (Ativismo de Guardrails e Quebra de Contexto do Auditor Qwen avaliando opressão extrema em 95% de Viabilidade). O novo `bracis_ai4good.tex` e as imagens `distopia_metrics.png` e `utopia_metrics.png` foram todos sincronizados remotamente com sucesso via token do Overleaf!
-- [x] Ferramenta de sincronização bidirecional em `core/tools/sync_overleaf.ps1`.
+### 3. Projetos Práticos da VA1 (`code/` e `papers/`)
+- [x] **`code/topicos_avancados_ia_cp03/` (Experimento Utopia vs Distopia)** e artigo BRACIS sincronizado no Overleaf (`papers/`).
+- [x] **`code/mlp_viewer/`** e **`code/tea_monitor/`** concluídos.
 
 ---
 
 ## 📋 Próximos Passos Recomendados para a Próxima Sessão
 
-1. **Fusão da Simulação (Distopia/Utopia)**:
-   - A simulação foi concluída na branch `feature/cp03-distopia-utopia`. O próximo passo do experimento envolve realizar um merge (Pull Request) para a `main` validando o fim do experimento CP03.
-2. **Nova Revisão do Artigo no Overleaf:**
-   - Conferir se o artigo gerou o PDF corretamente no site do Overleaf e realizar eventuais ajustes de formatação solicitados pelo orientador ou membros da equipe.
-3. **Novas Demandas:**
-   - Consultar o backlog em `INBOX.md` ou iniciar novos experimentos conforme as instruções de sala.
+1. **Mentoria e Próximo Artefato da VA2 (`cmp · competidores e contribuição`):**
+   - Na aula de mentoria (16/10), apresentar o `va2/brw.md` e iniciar o artefato `cmp` (matriz de competidores e definição da contribuição científica do *Mar Aberto Paulista* para a introdução do artigo).
+2. **Fluxograma, Arquitetura e Desenho Experimental (`flx` e `exp`):**
+   - Preparar os artefatos das aulas de 21/10 (`flx`) e 23/10 (`exp` — *baseline* e *ablation study*) visando a Checagem Geral Ponto a Ponto em **30/10**.
+3. **Checagem Pendente da VA1:**
+   - Validar com o Prof. Lucas os itens já prontos de `arq·c`, `arq·p`, `arn·c`, `arn·p` e o 4º item de `tex`.
 
 ---
 
 ## ⚡ Prompt de 1 Linha para o Próximo Agente
-> *"Estou iniciando uma nova sessão. Leia o arquivo `HANDOFF.md` e `AGENTS.md` para se situar no estado atual do workspace e continuar a partir das pendências."*
+> *"Estou iniciando uma nova sessão. Leia o arquivo `HANDOFF.md` e `AGENTS.md` para se situar no estado atual do workspace e continuar a partir das pendências da VA2 (Mar Aberto Paulista)."*
