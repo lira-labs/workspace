@@ -1,6 +1,6 @@
 # brw · Cauã da Cunha Lira
 
-> folha do artefato [brainwriting híbrido](../3-brainwriting-hibrido.md). siga o guia passo a passo
+> folha do artefato [brainwriting híbrido](https://www.google.com/search?q=../3-brainwriting-hibrido.md). siga o guia passo a passo
 > e preencha cada seção aqui. as decisões são suas, e decidir é saber explicar.
 
 ## 1 · onde atacar
@@ -17,44 +17,35 @@
 | [ ] | endividamento e dreno das *bets* |
 | [ ] | moradia e especulação (casas vazias) |
 | [ ] | concentração de plataformas e trabalho |
-| [x] | outra: apagão da demanda reprimida e má distribuição de frota no transporte público urbano (o "paradoxo da catraca" que condena linhas a intervalos de 1 em 1 hora) |
+| [x] | outra: apagão da demanda reprimida e má distribuição de frota no transporte público urbano (o "paradoxo da catraca" e a censura estrutural da bilhetagem eletrônica) |
 
-por que esta crise: onde o ônibus demora uma hora para passar, muita gente desiste na parada e busca transporte alternativo; como o sistema mede demanda quase só pelo giro da catraca, interpreta o ponto vazio como falta de passageiro e corta ainda mais horários, fazendo o Brasil perder 19,1 milhões de viagens pagantes por dia na última década (NTU) num setor que custa R$ 75,7 bilhões ao ano.
+por que esta crise: na parada perto de casa vejo vizinho esperando ônibus por mais de 50 minutos até desistir e pagar corrida de moto ou van pirata. enquanto isso, a prefeitura olha para o relatório da catraca vazia, acha que a linha perdeu passageiros e corta mais horários da tabela. quero que o transporte público enxergue quem desiste no ponto antes de condenar a linha ao abandono.
 
 **tecnologias de IA** (marque 3 e chame de A, B, C):
 
 | | tecnologia de IA |
 |:-:|:--|
-| [x] C | modelos locais / no aparelho (*SLMs*, 1B–7B) |
+| [x] A | grafos e RAG (redes neurais de grafos espaço-temporais) |
 | [x] B | sistemas multiagente e agência (*tools*, MCP) |
-| [ ] | visão computacional e OCR |
-| [ ] | voz (fala ↔ texto) e interfaces sem tela |
-| [x] A | grafos e RAG (redes de grafos, busca vetorial) |
-| [ ] | modelos de difusão / geração visual |
-| [ ] | outra: |
+| [x] C | modelos locais / no aparelho (*SLMs*, 1B–7B) |
 
 **infraestruturas tradicionais** (marque 3 e chame de 1, 2, 3):
 
 | | infraestrutura |
 |:-:|:--|
-| [x] 3 | plataformas de dois lados (*matching*, como Uber) |
 | [x] 1 | geolocalização, GPS e mapas |
-| [ ] | e-commerce, marketplaces e catálogos |
-| [ ] | mensageria leve e bots (WhatsApp, SMS) |
-| [ ] | redes sociais, feeds e comunidades |
-| [ ] | pagamento instantâneo (Pix, moeda local) |
 | [x] 2 | crowdsourcing e curadoria coletiva |
-| [ ] | outra: |
+| [x] 3 | plataformas de dois lados (*matching*, como Uber) |
 
 ## 2 · clichês
 
 | clichê | o que acerta | onde fica raso |
 |:--|:--|:--|
-| app de horário de ônibus (Cittamobi, Moovit) | mostra no mapa onde o veículo está e ajuda o passageiro a decidir se espera. | trata a consulta como leitura passiva; se o ônibus vai demorar 50 minutos e a pessoa fecha o app e desiste, essa demanda perdida desaparece sem gerar registro. |
-| planejamento de frota pela bilhetagem eletrônica (catraca) | contabiliza com precisão quem conseguiu embarcar e pagar passagem. | confunde oferta com demanda total: ignora quem desistiu na parada por falta de ônibus ou porque o veículo passou lotado. |
-| pesquisa Origem-Destino (OD) por formulário | levanta deslocamentos desejados fora do que a catraca registra. | custa caro, leva anos para atualizar e depende da boa vontade de responder questionários longos, nascendo defasada. |
-| ouvidoria e chatbot de reclamação de linhas | abre um canal formal para registrar queixas sobre atrasos e superlotação. | exige trabalho extra de quem já perdeu o ônibus; reclamações textuais avulsas não formam uma matriz espaço-temporal para recalcular a tabela horária. |
-| painel gerencial de GPS das empresas | fiscaliza se a frota cumpriu as viagens programadas na tabela oficial. | audita apenas se o quadro horário atual foi cumprido, sem enxergar se a própria tabela está subdimensionada naquele bairro ou rodando vazia em outro. |
+| app de horário de ônibus (Cittamobi, Moovit) | mostra no mapa onde o veículo está e ajuda o passageiro a decidir se espera. | trata a consulta como leitura passiva; se a pessoa vê um atraso de 50 minutos e fecha o app para desistir, essa intenção de viagem evapora sem gerar registro de demanda no sistema. |
+| planejamento de frota pela bilhetagem eletrônica (catraca) | contabiliza com precisão quem conseguiu embarcar e pagar a tarifa. | sofre de censura estrutural de demanda (*demand unconstraining*): mede capacidade consumida, não demanda real; ignora quem desistiu pelo intervalo ou não conseguiu subir porque o veículo passou lotado. |
+| pesquisa Origem-Destino (OD) por formulário | levanta deslocamentos desejados fora do que a catraca registra. | custa milhões, leva anos para atualizar e tem baixa resolução temporal; nasce defasada e não detecta gargalos operacionais cotidianos. |
+| ouvidoria e chatbot de reclamação de linhas | abre um canal formal para registrar queixas sobre atrasos e superlotação. | gera relatos textuais isolados e sem coordenadas; não constrói o tensor espaço-temporal necessário para recalcular e calibrar a tabela horária. |
+| painel gerencial de GPS das operadoras | fiscaliza se a frota cumpriu as viagens programadas na tabela oficial. | audita apenas a conformidade do quadro vigente, sendo cego para saber se a própria tabela roda vazia em um bairro enquanto outro sofre escassez de veículos. |
 
 ## 3 · matriz 3 × 3 e a minha ideia
 
@@ -62,75 +53,117 @@ cada célula: **nome** · frase de até 20 palavras (quem usa, o que faz).
 
 | | 1 · geolocalização, GPS e mapas | 2 · crowdsourcing e curadoria coletiva | 3 · plataformas de dois lados (*matching*) |
 |:--|:--|:--|:--|
-| **A · grafos e RAG** | **GrafoParada** · passageiros abrem paradas no mapa com GPS ativo; rede de grafos cruza buscas e frota para medir demanda reprimida. | **MapaLotação** · usuários sinalizam paradas cheias; rede de grafos propaga alertas de superlotação para paradas seguintes da mesma linha. | **RotaElástica** · grafo identifica corredores desassistidos no mapa e conecta grupos de passageiros a viagens extras sob demanda. |
-| **B · sistemas multiagente** | **DespachoVivo** · agentes monitoram distância entre ônibus no GPS e buscas nas paradas, sugerindo ajustes de intervalo aos operadores. | **FiscalColetivo** · agentes cruzam relatos nas paradas com o GPS oficial das linhas e geram dossiês públicos de viagens fantasma. | **PonteModal** · agentes negociam integração automática entre passageiros esperando em paradas sem ônibus e motoristas de transporte complementar. |
-| **C · modelos locais (*SLMs*)** | **SentinelaPonto** · modelo local no celular detecta pelo deslocamento se quem abriu a parada embarcou ou desistiu após longa espera. | **VozDaParada** · modelo no aparelho resume relatos rápidos de espera na fila sem expor a trajetória individual do passageiro. | **IntegraFácil** · assistente local calcula se vale esperar o ônibus ou dividir corrida curta até um terminal troncal próximo. |
+| **A · grafos e RAG** | **GrafoParada** · analistas de transporte cruzam GTFS, GPS aberto e buscas em grafo para estimar pressão e demanda reprimida. | **MapaLotação** · passageiros sinalizam paradas cheias; rede em grafo propaga estimativa de risco de pass-up para paradas seguintes. | **RotaElástica** · RAG cruza solicitações acumuladas na região e sugere variantes temporárias de trajeto para linhas paralelas. |
+| **B · sistemas multiagente** | **DespachoVivo** · agentes monitoram headway entre ônibus no GPS e sugerem ajustes táticos de intervalo aos operadores. | **FiscalColetivo** · agentes cruzam relatos de espera com telemetria oficial e geram dossiês públicos de não atendimento. | **PonteModal** · plataforma conecta vans cadastradas como apoio emergencial em trechos onde a linha regular colapsou. |
+| **C · modelos locais** | **SentinelaPonto** · modelo local no aparelho resume histórico de espera do usuário preservando privacidade antes do envio agregado. | **VozDaParada** · modelo no celular converte relatos curtos de atraso em atributos estruturados sem expor dados pessoais. | **CaronaBairro** · modelo local conecta passageiros retidos na mesma parada para organizar deslocamentos compartilhados locais. |
 
 **as 9 no mapa impacto × viabilidade:**
 
 | | viabilidade alta | viabilidade baixa |
 |:--|:--|:--|
-| **impacto alto** | **GrafoParada** — ataca a cegueira da catraca usando o ato habitual de checar o ponto no mapa com localização ativa; é testável num recorte com dados públicos de GTFS/GPS.<br>**SentinelaPonto** — separa quem embarcou de quem desistiu na parada sem exigir relato manual; cabe num protótipo delimitável no semestre. | **DespachoVivo** — pode reduzir o intervalo real nas paradas críticas, mas alterar despacho ao vivo exige integração operacional com garagens e consórcios.<br>**RotaElástica** — pode atender bairros com intervalos de 1 hora, mas exige frota flexível e autorização regulatória para rotas dinâmicas.<br>**PonteModal** — pode suprir buracos de horário com vans e carros, mas exige reunir os dois lados e regras tarifárias integradas. |
-| **impacto baixo** | **MapaLotação** — avisa que o ônibus vem cheio, mas sozinho não altera a oferta de horários da linha.<br>**FiscalColetivo** — comprova atrasos e viagens não cumpridas, mas foca em punição posterior sem redesenhar a malha.<br>**VozDaParada** — organiza queixas coletivas com privacidade, mas ainda depende de engajamento ativo do passageiro. | **IntegraFácil** — ajuda na decisão individual de abandonar o ponto, mas acelera a fuga do ônibus em vez de corrigir a distribuição da frota. |
+| **impacto alto** | **GrafoParada** — usa dados públicos existentes (GTFS/GPS) e consultas para apoiar redistribuição tática de viagens; cabe no semestre.<br>**DespachoVivo** — foca no equilíbrio de intervalos entre veículos em operação; viável com feeds de GPS abertos. | **RotaElástica** — esbarra em regulamentação rígida de concessões e na inviabilidade jurídica de mudar itinerários em tempo real.<br>**FiscalColetivo** — depende de massa crítica de relatos manuais auditados para ter validade jurídica.<br>**PonteModal** — exige articulação regulatória complexa e acordos com frotas de vans e cooperativas. |
+| **impacto baixo** | **MapaLotação** — alerta pontos cheios, mas não entrega alvos matemáticos para recalcular a ordem de serviço; teste simples.<br>**SentinelaPonto** — protege privacidade localmente, mas não resolve o cálculo central da rede; teste pequeno. | **VozDaParada** — processamento de voz no ponto gera ruído de áudio, gasta bateria e não supera dados tabulares.<br>**CaronaBairro** — resolve viagens pontuais entre vizinhos, mas não ataca a escala do transporte coletivo. |
 
-onde discordei da IA, e por quê: a IA colocou o **GrafoParada** em viabilidade alta assumindo integração imediata com toda a base comercial de apps como Cittamobi ou Moovit numa metrópole inteira. mantive em viabilidade alta apenas porque reduzi o escopo do semestre: consigo testar o grafo sobre dados abertos de GTFS e GPS combinados com abertura de paradas com localização ativa num corredor delimitado. isso valida a estimação de demanda reprimida e ociosidade frente a regras simples, mas não comprova ainda a adoção por todos os consórcios da cidade.
+**as duas perguntas: o argumento do interesse próprio e a alternativa sem IA:**
 
-**minha ideia escolhida:** **GrafoParada** · passageiros abrem paradas no mapa com GPS ativo; rede de grafos cruza buscas e frota para medir demanda reprimida.
+| ideia | quem usa ganha, para si | o que custa a ele | o que resolve sem IA avançada | se sustenta? |
+|:--|:--|:--|:--|:--|
+| GrafoParada | o órgão gestor identifica linhas ociosas e gargalos para redistribuir viagens sem custo extra | auditar os dados públicos de GPS e GTFS já disponíveis | uma planilha com média histórica de atrasos, mas ela não propaga o efeito da rede nem mede a demanda latente | sim |
+| MapaLotação | o passageiro vê se a parada à frente está lotada | apertar um botão no app toda vez que chegar ao ponto | um grupo de mensagens ou botão de aviso simples | **não**: o passageiro esquece de avisar se estiver correndo, e um botão simples resolve |
+| RotaElástica | o passageiro ganha ônibus direto onde a rota habitual falhou | esperar o sistema formar quórum para desviar a linha | um mapa de linhas alternativas existentes | **não**: a concessão pública não permite desvio dinâmico de trajeto |
+| DespachoVivo | o operador evita comboio de ônibus (*bunching*) e economiza combustível | monitorar o painel e avisar os motoristas | um cronômetro com regras de intervalo fixo | sim |
+| FiscalColetivo | a comunidade ganha provas documentadas contra a concessionária | preencher formulário e anexar horário toda vez que o ônibus atrasa | o canal oficial da ouvidoria municipal | **não**: o passageiro cansado não preenche denúncia sem benefício imediato |
+| PonteModal | o passageiro retido consegue transporte alternativo regulamentado | pagar a tarifa da van integrada | um grupo de transporte complementar local | **não**: depende de regulação municipal prévia que não cabe no semestre |
+| SentinelaPonto | o usuário tem sua privacidade resguardada no aparelho | processar dados no próprio celular gastando bateria | anonimização determinística simples por hash e agregação por raio | **não**: agregação espacial na origem sem modelo de IA resolve a privacidade |
+| VozDaParada | o passageiro reclama por áudio sem precisar digitar na rua | gravar áudios em paradas barulhentas | botões com opções fixas ("lotado", "não passou") | **não**: formulário de um toque resolve sem erro de transcrição |
+| CaronaBairro | vizinhos dividem o custo de um carro por aplicativo na parada | combinar destino e esperar desconhecidos no ponto | grupos de WhatsApp do bairro | **não**: o grupo de mensagens do bairro já resolve sem IA |
+
+onde discordei da IA, e por quê: a IA colocou o GrafoParada em viabilidade média por achar que dependia de integração com os sistemas fechados de bilhetagem das empresas. passei para alta: consigo testar a estimação de oferta e headways anômalos em um corredor real usando apenas dados públicos de GTFS e GPS aberto da cidade, comparando o modelo contra baselines simples em um notebook. isso não exige convênio formal com operadores para começar e cabe no semestre.
+
+**minha ideia escolhida:** **GrafoParada** · analistas de transporte estimam pressão operacional e demanda reprimida cruzando telemetria aberta com volumes agregados de consulta.
 
 **por que ela, sem IA, em até 3 linhas:**
-escolho o GrafoParada porque o passageiro já abre o mapa da parada com a localização ligada para saber se o ônibus está perto ou se vai demorar uma hora.  
-aproveitar esse gesto evita formulários de reclamação e registra quem esteve no ponto e desistiu antes de passar na catraca.  
-com isso, é possível provar onde faltam horários e onde sobram ônibus vazios usando o próprio comportamento de consulta.
+porque o passageiro já abre o mapa para checar o ônibus, gerando o sinal de intenção sem precisar preencher nada;  
+porque cruzar esse sinal com o GPS público mostra onde a linha roda no vazio e onde a demanda está represada;  
+porque permite à prefeitura redistribuir viagens ociosas para horários críticos sem aumentar o gasto com subsídio.
 
 ## 4 · motores
 
-| motor | nome | frase | o que mudou em relação à ideia |
-|:--|:--|:--|:--|
-| inverter | **frota no vazio** | mapa expõe onde ônibus rodam vazios enquanto paradas de linhas vizinhas acumulam espera e desistência. | em vez de só apontar falta de ônibus num ponto, o grafo contrasta a parada estrangulada com os trechos de sobreoferta para propor realocação da frota existente. |
-| canalizar | **clique que vota** | ao abrir a parada com localização ativa para ver o horário, o passageiro já alimenta a fila virtual da linha. | o interesse imediato de checar quanto falta para o ônibus chegar gera o sinal coletivo de demanda reprimida sem nenhum botão de denúncia ou cadastro extra. |
-| transplantar | **pressão de ponto** | como o mapa de calor dinâmico de apps de corrida, paradas mudam de cor conforme o saldo entre espera e oferta. | traz o mecanismo de pressão dinâmica de plataformas de corrida para priorizar ajustes de tabela nos pontos onde a espera estoura. |
-| reescalar | **pulso do corredor** | em vez de olhar uma parada isolada, o grafo soma a demanda reprimida de todas as paradas de um mesmo eixo viário. | muda a unidade de análise do ponto individual para o corredor inteiro, evitando que passageiros espalhados em paradas próximas pareçam baixa demanda. |
-| trocar a persona | **lente do regulador** | consórcio público, Ministério Público e imprensa consultam o saldo entre demanda nas paradas e oferta cumprida por bairro. | quem consome o resultado deixa de ser só o planejador da empresa; o painel público permite cobrar redistribuição quando a operadora ignora a demanda. |
-| trocar o contexto | **turno de 1 hora** | grafo opera focado em linhas distritais, periféricas e entre-picos onde os intervalos oficiais chegam a 60 minutos. | sai dos corredores centrais de alta frequência e foca nos territórios e faixas horárias onde errar o ponto custa uma hora perdida. |
-| trocar a tecnologia | **desistência medida** | confirmação de presença por GPS e histórico local separam quem só consultou de longe de quem esperou na parada e desistiu. | acrescenta verificação espacial no aparelho antes de enviar o evento ao grafo, impedindo que consultas feitas em casa contem como fila real na parada. |
-| juntar | **grade viva** | juntar o GrafoParada ao DespachoVivo transforma o mapa de demanda reprimida e frota ociosa em sugestão pronta de nova tabela horária. | o sistema deixa de apenas diagnosticar o desequilíbrio entre paradas e passa a sugerir quais viagens transferir das linhas ociosas para as estranguladas. |
-| restringir | **trava de presença** | só entram no cálculo de demanda reprimida as aberturas de parada feitas com localização ligada dentro do raio físico do ponto. | impõe a proximidade física verificada por GPS como restrição de entrada, bloqueando cliques remotos ou tentativas de inflar artificialmente uma linha. |
+| motor | o que foi [verbo] | nome | frase | o que mudou em relação à ideia | o que quem usa ganha para si | se sustenta nas duas perguntas? |
+|:--|:--|:--|:--|:--|:--|:--|
+| inverter | a direção da análise: em vez de buscar mais frota, expõe onde o ônibus roda vazio para transferir viagem | **frota no vazio** | mapa expõe trechos onde ônibus rodam vazios enquanto paradas vizinhas acumulam filas de espera. | a pergunta deixa de ser "onde falta ônibus" e passa a ser "de onde tirar ônibus ocioso para atender quem espera". | o gestor resolve a reclamação sem pedir mais orçamento. | sim |
+| canalizar | a checagem rotineira de horários, que o passageiro já faz no celular para saber quando o ônibus chega | **clique de pressão** | o volume agregado de consultas por parada e linha funciona como sinal fraco de intenção de viagem. | o gesto passivo de olhar a tela vira o dado de entrada da pressão de demanda, sem formulário. | não precisa fazer nada além do que já faz. | sim |
+| transplantar | o estimador de desbalanço entre oferta e demanda dos apps de carona para o transporte público coletivo | **pressão de corredor** | como nos mapas de demanda de corridas, o sistema calcula o risco de passageiros ficarem na parada. | traz a estimativa de desequilíbrio dinâmico para recalcular a ordem de serviço pública. | antecipa reclamações antes de a linha colapsar. | sim |
+| reescalar | a unidade de análise: de paradas isoladas para a cadeia topológica de toda a extensão do corredor | **pulso do corredor** | em vez de olhar um ponto único, o modelo avalia como o atraso a montante estrangula o corredor a jusante. | a avaliação deixa de ser pontual e passa a modelar a propagação do fluxo na linha. | enxerga a causa do atraso e não apenas o sintoma. | sim |
+| trocar a persona | saiu o passageiro na parada, entrou o técnico de planejamento do órgão público gestor | **lente do regulador** | técnicos da prefeitura usam o contraste entre frota ociosa e pressão de busca para auditar tabelas. | o foco passa de utilitário individual de mobilidade para ferramenta de auditoria contratual. | embasa cortes e remanejamentos com dados auditáveis. | sim |
+| trocar o contexto | do horário de pico matutino para as janelas de entre-pico e finais de semana | **entre-pico invisível** | sistema prioriza faixas horárias de baixa frequência onde intervalos longos provocam mais desistências. | foca a medição exatamente onde a catraca é mais cega e onde o passageiro mais desiste. | recupera passageiros que já haviam desistido do ônibus. | sim |
+| trocar a tecnologia | da rede neural de grafos para um modelo tabular com gradiente boosted (LightGBM) com lags | **tabela de atraso** | árvores de decisão usam histórico de atrasos e horários para prever o próximo headway da linha. | substitui o grafo por uma tabela simples de variáveis defasadas. | processamento rápido e fácil de auditar. | **não**: uma tabela isolada não propaga o impacto de uma parada sobre as paradas seguintes na rede |
+| juntar | GrafoParada + frota no vazio | **grade viva** | contrasta a pressão de demanda latente com as viagens ociosas e gera proposta de remanejamento de viagens. | o sistema deixa de apenas diagnosticar o problema e sugere a nova tabela de horários de soma zero. | recebe a sugestão de tabela pronta para colocar em consulta. | sim |
+| restringir | o hardware: operar sem servidores dedicados, apenas com scripts em planilhas eletrônicas | **matriz em planilha** | uma planilha cruza a tabela horária oficial com a média de embarques da catraca. | elimina o pipeline de IA e roda apenas operações em tabelas estáticas. | custo zero de infraestrutura de software. | **não**: a planilha não lê o feed contínuo de GPS nem enxerga quem não conseguiu embarcar |
 
 ## 5 · o que fica e o que sai
 
-**o que eu gostei:** gostei muito de **canalizar** (**clique que vota**) e de **inverter** (**frota no vazio**). o passageiro não precisa preencher formulário: basta abrir a parada com a localização ligada para checar o ônibus, e essa presença no ponto vira o registro da demanda. ao mesmo tempo, inverter o olhar para mostrar onde há ônibus rodando vazios resolve a desculpa de que "não há frota disponível", apontando de onde remanejar horários.
+**o que eu gostei:** da **frota no vazio** (inverter), porque mostra de onde tirar viagem sem pedir mais dinheiro à prefeitura; e do **clique de pressão** (canalizar), que aproveita o hábito que o passageiro já tem de olhar o mapa sem pedir cadastro nem denúncia.
 
-**o que achei interessante:** a **trava de presença** (**restringir** / **trocar a tecnologia**) resolve de forma simples uma falha grave: pedir que a localização esteja ativa confirma que a pessoa está realmente próxima da parada e permite medir se ela foi embora antes de o ônibus passar. também achei útil o **pulso do corredor** (**reescalar**) para somar paradas vizinhas da mesma linha.
+**o que achei interessante:** no **pulso do corredor**, o fato de que olhar a linha inteira como grafo explica por que uma parada no fim do trajeto está vazia: o ônibus já vem atrasado e lotado desde o início da rota, e quem está no fim já desistiu antes de ele passar.
 
-**o que eu descarto, e por quê:** descarto o despacho em tempo real de veículos extras durante a viagem e o *matching* com vans/carros (**PonteModal** e **RotaElástica**) porque exigiriam coordenação logística imediata com garagens e motoristas em campo. neste semestre, o foco é provar a demanda reprimida no grafo e sugerir o remanejamento da tabela horária com dados reais de GTFS/GPS.
+**o que eu descarto, e por quê:** descarto o despacho de ônibus em tempo real e a criação de linhas dinâmicas (RotaElástica e PonteModal): a regulação das concessões é rígida e motoristas não mudam rota no susto. descarto também a matriz em planilha: ela continua cega para a demanda reprimida e repete o erro da catraca. neste semestre o foco é diagnóstico e redistribuição de tabela horária programada.
 
 **minha ideia completa:** **GrafoParada · Frota no Vazio**
 
-passageiros abrem a parada no mapa com a localização ligada para ver onde está o ônibus e decidir se vale esperar.  
-regras determinísticas confirmam pelo GPS do celular se a pessoa está no raio da parada (e se desistiu antes de o veículo passar) e pelo GPS público do ônibus se o veículo parou no ponto para embarque (*dwell time*) ou passou direto.  
-uma rede neural de grafos espaço-temporal (ST-GNN) cruza esses eventos de espera, desistência e tempo de parada dos veículos ao longo dos corredores.  
-o modelo contrasta paradas com demanda reprimida e trechos onde os ônibus passam direto sem ninguém no ponto, gerando propostas de redistribuição de horários sem exigir aumento total de frota nem acesso ao banco fechado da catraca.
+analistas de transporte usam o GTFS programado e o GPS aberto dos ônibus para reconstruir atrasos, intervalos e o tempo efetivo de parada (*dwell time*) em cada ponto.  
+o volume de consultas aos mapas na parada com localização ativa entra como sinal de demanda reprimida, e uma rede neural de grafos espaço-temporal (ST-GNN) modela como o atraso se propaga ao longo do corredor.  
+o modelo contrasta paradas com alta pressão de espera e trechos onde veículos passam direto no vazio, gerando propostas de remanejamento de horários sem exigir mais frota nem acesso ao banco fechado da catraca.  
+a prefeitura reduz o intervalo onde a população mais desiste de esperar, o passageiro volta a confiar no horário e o sistema recupera receita de tarifa sem aumentar o subsídio público.
 
 ## 6 · refinamento
 
-**a · e se todo mundo usasse?** em cinco anos, integrado a apps de consulta de paradas e órgãos gestores no país (setor que custa R$ 75,7 bilhões/ano e perdeu 19,1 milhões de passageiros/dia na última década segundo a NTU), o sistema permitiria recuperar viagens perdidas e cortar o desperdício de diesel em trechos ociosos apenas reequilibrando quadros horários. cada passageiro usa por interesse próprio — ligar a localização e tocar na parada para saber se espera ou pega alternativa —, gerando a prova coletiva sem esforço extra.
+**a · e se todo mundo usasse?**
 
-**b · a IA que não pode faltar.** técnica: rede neural de grafos espaço-temporal (ST-GNN) · aula da disciplina: Aula 07 · arquiteturas de deep learning (1/4): redes de grafos
+o tamanho da crise hoje:
+- o transporte público por ônibus perdeu 19,1 milhões de passageiros pagantes por dia entre 2013 e 2023 no Brasil, uma queda de 40% da demanda histórica ([Anuário NTU 2023-2024](https://www.google.com/search?q=https://www.ntu.org.br/novo/upload/Publicacao/Pub638555239564619934.pdf)).
+- os sistemas de ônibus urbanos custaram R$ 75,7 bilhões em 2023, exigindo mais de R$ 12,7 bilhões em subsídios públicos para cobrir déficits de linhas que rodam vazias ([NTU, Custos e Tarifas](https://www.ntu.org.br)).
+- no Grande Recife, as viagens diárias caíram de 2 milhões para menos de 1,2 milhão na última década, empurrando a população para vans clandestinas e aplicativos ([Grande Recife Consórcio / Urbana-PE](https://www.granderecife.pe.gov.br)).
+- quem ganha até 2 salários mínimos gasta em média 2 horas e 14 minutos por dia no deslocamento casa-trabalho nas capitais, esperando até 45 minutos na parada ([Ipea, Desigualdades de Acesso](https://www.ipea.gov.br/portal/images/stories/PDFs/TDs/td_2565.pdf)).
 
-por que sem ela não roda: regras determinísticas resolvem a checagem de raio por GPS (confirmar se o usuário está na parada), a filtragem de cliques repetidos e a leitura do GPS do ônibus para saber se ele freou e ficou parado no ponto (*dwell time* de embarque) ou se passou direto. porém, uma regra simples (`if buscas > X`) falha porque um ônibus pode passar direto tanto porque a parada está vazia quanto porque já vem lotado das paradas anteriores, além de o atraso num nó inicial propagar desistências em cascata pelo corredor. a ST-GNN é necessária para modelar essa dependência espaço-temporal entre paradas e veículos, distinguindo parada realmente vazia de ônibus cheio que não parou, e pareando trechos ociosos com corredores estrangulados. se nos testes uma média histórica por parada empatar com a ST-GNN, retiro a alegação e volto aos motores.
+se todo mundo usasse por 5 anos (a minha aposta):
+- se a redistribuição de frota ociosa recuperasse 10% dos passageiros que desistiram (1,9 milhão de viagens/dia no país), seriam cerca de R$ 3,1 bilhões ao ano em receita tarifária recuperada, aliviando a pressão por subsídio nas prefeituras.
+- o tempo médio de espera no entre-pico em linhas periféricas cairia de 55 para 25 minutos, devolvendo até 30 minutos livres por dia para quem depende exclusivamente do ônibus.
+- uma fatia de R$ 1,5 bilhão hoje gasta em transporte clandestino inseguro ou viagens individuais de emergência voltaria para a economia familiar dos bairros periféricos.
 
-**c · o cético e as saídas**
+por que cada pessoa usaria: o gestor público, para cumprir metas contratuais e remanejar viagens sem pedir verba extra; o passageiro, porque o ônibus passa no horário e a espera diminui. ninguém precisa querer ajudar.
+
+**b · a IA que não pode faltar.** técnica: rede neural de grafos espaço-temporal (ST-GNN, como STGCN — Yu, Yin & Zhu, IJCAI 2018)
+
+por que sem ela não roda: regras determinísticas já filtram consultas repetidas e medem o tempo de parada física (*dwell time*) pelo GPS do veículo. porém, o transporte opera sobre uma malha onde o atraso na parada A causa comboio (*bunching*) e superlotação na parada B minutos depois. uma regressão tabular ou árvore trata cada parada como linha isolada e ignora essa propagação em cadeia; a ST-GNN usa a matriz de adjacência do itinerário para aprender como perturbações viajam pelo corredor no espaço e no tempo, distinguindo uma parada vazia de um ônibus que passou direto porque já vinha lotado. contudo, adoto o rigor de parcimônia: se no teste empírico temporal um modelo tabular com lags (LightGBM) ou uma GRU temporal sem grafo empatar em acurácia de headway dentro da margem de erro, eu retiro a rede de grafos e fico com o modelo simples.
+
+**c · críticas de quem está de fora**
 
 | crítica | saída 1 | saída 2 | minha decisão |
 |:--|:--|:--|:--|
-| pessoas podem abrir paradas no mapa deitadas em casa ou clicar repetidas vezes para tentar puxar mais ônibus para sua rua, inflando uma demanda que não estava no ponto. | exigir localização ativa e aplicar regra espacial que só contabiliza presença física no raio da parada acompanhada de tempo mínimo de espera sem embarque. | limitar um voto válido de espera por aparelho/janela horária e confirmar o embarque quando a trajetória do usuário passa a acompanhar o GPS do ônibus após a parada. | combino as duas saídas: ligar a localização já é natural para achar paradas próximas no mapa e garante a confirmação física no ponto, enquanto a trava por janela horária impede cliques repetidos. |
-| nem todo passageiro usa app na parada (como idosos) e nós não temos acesso ao banco fechado da catraca da empresa; olhar só para o app pode achar que uma parada está vazia e cortar ônibus de quem não tem celular. | medir o embarque físico de quem não usa app pelo próprio GPS público do ônibus: se o veículo reduz a velocidade a zero na coordenada da parada e permanece parado de 15 a 60 segundos (*dwell time*), há embarque real no ponto. | proibir o algoritmo de sugerir cortes onde o GPS do ônibus registra paradas frequentes para embarque, restringindo o rótulo de "frota no vazio" aos trechos onde nem há presença no app nem o ônibus precisa parar nos pontos. | adoto as duas: nunca chamo busca no app de demanda total; o GPS público do ônibus protege quem não usa celular ao detectar as paradas reais de embarque sem precisar de acesso à catraca da empresa. |
-| empresas de ônibus podem ignorar as sugestões de ajuste se preferirem rodar com intervalos de 1 hora para economizar óleo diesel, e apps comerciais fechados não abrem seus logs internos. | usar o mecanismo de inversão (**frota no vazio**) para propor remanejamentos de soma zero (transferir viagens de horários onde o ônibus passa direto sem parar para horários com desistência comprovada) e tornar o painel público. | construir no semestre um protótipo próprio sobre dados públicos de GTFS/GPS, combinando coleta controlada de abertura de paradas com localização ativa e cenários simulados de desistência. | escolho as duas: no protótipo da disciplina, rodo a ST-GNN sobre o grafo GTFS/GPS público com validação de presença na parada; na recomendação, priorizo realocação de frota ociosa com transparência aberta. |
+| consulta em app não é pessoa física na fila; o clique pode vir de quem está em casa ou de robôs. | treinar o modelo em variáveis observáveis de oferta (headway real e atraso no GPS) e tratar a busca apenas como peso probabilístico. | exigir biometria e cadastro prévio para validar que o passageiro está fisicamente no ponto. | **saída 1**, treinando o alvo em dados físicos de telemetria e tratando a consulta como proxy calibrado, sem burocracia para o usuário. |
+| nas periferias e entre idosos menos pessoas usam o app, e o modelo pode achar que a parada vazia no mapa é falta de interesse. | incluir a capacidade nominal do ônibus e aplicar máscara de observabilidade que impeça o modelo de confundir ausência de dado com ausência de passageiro. | confiar que a amostra de jovens com celular representa toda a fila da parada. | **saída 1**: usar a máscara de observabilidade e auditar o modelo por setor censitário de renda (IBGE) para não cortar viagens de bairros vulneráveis. |
+| o semestre letivo é curto para conseguir convênios de dados com prefeituras ou empresas de ônibus. | congelar na 2ª semana o uso de dados 100% abertos de GTFS e feeds públicos de GPS (como os da Cittamobi ou Grande Recife). | esperar a assinatura de um acordo formal com o órgão gestor da cidade. | **saída 1**, garantindo que o protótipo rode em um corredor real com dados públicos disponíveis na web, sem depender de autorização externa. |
 
 ## 7 · resumo, sem IA
 
-o transporte público brasileiro perdeu 19,1 milhões de viagens diárias na última década porque planeja horários olhando quase só para a catraca, tratando quem desiste de esperar ônibus de 1 em 1 hora como inexistência de demanda.  
-o **GrafoParada · Frota no Vazio** aproveita o ato de abrir a parada no mapa com a localização ligada para confirmar quem esteve no ponto e desistiu antes de o ônibus passar, sem depender do banco fechado da catraca.  
-regras conferem a presença física do usuário e se o ônibus parou no ponto pelo GPS público, enquanto uma rede de grafos espaço-temporal (ST-GNN) propaga o fluxo pela malha para separar paradas vazias de linhas lotadas e medir a demanda reprimida.  
-em escala, consórcios e prefeituras podem redistribuir viagens de trechos onde os ônibus passam direto no vazio para horários estrangulados, sem aumentar a frota.  
-cada passageiro usa apenas para checar no mapa se o ônibus vem ou se vale buscar alternativa naquela hora.
+as prefeituras cortam viagens de ônibus porque a catraca não registra quem desistiu de esperar intervalos de uma hora, condenando as linhas periféricas a rodarem cada vez mais vazias.  
+o GrafoParada · Frota no Vazio cruza a posição dos ônibus pelo GPS público com o volume de consultas de rotas para estimar onde há passageiros esperando e onde os veículos rodam ociosos.  
+uma rede neural de grafos mapeia como o atraso se propaga ao longo do corredor; se um modelo simples resolver, ele assume o lugar da rede.  
+se todo mundo usasse, prefeituras transfeririam viagens que rodam no vazio para os horários de sufoco, devolvendo 30 minutos diários a quem trabalha e recuperando passageiros sem gastar mais com subsídio.  
+o gestor usa para ajustar a tabela sem precisar de mais dinheiro; o passageiro, para não perder a viagem na parada.
+
+## 8 · auditoria cega
+
+**o veredito da conversa nova:**
+
+| item | passa ou não passa | trecho que prova | o que já resolve sem IA avançada |
+|:--|:--|:--|:--|
+| 1 · brw completo | passa | todas as seções preenchidas, do § 1 ao § 8 | — |
+| 2 · impacto claro | passa | "19,1 milhões de passageiros pagantes por dia perdidos"; "devolver até 30 minutos livres por dia" | — |
+| 3 · ia avançada | passa | "a ST-GNN usa a matriz de adjacência do itinerário para aprender como perturbações viajam pelo corredor no espaço e no tempo... se o LightGBM empatar, retiro a rede" | uma média móvel de atrasos mostra o atraso passado, mas não prevê a propagação de comboios ao longo da cadeia de paradas |
+
+**a minha resposta, sem IA:**
+1. nada a mudar.
+2. nada a mudar.
+3. mantenho a ST-GNN como hipótese espacial porque atraso em linha de ônibus é problema clássico de propagação em rede dirigida (*bunching*), mas o teste de ablação ($A=I$) e a baseline tabular (LightGBM) estão programados para verificar se o ganho justifica o custo computacional.
