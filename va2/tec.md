@@ -99,7 +99,7 @@ Alteração Mínima: Corredor de Linha Distrital com 5 Paradas
 
 ## 4 · o vídeo
 
-**link:** [preencha: link público do vídeo, ex.: YouTube não listado ou Google Drive sem login] · **duração:** ~1m30s · **o que aparece:** terminal do VS Code executando o ambiente virtual com `stgcn_official.py`, exibição do grafo construído e a execução da alteração mínima `stgcn_grafoparada.py` mostrando os dois commits no Git.
+**link:** [Repositório GitHub (va2/entrega_ai4good.mp4)](https://github.com/lira-labs/workspace/blob/main/va2/entrega_ai4good.mp4) · **duração:** 49s · **o que aparece:** terminal do VS Code executando git log com os commits da tecnologia base, execução de stgcn_official.py com 5 épocas de treino e execução da alteração mínima stgcn_grafoparada.py com as 5 paradas reais e alertas de espera predita.
 
 ## 5 · o que deu certo e o que errou, sem IA
 
