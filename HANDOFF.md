@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 24/10/2026 22:22
+- **Ultima Atualizacao:** 24/10/2026 22:36
 - **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -31,6 +31,12 @@
     - Dwell time via GPS público do veículo para detecção de embarque físico sem depender de bilhetagem.
     - Máscara de observabilidade auditada por setor censitário de renda (IBGE) para proteção das linhas periféricas e idosos.
     - Adição e aprovação da **Seção 8 · Auditoria Cega** cumprindo os 3 itens de verificação do barema da disciplina.
+- [x] **a2/tec.md (Artefato [3] Tecnologia Base Demonstrável — Projeto *GrafoParada · Frota no Vazio*)**:
+  - Código real e funcional implementado em code/grafoparada_tec/ usando **PyTorch** e **NetworkX**.
+  - **Commit 1 (Exemplo Oficial):** 32de9f0 executando a arquitetura STGCN (Yu, Yin & Zhu, IJCAI 2018) em CPU com grafo sintético.
+  - **Commit 2 (Alteração Mínima):** c0e0ef4 adaptando a rede para 5 paradas reais de linha distrital (Camela Centro, PE-60, Ipojuca Sede, Suape e Gaibu) com previsão de tempos de espera futuros (t+10, t+20, t+30 min) e alerta operacional de desistência.
+  - Folha a2/tec.md 100% preenchida com comandos reais, saídas do terminal, análise honesta de limitações e auditoria cega aprovada.
+
 ### 3. Projetos Práticos da VA1 (`code/` e `papers/`)
 - [x] **`code/topicos_avancados_ia_cp03/` (Experimento Utopia vs Distopia)** e artigo BRACIS sincronizado no Overleaf (`papers/`).
 - [x] **`code/mlp_viewer/`** e **`code/tea_monitor/`** concluídos.
