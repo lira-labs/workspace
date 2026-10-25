@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 17/10/2026 23:24
+- **Ultima Atualizacao:** 24/10/2026 21:50
 - **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -24,12 +24,13 @@
 
 ### 2. Artefatos da VA2 (`va2/`) — Tópicos Avançados em IA (AI4Good)
 - [x] **`va2/brw.md` (Artefato `[3] Brainwriting Híbrido` — Projeto *GrafoParada · Frota no Vazio*)**:
-  - **Pivô pós-mentoria (16/10):** A ideia anterior (*Mar Aberto Paulista*, com pulseiras químicas e bóias costeiras) foi substituída após feedback do Prof. Lucas por depender de hardware/consumíveis físicos inviáveis para demonstração em software na disciplina.
-  - **Problema e Dados Oficiais:** O "paradoxo da catraca" (apagão da demanda reprimida e má distribuição de frota no transporte público urbano, onde linhas com intervalos de 1 em 1 hora fazem passageiros desistirem antes de girar a catraca). Fundamentado com dados da **NTU** e **IPEA**: perda de **19,1 milhões de passageiros pagantes/dia** (queda de 44% a 46% na década) num setor que custa **R$ 75,7 bilhões/ano**.
-  - **Mecanismo e Arquitetura de IA (100% demonstrável em software e independente da catraca fechada):**
-    - **Canalizar (*clique que vota*) + Restringir (*trava de presença*):** O passageiro abre a parada no mapa com a localização (GPS) ligada para checar se o ônibus vem; regras determinísticas confirmam a presença física no raio da parada (e desistência antes do embarque) e leem pelo GPS público do ônibus o tempo de parada no ponto (*dwell time*, quando `velocidade = 0` por 15–60s) ou se o veículo passou direto.
-    - **Inverter (*frota no vazio*) + ST-GNN (`Aula 07 · redes de grafos`):** Uma Rede Neural de Grafos Espaço-Temporal (ST-GNN) cruza os eventos de espera/desistência nas paradas com o *dwell time* e GPS/GTFS da frota para separar paradas realmente vazias de ônibus que passam direto por já virem lotados, propondo redistribuição de tabela horária sem exigir aumento total de frota.
-
+  - **Refinamento com Parecer Técnico / Kimi (24/10):** Documento 100% alinhado ao rigor acadêmico do rw/excelente.md:
+    - Incorporação formal do conceito de **Censura de Demanda (*demand unconstraining*)**.
+    - Fundamentação com estatísticas oficiais do **Anuário NTU 2023-2024** (-19,1 milhões de passageiros/dia), **Grande Recife Consórcio / Urbana-PE** (queda de 2 mi para 1,2 mi) e **IPEA** (tempo de deslocamento e espera).
+    - Definição formal da **STGCN (Yu, Yin & Zhu, IJCAI 2018)** referente à **Aula 07**, associada ao critério estrito de parcimônia metodológica: se baseline tabular (**LightGBM com lags**) ou temporal (**GRU global**) empatar, o modelo simples é o preferido.
+    - Dwell time via GPS público do veículo para detecção de embarque físico sem depender de bilhetagem.
+    - Máscara de observabilidade auditada por setor censitário de renda (IBGE) para proteção das linhas periféricas e idosos.
+    - Adição e aprovação da **Seção 8 · Auditoria Cega** cumprindo os 3 itens de verificação do barema da disciplina.
 ### 3. Projetos Práticos da VA1 (`code/` e `papers/`)
 - [x] **`code/topicos_avancados_ia_cp03/` (Experimento Utopia vs Distopia)** e artigo BRACIS sincronizado no Overleaf (`papers/`).
 - [x] **`code/mlp_viewer/`** e **`code/tea_monitor/`** concluídos.
