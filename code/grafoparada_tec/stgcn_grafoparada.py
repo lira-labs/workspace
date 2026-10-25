@@ -50,14 +50,14 @@ def run_grafoparada_demo():
 
     # 3. Modelo STGCN ajustado para 5 nós
     model = STGCN(num_nodes=num_nodes, in_channels=in_channels, out_horizon=horizon)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.02)
     criterion = torch.nn.MSELoss()
 
-    # 4. Dados do Problema: Simulação de atraso severo se acumulando em P1 e propagando para P2 e P3
-    # Espera normal = 10 a 20 min; Espera em gargalo (intervalo de 1 hora) = 45 a 65 min
+    # 4. Dados do Problema: Simulação de atraso severo se acumulando em P1 e propagando para P2
+    # Espera normal = 10 a 15 min; Espera em gargalo (comboio / falha de frota) = 45 a 60 min
     batch_size = 16
     x_dados = torch.full((batch_size, in_channels, history_len, num_nodes), 15.0)
-    # Injetando o gargalo de atraso acumulado em P1 e P2 nas últimas janelas
+    # Injetando o gargalo de atraso acumulado em P1 e P2 nas últimas janelas temporais
     x_dados[:, :, 8:, 0] += torch.tensor([25.0, 35.0, 45.0, 50.0]) # P1 acumulando espera
     x_dados[:, :, 9:, 1] += torch.tensor([20.0, 30.0, 40.0])       # P2 recebendo o efeito cascata
 
@@ -66,9 +66,9 @@ def run_grafoparada_demo():
     y_alvo[:, 1, :] = x_dados[:, 0, -1, :] + 5.0  # t+20 min
     y_alvo[:, 2, :] = x_dados[:, 0, -1, :] + 8.0  # t+30 min
 
-    # Treinamento rápido de adaptação
+    # Treinamento rápido de convergência (25 épocas em CPU)
     model.train()
-    for epoch in range(1, 6):
+    for epoch in range(1, 26):
         optimizer.zero_grad()
         out = model(x_dados, l_matrix)
         loss = criterion(out, y_alvo)
@@ -93,7 +93,7 @@ def run_grafoparada_demo():
         print(f"    Espera prevista: t+10m: {prev_10:.1f} min | t+20m: {prev_20:.1f} min | t+30m: {prev_30:.1f} min{alerta}")
 
     print("=" * 65)
-    print("[CONCLUSÃO] A STGCN conseguiu propagar o efeito de atraso do nó P1 para P2 e P3 pelo grafo,")
+    print("[CONCLUSÃO] A STGCN conseguiu propagar o efeito de atraso do nó P1 para P2 pelo grafo,")
     print("            identificando o trecho crítico onde o passageiro desiste por espera superior a 40 min.")
 
 

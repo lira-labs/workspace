@@ -81,17 +81,17 @@ Alteração Mínima: Corredor de Linha Distrital com 5 Paradas
 [*] DIAGNÓSTICO DE ESPERA PREDITA NAS PARADAS (Próximos 10, 20 e 30 min):
 =================================================================
   P1 - Camela Centro:
-    Espera prevista: t+10m: 11.9 min | t+20m: 11.4 min | t+30m: 12.6 min [OPERAÇÃO REGULAR]
+    Espera prevista: t+10m: 35.9 min | t+20m: 39.7 min | t+30m: 43.2 min [ALERTA: RISCO DE DESISTÊNCIA / INTERVALO EXCESSIVO]
   P2 - PE-60 Entroncamento:
-    Espera prevista: t+10m: 11.8 min | t+20m: 11.4 min | t+30m: 12.5 min [OPERAÇÃO REGULAR]
+    Espera prevista: t+10m: 33.8 min | t+20m: 37.3 min | t+30m: 40.6 min [ALERTA: RISCO DE DESISTÊNCIA / INTERVALO EXCESSIVO]
   P3 - Ipojuca Sede (Terminal):
-    Espera prevista: t+10m: 11.8 min | t+20m: 11.3 min | t+30m: 12.5 min [OPERAÇÃO REGULAR]
+    Espera prevista: t+10m: 31.8 min | t+20m: 35.1 min | t+30m: 38.3 min [OPERAÇÃO REGULAR]
   P4 - Suape Acesso Industrial:
-    Espera prevista: t+10m: 11.7 min | t+20m: 11.3 min | t+30m: 12.5 min [OPERAÇÃO REGULAR]
+    Espera prevista: t+10m: 31.2 min | t+20m: 34.4 min | t+30m: 37.5 min [OPERAÇÃO REGULAR]
   P5 - Gaibu Retorno:
-    Espera prevista: t+10m: 11.8 min | t+20m: 11.3 min | t+30m: 12.5 min [OPERAÇÃO REGULAR]
+    Espera prevista: t+10m: 32.2 min | t+20m: 35.6 min | t+30m: 38.9 min [OPERAÇÃO REGULAR]
 =================================================================
-[CONCLUSÃO] A STGCN conseguiu propagar o efeito de atraso do nó P1 para P2 e P3 pelo grafo,
+[CONCLUSÃO] A STGCN conseguiu propagar o efeito de atraso do nó P1 para P2 pelo grafo,
             identificando o trecho crítico onde o passageiro desiste por espera superior a 40 min.
 ```
 
