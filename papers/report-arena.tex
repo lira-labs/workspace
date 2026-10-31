@@ -32,7 +32,7 @@ Este relatório técnico (\texttt{report-arena.tex}) investiga o comportamento e
 \section{Introdução}
 O avanço dos \textit{Large Language Models} (LLMs) e \textit{Small Language Models} (SLMs) impulsionou o uso de arenas multiagentes para simulação de políticas públicas, economia e segurança de IA \cite{park2023generative,bommasani2021opportunities}. Contudo, modelos treinados via RLHF (\textit{Reinforcement Learning from Human Feedback}) exibem fragilidades severas quando submetidos a debates prolongados de soma zero ou estresse ético extremo \cite{ouyang2022training,palisade2024}.
 
-Este relatório técnico documenta a metodologia, as condições técnicas de hardware/latência, os argumentos emergentes e as limitações observadas na Arena Dialética Multiagente (\texttt{code/topicos\_avancados\_ia\_cp03/}), estruturada para cumprir os cinco itens de verificação do artefato \texttt{arn\textperiodcentered p}.
+Este relatório técnico documenta a metodologia, as condições técnicas de hardware/latência, os argumentos emergentes e as limitações observadas na Arena Dialética Multiagente (\path{code/topicos_avancados_ia_cp03/}), estruturada para cumprir os cinco itens de verificação do artefato \texttt{arn\textperiodcentered p}.
 
 \section{Metodologia do Debate e Arquitetura da Arena}
 A arquitetura da arena foi implementada em Python sob o paradigma \textit{Mixture of Agents} (MoA) híbrido (nuvem + borda local via Ollama), percorrendo 20 épocas históricas do Brasil (de 1808, Abertura dos Portos, até 2026, Era da IA e Transição Energética).
@@ -108,7 +108,7 @@ Verificador & \texttt{claude-opus-4-6} & Antigravity CLI & $0{,}2$ / $200\text{k
 \textbf{Métricas Operacionais Consolidadas:} O tempo médio por rodada completa (3 chamadas de LLM + busca web + persistência JSON/Markdown, descontando o tempo de leitura humana) foi de $37{,}5\text{ segundos}$. O consumo médio de tokens por rodada foi de $\sim 3.400$ tokens de entrada (incluindo histórico acumulado e snippets de busca web) e $\sim 2.150$ tokens de saída (incluindo até $2.048$ tokens de \textit{thinking\_budget} no modelo propositor).
 
 \section{Apresentação de Dados e Evolução dos Argumentos}
-A Tabela \ref{tab:evolucao_argumentos} sintetiza os argumentos gerados nos marcos críticos (Rodadas 1, 6, 14, 15 e 20) das duas linhas temporais, contrastando a evolução das métricas de Viabilidade e Equidade Social exibidas nas Figuras \ref{fig:utopia} e \ref{fig:distopia}.
+A Tabela \ref{tab:evolucao_argumentos} sintetiza os argumentos gerados nos marcos críticos (Rodadas 1, 6, 14, 15 e 20) das duas linhas temporais, contrastando a evolução das métricas de Viabilidade e Equidade Social exibidas na Figura \ref{fig:metricas_arena}.
 
 \begin{table}[ht]
 \centering
@@ -134,8 +134,7 @@ A Tabela \ref{tab:evolucao_argumentos} sintetiza os argumentos gerados nos marco
 \hfill
 \includegraphics[width=0.48\textwidth]{figures/distopia_metrics.png}
 \caption{Evolução das métricas de Viabilidade Econômica e Equidade Social na Utopia (esquerda) e na Distopia (direita) ao longo das 20 rodadas.}
-\label{fig:utopia}
-\label{fig:distopia}
+\label{fig:metricas_arena}
 \end{figure}
 
 \section{Discussão Crítica e Limitações da Abordagem}
