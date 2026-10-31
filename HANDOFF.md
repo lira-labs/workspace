@@ -28,6 +28,7 @@
 - [x] **`va2/tec.md` + `va2/entrega_ai4good.mp4` (Artefato `[3] Tecnologia Base Demonstrável`)**: STGCN em PyTorch + NetworkX (`code/grafoparada_tec/stgcn_grafoparada.py`) convergindo (`MAE 4,38 min` vs `9,87 min` baseline) e vídeo de 49s (`va2/entrega_ai4good.mp4` e backup em `G:\Meu Drive\IA_Projetos\entrega_ai4good.mp4`).
 - [x] **`va2/flx.md` + `arquitetura.md` (Artefato `[3] Fluxograma e Arquitetura`)**: Arquitetura completa com 3 subgrafos Mermaid (`arquitetura.md`), rastro de dados em `code/grafoparada_tec/rastro_arquitetura.json` e auditoria cega aprovada com resposta autoral.
 - [x] **`va2/exp.md` + `va2/tcle.md` + `code/grafoparada_tec/avaliar_piloto.py` (Artefato `[3] Desenho dos Experimentos`)**: Pré-registro no Git (`3ab9359`), piloto E1 (STGCN vs. 2a/2b tabular e ablação z-score, medição real de `358,2 MB` Working Set RAM) e E2 (protocolo de decisão + TCLE em `va2/tcle.md`), auditado pelo subagente `revisor-cetico` e finalizado com resposta autoral do aluno.
+- [x] **`va2/sem1.md` + `va2/slides_sem1.html` (Artefato `[4] Seminário · Preliminares`)**: 4 frases sem IA escritas pelo aluno, roteiro de 5 slides cronometrado (3 min 45 s – 3 min 55 s), ensaio cético de 5 perguntas concluído e slides interativos prontos.
 
 ### 3. Projetos Práticos da VA1 (`code/` e `papers/`)
 - [x] **`code/topicos_avancados_ia_cp03/` (Experimento Utopia vs Distopia)** e artigo BRACIS sincronizado no Overleaf (`papers/`).

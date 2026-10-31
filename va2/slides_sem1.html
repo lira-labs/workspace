@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seminário 1 · GrafoParada: Frota no Vazio — Cauã Lira</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --danger: #f43f5e;
+      --ok: #10b981;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    .deck {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 72px 32px;
+    }
+    .slide {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      gap: 32px;
+      animation: fadeIn 0.25s ease;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 6px 14px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+    h1 {
+      font-size: 3.4rem;
+      line-height: 1.12;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    h1 span.danger { color: var(--danger); }
+    h1 span.accent { color: var(--accent); }
+    h1 span.ok { color: var(--ok); }
+    .visual-box {
+      background: var(--card);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 20px;
+      padding: 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      align-items: center;
+    }
+    .step-card {
+      background: rgba(15, 23, 42, 0.65);
+      border-radius: 14px;
+      padding: 22px;
+      border-left: 5px solid var(--accent);
+    }
+    .step-card.danger { border-left-color: var(--danger); }
+    .step-card.ok { border-left-color: var(--ok); }
+    .step-card.warn { border-left-color: var(--warn); }
+    .big-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .label {
+      font-size: 1.15rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .source-link {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+    .source-link a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--accent);
+    }
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+      padding-top: 16px;
+      border-top: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .controls button {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-left: 8px;
+    }
+    .controls button:hover { border-color: var(--accent); }
+    table.cmp-mini {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.25rem;
+    }
+    table.cmp-mini th, table.cmp-mini td {
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .badge-yes { color: var(--ok); font-weight: 800; }
+    .badge-no { color: var(--danger); font-weight: 800; }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <!-- SLIDE 1: A IDEIA -->
+    <section class="slide active">
+      <span class="tag">1 · A Ideia · GrafoParada: Frota no Vazio</span>
+      <h1><span class="danger">"A catraca mente."</span><br>Quem desiste na parada vira invisível.</h1>
+      <div class="visual-box">
+        <div class="step-card danger">
+          <div class="big-num">50+ min</div>
+          <div class="label">Ônibus atrasa na PE-60 · trabalhador pega <strong>kombi, ligeirinho ou moto-táxi</strong></div>
+        </div>
+        <div class="step-card warn">
+          <div class="big-num">0 na catraca</div>
+          <div class="label">Empresa acha que não tinha passageiro na parada e <strong>corta mais horários</strong></div>
+        </div>
+        <div class="step-card ok">
+          <div class="big-num">GrafoParada</div>
+          <div class="label">Aprende a rotina no celular (avisa no fone) + cruza desistência com <strong>GPS aberto da frota vazia</strong></div>
+        </div>
+      </div>
+      <div class="source-link">Conceito da solução · Dados da crise: Grande Recife (-40% viagens) e Anuário NTU (-19,1 mi passageiros/dia)</div>
+    </section>
+
+    <!-- SLIDE 2: O PRODUTO MAIS PRÓXIMO -->
+    <section class="slide">
+      <span class="tag">2 · O Competidor como Produto</span>
+      <h1>Cittamobi mostra o atraso,<br>mas <span class="danger">esquece quem desistiu</span>.</h1>
+      <div class="visual-box">
+        <div>
+          <table class="cmp-mini">
+            <tr>
+              <th>Critério na Parada (Grande Recife)</th>
+              <th>Cittamobi</th>
+              <th>GrafoParada</th>
+            </tr>
+            <tr>
+              <td>Mostra previsão do ônibus via GPS</td>
+              <td class="badge-yes">✔ Sim (330+ cidades)</td>
+              <td class="badge-yes">✔ Sim (aviso por voz no fone)</td>
+            </tr>
+            <tr>
+              <td>Evita puxar o celular na rua (risco de assalto)</td>
+              <td class="badge-no">✘ Não (exige abrir e procurar parada)</td>
+              <td class="badge-yes">✔ Sim (rotina salva no aparelho)</td>
+            </tr>
+            <tr>
+              <td>Registra quem desistiu pro ligeirinho/moto-táxi</td>
+              <td class="badge-no">✘ Não</td>
+              <td class="badge-yes">✔ Sim (saída antes do GPS do ônibus)</td>
+            </tr>
+            <tr>
+              <td>Aponta ônibus rodando vazio p/ remanejar</td>
+              <td class="badge-no">✘ Não</td>
+              <td class="badge-yes">✔ Sim (dwell time &lt; 15s)</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="source-link">Fonte conferida: <a href="https://www.cittamobi.com.br" target="_blank">cittamobi.com.br</a> · Também avaliados no <code>cmp.md</code>: Transit (Modo GO) e Optibus</div>
+    </section>
+
+    <!-- SLIDE 3: O ARTIGO MAIS PRÓXIMO -->
+    <section class="slide">
+      <span class="tag">3 · O Competidor como Artigo Científico</span>
+      <h1>Wang et al. (2022) usaram buscas do app,<br>mas <span class="danger">treinaram só para adivinhar a catraca</span>.</h1>
+      <div class="visual-box">
+        <div class="step-card">
+          <div class="big-num">TRC · 2022 (A1)</div>
+          <div class="label"><strong>"Short-term bus passenger flow prediction using trip planner request data"</strong><br>Z. Wang, A. J. Pel, T. Verma, P. Krishnakumari, P. van Brakel, N. van Oort</div>
+        </div>
+        <div class="step-card ok">
+          <div class="big-num">-21,7% erro</div>
+          <div class="label">Provou que consultas no celular antecipam a fila antes do ônibus chegar</div>
+        </div>
+        <div class="step-card danger">
+          <div class="big-num">Limite no Brasil</div>
+          <div class="label">Gabarito é só a <strong>catraca física</strong>: quem cansa de esperar às 6h e pega alternativo some do modelo</div>
+        </div>
+      </div>
+      <div class="source-link">Artigo completo conferido: <em>Transportation Research Part C: Emerging Technologies</em> · DOI: <a href="https://doi.org/10.1016/j.trc.2022.103790" target="_blank">10.1016/j.trc.2022.103790</a></div>
+    </section>
+
+    <!-- SLIDE 4: DIFERENCIAL E CONTRIBUIÇÃO CIENTÍFICA -->
+    <section class="slide">
+      <span class="tag">4 · Diferencial Prático e Pergunta Científica</span>
+      <h1>O sinal do celular <span class="ok">zerou gargalos sem aviso</span>,<br>e na linha reta a conta simples bateu a GNN.</h1>
+      <div class="visual-box">
+        <div class="step-card ok">
+          <div class="big-num">28% → 0%</div>
+          <div class="label"><strong>Gargalos sem aviso (&gt; 40 min):</strong> tirar o <em>z-score</em> do celular deixou passar 28%; com ele, caiu para 0%</div>
+        </div>
+        <div class="step-card warn">
+          <div class="big-num">2,46 vs 4,42 min</div>
+          <div class="label"><strong>Achado honesto do piloto:</strong> em linha reta de 5 paradas (P1+P2+P3), o cálculo simples superou a STGCN</div>
+        </div>
+        <div class="step-card">
+          <div class="big-num">20% → 97%</div>
+          <div class="label"><strong>Decisão certa no remanejamento:</strong> planilha de catraca acertou 20%; painel com <code>[?]</code> + GPS bruto acertou 97%</div>
+        </div>
+      </div>
+      <div class="source-link">Pergunta científica (<code>exp.md</code>): <em>Cruzar dados do celular com paradas anteriores alerta atrasos críticos a tempo, e uma STGCN supera um modelo simples nisso?</em></div>
+    </section>
+
+    <!-- SLIDE 5: FECHO -->
+    <section class="slide">
+      <span class="tag">5 · Fecho</span>
+      <h1>Não falta passageiro na parada.<br><span class="accent">Falta enxergar quem desistiu antes da catraca.</span></h1>
+      <div class="visual-box">
+        <div class="step-card ok">
+          <div class="big-num">No Bolso</div>
+          <div class="label">Rotina salva só no aparelho (LGPD) + aviso por voz no fone sem puxar o celular na rua</div>
+        </div>
+        <div class="step-card">
+          <div class="big-num">Na Rede</div>
+          <div class="label">Conta simples para corredor reto · <strong>STGCN</strong> para cruzamentos em Terminais Integrados · <strong>GPS &ge; 15s</strong> protege quem não tem app</div>
+        </div>
+      </div>
+      <div class="source-link">Cauã da Cunha Lira · Repositório completo: <a href="https://github.com/lira-labs/workspace/tree/main/va2" target="_blank">github.com/lira-labs/workspace/tree/main/va2</a></div>
+    </section>
+
+    <footer>
+      <div>Cauã da Cunha Lira · Tópicos Avançados em IA (AI4Good) · Slide <span id="idx">1</span> / 5</div>
+      <div class="controls">
+        <button onclick="prev()">◀ Anterior</button>
+        <button onclick="next()">Próximo ▶</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const idx = document.getElementById('idx');
+    let cur = 0;
+    function show(n) {
+      slides[cur].classList.remove('active');
+      cur = (n + slides.length) % slides.length;
+      slides[cur].classList.add('active');
+      idx.textContent = cur + 1;
+    }
+    function next() { show(cur + 1); }
+    function prev() { show(cur - 1); }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') next();
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') prev();
+    });
+  </script>
+</body>
+</html>
