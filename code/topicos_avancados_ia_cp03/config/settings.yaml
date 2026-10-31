@@ -1,28 +1,42 @@
-# Configuração de Modelos e Conectores para o Experimento AI4Good (CP-03)
+# Configuração de Modelos, Parâmetros de Contexto, Busca Web e Raciocínio (CP-03 · arn·c)
 
 general:
   total_loops: 20
   save_each_loop: true
   outputs_dir: "outputs"
   human_in_the_loop: true  # Solicita intervenção/parecer do usuário em todas as 20 rodadas
+  enable_web_search: true  # Item 4 (arn·c): Habilita busca na web em tempo de execução para checagem factual
+  enable_reasoning: true   # Item 5 (arn·c): Habilita cadeia de raciocínio (thinking/reasoning) antes da resposta
 
 models:
-  # Modelo Remoto Principal
+  # Modelo Remoto Principal (Propositor: Arquiteto / Tecnocrata)
   gemini:
     provider: "google-genai"
-    model_name: "gemini-3.5-flash"
+    model_name: "gemini-2.5-flash"
     temperature: 0.7
-    max_output_tokens: 8192  # o modelo gasta parte em raciocínio interno; 1024 cortava a resposta
+    top_p: 0.95
+    context_window: 1048576
+    max_output_tokens: 8192  # inclui orçamento para tokens de raciocínio (thinking_budget)
+    thinking_budget: 2048    # Item 5: Cadeia de raciocínio explícita via ThinkingConfig
+    web_search: true         # Item 4: Google Search Grounding nativo em tempo de execução
 
-  # Modelos Locais via Ollama
+  # Modelos Locais via Ollama (Crítico e Auditor)
   ollama_llama:
     provider: "ollama"
     model_name: "llama3.2:3b"
     base_url: "http://localhost:11434"
     temperature: 0.5
+    top_p: 0.90
+    num_ctx: 8192            # Item 3: Janela de contexto explícita no Ollama
+    reasoning_mode: true     # Item 5: Exige bloco estruturado <thinking>...</thinking> de reflexão crítica
+    web_search: true         # Item 4: Injeta resultados de pesquisa web em tempo de execução
 
   ollama_qwen:
     provider: "ollama"
     model_name: "qwen2.5:3b"
     base_url: "http://localhost:11434"
     temperature: 0.5
+    top_p: 0.90
+    num_ctx: 8192            # Item 3: Janela de contexto explícita no Ollama
+    reasoning_mode: true     # Item 5: Cadeia de raciocínio crítico para cálculo das métricas e dilemas
+    web_search: true         # Item 4: Consulta factual em tempo de execução
