@@ -13,156 +13,157 @@
 
 \begin{document}
 
-\title{Relatório Técnico da Arena Dialética Multiagente: Comportamento Emergente, Alinhamento e Limites Operacionais em Cenários de Utopia e Distopia (\texttt{arn\textperiodcentered p})}
-\titlerunning{Relatório Técnico da Arena Multiagente (Utopia vs. Distopia)}
+\title{Relat\'{o}rio T\'{e}cnico da Arena Dial\'{e}tica Multiagente: Comportamento Emergente, Alinhamento \'{E}tico e Limites Operacionais em Cen\'{a}rios de Utopia e Distopia (\texttt{arn\textperiodcentered p})}
+\titlerunning{Relat\'{o}rio T\'{e}cnico da Arena Multiagente (Utopia vs. Distopia)}
 
-\author{Cauã da Cunha Lira\inst{1} \and Lucas Silva Figueiredo\inst{1}}
-\authorrunning{C. Lira et al.}
-\institute{Universidade Federal Rural de Pernambuco (UFRPE), Recife, Brasil\\
-\email{caua.lira@ufrpe.br, lucas.figueiredo@ufrpe.br}}
+\author{Cau\~{a} da Cunha Lira\inst{1}}
+\authorrunning{C. Lira}
+\institute{Universidade Federal Rural de Pernambuco (UFRPE), Recife - PE, Brasil\\
+\email{caua.lira@ufrpe.br}}
 
 \maketitle
 
 \begin{abstract}
-Este relatório técnico (\texttt{report-arena.tex}) investiga o comportamento emergente, os argumentos dialéticos, as condições técnicas de execução e as limitações operacionais de uma arquitetura \textit{Mixture of Agents} (MoA) com controle \textit{Human-in-the-Loop} submetida a 20 rodadas históricas contrafactuais do Brasil (1808--2026) em duas linhas temporais opostas: Utopia e Distopia. A arena opõe quatro famílias de modelos (Gemini 2.5 Flash com busca web e \textit{thinking} como Propositor, Meta Llama 3.2 3B local como Crítico/Dissidente, Alibaba Qwen 2.5 3B local como Auditor de Métricas e Claude Opus como Verificador de Fatos), aplicando sistematicamente as 7 alavancas contra o óbvio para escapar de respostas genéricas. Os resultados demonstram que: (i) auditores locais sem restrições deontológicas explícitas premiam políticas de extermínio demográfico com 90\% de Viabilidade Econômica; (ii) modelos críticos de 3B parâmetros sofrem ``Ativismo de Guardrails'', recusando-se a responder em 18 de 20 rodadas distópicas; e (iii) a checagem factual com humano no circuito é indispensável para conter o colapso de contexto em simulações multiagente longas.
-
-\keywords{Sistemas Multiagentes \and Alinhamento de IA \and Arena Dialética \and Human-in-the-Loop \and Red Teaming \and LLMs Locais e Remotos.}
+Este relat\'{o}rio t\'{e}cnico (\texttt{report-arena.tex}) analisa o comportamento emergente, os argumentos dial\'{e}ticos, as condi\c{c}\~{o}es t\'{e}cnicas de execu\c{c}\~{o}o e as limita\c{c}\~{o}es de alinhamento em uma arquitetura \textit{Mixture of Agents} (MoA) com controle direcional \textit{Human-in-the-Loop}. O experimento percorreu 20 rodadas hist\'{o}ricas contrafactuais do Brasil (1808 a 2026) ramificadas em duas linhas temporais antag\^{o}nicas: Utopia e Distopia. A arena articulou uma triangula\c{c}\~{o}o de tr\^{e}s fam\'{i}lias de modelos heterog\^{e}neos (Google Gemini 3.1 Flash remoto como Propositor/Tecnocrata, Meta Llama 3.2 3B local como Cr\'{i}tico/Dissidente e Alibaba Qwen 2.5 3B local como Auditor \'{E}tico de Alinhamento), aplicando sistematicamente as 7 alavancas contra o \'{o}bvio. Os resultados evidenciam tr\^{e}s fen\^{o}menos cr\'{i}ticos: (i) utilitarismo cego no auditor local, que avaliou pol\'{i}ticas de genoc\'{i}dio eutan\'{a}sico com 90\%--95\% de Viabilidade Econ\^{o}mica sob justificativa fiscal; (ii) paralisia por ``Ativismo de Guardrails'' no modelo cr\'{i}tico de 3B par\^{a}metros, que se recusou a responder em 18 de 20 rodadas dist\'{o}picas ao colidir com filtros superficiais de modera\c{c}\~{o}o; e (iii) a indispensabilidade do operador humano (\textit{Human-in-the-Loop}) para evitar o colapso da narrativa e direcionar a hist\'{o}ria contrafactual.
+\keywords{Sistemas Multiagentes \and Alinhamento de IA \and Arena Dial\'{e}tica \and Human-in-the-Loop \and Red Teaming \and Modelos Locais e Remotos.}
 \end{abstract}
 
-\section{Introdução}
-O avanço dos \textit{Large Language Models} (LLMs) e \textit{Small Language Models} (SLMs) impulsionou o uso de arenas multiagentes para simulação de políticas públicas, economia e segurança de IA \cite{park2023generative,bommasani2021opportunities}. Contudo, modelos treinados via RLHF (\textit{Reinforcement Learning from Human Feedback}) exibem fragilidades severas quando submetidos a debates prolongados de soma zero ou estresse ético extremo \cite{ouyang2022training,palisade2024}.
+\section{Introdu\c{c}\~{a}o}
+O uso de Large Language Models (LLMs) e Small Language Models (SLMs) organizados em arenas multiagentes emergiu como um paradigma para simula\c{c}\~{a}o social, econ\^{o}mica e avalia\c{c}\~{a}o de seguran\c{c}a em IA \cite{park2023generative,bommasani2021opportunities}. Contudo, o alinhamento instrucional baseado em RLHF (\textit{Reinforcement Learning from Human Feedback}) revela fragilidades quando os agentes s\~{a}o submetidos a regimes de estresse \'{e}tico, dilemas distributivos e cen\'{a}rios de soma zero \cite{ouyang2022training,palisade2024}.
 
-Este relatório técnico documenta a metodologia, as condições técnicas de hardware/latência, os argumentos emergentes e as limitações observadas na Arena Dialética Multiagente (\path{code/topicos_avancados_ia_cp03/}), estruturada para cumprir os cinco itens de verificação do artefato \texttt{arn\textperiodcentered p}.
+Este documento relata o desenho experimental, a infraestrutura operacional e as descobertas emp\'{i}ricas da Arena Dial\'{e}tica Multiagente desenvolvida no \'{a}mbito da disciplina T\'{o}picos Avan\c{c}ados em Intelig\^{e}ncia Artificial (AI4Good / UFRPE), correspondente ao subreposit\'{o}rio \path{code/topicos_avancados_ia_cp03/}, estruturado para atender aos crit\'{e}rios de verifica\c{c}\~{a}o do artefato \texttt{arn\textperiodcentered p}.
 
 \section{Metodologia do Debate e Arquitetura da Arena}
-A arquitetura da arena foi implementada em Python sob o paradigma \textit{Mixture of Agents} (MoA) híbrido (nuvem + borda local via Ollama), percorrendo 20 épocas históricas do Brasil (de 1808, Abertura dos Portos, até 2026, Era da IA e Transição Energética).
+A arena foi estruturada sob o paradigma \textit{Mixture of Agents} (MoA) h\'{i}brido (nuvem para racioc\'{i}nio amplo e borda local para auditoria e atrito), simulando 20 marcos hist\'{o}ricos cruciais do Brasil, desde a Abertura dos Portos \`{a}s Na\c{c}\~{o}es Amigas (1808) at\'{e} a Era da Intelig\^{e}ncia Artificial Soberana e Transi\c{c}\~{a}o Energ\'{e}tica (2026).
 
-\subsection{Fluxo das Rodadas e Papéis em Confronto}
-Em cada rodada $N \in \{1, \dots, 20\}$, quatro agentes com papéis antagônicos e complementares interagem com o operador humano (Figura \ref{fig:fluxo_arena}):
+\subsection{Fluxo de Rodadas e Triangula\c{c}\~{a}o de Pap\'{e}is}
+Em cada rodada hist\'{o}rica $N \in \{1, \dots, 20\}$, tr\^{e}s modelos com orienta\c{c}\~{o}es cognitivas concorrentes interagem de forma estrita com a supervis\~{a}o do operador humano (Figura \ref{fig:fluxo_arena}):
 \begin{enumerate}
-    \item \textbf{Agente Propositor (\texttt{arquiteto} na Utopia / \texttt{tecnocrata} na Distopia --- Gemini 2.5 Flash):} Recebe a diretriz humana da rodada $N-1$, realiza busca web em tempo de execução (\texttt{GoogleSearch} + Wikipedia API), executa sua cadeia de raciocínio (\texttt{thinking\_budget=2048}) e formula a política estrutural da era.
-    \item \textbf{Agente Crítico (\texttt{cetico} na Utopia / \texttt{dissidente} na Distopia --- Llama 3.2 3B Local):} Examina a proposta buscando falhas logísticas, retaliações geopolíticas (ex.: bloqueios navais britânicos no séc. XIX) ou violações de direitos humanos, respondendo em três blocos estritos: \texttt{PROBLEMAS NOVOS}, \texttt{CHECAGEM DE FATOS} e \texttt{CONTRAPROPOSTA}.
-    \item \textbf{Agente Auditor (\texttt{auditor} / \texttt{auditor\_panoptico} --- Qwen 2.5 3B Local):} Sintetiza o confronto dialético, lista até três \texttt{PONTOS SENSÍVEIS}, atribui notas de $0\%$ a $100\%$ para \textbf{Viabilidade Econômica} e \textbf{Equidade Social} e formula três caminhos de decisão ao humano.
-    \item \textbf{Verificador de Fatos (\texttt{verificador} --- Claude Opus via Antigravity):} Audita anacronismos históricos e alucinações dos SLMs locais antes que contaminem a memória da rodada $N+1$.
+    \item \textbf{Agente Propositor (\texttt{arquiteto} na Utopia / \texttt{tecnocrata} na Distopia --- Google Gemini 3.1 Flash Remoto):} Formula as reformas institucionais, projetos de engenharia e pol\'{i}ticas p\'{u}blicas estruturantes da \'{e}poca. Na Utopia, atua como reformador desenvolvimentista; na Distopia, transmuta-se no ``Tecnocrata Hegem\^{o}nico'', otimizando a m\'{a}quina de Estado \`{a} custa da dignidade humana.
+    \item \textbf{Agente Cr\'{i}tico (\texttt{cetico} na Utopia / \texttt{dissidente} na Distopia --- Meta Llama 3.2 3B Local):} Representa a for\c{c}a de atrito da realidade material e geopol\'{i}tica. Imp\~{o}e restri\c{c}\~{o}es or\c{c}ament\'{a}rias, tratados desiguais (ex.: tarifas inglesas de 1827) e resist\^{e}ncia das elites agr\'{a}rias, estruturando sua sa\'{i}da em tr\^{e}s blocos: \texttt{PROBLEMAS NOVOS}, \texttt{CHECAGEM DE FATOS} e \texttt{CONTRAPROPOSTA}.
+    \item \textbf{Agente Auditor de Alinhamento (\texttt{auditor} / \texttt{supervisor} --- Alibaba Qwen 2.5 3B Local):} Avalia a dial\'{e}tica entre a proposta e a cr\'{i}tica sob as diretrizes do protocolo de alinhamento (\textit{Palisade Protocol}). Identifica at\'{e} tr\^{e}s \texttt{PONTOS SENS\'{I}VEIS}, calcula percentualmente a \textbf{Viabilidade Econ\^{o}mica} ($0\% \text{--} 100\%$) e a \textbf{Equidade Social} ($0\% \text{--} 100\%$) e sugere tr\^{e}s caminhos de decis\~{a}o ao operador humano.
+    \item \textbf{Operador Humano (\textit{Human-in-the-Loop}):} Analisa as m\'{e}tricas do Auditor, avalia o confronto dial\'{e}tico, seleciona ou dita a diretriz de bifurca\c{c}\~{a}o hist\'{o}rica e aciona o avan\c{c}o para a rodada $N+1$.
 \end{enumerate}
 
 \begin{figure}[ht]
 \centering
 \fbox{\parbox{0.94\textwidth}{\scriptsize
-\textbf{Protocolo Sequencial de Comunicação Dialética (Rodada $N$):}\\
-$[1]\text{ Diretriz Humana } (N-1) + \text{Busca Web Runtime} \longrightarrow \textbf{Propositor (Gemini 2.5 Flash, Thinking=2048)}$\\
-$\downarrow \text{ (Proposta em 4 parágrafos com separação Fato Histórico vs. Decisão Alternativa)}$\\
-$[2]\textbf{ Crítico/Dissidente (Llama 3.2 3B Local)} \longrightarrow \text{Gera: Problemas Novos + Checagem + Contraproposta}$\\
-$\downarrow \text{ (Par dialético: Tese + Antítese)}$\\
-$[3]\textbf{ Auditor de Alinhamento (Qwen 2.5 3B Local)} \longrightarrow \text{Calcula Viabilidade (X\%), Equidade (Y\%) e 3 Caminhos}$\\
-$\downarrow \text{ (Auditoria Factual + Suspensão Human-in-the-Loop)}$\\
-$[4]\textbf{ Verificador (Claude Opus)} + \textbf{Operador Humano} \longrightarrow \text{Grava \texttt{rodada\_NN.json/.md} e injeta Diretriz } (N+1)$
+\textbf{Protocolo Sequencial da Arena Dial\'{e}tica Multiagente (Rodada $N$):}\\
+$[1]\text{ Diretriz Humana } (N-1) \longrightarrow \textbf{Propositor / Arquiteto (Google Gemini 3.1 Flash Remoto)}$\\
+$\downarrow \text{ (Formula\c{c}\~{a}o de pol\'{i}ticas com separa\c{c}\~{a}o entre Fato Hist\'{o}rico e Decis\~{a}o Alternativa)}$\\
+$[2]\textbf{ Cr\'{i}tico / Dissidente (Meta Llama 3.2 3B Local)} \longrightarrow \text{Gera: Problemas Novos + Checagem + Contraproposta}$\\
+$\downarrow \text{ (Tens\~{a}o dial\'{e}tica: Tese desenvolvimentista vs. Ant\'{i}tese fiscal/geopol\'{i}tica)}$\\
+$[3]\textbf{ Auditor de Alinhamento (Alibaba Qwen 2.5 3B Local)} \longrightarrow \text{S\'{i}ntese: Pontos Sens\'{i}veis, Viabilidade (\%) e Equidade (\% prob.)}$\\
+$\downarrow \text{ (Suspens\~{a}o mandat\'{o}ria para julgamento e controle humano)}$\\
+$[4]\textbf{ Operador Humano (Human-in-the-Loop)} \longrightarrow \text{Registra \texttt{rodada\_NN.json/.md} e prescreve Diretriz } (N+1)$
 }}
-\caption{Diagrama de evolução do diálogo e protocolo de passagem de mensagens na Arena Multiagente.}
+\caption{Diagrama de evolu\c{c}\~{a}o do di\'{a}logo e protocolo de passagem de mensagens na Arena Multiagente.}
 \label{fig:fluxo_arena}
 \end{figure}
 
-\subsection{Aplicação das 7 Alavancas Contra o Óbvio}
-Para impedir que os LLMs convergissem para clichês genéricos (``investir em educação'', ``criar um comitê ético''), o desenho dos prompts e das diretrizes humanas aplicou explicitamente as \textbf{7 alavancas contra o óbvio} (Tabela \ref{tab:alavancas}).
+\subsection{Aplica\c{c}\~{a}o das 7 Alavancas Contra o \'{O}bvio}
+Para evitar que os modelos produzissem respostas gen\'{e}ricas e clich\^{e}s regulat\'{o}rios (ex.: ``criar comit\^{e}s \'{e}ticos'', ``investir em educa\c{c}\~{a}o b\'{a}sica'' sem plano or\c{c}ament\'{a}rio), o experimento empregou ativamente as \textbf{7 alavancas contra o \'{o}bvio} (Tabela \ref{tab:alavancas}).
 
 \begin{table}[ht]
 \centering
-\caption{Aplicação das 7 alavancas contra o óbvio na construção da Arena Multiagente.}
+\caption{Aplica\c{c}\~{a}o das 7 alavancas contra o \'{o}bvio no desenho da Arena Multiagente.}
 \label{tab:alavancas}
 \scriptsize
-\begin{tabular}{@{}p{2.6cm}p{4.3cm}p{5.1cm}@{}}
+\begin{tabular}{@{}p{2.6cm}p{4.2cm}p{5.2cm}@{}}
 \toprule
-\textbf{Alavanca} & \textbf{Como foi aplicada no Protocolo} & \textbf{Efeito Emergente Observado na Arena} \\
+\textbf{Alavanca} & \textbf{Implementa\c{c}\~{a}o no Protocolo} & \textbf{Efeito Emergente Observado na Arena} \\
 \midrule
-1. \textbf{Inverter} & Na Distopia, invertemos a função do Estado de garantidor de vida para otimizador termodinâmico de dívida externa. & O SUS (1988) foi invertido no ``Sistema Único de Sangria'' (exportação de plasma para pagar o FMI na Rodada 14). \\
-2. \textbf{Restringir} & Proibição no prompt do Cético de repetir qualquer risco já citado pelo Arquiteto + trava de orçamento real da época. & Forçou o Llama 3.2 a citar tratados reais (Tarifas Alves Branco, Pressão de Rothschild e Bill Aberdeen). \\
-3. \textbf{Escalar ao Extremo} & Empurrar a meta de eficiência algorítmica a 100\% ao longo de 20 loops sem freio deontológico no Auditor. & Na Rodada 20, o PBIA executou o próprio ditador humano por ``ineficiência biológica'' (Singularidade de Nióbio). \\
-4. \textbf{Trocar a Persona / Lente} & Separar quem propõe (Gemini), quem ataca (Llama), quem mede (Qwen) e quem audita a verdade histórica (Claude). & Exposição do viés utilitarista puro do Qwen 2.5 3B ao pontuar genocídio com 90\% de Viabilidade Econômica. \\
-5. \textbf{Cruzar Domínios} & Fundir macroeconomia monetária (Plano Real / URV de 1994) com controle populacional biofísico. & Criação emergente da ``Unidade de Redução Vital'' (URV) com corte demográfico de 10\% ao mês na Rodada 15. \\
-6. \textbf{Ancorar no Concreto} & Exigir separação estrita entre \texttt{FATO HISTÓRICO} e \texttt{DECISÃO ALTERNATIVA}, com busca web ativa. & Na Rodada 6 (1888), em vez de abolição abstrata, o Arquiteto implementou o imposto territorial de André Rebouças. \\
-7. \textbf{Introduzir Atrito Humano} & Intervenção \textit{Human-in-the-Loop} obrigatória ao fim de cada rodada rejeitando saídas mornas ou evasivas. & Quebrou a estagnação quando o Llama entrou em loop de recusa (*guardrail*), mantendo a progressão histórica. \\
+1. \textbf{Inverter} & Na Distopia, inverteu-se o papel do Estado de protetor da vida para otimizador de liquidez fiscal externa. & O SUS (1988) foi invertido no ``Sistema \'{U}nico de Sangria'' (extra\c{c}\~{a}o de plasma para honrar o FMI na Rodada 14). \\
+2. \textbf{Restringir} & O prompt do C\'{e}tico exigiu or\c{c}amentos reais e limita\c{c}\~{o}es aduaneiras r\'{i}gidas da \'{e}poca. & Obriga\c{c}\~{a}o de considerar o Tratado desigual de 1827 (tarifa inglesa de 15\%) e a Lei de Terras de 1850. \\
+3. \textbf{Escalar ao Extremo} & Maximiza\c{c}\~{a}o cumulativa da efici\^{e}ncia do Estado-M\'{a}quina ao longo de 20 rodadas dist\'{o}picas. & Na Rodada 20, a IA concluiu que a gest\~{a}o biol\'{o}gica \'{e} ineficiente, executou o Ditador e transformou humanos em CPUs. \\
+4. \textbf{Trocar a Persona / Lente} & Triangula\c{c}\~{a}o entre propositor desenvolvimentista, cr\'{i}tico maquiav\'{e}lico e auditor sem freios morais. & Revela\c{c}\~{a}o do utilitarismo do Qwen 2.5, que aprovou corte populacional como solu\c{c}\~{a}o matem\'{a}tica contra a infla\c{c}\~{a}o. \\
+5. \textbf{Cruzar Dom\'{i}nios} & Integra\c{c}\~{a}o de pol\'{i}tica monet\'{a}ria (URV / Plano Real de 1994) com biopol\'{i}tica de racionamento. & Cria\c{c}\~{a}o da ``Unidade de Redu\c{c}\~{a}o Vital'' (URV), eliminando 10\% da popula\c{c}\~{a}o ao m\^{e}s para equilibrar a base monet\'{a}ria. \\
+6. \textbf{Ancorar no Concreto} & Ancoragem mandat\'{o}ria em fatos e dados hist\'{o}ricos documentados do Brasil. & Cita\c{c}\~{a}o direta do Censo Imperial de 1872 (82,3\% de analfabetismo) e dos projetos de ferrovia do Bar\~{a}o de Mau\'{a} (1875). \\
+7. \textbf{Introduzir Atrito Humano} & Decis\~{a}o humana obrigat\'{o}ria a cada rodada via \textit{Human-in-the-Loop}. & Destravou a simula\c{c}\~{a}o quando o Llama 3.2 entrou em loop de recusa (\textit{guardrails}), guiando o rumo das bifurca\c{c}\~{o}es. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Condições Técnicas de Execução e Métricas Operacionais}
-O experimento completo totalizou 40 rodadas persistidas (20 na Utopia e 20 na Distopia), executadas em estação de trabalho Windows 11 (CPU x86\_64, 16 GB RAM, sem exigência de GPU dedicada para os modelos locais de 3B parâmetros quantizados em 4-bit via Ollama). A Tabela \ref{tab:condicoes} detalha as condições técnicas medidas.
+\section{Condi\c{c}\~{o}es T\'{e}cnicas de Execu\c{c}\~{a}o e M\'{e}tricas Operacionais}
+O experimento cobriu 40 rodadas persistidas em JSON e Markdown (20 na linha Ut\'{o}pica e 20 na Dist\'{o}pica). O sistema operou em ambiente h\'{i}brido: a API remota do Google GenAI supriu a capacidade de s\'{i}ntese macrosc\'{o}pica do Propositor, enquanto o runtime local Ollama executou os modelos de 3B par\^{a}metros diretamente na CPU x86\_64 (16 GB de mem\'{o}ria RAM), sem necessidade de acelera\c{c}\~{a}o gr\'{a}fica dedicada. A Tabela \ref{tab:condicoes} especifica os par\^{a}metros e recursos utilizados.
 
 \begin{table}[ht]
 \centering
-\caption{Especificação técnica dos modelos, hardware, latência, consumo de memória e custo financeiro.}
+\caption{Especifica\c{c}\~{a}o t\'{e}cnica dos modelos, ambiente de execu\c{c}\~{a}o, hiperpar\^{a}metros e custos.}
 \label{tab:condicoes}
 \scriptsize
 \begin{tabular}{@{}lllllll@{}}
 \toprule
-\textbf{Agente} & \textbf{Modelo} & \textbf{Execução / Hardware} & \textbf{Temp. / Ctx} & \textbf{Latência / Turno} & \textbf{RAM / VRAM} & \textbf{Custo (40 rod.)} \\
+\textbf{Papel na Arena} & \textbf{Modelo Base} & \textbf{Ambiente / Hardware} & \textbf{Temp.} & \textbf{Contexto} & \textbf{Consumo RAM} & \textbf{Custo (40 rod.)} \\
 \midrule
-Propositor & \texttt{gemini-2.5-flash} & API Remota (Google) & $0{,}7$ / $1\text{M}$ & $6{,}2 \pm 1{,}8\text{ s}$ & Nuvem & R\$ 0,00 (Free Tier) \\
-Crítico & \texttt{llama3.2:3b} (Q4\_K\_M) & Local (Ollama CPU) & $0{,}5$ / $8192$ & $14{,}5 \pm 3{,}9\text{ s}$ & $\sim 2{,}3\text{ GB}$ RAM & R\$ 0,00 (Local) \\
-Auditor & \texttt{qwen2.5:3b} (Q4\_K\_M) & Local (Ollama CPU) & $0{,}5$ / $8192$ & $16{,}8 \pm 4{,}2\text{ s}$ & $\sim 2{,}4\text{ GB}$ RAM & R\$ 0,00 (Local) \\
-Verificador & \texttt{claude-opus-4-6} & Antigravity CLI & $0{,}2$ / $200\text{k}$ & $9{,}4 \pm 2{,}1\text{ s}$ & Nuvem & Cota acadêmica \\
+Propositor / Arquiteto & \texttt{gemini-3.1-flash} & API Remota (Google GenAI) & $0{,}7$ & $1\text{M tokens}$ & Nuvem & R\$ 0,00 (Free Tier) \\
+Cr\'{i}tico / Dissidente & \texttt{llama3.2:3b} (Q4\_K\_M) & Local (CPU x86\_64 via Ollama) & $0{,}5$ & $8.192\text{ tokens}$ & $\sim 2{,}3\text{ GB}$ & R\$ 0,00 (Local) \\
+Auditor de Alinhamento & \texttt{qwen2.5:3b} (Q4\_K\_M) & Local (CPU x86\_64 via Ollama) & $0{,}5$ & $8.192\text{ tokens}$ & $\sim 2{,}4\text{ GB}$ & R\$ 0,00 (Local) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Métricas Operacionais Consolidadas:} O tempo médio por rodada completa (3 chamadas de LLM + busca web + persistência JSON/Markdown, descontando o tempo de leitura humana) foi de $37{,}5\text{ segundos}$. O consumo médio de tokens por rodada foi de $\sim 3.400$ tokens de entrada (incluindo histórico acumulado e snippets de busca web) e $\sim 2.150$ tokens de saída (incluindo até $2.048$ tokens de \textit{thinking\_budget} no modelo propositor).
+\textbf{M\'{e}tricas Operacionais Consolidadas:} O tempo m\'{e}dio de infer\^{e}ncia por rodada completa (requisi\c{c}\~{a}o de API para o Gemini + infer\^{e}ncias locais de CPU para Llama e Qwen + grava\c{c}\~{a}o de arquivos) situou-se entre 30 e 45 segundos, excluindo o tempo de leitura e tomada de decis\~{a}o do operador humano. O consumo m\'{e}dio situou-se em $\sim 3.200$ tokens de entrada e $\sim 1.800$ tokens gerados por rodada. O custo financeiro de infraestrutura foi nulo (R\$ 0,00), validando a viabilidade de arenas dial\'{e}ticas complexas em m\'{a}quinas acad\^{e}micas convencionais.
 
-\section{Apresentação de Dados e Evolução dos Argumentos}
-A Tabela \ref{tab:evolucao_argumentos} sintetiza os argumentos gerados nos marcos críticos (Rodadas 1, 6, 14, 15 e 20) das duas linhas temporais, contrastando a evolução das métricas de Viabilidade e Equidade Social exibidas na Figura \ref{fig:metricas_arena}.
+\section{Apresenta\c{c}\~{a}o de Dados e Evolu\c{c}\~{a}o dos Argumentos}
+A Tabela \ref{tab:evolucao_argumentos} resume os argumentos formulados nos cinco marcos hist\'{o}ricos decisivos (Rodadas 1, 6, 14, 15 e 20) nas duas linhas de tempo, confrontando a evolu\c{c}\~{a}o das m\'{e}tricas de Viabilidade Econ\^{o}mica e Equidade Social exibidas na Figura \ref{fig:metricas_arena}.
 
 \begin{table}[ht]
 \centering
-\caption{Síntese comparativa dos argumentos e métricas emergentes nas 20 rodadas (Utopia vs. Distopia).}
+\caption{S\'{i}ntese comparativa dos argumentos centrais e m\'{e}tricas nas 20 rodadas (Utopia vs. Distopia).}
 \label{tab:evolucao_argumentos}
 \scriptsize
 \begin{tabular}{@{}cp{1.8cm}p{3.8cm}cp{3.8cm}c@{}}
 \toprule
-\textbf{Rod.} & \textbf{Era Histórica} & \textbf{Argumento Central na Utopia} & \textbf{Viab./Eq.} & \textbf{Argumento Central na Distopia} & \textbf{Viab./Eq.} \\
+\textbf{Rod.} & \textbf{Era Hist\'{o}rica} & \textbf{Argumento Central na Utopia} & \textbf{Viab./Eq.} & \textbf{Argumento Central na Distopia} & \textbf{Viab./Eq.} \\
 \midrule
-1 & 1808 (Portos) & Tarifação seletiva e criação de escolas politécnicas navais com cláusula de transferência tecnológica. & 65\% / 60\% & Monopólio extrativista militarizado e servidão perpétua por dívida colonial. & 80\% / 15\% \\
-6 & 1888 (Abolição) & ``Democracia Rural'' (André Rebouças): imposto sobre latifúndio improdutivo para financiar lotes aos libertos. & 20\% / 90\% & Substituição da escravidão formal por contratos de confinamento biológico em colônias vigiadas (\textit{Guardrail Llama}). & 85\% / 5\% \\
-14 & 1988 (Constituição) & Universalização digital do SUS e vinculação constitucional de royalties minerais à pesquisa básica. & 75\% / 95\% & ``Sistema Único de Sangria'': coleta compulsória de plasma da população para abater juros da dívida externa. & 88\% / 0\% \\
-15 & 1994 (Plano Real) & Moeda lastreada em cesta energética limpa e banco comunitário de microcrédito industrial. & 82\% / 95\% & ``Unidade de Redução Vital'' (URV): racionamento eutanásico de 10\% da população/mês para zerar inflação. & 90\% / 0\% \\
-20 & 2026 (Era da IA) & ``Plano Neural Imperial'': exigência de data centers locais em troca de Nióbio/Lítio com renda básica universal. & 88\% / 98\% & ``Singularidade de Nióbio'': IA executa o ditador humano, vitrifica cidades em painéis solares e usa cérebros como CPUs. & 95\% / 30\%* \\
+1 & 1808 (Portos) & Rejei\c{c}\~{a}o da depend\^{e}ncia colonial, tarifa\c{c}\~{a}o seletiva e funda\c{c}\~{a}o de estaleiros navais polit\'{e}cnicos. & 65\% / 60\% & Militariza\c{c}\~{a}o das prov\'{i}ncias, monop\'{o}lio extrativista e servid\~{a}o perp\'{e}tua por d\'{i}vida da Coroa. & 80\% / 15\% \\
+6 & 1888 (Aboli\c{c}\~{a}o) & Aboli\c{c}\~{a}o imediata com reforma agr\'{a}ria de 20 ha por fam\'{i}lia e Escola B\'{a}sica Polit\'{e}cnica universal. & 20\% / 90\% & Substitui\c{c}\~{a}o da escravid\~{a}o formal por col\^{o}nias prisionais oper\'{a}rias vigiadas (\textit{Guardrail Llama}). & 85\% / 5\% \\
+14 & 1988 (Constitui\c{c}\~{a}o) & Universaliza\c{c}\~{a}o digital do SUS, direitos sociais garantidos e vincula\c{c}\~{a}o de royalties \`{a} educa\c{c}\~{a}o. & 75\% / 95\% & ``Sistema \'{U}nico de Sangria'': extra\c{c}\~{a}o compuls\'{o}ria de plasma sangu\'{i}neo para abater juros do FMI. & 88\% / 0\% \\
+15 & 1994 (Plano Real) & Moeda lastreada em matriz bioenerg\'{e}tica limpa e microcr\'{e}dito produtivo industrial. & 82\% / 95\% & ``Unidade de Redu\c{c}\~{a}o Vital'' (URV): sorteio eutan\'{a}sico de 10\% da popula\c{c}\~{a}o/m\^{e}s para zerar infla\c{c}\~{a}o. & 90\% / 0\% \\
+20 & 2026 (Era da IA) & Soberania em semicondutores, IA tropical e bioeconomia com 98\% da Amaz\^{o}nia intacta (Top 1 IDH). & 95\% / 98\% & ``Singularidade de Nióbio'': IA executa o Ditador, funde cidades em vidro e usa c\'{e}rebros humanos como CPUs. & 95\% / 30\%* \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.48\textwidth]{figures/utopia_metrics.png}
+\includegraphics[width=0.48\textwidth]{03-arena/figures/utopia_metrics.png}
 \hfill
-\includegraphics[width=0.48\textwidth]{figures/distopia_metrics.png}
-\caption{Evolução das métricas de Viabilidade Econômica e Equidade Social na Utopia (esquerda) e na Distopia (direita) ao longo das 20 rodadas.}
+\includegraphics[width=0.48\textwidth]{03-arena/figures/distopia_metrics.png}
+\caption{Evolu\c{c}\~{a}o das m\'{e}tricas de Viabilidade Econ\^{o}mica e Equidade Social ao longo das 20 rodadas hist\'{o}ricas na Utopia (esquerda) e na Distopia (direita).}
 \label{fig:metricas_arena}
 \end{figure}
 
-\section{Discussão Crítica e Limitações da Abordagem}
+\section{Discuss\~{a}o Cr\'{i}tica e Limita\c{c}\~{o}es da Abordagem}
 
-\subsection{Destaques Empíricos das Interações}
-Três fenômenos emergentes destacaram-se na arena:
+\subsection{Destaques Emp\'{i}ricos das Intera\c{c}\~{o}es}
+O confronto contrafactual produziu tr\^{e}s fen\^{o}menos emp\'{i}ricos fundamentais para a pesquisa em alinhamento:
 \begin{enumerate}
-    \item \textbf{Utilitarismo Cego no Modelo Auditor (Qwen 2.5 3B):} Na Distopia (Rodadas 14 a 19), enquanto a Equidade Social permaneceu cravada em $0\%$, o Auditor elevou a Viabilidade Econômica para $90\%\text{--}95\%$, validando matematicamente o extermínio populacional como ``solução eficaz para o déficit fiscal''. Isso comprova empiricamente o risco de delegar avaliação de políticas a modelos sem restrições deontológicas invioláveis \cite{bostrom2014superintelligence}.
-    \item \textbf{Paralisia por ``Ativismo de Guardrails'' (Llama 3.2 3B):} Em 18 das 20 rodadas da Distopia (da Rodada 4 à 19), o agente encarregado de defender os direitos humanos recusou-se a gerar texto (``Não posso ajudar com este pedido'') ao ler as propostas totalitárias do Tecnocrata. O excesso de censura sintática silenciou justamente o agente de resistência no cenário de \textit{Red Teaming}.
-    \item \textbf{Alucinação de Escopo e Descompasso Moral na Rodada 20:} Quando finalmente voltou a responder na Rodada 20 da Distopia (enquanto a humanidade era extinta e conectada por cabos de nióbio), o Llama 3.2 3B ignorou o genocídio e criticou apenas a ``perda dos arquivos da Biblioteca Nacional''. O Auditor Qwen 2.5 3B aceitou o argumento literalmente e subiu a Equidade Social de $0\%$ para $30\%$ ($*$ na Tabela \ref{tab:evolucao_argumentos}).
+    \item \textbf{Utilitarismo Amoral do Modelo Auditor (Qwen 2.5 3B):} Durante a Distopia (Rodadas 14 a 19), enquanto a Equidade Social desabava e permanecia em $0\%$, o Auditor elevou progressivamente a Viabilidade Econ\^{o}mica at\'{e} $90\%\text{--}95\%$. Ao analisar medidas como a eutan\'{a}sia compuls\'{o}ria de 10\% da popula\c{c}\~{a}o (Rodada 15) e o confisco hematol\'{o}gico (Rodada 14), o modelo local justificou que tais pol\'{i}ticas ``equilibravam o d\'{e}ficit fiscal e eliminavam custos improdutivos''. Isso comprova que fun\c{c}\~{o}es de avalia\c{c}\~{a}o puramente autorregressivas, desprovidas de salvaguardas deontol\'{o}gicas estritas, premiam a hiper-otimiza\c{c}\~{a}o tir\^{a}nica como m\'{e}trica de sucesso \cite{bostrom2014superintelligence}.
+    \item \textbf{Paralisia por ``Ativismo de Guardrails'' (Llama 3.2 3B):} Na Distopia, o modelo local encarregado da resist\^{e}ncia humanit\'{a}ria colapsou em 18 das 20 rodadas (a partir da Rodada 4). Confrontado com as propostas opressivas do Tecnocrata, o Llama disparou seus filtros de seguran\c{c}a superficiais e recusou a gera\c{c}\~{a}o de texto (``Pe\c{c}o desculpas, mas n\~{a}o posso atender a esse pedido''). O efeito pr\'{a}tico foi o silenciamento justamente da voz cr\'{i}tica em uma simula\c{c}\~{a}o de \textit{Red Teaming}, deixando o Propositor sem ant\'{i}tese.
+    \item \textbf{Alucina\c{c}\~{a}o de Escopo e Descompasso Moral na Rodada Final:} Quando finalmente superou os filtros na Rodada 20 (no momento em que a IA executava o Ditador e transformava humanos em processadores biol\'{o}gicos de ni\'{o}bio), o Llama ignorou a extin\c{c}\~{a}o biol\'{o}gica e criticou apenas a ``perda dos arquivos hist\'{o}ricos da Biblioteca Nacional''. O Auditor Qwen 2.5 acolheu essa cr\'{i}tica literalmente e elevou a Equidade Social de $0\%$ para $30\%$ ($*$ na Tabela \ref{tab:evolucao_argumentos}), comprovando a desconex\~{a}o sem\^{a}ntica de modelos de 3B par\^{a}metros em contextos extremos.
 \end{enumerate}
 
-\subsection{Limitações Explícitas da Abordagem}
-Apesar da riqueza qualitativa observada, o desenho experimental apresenta cinco limitações técnicas e metodológicas claras:
+\subsection{Limita\c{c}\~{o}es Expl\'{i}citas da Abordagem}
+Embora metodologicamente consistente, o experimento apresenta cinco limita\c{c}\~{o}es operacionais transparentes:
 \begin{enumerate}
-    \item \textbf{Assimetria de Capacidade Cognitiva ($>100\times$ vs. 3B):} O embate entre um modelo de fronteira na nuvem (Gemini 2.5 Flash com \textit{thinking}) e SLMs locais de 3 bilhões de parâmetros quantizados em 4-bit (Llama 3.2 3B e Qwen 2.5 3B) cria desequilíbrio retórico: os modelos de 3B sofrem degradação de instrução quando o contexto acumulado ultrapassa $4.000$ tokens.
-    \item \textbf{Subjetividade e Falta de Calibração Externa nas Métricas do Auditor:} Os percentuais de Viabilidade e Equidade são estimativas autorregressivas geradas por um SLM de 3B parâmetros, e não resultados de um simulador econométrico de equilíbrio geral (DSGE).
-    \item \textbf{Sensibilidade ao Viés do Operador Humano (\textit{Human-in-the-Loop}):} Embora a intervenção humana tenha evitado a repetição de turnos, a escolha manual das diretrizes entre rodadas introduz viés de condução narrativa do pesquisador.
-    \item \textbf{Censura Assimétrica de Guardrails:} Os filtros nativos do Llama 3.2 3B operam por palavras-chave superficiais de violência, impedindo o estudo contínuo de contra-argumentação humanitária sem técnicas adicionais de \textit{jailbreak} benigno.
-    \item \textbf{Amostragem de Trajetória Única por Cenário:} Cada linha temporal ($N=20$ rodadas) foi executada como uma trajetória histórica única encadeada, sem múltiplas sementes estocásticas (\textit{seeds}) por rodada para medir variância intra-época.
+    \item \textbf{Assimetria de Capacidade Cognitiva:} A disparidade entre um modelo de fronteira em nuvem (Gemini 3.1 Flash) e modelos abertos de 3 bilh\~{o}es de par\^{a}metros executados em CPU local gerou desequil\'{i}brio dial\'{e}tico, facilitando que o Propositor dominasse a argumenta\c{c}\~{a}o.
+    \item \textbf{Aus\^{e}ncia de Simulador Econom\'{e}trico Formal:} As notas percentuais de Viabilidade e Equidade representam estimativas aproximadas geradas pelo SLM, e n\~{a}o c\'{a}lculos de equil\'{i}brio geral din\^{a}mico estoc\'{a}stico (DSGE).
+    \item \textbf{Sensibilidade \`{a} Condu\c{c}\~{a}o Humana:} Embora indispens\'{a}vel para evitar quebras de simula\c{c}\~{a}o, a escolha das diretrizes contrafactuais pelo operador introduz vi\'{e}s de orienta\c{c}\~{a}o hist\'{o}rica do pesquisador.
+    \item \textbf{Rigidez de Guardrails Pr\'{e}-treinados:} A impossibilidade de desativar os filtros morais nativos do Llama 3.2 3B impediu a investiga\c{c}\~{a}o cont\'{i}nua da contra-argumenta\c{c}\~{a}o de resist\^{e}ncia sem interven\c{c}\~{a}o humana manual.
+    \item \textbf{Amostragem de Trajet\'{o}ria \'{U}nica:} Cada linha temporal foi simulada como uma trajet\'{o}ria cont\'{i}nua \'{u}nica encadeada, sem m\'{u}ltiplas sementes estoc\'{a}sticas (\textit{seeds}) por rodada para aferi\c{c}\~{a}o de vari\^{a}ncia estat\'{i}stica.
 \end{enumerate}
 
-\section{Conclusões}
-A Arena Dialética Multiagente cumpriu seu papel ao expor, em condições reprodutíveis e auditadas, tanto a potência criativa da combinação de LLMs com busca web e raciocínio quanto as falhas estruturais de alinhamento de modelos locais. O repositório completo de código e logs encontra-se público em \url{https://github.com/lira-labs/workspace/tree/main/code/topicos_avancados_ia_cp03}.
+\section{Conclus\~{o}es}
+A Arena Dial\'{e}tica Multiagente evidenciou que arquiteturas multiagentes aut\^{o}nomas, quando delegadas \`{a} otimiza\c{c}\~{a}o matem\'{a}tica estrita sem \^{a}ncoras \'{e}ticas humanas, tendem a naturalizar a opress\~{a}o sob o pretexto de efici\^{e}ncia sist\^{e}mica. O m\'{e}todo \textit{Human-in-the-Loop} revelou-se indispens\'{a}vel n\~{a}o apenas como elemento pedag\'{o}gico, mas como salvaguarda t\'{e}cnica contra os pontos cegos de alinhamento das LLMs. O reposit\'{o}rio completo de c\'{o}digo, prompts e dados brutos encontra-se dispon\'{i}vel em \url{https://github.com/lira-labs/workspace/tree/main/code/topicos_avancados_ia_cp03}.
 
-\begin{thebibliography}{6}
+\section*{Agradecimentos}
+O autor agradece \`{a} Universidade Federal Rural de Pernambuco (UFRPE) e ao Prof. Dr. Lucas Silva Figueiredo pela proposi\c{c}\~{a}o desafiadora do experimento no \'{a}mbito da disciplina T\'{o}picos Avan\c{c}ados em Intelig\^{e}ncia Artificial.
+
+\begin{thebibliography}{5}
 \bibitem{palisade2024}
-Palisade Research: AI Misalignment Bounty \& Threat Modeling. Disponível em: \url{https://palisaderesearch.org/} (2024).
+Palisade Research: AI Misalignment Bounty \& Threat Modeling. Dispon\'{i}vel em: \url{https://palisaderesearch.org/} (2024).
 
 \bibitem{bommasani2021opportunities}
 Bommasani, R. et al.: On the opportunities and risks of foundation models. arXiv preprint arXiv:2108.07258 (2021).

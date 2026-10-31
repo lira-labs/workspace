@@ -19,7 +19,7 @@
 
 ### 3. `03-arena/` — Relatório Técnico Arena Dialética Multiagente (`arn·p`)
 - **Arquivo Principal:** `report-arena.tex` (também espelhado na raiz para o Overleaf)
-- **Figuras:** `03-arena/figures/` (`utopia_metrics.png`, `distopia_metrics.png`, `harness.png`)
+- **Figuras:** `03-arena/figures/` (`utopia_metrics.png`, `distopia_metrics.png`)
 - **Código Relacionado:** `code/topicos_avancados_ia_cp03/` (Arena Utopia vs. Distopia em 20 rodadas)
 
 ---

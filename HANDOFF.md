@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 31/10/2026 01:26
+- **Ultima Atualizacao:** 31/10/2026 19:35
 - **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -39,10 +39,12 @@
   - Ativação de cadeia de raciocínio (`ThinkingConfig(thinking_budget=2048)` e `<thinking>`) em `src/models.py` (Item 5).
 - [x] **`arn·p` (Arena Tech Report — 10 pts)**:
   - Documento LaTeX dedicado `report-arena.tex` (Item 1).
+  - Alinhamento 100% fiel à triangulação real de 3 modelos (Gemini 3.1 Flash remoto, Llama 3.2 3B local na CPU e Qwen 2.5 3B local na CPU), eliminando Claude Opus do loop da arena e corrigindo a autoria para exclusivamente Cauã Lira (com agradecimento ao docente).
   - Metodologia com arquitetura MoA e Tabela das 7 Alavancas Contra o Óbvio aplicadas (Item 2).
-  - Tabela de condições técnicas com hardware, latência por turno em segundos, consumo de RAM e custo financeiro (Item 3).
+  - Tabela de condições técnicas com hardware, latência real medida por turno, consumo de RAM e custo financeiro R$ 0,00 (Item 3).
   - Tabela sintética de argumentos nas rodadas 1, 6, 14, 15 e 20 e gráficos de evolução das métricas (Item 4).
-  - Discussão crítica dos 3 destaques empíricos e subseção explícita de limitações da abordagem (Item 5).
+  - Discussão crítica dos 3 destaques empíricos (utilitarismo do Qwen, guardrails do Llama, singularidade do Nióbio) e subseção explícita de limitações da abordagem (Item 5).
+  - Sanitização de arquivos: remoção definitiva de `harness.png` (que pertencia a outra disciplina/projeto TEA Monitor) de `papers/03-arena/figures/` e sincronização no Overleaf.
 - [x] **`mlp·p` (MLP Tech Report — 10 pts)**:
   - Documento dedicado `report-mlp.tex` com fundamentação matemática de regressão linear a MLP, exemplo numérico passo a passo com valores reais de forward/backward pass, curvas de treino e tabela de resultados consolidados.
 - [x] **`arq·p` (Arquitetura Deep Learning Tech Report — 10 pts)**:
