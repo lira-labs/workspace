@@ -3,7 +3,7 @@
 > roteiro do [seminário · preliminares](../4-seminario-preliminares.md). de 4 a 6 slides, de 3 a 5
 > minutos. em cada slide: o que aparece, o que você fala, e quanto tempo leva.
 
-**link dos slides:** [va2/slides_sem1.html](https://github.com/lira-labs/workspace/blob/main/va2/slides_sem1.html) (apresentação HTML interativa no repositório)
+**link dos slides:** [va2/GrafoParada_Seminario1_CauaLira.pptx](https://github.com/lira-labs/workspace/blob/main/va2/GrafoParada_Seminario1_CauaLira.pptx) (PowerPoint `.pptx` completo) e [va2/slides_sem1.html](https://github.com/lira-labs/workspace/blob/main/va2/slides_sem1.html) (versão web interativa)
 
 ## as quatro frases, sem IA
 
