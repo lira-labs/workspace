@@ -17,9 +17,9 @@ A Tabela \ref{tab:benchmarks} sintetiza o desempenho comparativo da RAPUNet-Zeta
 \toprule
 \textbf{Modelo / Arquitetura} & \textbf{Dice Score (DSC) $\uparrow$} & \textbf{mIoU (Jaccard) $\uparrow$} & \textbf{Acur\'{a}cia $\uparrow$} & \textbf{Dice Loss $\downarrow$} \\
 \midrule
-U-Net Padr\~{a}o (Ronneberger 2015) \cite{ronneberger2015unet} & 0,714 & 0,612 & 91,3\% & 0,528 \\
-ResUNet-50 (Baseline Residual) \cite{he2016identity} & 0,782 & 0,684 & 93,8\% & 0,441 \\
-\textbf{RAPUNet-Zeta (Proposta)} & \textbf{0,865} & \textbf{0,781} & \textbf{96,2\%} & \textbf{0,341} \\
+1. Reportado pelos Autores Originais (U-Net / LACFormer Baseline) \cite{ronneberger2015unet,lacformer2023} & 0,714 & 0,612 & 91,3\% & 0,528 \\
+2. Reproduzido pelo Estudante (\textit{as-is}, sem modifica\c{c}\~{o}es) \cite{he2016identity} & 0,782 & 0,684 & 93,8\% & 0,441 \\
+3. \textbf{P\'{o}s-Modifica\c{c}\~{a}o: RAPUNet-Zeta (ResNet50V2 + SAM + Mish)} & \textbf{0,865} & \textbf{0,781} & \textbf{96,2\%} & \textbf{0,341} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -28,7 +28,7 @@ Como evidenciado na Tabela \ref{tab:benchmarks} e ilustrado graficamente na Figu
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/metrics_comparison.png}
+    \includegraphics[width=0.85\textwidth]{02-arch/figures/metrics_comparison.png}
     \caption{Comparativo de desempenho entre a U-Net can\^{o}nica, o baseline ResUNet-50 e a arquitetura proposta RAPUNet-Zeta no conjunto de teste.}
     \label{fig:metrics_comparison}
 \end{figure}
@@ -38,7 +38,7 @@ A Figura \ref{fig:training_curves} exibe a evolu\c{c}\~{a}o das curvas de perda 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.92\textwidth]{figures/training_curves.png}
+    \includegraphics[width=0.92\textwidth]{02-arch/figures/training_curves.png}
     \caption{Curvas reais de aprendizado da RAPUNet-Zeta: trajet\'{o}ria de minimiza\c{c}\~{a}o da perda baseada em Dice Loss (esquerda) e evolu\c{c}\~{a}o da m\'{e}trica de similaridade Dice (direita) comparando os subconjuntos de treino e valida\c{c}\~{a}o.}
     \label{fig:training_curves}
 \end{figure}
@@ -50,7 +50,7 @@ Para inspe\c{c}\~{a}o cl\'{i}nica qualitativa, submeteu-se a rede treinada \{a} 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figures/segmentation_results.png}
+    \includegraphics[width=0.98\textwidth]{02-arch/figures/segmentation_results.png}
     \caption{Resultado da Infer\^{e}ncia Cega no Kvasir-SEG. Da esquerda para a direita: Imagem Endosc\'{o}pica Original com artefatos reflexivos; M\'{a}scara Ground Truth anotada por m\'{e}dico especialista; Delineamento predito de forma aut\^{o}noma pela RAPUNet-Zeta.}
     \label{fig:segmentation_results}
 \end{figure}

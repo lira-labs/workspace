@@ -8,7 +8,7 @@ A valida\c{c}\~{a}o experimental foi realizada sobre o \textit{Kvasir-SEG Datase
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.88\textwidth]{figures/dataset_samples.png}
+    \includegraphics[width=0.88\textwidth]{02-arch/figures/dataset_samples.png}
     \caption{Amostras representativas do dataset Kvasir-SEG \cite{kvasirseg}. Linha superior: imagens endosc\'{o}picas reais exibindo varia\c{c}\~{o}es morfol\'{o}gicas, luz especular e reflexos mucosos. Linha inferior: m\'{a}scaras bin\'{a}rias correspondentes geradas por m\'{e}dicos especialistas.}
     \label{fig:dataset_samples}
 \end{figure}
@@ -29,7 +29,7 @@ A arquitetura proposta \textbf{RAPUNet-Zeta} reconfigura a cl\'{a}ssica U-Net po
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figures/architecture_rapunet.png}
+    \includegraphics[width=0.98\textwidth]{02-arch/figures/architecture_rapunet.png}
     \caption{Arquitetura detalhada da rede RAPUNet-Zeta. O codificador ResNet50V2 extrai mapas de caracter\'{i}sticas em 4 n\'{i}veis hier\'{a}rquicos ($C_1$ a $C_4$). As pontes residuais passam pelo M\'{o}dulo de Aten\c{c}\~{a}o Espacial (SAM), sendo em seguida concatenadas com as ativa\c{c}\~{o}es ascendentes processadas por blocos com fun\c{c}\~{a}o Mish.}
     \label{fig:architecture}
 \end{figure}

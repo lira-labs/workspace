@@ -1,0 +1,81 @@
+\documentclass[runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{Relatório Técnico de Rede Neural Profunda Interativa: Fundamentação Matemática e Grafo Computacional (\texttt{mlp\textperiodcentered p})}
+\titlerunning{Relatório Técnico MLP Interativa (\texttt{mlp\textperiodcentered p})}
+
+\author{Cauã da Cunha Lira\inst{1}}
+\authorrunning{C. Lira}
+\institute{Universidade Federal Rural de Pernambuco (UFRPE), Recife, Brasil\\
+\email{caua.lira@ufrpe.br}}
+
+\maketitle
+
+\begin{abstract}
+Este relatório técnico (\texttt{report-mlp.tex}) documenta os fundamentos matemáticos do aprendizado supervisionado, a formulação analítica da regressão linear ao Perceptron Multicamadas (MLP), um exemplo numérico passo a passo de propagação direta e retropropagação sináptica e os resultados empíricos obtidos na implementação da MLP como grafo computacional explícito (\texttt{code/mlp\_viewer/}) sobre as bases clínicas UCI Heart Disease e Diabetes 130-US Hospitals.
+\keywords{Perceptron Multicamadas \and Grafo Computacional \and Retropropagação \and Gradiente Descendente.}
+\end{abstract}
+
+\section{Fundamentação Teórica: Da Regressão Linear ao Gradiente Descendente}
+No aprendizado supervisionado, dado um conjunto de amostras $\{(x^{(i)}, y^{(i)})\}_{i=1}^{m}$, a hipótese linear univariada é expressa por $h_\theta(x) = \theta_0 + \theta_1 x$, cuja função de custo de Erro Quadrático Médio (MSE) é definida como:
+\begin{equation}
+J(\theta_0, \theta_1) = \frac{1}{2m} \sum_{i=1}^{m} \left( h_\theta(x^{(i)}) - y^{(i)} \right)^2
+\end{equation}
+Enquanto o método dos Mínimos Quadrados Ordinários obtém a solução analítica fechada $\hat{\theta} = (X^T X)^{-1} X^T y$ (custo $\mathcal{O}(d^3)$ para $d$ atributos), o \textbf{Gradiente Descendente} minimiza $J(\theta)$ iterativamente em $\mathcal{O}(m \cdot d)$ por época segundo a regra de atualização:
+\begin{equation}
+\theta_j \leftarrow \theta_j - \alpha \frac{\partial J(\theta)}{\partial \theta_j}, \quad \text{onde } \frac{\partial J}{\partial \theta_j} = \frac{1}{m}\sum_{i=1}^{m}\left(h_\theta(x^{(i)}) - y^{(i)}\right)x_j^{(i)}
+\end{equation}
+
+\section{Mecanismo Sináptico: Propagação Direta e Retropropagação com Valores Reais}
+Em um neurônio artificial com ativação sigmoide $\sigma(z) = (1 + e^{-z})^{-1}$, a combinação linear é $z = \sum_i w_i x_i + b$ e a ativação é $\hat{y} = \sigma(z)$. Pela regra da cadeia, sob perda quadrática $L = \frac{1}{2}(\hat{y} - y)^2$:
+\begin{equation}
+\frac{\partial L}{\partial w_i} = \frac{\partial L}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial z} \cdot \frac{\partial z}{\partial w_i} = (\hat{y} - y)\cdot \hat{y}(1 - \hat{y}) \cdot x_i = \delta \cdot x_i
+\end{equation}
+
+\textbf{Exemplo Numérico Passo a Passo:} Considere uma entrada $x_1 = 1{,}0$, $x_2 = 0{,}5$, rótulo real $y = 1{,}0$, pesos iniciais $w_1 = 0{,}4$, $w_2 = -0{,}2$, polarização $b = 0{,}1$ e taxa de aprendizado $\alpha = 0{,}5$:
+\begin{enumerate}
+    \item \textbf{Forward Pass:} $z = (0{,}4)(1{,}0) + (-0{,}2)(0{,}5) + 0{,}1 = 0{,}40 \implies \hat{y} = \sigma(0{,}40) = 0{,}5987$.
+    \item \textbf{Erro Inicial:} $L = \frac{1}{2}(0{,}5987 - 1{,}0)^2 = 0{,}0805$.
+    \item \textbf{Backward Pass (Gradientes):} $\delta = (0{,}5987 - 1{,}0)\cdot(0{,}5987)(1 - 0{,}5987) = -0{,}0964$. Logo, $\frac{\partial L}{\partial w_1} = -0{,}0964 \times 1{,}0 = -0{,}0964$; $\frac{\partial L}{\partial w_2} = -0{,}0964 \times 0{,}5 = -0{,}0482$; $\frac{\partial L}{\partial b} = -0{,}0964$.
+    \item \textbf{Atualização dos Pesos ($\alpha = 0{,}5$):} $w_1^{\text{novo}} = 0{,}4 - 0{,}5(-0{,}0964) = 0{,}4482$; $w_2^{\text{novo}} = -0{,}2 - 0{,}5(-0{,}0482) = -0{,}1759$; $b^{\text{novo}} = 0{,}1482$. No passo seguinte, $z^{\text{novo}} = 0{,}5085 \implies \hat{y}^{\text{novo}} = 0{,}6245$, reduzindo o erro para $L^{\text{novo}} = 0{,}0705$.
+\end{enumerate}
+
+\section{Curvas de Aprendizado, Métricas e Análise Crítica}
+A Figura \ref{fig:mlp_evolucao} e a Tabela \ref{tab:mlp_resultados} apresentam a evolução do treinamento da MLP implementada como DAG em \texttt{code/mlp\_viewer/} (arquitetura $[13, 64, 32, 1]$, ativações ReLU/Sigmoid, perda BCE).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.47\textwidth]{01-mlp/figures/antes.png}
+\hfill
+\includegraphics[width=0.47\textwidth]{01-mlp/figures/depois.png}
+\caption{Visualização interativa do grafo computacional e curvas de convergência antes (esquerda) e após o treinamento (direita).}
+\label{fig:mlp_evolucao}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{Resultados consolidados da MLP em Treino e Teste (UCI Heart Disease e Diabetes 130-US).}
+\label{tab:mlp_resultados}
+\scriptsize
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Configuração / Dataset} & \textbf{Taxa ($\alpha$)} & \textbf{Épocas} & \textbf{Loss Treino} & \textbf{Loss Teste} & \textbf{Acc. Treino} & \textbf{Acc. Teste} \\
+\midrule
+Heart Disease ($[13, 64, 32, 1]$) & $0{,}01$ & $200$ & $0{,}241$ & $0{,}348$ & $90{,}1\%$ & $85{,}2\%$ \\
+Heart Disease (Subamortecido) & $0{,}50$ & $200$ & $0{,}612$ & $0{,}649$ & $68{,}4\%$ & $65{,}5\%$ \\
+Diabetes 130-US ($[50, 128, 64, 1]$) & $0{,}01$ & $100$ & $0{,}318$ & $0{,}354$ & $88{,}7\%$ & $86{,}4\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Análise Crítica:} Taxas de aprendizado elevadas ($\alpha = 0{,}50$) provocaram oscilações severas na superfície de perda, enquanto $\alpha = 0{,}01$ com padronização \textit{z-score} estabilizou o fluxo de gradientes. Em bases desbalanceadas (Diabetes 130-US, $\sim 11\%$ positivos), a acurácia global mascara falsos negativos na classe minoritária, exigindo ponderação de custo e regularização L2/Dropout para conter o sobreajuste nas camadas densas.
+
+\end{document}

@@ -1,0 +1,43 @@
+\documentclass[runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+\urlstyle{rm}
+
+\begin{document}
+
+\title{Investiga\c{c}\~{a}o e Implementa\c{c}\~{a}o de Redes Neurais Convolucionais em T\'{o}picos Avan\c{c}ados de Intelig\^{e}ncia Artificial (\texttt{arq\textperiodcentered p})}
+\titlerunning{Modelos Convolucionais Avan\c{c}ados em IA (\texttt{arq\textperiodcentered p})}
+
+\author{Cau\~{a} da Cunha Lira\inst{1}}
+\authorrunning{C. Lira}
+
+\institute{Universidade Federal Rural de Pernambuco (UFRPE)\\
+Recife - PE, Brasil\\
+\email{caua.lira@ufrpe.br}}
+
+\maketitle
+
+\begin{abstract}
+This work presents the design, implementation, and empirical evaluation of a modified Convolutional Neural Network (CNN), named RAPUNet-Zeta, for the semantic segmentation of gastrointestinal polyps. Fulfilling the practical requirements of Advanced Topics in Artificial Intelligence (\texttt{arq\textperiodcentered p}), the model extends recent architectures (LACFormer, BMVC 2023) by utilizing deep feature extraction via ResNet50V2, the integration of Spatial Attention modules (SAM), and Mish activations. Evaluated on the Kvasir-SEG dataset, the model demonstrated rapid convergence, validating the efficacy of the proposed topology through rigorous metrics (Dice Coefficient, mIoU, Accuracy) comparing the original authors' baseline, our reproduced baseline, and our post-modification architecture.
+
+\keywords{Artificial Intelligence \and Convolutional Neural Networks \and Medical Image Segmentation \and Kvasir-SEG \and Spatial Attention.}
+\end{abstract}
+
+\input{02-arch/sections/01_introducao.tex}
+\input{02-arch/sections/02_trabalhos_relacionados.tex}
+\input{02-arch/sections/03_metodologia.tex}
+\input{02-arch/sections/04_experimentos.tex}
+\input{02-arch/sections/05_conclusao.tex}
+
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}
