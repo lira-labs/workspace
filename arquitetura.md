@@ -32,6 +32,7 @@ flowchart TD
     C --> D --> E
     B --> DB --> E
     E --> F --> G --> H --> I
+    I -- "ordem de serviço atualizada" --> BUS
     I -- "nova tabela horária publicada no GTFS" --> J
 ```
 
