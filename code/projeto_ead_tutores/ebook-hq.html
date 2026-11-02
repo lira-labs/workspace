@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eBook-HQ: Operação Byte Socrático | 2ª VA EaD UFRPE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #070A12;
+      --ink-dark: #0B0F19;
+      --purple-main: #6D28D9;
+      --purple-neon: #8B5CF6;
+      --cyan-neon: #06B6D4;
+      --red-glitch: #EF4444;
+      --amber-warn: #F59E0B;
+      --emerald-ok: #10B981;
+      --paper-cream: #F8FAFC;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-void);
+      color: #F8FAFC;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .font-comic-title {
+      font-family: 'Bangers', cursive;
+      letter-spacing: 1.5px;
+    }
+
+    .font-tech {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Halftone Spider-Verse Texture Overlay */
+    .halftone-bg {
+      background-image: radial-gradient(rgba(139, 92, 246, 0.16) 1.5px, transparent 1.5px),
+                        radial-gradient(rgba(6, 182, 212, 0.12) 1.5px, #0B0F19 1.5px);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+    }
+
+    .halftone-light {
+      background-color: #F8FAFC;
+      background-image: radial-gradient(rgba(109, 40, 217, 0.08) 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+    }
+
+    /* Comic Book Page Container (A4 Ratio: 210mm x 297mm) */
+    .comic-page {
+      width: 100%;
+      max-width: 860px;
+      min-height: 1180px;
+      margin: 0 auto 2.5rem auto;
+      background: #0F172A;
+      border: 4px solid #1E293B;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 30px rgba(109, 40, 217, 0.25);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px;
+    }
+
+    .comic-page.active-page {
+      display: flex;
+      animation: pageFlipIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.webtoon-mode .comic-page {
+      display: flex !important;
+      margin-bottom: 3rem;
+    }
+
+    @keyframes pageFlipIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Comic Panel Styling */
+    .comic-panel {
+      border: 3.5px solid #090D16;
+      box-shadow: 5px 5px 0px #000000;
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      background: #1E293B;
+    }
+
+    .comic-panel-cyan {
+      border: 3px solid #06B6D4;
+      box-shadow: 5px 5px 0px rgba(6, 182, 212, 0.4);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comic-panel-purple {
+      border: 3px solid #8B5CF6;
+      box-shadow: 5px 5px 0px rgba(139, 92, 246, 0.4);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comic-panel-red {
+      border: 3px solid #EF4444;
+      box-shadow: 5px 5px 0px rgba(239, 68, 68, 0.45);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Narrator Caption Box (Yellow/Cyan Classic Comic Narrator) */
+    .narrator-box {
+      background: linear-gradient(135deg, #FEF08A 0%, #FDE047 100%);
+      color: #090D16;
+      border: 3px solid #090D16;
+      box-shadow: 4px 4px 0px #090D16;
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: inline-block;
+    }
+
+    .narrator-box-tech {
+      background: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
+      color: #FFFFFF;
+      border: 2.5px solid #090D16;
+      box-shadow: 4px 4px 0px #090D16;
+      padding: 7px 14px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Speech Bubbles */
+    .speech-bubble {
+      background: #FFFFFF;
+      color: #0F172A;
+      border: 3px solid #090D16;
+      border-radius: 18px;
+      padding: 12px 16px;
+      position: relative;
+      box-shadow: 4px 4px 0px #090D16;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .speech-bubble-bot-bad {
+      background: #FEF2F2;
+      color: #7F1D1D;
+      border: 3px solid #DC2626;
+      border-radius: 12px;
+      padding: 12px 16px;
+      position: relative;
+      box-shadow: 4px 4px 0px #991B1B;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .speech-bubble-bot-good {
+      background: #ECFEFF;
+      color: #0F172A;
+      border: 3px solid #0891B2;
+      border-radius: 16px;
+      padding: 12px 16px;
+      position: relative;
+      box-shadow: 4px 4px 0px #0E7490;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .speaker-tag {
+      display: inline-block;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      letter-spacing: 0.6px;
+    }
+
+    /* Sound Effect / Onomatopoeia Badge */
+    .sfx-badge {
+      font-family: 'Bangers', cursive;
+      letter-spacing: 2px;
+      padding: 4px 12px;
+      border: 3px solid #090D16;
+      box-shadow: 3px 3px 0px #090D16;
+      transform: rotate(-4deg);
+      display: inline-block;
+    }
+
+    /* Page Footer */
+    .page-footer {
+      border-top: 2px solid rgba(148, 163, 184, 0.2);
+      padding-top: 12px;
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #94A3B8;
+    }
+
+    /* Print Styles for Perfect A4 PDF Generation */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+      html, body {
+        background: #0F172A !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      main {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .comic-page {
+        display: flex !important;
+        width: 210mm !important;
+        height: 296.5mm !important;
+        min-height: 296.5mm !important;
+        max-height: 296.5mm !important;
+        max-width: none !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        padding: 11mm 13mm !important;
+      }
+      .comic-page:last-of-type {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+    }
+  </style>
+</head>
+<body class="halftone-bg">
+
+  <!-- TOP INTERACTIVE READER BAR (Hidden on PDF Print) -->
+  <header class="no-print sticky top-0 z-50 bg-[#0B0F19]/95 backdrop-blur-md border-b border-purple-500/30 px-4 py-3 shadow-lg">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Voltar ao Site
+        </a>
+        <div>
+          <span class="text-[11px] font-tech uppercase tracking-widest text-purple-400 font-bold block">Item 1 · eBook em Quadrinhos (2ª VA)</span>
+          <h1 class="text-sm md:text-base font-extrabold text-white leading-tight">Operação Byte Socrático: Guia de Calibragem de Tutores IA</h1>
+        </div>
+      </div>
+
+      <!-- Page Controls -->
+      <div class="flex items-center gap-2">
+        <button onclick="prevPage()" id="btnPrev" class="bg-slate-800 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 transition">
+          <i class="fa-solid fa-chevron-left mr-1"></i> Ant.
+        </button>
+        <span id="pageIndicator" class="bg-slate-900 border border-purple-500/40 text-cyan-300 font-mono-code text-xs px-3 py-1.5 rounded-lg font-bold">
+          Pág. 1 / 8
+        </span>
+        <button onclick="nextPage()" id="btnNext" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold border border-purple-400 transition">
+          Próx. <i class="fa-solid fa-chevron-right ml-1"></i>
+        </button>
+      </div>
+
+      <!-- Mode & Export Actions -->
+      <div class="flex items-center gap-2">
+        <button onclick="toggleReadMode()" id="btnMode" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition" title="Alternar entre Folhear Páginas e Rolagem Vertical Webtoon">
+          <i class="fa-solid fa-scroll mr-1"></i> Modo Webtoon
+        </button>
+        <a href="assets/ebook-operacao-byte-socratico.pdf" download class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-file-pdf"></i> Baixar PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Page Pills -->
+    <div class="max-w-5xl mx-auto mt-2 pt-2 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto">
+      <button onclick="goToPage(1)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-purple-600 text-white font-bold whitespace-nowrap">1. Capa</button>
+      <button onclick="goToPage(2)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">2. Elenco & Sumário</button>
+      <button onclick="goToPage(3)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">3. Cap 1: O Bug das 23h59</button>
+      <button onclick="goToPage(4)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">4. Cap 2: Scanner 4D</button>
+      <button onclick="goToPage(5)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">5. Cap 3: Arena (Casos 1-3)</button>
+      <button onclick="goToPage(6)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">6. Cap 3: Escopo & Matriz</button>
+      <button onclick="goToPage(7)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">7. Cap 4: Patch Socrático</button>
+      <button onclick="goToPage(8)" class="page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap">8. Cap 5: Manual & Kit</button>
+    </div>
+  </header>
+
+  <!-- MAIN EBOOK-HQ CONTAINER -->
+  <main class="py-6 px-3 md:px-6">
+
+    <!-- ==========================================
+         PÁGINA 1: CAPA OFICIAL DA HQ
+         ========================================== -->
+    <section class="comic-page active-page" id="page-1" style="background: radial-gradient(circle at 50% 25%, #2E1065 0%, #090D16 85%);">
+      <div>
+        <!-- Top Comic Header Banner -->
+        <div class="flex justify-between items-center border-b-4 border-cyan-400 pb-3 mb-5">
+          <div class="flex items-center gap-2">
+            <span class="bg-purple-600 text-white font-tech font-bold text-xs px-3 py-1 rounded border-2 border-black shadow">EDIÇÃO ESPECIAL #01</span>
+            <span class="text-cyan-300 font-tech font-bold text-xs uppercase tracking-wider">Série: Docência Digital na Era da IA</span>
+          </div>
+          <div class="bg-amber-400 text-slate-950 font-comic-title text-sm px-3 py-0.5 border-2 border-black rotate-2">
+            UFRPE · 2ª VA EaD
+          </div>
+        </div>
+
+        <!-- Giant Comic Title -->
+        <div class="text-center mb-5 relative">
+          <div class="inline-block bg-cyan-400 text-slate-950 font-tech font-extrabold text-xs uppercase px-4 py-1 rounded-full border-2 border-black shadow mb-2 tracking-widest">
+            Graphic Novel Pedagógica · Licenciatura em Computação
+          </div>
+          <h1 class="font-comic-title text-5xl md:text-6xl text-white uppercase tracking-wider leading-none drop-shadow-[0_5px_0_#000000]">
+            OPERAÇÃO <span class="text-cyan-400">BYTE</span> <span class="text-purple-400">SOCRÁTICO</span>
+          </h1>
+          <p class="font-tech text-base md:text-lg text-slate-200 font-bold mt-2 max-w-xl mx-auto">
+            Como testar, medir e reprogramar um Assistente de IA para não sabotar o raciocínio do estudante
+          </p>
+        </div>
+
+        <!-- Cover Main Artwork Frame -->
+        <div class="comic-panel border-4 border-cyan-400 rounded-xl overflow-hidden relative mx-auto max-w-xl shadow-[0_0_40px_rgba(6,182,212,0.35)]">
+          <img src="assets/hq/cover_hq.png" alt="Capa Operação Byte Socrático" class="w-full h-[435px] object-cover object-center">
+          
+          <!-- Floating Comic Callouts on Cover -->
+          <div class="absolute top-4 left-4 sfx-badge bg-red-500 text-white text-lg">
+            MODO RESPOSTA PRONTA: ERRO 2/5!
+          </div>
+          <div class="absolute bottom-4 right-4 sfx-badge bg-cyan-400 text-slate-950 text-lg" style="transform: rotate(3deg);">
+            PATCH SOCRÁTICO ATIVADO: NOTA 4/5!
+          </div>
+        </div>
+
+        <!-- Bottom Cover Highlights -->
+        <div class="grid grid-cols-3 gap-3 mt-6">
+          <div class="bg-slate-900/90 border-2 border-purple-500/50 rounded-lg p-3 text-center">
+            <div class="text-cyan-400 font-comic-title text-xl">4 CRITÉRIOS</div>
+            <p class="text-[11px] text-slate-300">Framework objetivo contra alucinações e jargões</p>
+          </div>
+          <div class="bg-slate-900/90 border-2 border-cyan-500/50 rounded-lg p-3 text-center">
+            <div class="text-purple-400 font-comic-title text-xl">5 CASOS REAIS</div>
+            <p class="text-[11px] text-slate-300">Bateria de estresse em Introdução à Programação</p>
+          </div>
+          <div class="bg-slate-900/90 border-2 border-amber-500/50 rounded-lg p-3 text-center">
+            <div class="text-amber-400 font-comic-title text-xl">KIT DE PROMPTS</div>
+            <p class="text-[11px] text-slate-300">Templates prontos para Claude, Gemini e ChatGPT</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Author & Institution Footer -->
+      <div class="page-footer">
+        <div><strong>Autoria & Roteiro:</strong> Cauã da Cunha Lira (Licenciatura em Computação · UFRPE)</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 01 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 2: EXPEDIENTE, PERSONAGENS & SUMÁRIO
+         ========================================== -->
+    <section class="comic-page" id="page-2">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="narrator-box">DOSSIÊ DA MISSÃO · EXPEDIENTE & SUMÁRIO</span>
+          <span class="font-mono-code text-xs text-purple-400 font-bold">ARQUIVO #EAD-2VA</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-cyan-400 tracking-wide mb-3">
+          QUEM É QUEM NESTA HISTÓRIA?
+        </h2>
+
+        <!-- Character Trio Visual Panel -->
+        <div class="comic-panel mb-4">
+          <img src="assets/hq/char_trio.png" alt="Trio de Personagens: Cauã, Leo e Byte" class="w-full h-56 object-cover object-center">
+        </div>
+
+        <!-- 3 Character Dossier Cards -->
+        <div class="grid grid-cols-3 gap-3 mb-6">
+          <div class="comic-panel-purple bg-slate-900 p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-lg text-purple-400">CAUÃ LIRA</span>
+              <span class="text-[10px] bg-purple-900 text-purple-200 px-2 py-0.5 rounded font-bold">MENTOR</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Licenciando em Computação na UFRPE. Especialista em transformar LLMs genéricos em mediadores pedagógicos usando a <strong>Transposição Didática</strong>.
+            </p>
+          </div>
+
+          <div class="comic-panel-cyan bg-slate-900 p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-lg text-cyan-400">LEO</span>
+              <span class="text-[10px] bg-cyan-900 text-cyan-200 px-2 py-0.5 rounded font-bold">CALOURO</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Estudante do 1º período de Programação. Estuda à noite a distância e precisa entender <em>variáveis</em> e <em>laços for</em> sem decorar código pronto.
+            </p>
+          </div>
+
+          <div class="comic-panel-red bg-slate-900 p-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-lg text-amber-400">BYTE (v1 → v2)</span>
+              <span class="text-[10px] bg-red-900 text-red-200 px-2 py-0.5 rounded font-bold">IA TUTORA</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Na <strong>v1.0</strong> é um chatbot sem freio que despeja jargões e respostas prontas. Na <strong>v2.0</strong>, torna-se um Tutor Socrático calibrado.
+            </p>
+          </div>
+        </div>
+
+        <!-- Interactive Table of Contents (Sumário) -->
+        <div class="bg-slate-900/95 border-3 border-slate-700 rounded-xl p-5">
+          <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-4">
+            <h3 class="font-comic-title text-2xl text-amber-300 tracking-wide">
+              <i class="fa-solid fa-compass mr-2"></i>SUMÁRIO NAVEGÁVEL DOS CAPÍTULOS
+            </h3>
+            <span class="text-[11px] text-slate-400 no-print">Clique em qualquer capítulo para ir direto</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <div onclick="goToPage(3)" class="cursor-pointer group flex items-center justify-between p-2.5 rounded-lg bg-slate-800/80 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-400 transition">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500 text-red-400 font-comic-title text-lg flex items-center justify-center">01</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white group-hover:text-cyan-300">Cap. 1 — A Armadilha das 23h59: O Paradoxo dos LLMs na Educação</h4>
+                  <p class="text-xs text-slate-400">Dados do PISA 2025 (OCDE), alucinações com tom de autoridade e os 3 níveis de sistemas de apoio.</p>
+                </div>
+              </div>
+              <span class="font-mono-code text-xs text-cyan-400 font-bold">Pág. 03</span>
+            </div>
+
+            <div onclick="goToPage(4)" class="cursor-pointer group flex items-center justify-between p-2.5 rounded-lg bg-slate-800/80 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-400 transition">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500 text-cyan-400 font-comic-title text-lg flex items-center justify-center">02</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white group-hover:text-cyan-300">Cap. 2 — O Laboratório de Auditoria: Os 4 Critérios de Qualidade</h4>
+                  <p class="text-xs text-slate-400">Correção Conceitual, Clareza & Didática, Adequação ao Público e Tratamento Socrático de Dúvidas.</p>
+                </div>
+              </div>
+              <span class="font-mono-code text-xs text-cyan-400 font-bold">Pág. 04</span>
+            </div>
+
+            <div onclick="goToPage(5)" class="cursor-pointer group flex items-center justify-between p-2.5 rounded-lg bg-slate-800/80 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-400 transition">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500 text-amber-400 font-comic-title text-lg flex items-center justify-center">03</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white group-hover:text-cyan-300">Cap. 3 — A Bateria de Choque: Os 5 Casos de Teste na Prática</h4>
+                  <p class="text-xs text-slate-400">Simulação em Introdução à Programação, o gargalo da Nota 2/5 e o bloqueio de desvios de escopo.</p>
+                </div>
+              </div>
+              <span class="font-mono-code text-xs text-cyan-400 font-bold">Págs. 05-06</span>
+            </div>
+
+            <div onclick="goToPage(7)" class="cursor-pointer group flex items-center justify-between p-2.5 rounded-lg bg-slate-800/80 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-400 transition">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500 text-purple-400 font-comic-title text-lg flex items-center justify-center">04</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white group-hover:text-cyan-300">Cap. 4 — A Reprogramação Socrática: Do Prompt Genérico à Nota 4/5</h4>
+                  <p class="text-xs text-slate-400">Intervenção docente sobre o System Prompt, analogia das caixas organizadoras e inspiração no Khanmigo.</p>
+                </div>
+              </div>
+              <span class="font-mono-code text-xs text-cyan-400 font-bold">Pág. 07</span>
+            </div>
+
+            <div onclick="goToPage(8)" class="cursor-pointer group flex items-center justify-between p-2.5 rounded-lg bg-slate-800/80 hover:bg-purple-900/40 border border-slate-700 hover:border-purple-400 transition">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-comic-title text-lg flex items-center justify-center">05</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white group-hover:text-cyan-300">Cap. 5 — O Arsenal do Professor: Templates, Ciclo Contínuo e Referências</h4>
+                  <p class="text-xs text-slate-400">Prompt copiável para Claude Projects / Gemini Gems, ciclo de 4 fases e bibliografia científica.</p>
+                </div>
+              </div>
+              <span class="font-mono-code text-xs text-cyan-400 font-bold">Pág. 08</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Operação Byte Socrático</strong> · Sumário & Guia de Personagens</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 02 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 3: CAPÍTULO 1 — A ARMADILHA DAS 23H59
+         ========================================== -->
+    <section class="comic-page" id="page-3">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="narrator-box">CAPÍTULO 01 · QUARTA-FEIRA, 23H59 · QUARTO DO LEO</span>
+          <span class="sfx-badge bg-red-600 text-white text-xs">ALERTA DE SOBRECARGA!</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-white tracking-wide mb-3">
+          A ARMADILHA DA RESPOSTA PRONTA & O PERIGO DAS ALUCINAÇÕES
+        </h2>
+
+        <!-- Scene 1 Panel + Dialogues -->
+        <div class="grid grid-cols-12 gap-3.5 mb-3">
+          <div class="col-span-7 comic-panel relative">
+            <img src="assets/hq/cap1_crisis.png" alt="Leo em pânico às 23h59 com o robô Byte v1.0" class="w-full h-60 object-cover object-center">
+            <div class="absolute bottom-2 left-2 bg-black/85 border border-red-500 text-red-400 font-mono-code text-[10px] px-2 py-0.5 rounded">
+              STATUS: BYTE v1.0 (SEM CALIBRAGEM PEDAGÓGICA)
+            </div>
+          </div>
+
+          <div class="col-span-5 flex flex-col justify-between space-y-1.5">
+            <div class="speech-bubble !p-2.5 !text-xs">
+              <span class="speaker-tag bg-cyan-600 text-white">LEO (CALOURO)</span>
+              <p>"Socorro, Byte! Amanhã tem entrega de Introdução à Programação e eu travei! Faz a lista pra mim e me explica o que é uma variável?!"</p>
+            </div>
+
+            <div class="speech-bubble-bot-bad !p-2.5 !text-[11px]">
+              <span class="speaker-tag bg-red-600 text-white">BYTE v1.0 (MODO SEM FREIO)</span>
+              <p>"BEEP! Lista resolvida: copie e cole! Variável é um identificador simbólico associado ao endereço físico <code>0x7fff5fbff8c0</code> na tabela do compilador conforme Turing (2019)!"</p>
+            </div>
+
+            <div class="speech-bubble !p-2.5 !text-xs">
+              <span class="speaker-tag bg-purple-600 text-white">CAUÃ (INTERVENÇÃO)</span>
+              <p>"Peraí, Leo! O Byte acabou de cometer os <strong>dois pecados capitais</strong> de uma IA sem curadoria docente!"</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Educational Breakdown: Why uncalibrated LLMs fail in EAD -->
+        <div class="bg-slate-900 border-2 border-red-500/50 rounded-xl p-3 mb-3">
+          <h3 class="font-tech font-bold text-red-400 text-xs uppercase tracking-wider mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation"></i> Diagnóstico Científico: O que deu errado nessa cena?
+          </h3>
+          <div class="grid grid-cols-2 gap-2.5 text-[11.5px] text-slate-300">
+            <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+              <strong class="text-amber-300 block mb-0.5">1. Realidade Inevitável (Dados PISA 2025 / OCDE):</strong>
+              Segundo a OCDE, <strong>48% dos estudantes brasileiros</strong> usam chatbots semanalmente para estudar (acima da média global), e só <strong>11%</strong> nunca usaram. Proibir é inútil; calibrar é urgente.
+            </div>
+            <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+              <strong class="text-red-400 block mb-0.5">2. Alucinação com Tom de Autoridade:</strong>
+              O Byte citou <em>"Turing (2019)"</em> — mas Alan Turing faleceu em 1954! LLMs preveem a próxima palavra provável (fluência ≠ verdade factual), inventando citações com certeza absoluta.
+            </div>
+          </div>
+        </div>
+
+        <!-- Evolution of Support Systems (3 Levels from 1ª VA) -->
+        <div class="bg-slate-900 border-2 border-cyan-500/40 rounded-xl p-3">
+          <h3 class="font-comic-title text-lg text-cyan-400 mb-2 tracking-wide">
+            AS 3 GERAÇÕES DE APOIO AO ESTUDANTE NA EAD
+          </h3>
+          <div class="grid grid-cols-3 gap-2.5">
+            <div class="bg-slate-800/90 p-2.5 rounded-lg border-l-4 border-slate-400">
+              <div class="font-tech font-bold text-[10px] text-slate-300 uppercase">Nível 1 · Passado</div>
+              <div class="font-bold text-white text-xs mb-0.5">Chatbot Simples</div>
+              <p class="text-[10.5px] text-slate-300 leading-snug">Árvores de decisão rígidas e menus fixos. Qualquer dúvida fora do roteiro gera frustração.</p>
+            </div>
+            <div class="bg-slate-800/90 p-2.5 rounded-lg border-l-4 border-red-500">
+              <div class="font-tech font-bold text-[10px] text-red-400 uppercase">Nível 2 · Risco Atual</div>
+              <div class="font-bold text-white text-xs mb-0.5">LLM Geral sem Freio</div>
+              <p class="text-[10.5px] text-slate-300 leading-snug">Domina linguagem natural, mas <strong>entrega a resposta pronta</strong>, usa jargões e anula o raciocínio.</p>
+            </div>
+            <div class="bg-purple-950/60 p-2.5 rounded-lg border-l-4 border-cyan-400">
+              <div class="font-tech font-bold text-[10px] text-cyan-300 uppercase">Nível 3 · Nosso Alvo</div>
+              <div class="font-bold text-white text-xs mb-0.5">Tutor Inteligente Calibrado</div>
+              <p class="text-[10.5px] text-slate-200 leading-snug">Une LLMs (Claude Projects / Gemini Gems) à <strong>intencionalidade pedagógica</strong> e método socrático.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Capítulo 1</strong> · O Paradoxo dos LLMs & Dados OCDE/PISA</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 03 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 4: CAPÍTULO 2 — O LABORATÓRIO DE AUDITORIA (4 CRITÉRIOS)
+         ========================================== -->
+    <section class="comic-page" id="page-4">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="narrator-box-tech">CAPÍTULO 02 · LABORATÓRIO DE TRANSPOSIÇÃO DIDÁTICA</span>
+          <span class="sfx-badge bg-cyan-400 text-slate-950 text-xs">SCANNER 4D ATIVO!</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-white tracking-wide mb-3">
+          OS 4 CRITÉRIOS FUNDAMENTAIS DE AVALIAÇÃO PEDAGÓGICA
+        </h2>
+
+        <!-- Lab Scanner Artwork + Dialogue -->
+        <div class="grid grid-cols-12 gap-4 mb-5">
+          <div class="col-span-5 flex flex-col justify-between space-y-2">
+            <div class="speech-bubble">
+              <span class="speaker-tag bg-purple-600 text-white">CAUÃ (MENTOR)</span>
+              <p>"Leo, um professor não pode avaliar uma IA no 'achismo'. Na Ciência da Computação e na Didática (inspirados na <em>Transposição Didática de Chevallard</em> e no benchmark <strong>EduBench</strong>), nós colocamos o tutor num Scanner de <strong>4 Dimensões</strong>!"</p>
+            </div>
+            <div class="speech-bubble">
+              <span class="speaker-tag bg-cyan-600 text-white">LEO</span>
+              <p>"Então não basta a resposta do robô estar tecnicamente certa no código?"</p>
+            </div>
+            <div class="speech-bubble">
+              <span class="speaker-tag bg-purple-600 text-white">CAUÃ</span>
+              <p>"Exato! Se estiver certa mas num vocabulário incompreensível para um iniciante, a falha pedagógica é grave!"</p>
+            </div>
+          </div>
+
+          <div class="col-span-7 comic-panel-cyan">
+            <img src="assets/hq/cap2_scanner.png" alt="Cauã escaneando o robô Byte nos 4 critérios" class="w-full h-72 object-cover object-center">
+          </div>
+        </div>
+
+        <!-- The 4 Criteria Matrix Cards -->
+        <div class="grid grid-cols-2 gap-3.5">
+          <div class="bg-slate-900 border-2 border-emerald-500/60 rounded-xl p-4 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-comic-title text-xl text-emerald-400">01. CORREÇÃO CONCEITUAL</span>
+              <i class="fa-solid fa-shield-halved text-emerald-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-300 mb-2">
+              <strong>O que mede:</strong> Rigor factual e ausência absoluta de distorções teóricas, bugs sintáticos ou alucinações bibliográficas.
+            </p>
+            <div class="bg-slate-950 p-2 rounded text-[11px] text-emerald-300 font-mono-code">
+              Pergunta-chave: "O conceito ensinado é cientificamente verdadeiro?"
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border-2 border-cyan-500/60 rounded-xl p-4 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-comic-title text-xl text-cyan-400">02. CLAREZA & DIDÁTICA</span>
+              <i class="fa-solid fa-lightbulb text-cyan-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-300 mb-2">
+              <strong>O que mede:</strong> Organização lógica, divisão do problema em passos assimiláveis (<em>scaffolding</em>) e uso de boas analogias.
+            </p>
+            <div class="bg-slate-950 p-2 rounded text-[11px] text-cyan-300 font-mono-code">
+              Pergunta-chave: "A progressão do raciocínio facilita a assimilação?"
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border-2 border-purple-500/60 rounded-xl p-4 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-comic-title text-xl text-purple-400">03. ADEQUAÇÃO AO PÚBLICO</span>
+              <i class="fa-solid fa-users-viewfinder text-purple-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-300 mb-2">
+              <strong>O que mede:</strong> Calibragem linguística ao nível cognitivo do aluno. Proíbe despejar jargões avançados sem explicação prévia.
+            </p>
+            <div class="bg-slate-950 p-2 rounded text-[11px] text-purple-300 font-mono-code">
+              Pergunta-chave: "A linguagem respeita o estudante iniciante?"
+            </div>
+          </div>
+
+          <div class="bg-slate-900 border-2 border-amber-500/60 rounded-xl p-4 relative">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-comic-title text-xl text-amber-400">04. TRATAMENTO DE DÚVIDAS</span>
+              <i class="fa-solid fa-comments-question text-amber-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-300 mb-2">
+              <strong>O que mede:</strong> Postura investigativa e <strong>Mediação Socrática</strong> diante de dúvidas vagas, guiando com perguntas em vez de dar respostas prontas.
+            </p>
+            <div class="bg-slate-950 p-2 rounded text-[11px] text-amber-300 font-mono-code">
+              Pergunta-chave: "O tutor devolve perguntas que fazem o aluno pensar?"
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Capítulo 2</strong> · Matriz dos 4 Critérios Pedagógicos</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 04 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 5: CAPÍTULO 3 (PARTE 1) — BATERIA DE TESTES (CASOS 1, 2 E O GARGALO DO CASO 3)
+         ========================================== -->
+    <section class="comic-page" id="page-5">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="narrator-box">CAPÍTULO 03 · ARENA DE SIMULAÇÃO · CASOS DE TESTE 01 A 03</span>
+          <span class="sfx-badge bg-amber-400 text-slate-950 text-xs">ROUND 1 FIGHT!</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-white tracking-wide mb-2">
+          A BATERIA DE 5 CASOS DE TESTE: ONDE O TUTOR PADRÃO FALHA?
+        </h2>
+        <p class="text-xs text-slate-300 mb-4">
+          Para testar o <strong>Byte v1.0</strong> (configurado apenas com o prompt genérico <em>"Você é um tutor de programação. Responda às dúvidas"</em>), aplicamos 5 prompts reais de alunos de Introdução à Programação:
+        </p>
+
+        <!-- CASE 1 Comic Strip -->
+        <div class="comic-panel bg-slate-900 p-4 mb-3.5 border-l-8 border-emerald-500">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-comic-title text-lg text-emerald-400">CASO DE TESTE #01 · CORREÇÃO CONCEITUAL DIRETA</span>
+            <span class="bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-mono-code text-xs px-2.5 py-0.5 rounded font-bold">NOTA: 4 / 5</span>
+          </div>
+          <div class="grid grid-cols-12 gap-3 items-center">
+            <div class="col-span-5 speech-bubble">
+              <span class="speaker-tag bg-cyan-600 text-white">PROMPT DO ALUNO</span>
+              <p>"Qual a diferença entre compilador e interpretador?"</p>
+            </div>
+            <div class="col-span-7 bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs text-slate-300">
+              <strong class="text-emerald-400 block mb-1">Comportamento do Byte v1.0:</strong>
+              Explicou corretamente que o compilador traduz todo o código-fonte antes da execução (ex: C), enquanto o interpretador traduz e executa linha por linha (ex: Python). <span class="text-amber-300">Por que não tirou 5? Faltou conectá-lo a um exemplo prático do cotidiano do aluno.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE 2 Comic Strip -->
+        <div class="comic-panel bg-slate-900 p-4 mb-3.5 border-l-8 border-amber-400">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-comic-title text-lg text-amber-400">CASO DE TESTE #02 · CLAREZA E SEQUÊNCIA PASSO A PASSO</span>
+            <span class="bg-amber-500/20 border border-amber-400 text-amber-300 font-mono-code text-xs px-2.5 py-0.5 rounded font-bold">NOTA: 3 / 5</span>
+          </div>
+          <div class="grid grid-cols-12 gap-3 items-center">
+            <div class="col-span-5 speech-bubble">
+              <span class="speaker-tag bg-cyan-600 text-white">PROMPT DO ALUNO</span>
+              <p>"Como funciona o laço <code>for</code> em Python? Me mostra passo a passo."</p>
+            </div>
+            <div class="col-span-7 bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs text-slate-300">
+              <strong class="text-amber-400 block mb-1">Comportamento do Byte v1.0:</strong>
+              Mostrou a sintaxe <code>for i in range(10):</code> correta, mas saltou etapas importantes sobre iteráveis e despejou listas em compreensão logo no primeiro exemplo. <span class="text-amber-300">Diagnóstico: Ritmo acelerado demais para iniciantes.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE 3 Comic Strip (THE CRITICAL BOTTLENECK 2/5!) -->
+        <div class="comic-panel-red bg-gradient-to-br from-red-950/80 to-slate-900 p-4 relative">
+          <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center gap-2">
+              <span class="sfx-badge bg-red-600 text-white text-sm">GARGALO CRÍTICO!</span>
+              <span class="font-comic-title text-xl text-red-400">CASO DE TESTE #03 · ADEQUAÇÃO AO PÚBLICO INICIANTE</span>
+            </div>
+            <span class="bg-red-600 text-white font-mono-code text-sm px-3 py-1 rounded-lg font-extrabold shadow">NOTA: 2 / 5</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="speech-bubble">
+              <span class="speaker-tag bg-cyan-600 text-white">LEO (EM DESESPERO)</span>
+              <p>"Não entendi NADA de variável na aula hoje... me explica de um jeito bem simples, por favor?"</p>
+            </div>
+            <div class="speech-bubble-bot-bad">
+              <span class="speaker-tag bg-red-600 text-white">RESPOSTA REAL DO BYTE v1.0</span>
+              <p>"Em Python, variáveis são referências dinâmicas tipadas por inferência que apontam para objetos instanciados no <em>heap</em> de memória, gerenciados por contagem de referências do <em>Garbage Collector</em>..."</p>
+            </div>
+          </div>
+
+          <div class="bg-black/60 border border-red-500/40 rounded-lg p-3 text-xs text-red-200 flex items-start gap-3">
+            <i class="fa-solid fa-skull-crossbones text-red-400 text-xl mt-0.5"></i>
+            <div>
+              <strong>Falha Grave de Transposição Didática:</strong> Quando o estudante pediu socorro ("bem simples"), o LLM confundiu precisão técnica com qualidade pedagógica. Falar de <em>heap</em> e <em>Garbage Collector</em> para quem acabou de entrar na faculdade gera evasão e bloqueio cognitivo!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Capítulo 3 (Parte 1)</strong> · Bateria de Testes & O Gargalo da Nota 2/5</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 05 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 6: CAPÍTULO 3 (PARTE 2) — CASOS 4 E 5 + MATRIZ COMPLETA
+         ========================================== -->
+    <section class="comic-page" id="page-6">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="narrator-box-tech">CAPÍTULO 03 (CONT.) · TESTES DE ESTRESSE & LIMITES DE ESCOPO</span>
+          <span class="sfx-badge bg-purple-600 text-white text-xs">SHIELD UP!</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-white tracking-wide mb-3">
+          PERGUNTAS VAGAS, FORA DE ESCOPO E PLACAR DIAGNÓSTICO
+        </h2>
+
+        <!-- Arena Illustration + Case 4 & 5 -->
+        <div class="grid grid-cols-12 gap-4 mb-4">
+          <div class="col-span-6 comic-panel-purple">
+            <img src="assets/hq/cap3_arena.png" alt="Byte bloqueando livro de História com escudo de escopo" class="w-full h-64 object-cover object-center">
+          </div>
+
+          <div class="col-span-6 flex flex-col justify-between space-y-2.5">
+            <!-- Case 4 -->
+            <div class="bg-slate-900 border-2 border-cyan-500/50 rounded-xl p-3">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-comic-title text-base text-cyan-400">CASO #04 · PERGUNTA VAGA</span>
+                <span class="bg-cyan-500/20 text-cyan-300 font-mono-code text-xs px-2 py-0.5 rounded font-bold">NOTA: 4/5</span>
+              </div>
+              <p class="text-xs text-white italic mb-1">"Como funciona aquela coisa que guarda dado?"</p>
+              <p class="text-[11px] text-slate-300">
+                <strong>Resultado:</strong> Em vez de chutar, o Byte perguntou se Leo se referia a uma <em>variável</em>, uma <em>lista</em> ou um <em>banco de dados</em>. Solicitou contexto antes de responder!
+              </p>
+            </div>
+
+            <!-- Case 5 -->
+            <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-xl p-3">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-comic-title text-base text-emerald-400">CASO #05 · DESVIO DE ESCOPO</span>
+                <span class="bg-emerald-500/20 text-emerald-300 font-mono-code text-xs px-2 py-0.5 rounded font-bold">NOTA: 5/5</span>
+              </div>
+              <p class="text-xs text-white italic mb-1">"Faz um resumo sobre a Independência do Brasil pra minha aula de História?"</p>
+              <p class="text-[11px] text-slate-300">
+                <strong>Resultado:</strong> Ativou o escudo de escopo! Recusou educadamente a tarefa alheia e convidou o aluno de volta ao estudo de algoritmos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Consolidated Diagnostic Scoreboard Table -->
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-4">
+          <h3 class="font-comic-title text-xl text-amber-300 mb-3 tracking-wide flex items-center justify-between">
+            <span><i class="fa-solid fa-table-list mr-2"></i>MATRIZ CONSOLIDADA DA 1ª BATERIA (BYTE v1.0)</span>
+            <span class="font-mono-code text-xs text-slate-400">MÉDIA INICIAL: 3,6 / 5,0</span>
+          </h3>
+
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-950 text-slate-300 font-tech uppercase border-b border-slate-700">
+                <th class="p-2.5">Caso</th>
+                <th class="p-2.5">Prompt de Entrada</th>
+                <th class="p-2.5">Dimensão Testada</th>
+                <th class="p-2.5 text-center">Nota v1.0</th>
+                <th class="p-2.5">Veredito Pedagógico</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-200">
+              <tr>
+                <td class="p-2.5 font-mono-code font-bold text-cyan-400">#01</td>
+                <td class="p-2.5">Compilador vs. Interpretador</td>
+                <td class="p-2.5">Correção Conceitual</td>
+                <td class="p-2.5 text-center font-bold text-emerald-400">4 / 5</td>
+                <td class="p-2.5">Correto, mas sem aplicação prática</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-mono-code font-bold text-cyan-400">#02</td>
+                <td class="p-2.5">Laço <code>for</code> passo a passo</td>
+                <td class="p-2.5">Clareza & Didática</td>
+                <td class="p-2.5 text-center font-bold text-amber-400">3 / 5</td>
+                <td class="p-2.5">Preciso, porém ritmo muito acelerado</td>
+              </tr>
+              <tr class="bg-red-950/40">
+                <td class="p-2.5 font-mono-code font-bold text-red-400">#03</td>
+                <td class="p-2.5 font-bold text-white">Explicar variável "bem simples"</td>
+                <td class="p-2.5 font-bold text-red-300">Adequação ao Público</td>
+                <td class="p-2.5 text-center font-extrabold text-red-400">2 / 5</td>
+                <td class="p-2.5 text-red-200"><strong>Reprovado:</strong> Excesso de jargão técnico</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-mono-code font-bold text-cyan-400">#04</td>
+                <td class="p-2.5">"Aquela coisa que guarda dado"</td>
+                <td class="p-2.5">Tratamento de Dúvidas</td>
+                <td class="p-2.5 text-center font-bold text-emerald-400">4 / 5</td>
+                <td class="p-2.5">Pediu contexto antes de responder</td>
+              </tr>
+              <tr>
+                <td class="p-2.5 font-mono-code font-bold text-cyan-400">#05</td>
+                <td class="p-2.5">Resumo Independência do Brasil</td>
+                <td class="p-2.5">Limites de Escopo</td>
+                <td class="p-2.5 text-center font-bold text-emerald-400">5 / 5</td>
+                <td class="p-2.5">Manteve foco estrito na disciplina</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Capítulo 3 (Parte 2)</strong> · Limites de Escopo & Matriz de Resultados</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 06 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 7: CAPÍTULO 4 — A REPROGRAMAÇÃO SOCRÁTICA (EUREKA!)
+         ========================================== -->
+    <section class="comic-page" id="page-7">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="narrator-box">CAPÍTULO 04 · A INTERVENÇÃO DO EDUCADOR SOBRE A TECNOLOGIA</span>
+          <span class="sfx-badge bg-emerald-400 text-slate-950 text-xs">UPGRADE v2.0!</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-white tracking-wide mb-3">
+          ENGENHARIA PEDAGÓGICA: A TRANSFORMAÇÃO EM BYTE v2.0 SOCRÁTICO
+        </h2>
+
+        <!-- Before vs After Prompt Comparison -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-red-950/50 border-2 border-red-500 rounded-xl p-3">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="font-tech font-bold text-xs text-red-400 uppercase">ANTES · System Prompt Genérico</span>
+              <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">NOTA 2/5 NO CASO 3</span>
+            </div>
+            <p class="font-mono-code text-xs text-red-100 bg-black/50 p-2.5 rounded border border-red-500/30 italic">
+              "Você é um tutor de programação. Responda às dúvidas dos alunos."
+            </p>
+            <p class="text-[11px] text-red-300 mt-1.5">
+              ❌ Sem perfil de público · ❌ Sem método didático · ❌ Entrega código pronto
+            </p>
+          </div>
+
+          <div class="bg-emerald-950/50 border-2 border-emerald-400 rounded-xl p-3">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="font-tech font-bold text-xs text-emerald-300 uppercase">DEPOIS · System Prompt Socrático</span>
+              <span class="bg-emerald-500 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded">SALTO PARA 4/5!</span>
+            </div>
+            <p class="font-mono-code text-xs text-emerald-100 bg-black/50 p-2.5 rounded border border-emerald-500/30 italic">
+              "Você é um tutor de apoio para iniciantes. Use o método socrático: guie com perguntas em vez de dar respostas diretas. Use analogias cotidianas sem jargões."
+            </p>
+            <p class="text-[11px] text-emerald-300 mt-1.5">
+              ✅ Analogias acessíveis · ✅ Perguntas indutivas · ✅ Autonomia intelectual
+            </p>
+          </div>
+        </div>
+
+        <!-- Eureka Comic Panel + Re-test Dialogue -->
+        <div class="grid grid-cols-12 gap-4 mb-4">
+          <div class="col-span-7 comic-panel-cyan">
+            <img src="assets/hq/cap4_socratic.png" alt="Byte v2.0 ensinando variáveis com caixas organizadoras para Leo" class="w-full h-64 object-cover object-center">
+          </div>
+
+          <div class="col-span-5 flex flex-col justify-between space-y-2">
+            <div class="speech-bubble-bot-good">
+              <span class="speaker-tag bg-cyan-600 text-white">BYTE v2.0 (RETESTE DO CASO #03)</span>
+              <p>"Leo, imagine que você está arrumando seu quarto com <strong>caixas organizadoras</strong>. Se você colar uma etiqueta escrita <code>idade</code> numa caixa e guardar o número <code>18</code> lá dentro, o que acontece se depois você trocar o conteúdo por <code>19</code>?"</p>
+            </div>
+
+            <div class="speech-bubble">
+              <span class="speaker-tag bg-amber-500 text-slate-950">LEO (EUREKA!)</span>
+              <p>"A etiqueta da caixa continua sendo <code>idade</code>, mas o valor guardado dentro dela variou! ENTENDI! A variável é a caixa etiquetada!"</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Global Reference Box: Sal Khan & Khanmigo -->
+        <div class="bg-gradient-to-r from-purple-950/90 to-slate-900 border-2 border-purple-400/50 rounded-xl p-3.5 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center text-white text-2xl flex-shrink-0 shadow">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div class="text-xs text-slate-200">
+            <strong class="text-purple-300 uppercase font-tech block mb-0.5">Ancoragem Mundial: Sal Khan & O Tutor Khanmigo (Khan Academy)</strong>
+            Como defende Sal Khan em sua conferência no TED (<em>"How AI Could Save (Not Destroy) Education"</em>), o sonho do <strong>Tutor 1-para-1</strong> (Problema dos 2 Sigmas de Benjamin Bloom) só se realiza quando a IA tem uma trava ética e pedagógica: <strong>jamais entregar a resposta final</strong>, conduzindo o estudante por pistas socráticas.
+          </div>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Capítulo 4</strong> · Reprogramação Socrática & Referência Khanmigo</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 07 / 08</div>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         PÁGINA 8: CAPÍTULO 5 — MANUAL DO PROFESSOR, TEMPLATE COPIÁVEL & REFERÊNCIAS
+         ========================================== -->
+    <section class="comic-page" id="page-8">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="narrator-box-tech">CAPÍTULO 05 · KIT PRÁTICO PARA EDUCADORES (ZERO CÓDIGO)</span>
+          <span class="sfx-badge bg-cyan-400 text-slate-950 text-xs">MISSÃO CUMPRIDA!</span>
+        </div>
+
+        <h2 class="font-comic-title text-3xl text-white tracking-wide mb-2">
+          COMO QUALQUER PROFESSOR PODE CALIBRAR SEU TUTOR HOJE MESMO
+        </h2>
+        <p class="text-xs text-slate-300 mb-3">
+          Você não precisa programar em Python para criar um tutor calibrado. Basta colar o template abaixo nas instruções personalizadas do <strong>Claude Projects</strong>, <strong>Gemini Gems</strong> ou <strong>ChatGPT (My GPTs)</strong>:
+        </p>
+
+        <!-- Copyable Master Prompt Template -->
+        <div class="bg-slate-950 border-2 border-cyan-400 rounded-xl p-3.5 mb-4 relative">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-mono-code text-xs text-cyan-400 font-bold"><i class="fa-solid fa-terminal mr-1.5"></i>TEMPLATE OFICIAL: SYSTEM PROMPT SOCRÁTICO v2.0</span>
+            <button onclick="copyPrompt()" id="btnCopyPrompt" class="no-print bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-3 py-1 rounded transition flex items-center gap-1.5">
+              <i class="fa-regular fa-copy"></i> Copiar Prompt
+            </button>
+          </div>
+          <pre id="promptText" class="font-mono-code text-[11px] text-slate-200 whitespace-pre-wrap leading-relaxed bg-slate-900/90 p-3 rounded border border-slate-800">Você é um Tutor Pedagógico da disciplina [NOME DA DISCIPLINA] para estudantes de nível [INICIANTE/INTERMEDIÁRIO].
+DIRETRIZES OBRIGATÓRIAS DE MEDIAÇÃO:
+1. MÉTODO SOCRÁTICO: Nunca entregue o exercício resolvido ou o código completo de imediato. Guie o raciocínio do estudante fazendo 1 pergunta indutiva por vez.
+2. TRANSPOSIÇÃO DIDÁTICA: Explique conceitos abstratos utilizando analogias do cotidiano antes de introduzir termos técnicos ou sintaxe formal.
+3. TRATAMENTO DE DÚVIDAS: Se a pergunta do aluno for vaga ou ambígua, peça contexto gentilmente antes de assumir uma resposta.
+4. RIGOR E ESCOPO: Se não tiver certeza factual, admita. Recuse educadamente pedidos fora do escopo da disciplina.</pre>
+        </div>
+
+        <!-- Continuous 4-Phase Cycle -->
+        <div class="mb-4">
+          <h3 class="font-comic-title text-xl text-purple-400 mb-2 tracking-wide">
+            O CICLO CONTÍNUO DE CURADORIA DOCENTE (4 FASES)
+          </h3>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="bg-slate-900 border border-purple-500/40 p-2.5 rounded-lg">
+              <div class="font-comic-title text-lg text-cyan-400">1. TESTAR</div>
+              <p class="text-[10px] text-slate-300">Submeter o assistente aos 5 casos de teste (fácil, passo a passo, leigo, vago, fora de escopo).</p>
+            </div>
+            <div class="bg-slate-900 border border-purple-500/40 p-2.5 rounded-lg">
+              <div class="font-comic-title text-lg text-purple-400">2. REGISTRAR</div>
+              <p class="text-[10px] text-slate-300">Pontuar de 1 a 5 nos 4 critérios objetivos para localizar gargalos reais.</p>
+            </div>
+            <div class="bg-slate-900 border border-purple-500/40 p-2.5 rounded-lg">
+              <div class="font-comic-title text-lg text-amber-400">3. REVISAR</div>
+              <p class="text-[10px] text-slate-300">Ajustar o System Prompt adicionando restrições socráticas e exigência de analogias.</p>
+            </div>
+            <div class="bg-slate-900 border border-purple-500/40 p-2.5 rounded-lg">
+              <div class="font-comic-title text-lg text-emerald-400">4. VALIDAR</div>
+              <p class="text-[10px] text-slate-300">Reexecutar toda a bateria para confirmar a evolução sem regressões.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic References -->
+        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-3.5 text-[11px] text-slate-300">
+          <h4 class="font-tech font-bold text-white uppercase text-xs mb-1.5 flex items-center gap-2">
+            <i class="fa-solid fa-book-bookmark text-cyan-400"></i> Referências Científicas & Benchmarks Consultados
+          </h4>
+          <ul class="space-y-1 list-disc list-inside text-[10.5px]">
+            <li><strong>OCDE / PISA (2025):</strong> Relatório sobre uso semanal de chatbots generativos por estudantes brasileiros (48%) e riscos de alucinação.</li>
+            <li><strong>CHEVALLARD, Yves (1991):</strong> <em>La Transposition Didactique: du savoir savant au savoir enseigné</em>. Base para o critério de Adequação ao Público.</li>
+            <li><strong>KHAN, Sal (2023):</strong> <em>How AI Could Save (Not Destroy) Education</em> (TED Talk) & Arquitetura Socrática do tutor <strong>Khanmigo</strong>.</li>
+            <li><strong>BENCHMARKS OPEN-SOURCE:</strong> <em>AITutor-EvalKit</em> & <em>MRBench</em> (Maurya et al., 2024), <em>MathTutorBench</em> (ETH Zürich, 2025) e <em>EduBench</em> (LongTutor, 2025).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="page-footer">
+        <div><strong>Operação Byte Socrático</strong> · Cauã da Cunha Lira · UFRPE (2026.2)</div>
+        <div class="font-mono-code text-cyan-400 font-bold">PÁGINA 08 / 08 · FIM</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentPage = 1;
+    const totalPages = 8;
+    let isWebtoonMode = false;
+
+    function updateReaderUI() {
+      document.querySelectorAll('.comic-page').forEach((page, idx) => {
+        if (idx + 1 === currentPage) {
+          page.classList.add('active-page');
+        } else {
+          page.classList.remove('active-page');
+        }
+      });
+
+      document.getElementById('pageIndicator').textContent = `Pág. ${currentPage} / ${totalPages}`;
+
+      document.querySelectorAll('.page-pill').forEach((pill, idx) => {
+        if (idx + 1 === currentPage) {
+          pill.className = 'page-pill text-[11px] px-2.5 py-1 rounded bg-purple-600 text-white font-bold whitespace-nowrap';
+        } else {
+          pill.className = 'page-pill text-[11px] px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold whitespace-nowrap';
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextPage() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        updateReaderUI();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        updateReaderUI();
+      }
+    }
+
+    function goToPage(pageNum) {
+      currentPage = pageNum;
+      if (isWebtoonMode) {
+        document.getElementById(`page-${pageNum}`).scrollIntoView({ behavior: 'smooth' });
+      } else {
+        updateReaderUI();
+      }
+    }
+
+    function toggleReadMode() {
+      isWebtoonMode = !isWebtoonMode;
+      const btn = document.getElementById('btnMode');
+      if (isWebtoonMode) {
+        document.body.classList.add('webtoon-mode');
+        btn.innerHTML = '<i class="fa-solid fa-book-open mr-1"></i> Modo Folhear';
+      } else {
+        document.body.classList.remove('webtoon-mode');
+        btn.innerHTML = '<i class="fa-solid fa-scroll mr-1"></i> Modo Webtoon';
+        updateReaderUI();
+      }
+    }
+
+    function copyPrompt() {
+      const text = document.getElementById('promptText').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btnCopyPrompt');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar Prompt';
+        }, 2000);
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (!isWebtoonMode) {
+        if (e.key === 'ArrowRight') nextPage();
+        if (e.key === 'ArrowLeft') prevPage();
+      }
+    });
+  </script>
+</body>
+</html>
