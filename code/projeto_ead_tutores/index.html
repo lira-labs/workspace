@@ -243,11 +243,14 @@
               <i class="fa-solid fa-arrow-right"></i>
             </button>
             <div class="flex gap-1.5">
+              <a href="https://online.fliphtml5.com/caualira02/lhzk/" target="_blank" class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
+                <i class="fa-solid fa-book-bookmark mr-1"></i>FlipHTML5
+              </a>
               <a href="ebook-hq.html" target="_blank" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
-                <i class="fa-solid fa-expand mr-1"></i>Tela Cheia
+                <i class="fa-solid fa-expand mr-1"></i>Leitor Web
               </a>
               <a href="assets/ebook-operacao-byte-socratico.pdf" download class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
-                <i class="fa-solid fa-file-pdf mr-1 text-red-500"></i>PDF A4
+                <i class="fa-solid fa-file-pdf mr-1 text-red-500"></i>PDF
               </a>
             </div>
           </div>
@@ -474,11 +477,14 @@
               Você pode folhear o eBook diretamente no leitor interativo abaixo (modo página a página com atalhos de teclado ou modo rolagem contínua Webtoon), abri-lo em tela cheia ou baixar o PDF A4 diagramado em alta resolução.
             </p>
             <div class="flex flex-wrap gap-3">
+              <a href="https://online.fliphtml5.com/caualira02/lhzk/" target="_blank" class="bg-amber-400 hover:bg-amber-300 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold text-xs md:text-sm inline-flex items-center gap-2 shadow transition">
+                <i class="fa-solid fa-book-bookmark"></i> Abrir no FlipHTML5 (Oficial)
+              </a>
               <a href="ebook-hq.html" target="_blank" class="btn-super px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm text-white inline-flex items-center gap-2 shadow">
-                <i class="fa-solid fa-up-right-from-square"></i> Abrir Leitor Interativo em Nova Guia
+                <i class="fa-solid fa-up-right-from-square"></i> Abrir Leitor Nativo Web
               </a>
               <a href="assets/ebook-operacao-byte-socratico.pdf" download class="btn-cyan px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm text-slate-950 inline-flex items-center gap-2 shadow">
-                <i class="fa-solid fa-file-pdf"></i> Baixar eBook Completo em PDF (A4)
+                <i class="fa-solid fa-file-pdf"></i> Baixar PDF (A4)
               </a>
             </div>
           </div>
@@ -516,18 +522,31 @@
         </div>
       </div>
 
-      <!-- Embedded Interactive Flipbook Reader -->
+      <!-- Embedded Interactive Flipbook Reader (with switcher between FlipHTML5 and Native HQ Reader) -->
       <div class="bg-cardbg p-3 md:p-5 rounded-3xl shadow-card border-2 border-purple/30 mb-10">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-2">
-          <span class="text-xs md:text-sm font-bold text-deepblue flex items-center gap-2">
-            <i class="fa-solid fa-book-open text-purple"></i> Leitor Interativo Embutido (Use os botões "Anterior / Próxima" ou "Modo Webtoon" na barra do leitor)
-          </span>
-          <a href="ebook-hq.html" target="_blank" class="text-xs font-bold text-purple hover:underline flex items-center gap-1">
-            <i class="fa-solid fa-expand"></i> Expandir em Tela Cheia
-          </a>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs md:text-sm font-bold text-deepblue flex items-center gap-2 mr-2">
+              <i class="fa-solid fa-book-open text-purple"></i> Modo de Visualização Embutida:
+            </span>
+            <button onclick="switchEbookReader('fliphtml5')" id="btnReaderFlip" class="bg-purple text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
+              <i class="fa-solid fa-book-bookmark mr-1"></i> FlipHTML5 Interativo (Oficial)
+            </button>
+            <button onclick="switchEbookReader('native')" id="btnReaderNative" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              <i class="fa-solid fa-code mr-1"></i> Leitor Webtoon Nativo (HTML)
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="https://online.fliphtml5.com/caualira02/lhzk/" target="_blank" class="text-xs font-bold text-amber-700 hover:underline flex items-center gap-1">
+              <i class="fa-solid fa-up-right-from-square"></i> FlipHTML5 Direto
+            </a>
+            <a href="ebook-hq.html" target="_blank" class="text-xs font-bold text-purple hover:underline flex items-center gap-1">
+              <i class="fa-solid fa-expand"></i> Tela Cheia Nativa
+            </a>
+          </div>
         </div>
         <div class="w-full rounded-2xl overflow-hidden border-2 border-slate-800 shadow-inner bg-slate-950" style="height: 820px;">
-          <iframe src="ebook-hq.html" title="Leitor Interativo eBook-HQ: Operação Byte Socrático" class="w-full h-full border-0" loading="lazy"></iframe>
+          <iframe id="ebookIframe" src="https://online.fliphtml5.com/caualira02/lhzk/" title="Leitor Interativo eBook-HQ: Operação Byte Socrático" class="w-full h-full border-0" allowfullscreen="true" allowtransparency="true" loading="lazy"></iframe>
         </div>
       </div>
 
@@ -883,6 +902,9 @@
 
       <!-- Direct Footer Links for Verification -->
       <div class="flex flex-wrap justify-center gap-3 text-xs mb-6">
+        <a href="https://online.fliphtml5.com/caualira02/lhzk/" target="_blank" class="bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 px-3.5 py-2 rounded-lg border border-amber-400/30 font-semibold transition">
+          <i class="fa-solid fa-book-bookmark text-amber-300 mr-1"></i> eBook no FlipHTML5 (Oficial)
+        </a>
         <a href="ebook-hq.html" class="bg-white/5 hover:bg-white/10 text-slate-200 px-3.5 py-2 rounded-lg border border-white/10 transition">
           <i class="fa-solid fa-book-open text-purplelight mr-1"></i> eBook-HQ Web
         </a>
@@ -908,6 +930,21 @@
   </footer>
 
   <script>
+    function switchEbookReader(mode) {
+      const iframe = document.getElementById('ebookIframe');
+      const btnFlip = document.getElementById('btnReaderFlip');
+      const btnNative = document.getElementById('btnReaderNative');
+      if (mode === 'fliphtml5') {
+        iframe.src = 'https://online.fliphtml5.com/caualira02/lhzk/';
+        btnFlip.className = 'bg-purple text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm';
+        btnNative.className = 'bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition';
+      } else {
+        iframe.src = 'ebook-hq.html';
+        btnNative.className = 'bg-purple text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm';
+        btnFlip.className = 'bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition';
+      }
+    }
+
     function openTab(tabId) {
       const contents = document.querySelectorAll('.tab-content');
       contents.forEach(content => content.classList.remove('active'));
