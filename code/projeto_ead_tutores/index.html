@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avaliação e Melhoria de Tutores Virtuais | Projeto EaD</title>
+  <title>Avaliação e Melhoria de Tutores Virtuais | Plataforma Completa 1ª e 2ª VA EaD · UFRPE</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
@@ -19,43 +19,53 @@
             accent: '#06B6D4'
           },
           boxShadow: {
-            'glow': '0 0 15px rgba(139, 92, 246, 0.5)',
-            'card': '0 10px 30px -10px rgba(0,0,0,0.08)'
+            'glow': '0 0 20px rgba(139, 92, 246, 0.45)',
+            'card': '0 10px 30px -10px rgba(11, 15, 25, 0.08)'
           }
         }
       }
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #F4F7FC; }
-    .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .tab-content { display: none; animation: fadeIn 0.35s ease-in-out; }
     .tab-content.active { display: block; }
-    
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
+
     .glass-nav {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.4);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
     }
-    
+
     .hero-pattern {
-      background-image: radial-gradient(circle at 10% 20%, rgba(109, 40, 217, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%);
+      background-image: radial-gradient(circle at 12% 20%, rgba(109, 40, 217, 0.22) 0%, transparent 42%),
+                        radial-gradient(circle at 88% 80%, rgba(6, 182, 212, 0.20) 0%, transparent 42%);
     }
 
     .btn-super {
       background: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%);
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
     }
     .btn-super:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px -5px rgba(109, 40, 217, 0.6);
+      box-shadow: 0 8px 25px -5px rgba(109, 40, 217, 0.65);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, #0891B2 0%, #06B6D4 100%);
+      transition: all 0.25s ease;
+    }
+    .btn-cyan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(6, 182, 212, 0.65);
     }
 
     .nav-btn {
@@ -64,201 +74,569 @@
     }
     .nav-btn.active {
       color: #6D28D9;
-      font-weight: 600;
+      font-weight: 700;
+      background-color: rgba(109, 40, 217, 0.05);
     }
     .nav-btn.active::after {
       content: '';
       position: absolute;
-      bottom: -1px;
+      bottom: 0;
       left: 0;
       width: 100%;
       height: 3px;
-      background: #6D28D9;
+      background: linear-gradient(90deg, #6D28D9, #06B6D4);
       border-radius: 3px 3px 0 0;
     }
-    
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="text-gray-800 antialiased">
+<body class="text-slate-800 antialiased">
 
-  <!-- Hero Section -->
+  <!-- =======================================================================
+       HERO SECTION (1ª VA + 2ª VA INTEGRATED HEADER)
+       ======================================================================= -->
   <header class="bg-deepblue text-white relative overflow-hidden">
-    <div class="absolute inset-0 hero-pattern opacity-60"></div>
-    <div class="max-w-5xl mx-auto px-6 py-20 relative z-10 text-center">
-      <div class="inline-flex items-center gap-2 bg-purple/20 border border-purple/30 text-purplelight text-xs font-bold px-4 py-2 rounded-full mb-6 uppercase tracking-wider">
-        <i class="fa-solid fa-robot"></i> Docência Digital na Era da IA · 1ª VA
+    <div class="absolute inset-0 hero-pattern"></div>
+    <div class="max-w-6xl mx-auto px-6 py-14 md:py-18 relative z-10 text-center">
+      <div class="inline-flex flex-wrap items-center justify-center gap-2 bg-purple/25 border border-purplelight/40 text-purplelight text-xs font-bold px-4 py-1.5 rounded-full mb-5 uppercase tracking-wider">
+        <i class="fa-solid fa-robot text-accent"></i>
+        <span>Docência Digital na Era da IA · Trilha Integrada 1ª VA e 2ª VA</span>
       </div>
-      
-      <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
+
+      <h1 class="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-4 leading-tight tracking-tight">
         Avaliação e Melhoria de <span class="text-transparent bg-clip-text bg-gradient-to-r from-purplelight to-accent">Tutores Virtuais</span>
       </h1>
-      <h2 class="text-xl md:text-2xl font-light mb-10 text-gray-300 max-w-3xl mx-auto">
-        Como testar, medir e revisar a qualidade pedagógica de um assistente de IA para a sala de aula.
+      <h2 class="text-base md:text-xl font-normal mb-8 text-slate-300 max-w-3xl mx-auto leading-relaxed">
+        Como testar, medir e reprogramar a qualidade pedagógica de um assistente de IA para não sabotar o raciocínio do estudante na Educação a Distância.
       </h2>
-      
-      <div class="flex flex-wrap justify-center gap-4 text-sm mb-10">
-        <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+
+      <!-- Academic Metadata Badges -->
+      <div class="flex flex-wrap justify-center gap-3 text-xs md:text-sm mb-8">
+        <div class="bg-white/5 border border-white/15 px-3.5 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
           <i class="fa-regular fa-user text-accent"></i>
-          <span><strong>Cauã Lira</strong></span>
+          <span><strong>Autor:</strong> Cauã da Cunha Lira</span>
         </div>
-        <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+        <div class="bg-white/5 border border-white/15 px-3.5 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+          <i class="fa-solid fa-chalkboard-user text-accent"></i>
+          <span><strong>Docente:</strong> Prof. Ermeson</span>
+        </div>
+        <div class="bg-white/5 border border-white/15 px-3.5 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
           <i class="fa-solid fa-graduation-cap text-accent"></i>
-          <span>Licenciatura em Computação</span>
+          <span>Licenciatura em Computação · EaD</span>
         </div>
-        <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+        <div class="bg-white/5 border border-white/15 px-3.5 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
           <i class="fa-solid fa-building-columns text-accent"></i>
-          <span>UFRPE</span>
+          <span>UFRPE · 2026.2</span>
         </div>
       </div>
 
-      <a href="assets/apresentacao-tutores-virtuais.pptx" download class="btn-super inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-white shadow-lg">
-        <i class="fa-solid fa-file-powerpoint text-xl"></i> Baixar Slides da Aula
-      </a>
+      <!-- Quick Direct Access Buttons to All Deliverables -->
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="openTab('ebook')" class="btn-super inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-white text-sm shadow-lg">
+          <i class="fa-solid fa-book-open text-lg"></i> Item 1 (2ª VA): Ler eBook-HQ Interativo
+        </button>
+        <button onclick="openTab('infografico')" class="btn-cyan inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-slate-950 text-sm shadow-lg">
+          <i class="fa-solid fa-chart-simple text-lg"></i> Item 2 (2ª VA): Abrir Infográfico Visual
+        </button>
+        <a href="assets/apresentacao-tutores-virtuais.pptx" download class="bg-white/10 hover:bg-white/20 border border-white/20 inline-flex items-center gap-2.5 px-5 py-3.5 rounded-xl font-semibold text-white text-sm transition">
+          <i class="fa-solid fa-file-powerpoint text-amber-400"></i> Baixar Slides (1ª VA)
+        </a>
+      </div>
     </div>
   </header>
 
-  <!-- Sticky Tabs Navigation -->
-  <div class="glass-nav sticky top-0 z-50 shadow-sm">
-    <div class="max-w-5xl mx-auto px-4 flex overflow-x-auto hide-scrollbar justify-start md:justify-center">
-      <button onclick="openTab('planejamento')" id="tab-btn-planejamento" class="nav-btn active px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
-        <i class="fa-solid fa-map text-lg"></i> Planejamento
+  <!-- =======================================================================
+       STICKY SEQUENTIAL LEARNING TRAIL NAVIGATION
+       ======================================================================= -->
+  <nav class="glass-nav sticky top-0 z-50 shadow-sm" aria-label="Sequência de Estudo do Minicurso">
+    <div class="max-w-6xl mx-auto px-3 flex overflow-x-auto hide-scrollbar justify-start lg:justify-center">
+      <button onclick="openTab('planejamento')" id="tab-btn-planejamento" class="nav-btn active px-4 md:px-5 py-4 text-slate-700 hover:text-purple whitespace-nowrap flex items-center gap-2 text-xs md:text-sm">
+        <i class="fa-solid fa-route text-base text-purple"></i>
+        <span>Início & Trilha de Estudo</span>
       </button>
-      <button onclick="openTab('videoaula')" id="tab-btn-videoaula" class="nav-btn px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
-        <i class="fa-brands fa-youtube text-lg"></i> Videoaula
+      <button onclick="openTab('videoaula')" id="tab-btn-videoaula" class="nav-btn px-4 md:px-5 py-4 text-slate-700 hover:text-purple whitespace-nowrap flex items-center gap-2 text-xs md:text-sm">
+        <span class="w-5 h-5 rounded-full bg-purple/15 text-purple font-bold text-[11px] flex items-center justify-center">1</span>
+        <i class="fa-brands fa-youtube text-base text-red-500"></i>
+        <span>Videoaula <span class="text-[10px] uppercase font-bold text-slate-400">(1ª VA)</span></span>
       </button>
-      <button onclick="openTab('pratica')" id="tab-btn-pratica" class="nav-btn px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
-        <i class="fa-solid fa-gamepad text-lg"></i> Prática Interativa
+      <button onclick="openTab('ebook')" id="tab-btn-ebook" class="nav-btn px-4 md:px-5 py-4 text-slate-700 hover:text-purple whitespace-nowrap flex items-center gap-2 text-xs md:text-sm">
+        <span class="w-5 h-5 rounded-full bg-purple text-white font-bold text-[11px] flex items-center justify-center">2</span>
+        <i class="fa-solid fa-book-open-reader text-base text-purple"></i>
+        <span>eBook-HQ <span class="text-[10px] uppercase font-bold text-purple bg-purple/10 px-1.5 py-0.5 rounded">2ª VA · Item 1</span></span>
       </button>
-      <button onclick="openTab('metodologia')" id="tab-btn-metodologia" class="nav-btn px-5 md:px-8 py-5 text-gray-600 hover:text-purple whitespace-nowrap flex items-center gap-2 text-sm md:text-base">
-        <i class="fa-solid fa-flask text-lg"></i> Metodologia & Dados
+      <button onclick="openTab('infografico')" id="tab-btn-infografico" class="nav-btn px-4 md:px-5 py-4 text-slate-700 hover:text-purple whitespace-nowrap flex items-center gap-2 text-xs md:text-sm">
+        <span class="w-5 h-5 rounded-full bg-accent text-slate-950 font-bold text-[11px] flex items-center justify-center">3</span>
+        <i class="fa-solid fa-diagram-project text-base text-cyan-600"></i>
+        <span>Infográfico <span class="text-[10px] uppercase font-bold text-cyan-700 bg-cyan-100 px-1.5 py-0.5 rounded">2ª VA · Item 2</span></span>
+      </button>
+      <button onclick="openTab('pratica')" id="tab-btn-pratica" class="nav-btn px-4 md:px-5 py-4 text-slate-700 hover:text-purple whitespace-nowrap flex items-center gap-2 text-xs md:text-sm">
+        <span class="w-5 h-5 rounded-full bg-purple/15 text-purple font-bold text-[11px] flex items-center justify-center">4</span>
+        <i class="fa-solid fa-gamepad text-base text-emerald-600"></i>
+        <span>Quiz Prático <span class="text-[10px] uppercase font-bold text-slate-400">(1ª VA)</span></span>
+      </button>
+      <button onclick="openTab('metodologia')" id="tab-btn-metodologia" class="nav-btn px-4 md:px-5 py-4 text-slate-700 hover:text-purple whitespace-nowrap flex items-center gap-2 text-xs md:text-sm">
+        <i class="fa-solid fa-flask text-base text-amber-600"></i>
+        <span>Metodologia & Dados</span>
       </button>
     </div>
-  </div>
+  </nav>
 
-  <main class="max-w-5xl mx-auto px-6 py-12 min-h-[50vh]">
-    
-    <!-- ABA: PLANEJAMENTO -->
+  <!-- =======================================================================
+       MAIN CONTENT CONTAINER
+       ======================================================================= -->
+  <main class="max-w-6xl mx-auto px-4 md:px-6 py-10 min-h-[65vh]">
+
+    <!-- =====================================================================
+         ABA 0: INÍCIO, PLANEJAMENTO & TRILHA SEQUENCIAL DE ESTUDO
+         ===================================================================== -->
     <div id="tab-planejamento" class="tab-content active">
       <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-deepblue mb-3">Estrutura do Minicurso</h2>
-        <p class="text-gray-500">Diretrizes e objetivos pedagógicos desenhados para esta aula.</p>
+        <span class="inline-block bg-purple/10 text-purple font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+          Roteiro Guiado de Aprendizagem
+        </span>
+        <h2 class="text-3xl font-extrabold text-deepblue mb-2">Sequência de Estudo do Minicurso (1ª VA + 2ª VA)</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto text-sm md:text-base">
+          Siga as <strong>4 etapas sequenciais</strong> abaixo para compreender a teoria, acompanhar o estudo de caso em quadrinhos, consultar o guia rápido de calibragem e testar sua capacidade de avaliação.
+        </p>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div class="w-14 h-14 bg-purple/10 rounded-2xl flex items-center justify-center mb-6">
-            <i class="fa-solid fa-users text-2xl text-purple"></i>
+      <!-- 4-Step Visual Learning Trail -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+        <!-- Etapa 1 -->
+        <div class="bg-cardbg rounded-2xl p-6 shadow-card border-2 border-slate-200 hover:border-purple transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-slate-900 text-white font-mono-code font-bold text-xs px-2.5 py-1 rounded-md">ETAPA 01 · 1ª VA</span>
+              <i class="fa-brands fa-youtube text-2xl text-red-500"></i>
+            </div>
+            <h3 class="text-lg font-bold text-deepblue mb-2">1. Fundamentação em Videoaula</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              Exposição teórica sobre o paradoxo dos LLMs na educação, dados da OCDE (PISA 2025), alucinações com tom de autoridade e inspiração no tutor Khanmigo.
+            </p>
           </div>
-          <h3 class="text-xl font-bold text-deepblue mb-4">Público-Alvo</h3>
-          <p class="text-gray-600 leading-relaxed mb-6">Professores, tutores e estudantes de licenciatura interessados na integração pedagógica de IA em seus planos de aula.</p>
-          
-          <h4 class="font-semibold text-sm text-gray-400 uppercase tracking-wider mb-3">Pré-requisitos</h4>
-          <ul class="space-y-3">
-            <li class="flex items-start gap-3 text-gray-600">
-              <i class="fa-solid fa-check text-green-500 mt-1"></i>
-              <span>Noções básicas de navegação web.</span>
+          <button onclick="openTab('videoaula')" class="w-full bg-slate-100 hover:bg-purple hover:text-white text-slate-800 font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2">
+            <span>Assistir à Videoaula</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Etapa 2 (NEW 2ª VA - Item 1) -->
+        <div class="bg-gradient-to-b from-purple/5 to-white rounded-2xl p-6 shadow-card border-2 border-purple hover:shadow-xl transition flex flex-col justify-between relative">
+          <div class="absolute -top-3 right-4 bg-purple text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
+            Novo · Item 1 (2ª VA)
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-purple text-white font-mono-code font-bold text-xs px-2.5 py-1 rounded-md">ETAPA 02 · 2ª VA</span>
+              <i class="fa-solid fa-book-open-reader text-2xl text-purple"></i>
+            </div>
+            <h3 class="text-lg font-bold text-deepblue mb-2">2. eBook-HQ: Operação Byte Socrático</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              Graphic Novel pedagógica de 8 páginas acompanhando o mentor Cauã, o calouro Leo e o robô Byte na bateria de 5 casos de teste em Python (evolução de 3,6 para 4,4).
+            </p>
+          </div>
+          <div class="space-y-2">
+            <button onclick="openTab('ebook')" class="w-full bg-purple hover:bg-purplelight text-white font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow">
+              <span>Abrir eBook Interativo</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <div class="flex gap-1.5">
+              <a href="ebook-hq.html" target="_blank" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
+                <i class="fa-solid fa-expand mr-1"></i>Tela Cheia
+              </a>
+              <a href="assets/ebook-operacao-byte-socratico.pdf" download class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
+                <i class="fa-solid fa-file-pdf mr-1 text-red-500"></i>PDF A4
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 3 (NEW 2ª VA - Item 2) -->
+        <div class="bg-gradient-to-b from-cyan-50/70 to-white rounded-2xl p-6 shadow-card border-2 border-accent hover:shadow-xl transition flex flex-col justify-between relative">
+          <div class="absolute -top-3 right-4 bg-accent text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow">
+            Novo · Item 2 (2ª VA)
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-accent text-slate-950 font-mono-code font-bold text-xs px-2.5 py-1 rounded-md">ETAPA 03 · 2ª VA</span>
+              <i class="fa-solid fa-diagram-project text-2xl text-cyan-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-deepblue mb-2">3. Infográfico: Guia de Bolso Docente</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              Síntese visual e interativa em página única com o Scanner 4D, placar comparativo v1.0 vs. v2.0 (+22,2%), anatomia do System Prompt em 4 camadas e ciclo PDCA docente.
+            </p>
+          </div>
+          <div class="space-y-2">
+            <button onclick="openTab('infografico')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow">
+              <span>Ver Infográfico Visual</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <div class="flex gap-1.5">
+              <a href="infografico.html" target="_blank" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
+                <i class="fa-solid fa-expand mr-1"></i>Tela Cheia
+              </a>
+              <a href="assets/infografico-anatomia-tutor-ia.pdf" download class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] py-1.5 px-2 rounded-lg text-center transition">
+                <i class="fa-solid fa-file-pdf mr-1 text-red-500"></i>Pôster PDF
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Etapa 4 -->
+        <div class="bg-cardbg rounded-2xl p-6 shadow-card border-2 border-slate-200 hover:border-emerald-500 transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-slate-900 text-white font-mono-code font-bold text-xs px-2.5 py-1 rounded-md">ETAPA 04 · 1ª VA</span>
+              <i class="fa-solid fa-gamepad text-2xl text-emerald-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-deepblue mb-2">4. Avaliação Prática (Quiz Genially)</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              Hora de consolidar o aprendizado! Analise situações reais de sala de aula e julgue a qualidade das respostas do assistente usando os 4 critérios estudados.
+            </p>
+          </div>
+          <button onclick="openTab('pratica')" class="w-full bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-800 font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2">
+            <span>Responder ao Quiz</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Planning Cards (Target Audience & Objectives from 1ª VA preserved) -->
+      <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-slate-200">
+          <div class="w-12 h-12 bg-purple/10 rounded-2xl flex items-center justify-center mb-5">
+            <i class="fa-solid fa-users text-xl text-purple"></i>
+          </div>
+          <h3 class="text-xl font-bold text-deepblue mb-3">Público-Alvo e Pré-requisitos</h3>
+          <p class="text-slate-600 text-sm leading-relaxed mb-5">
+            Professores, tutores de Educação a Distância e estudantes de licenciatura interessados na integração ética e pedagógica de assistentes de IA em suas disciplinas.
+          </p>
+          <ul class="space-y-2.5 text-sm">
+            <li class="flex items-start gap-3 text-slate-700">
+              <i class="fa-solid fa-check text-emerald-500 mt-1"></i>
+              <span>Noções básicas de navegação web e uso de chatbots (ChatGPT, Claude ou Gemini).</span>
             </li>
-            <li class="flex items-start gap-3 text-gray-600">
-              <i class="fa-solid fa-check text-green-500 mt-1"></i>
-              <span>Uso básico de chatbots (ChatGPT, Claude, etc).</span>
-            </li>
-            <li class="flex items-start gap-3 text-gray-500 italic text-sm">
-              <i class="fa-solid fa-info-circle text-gray-400 mt-0.5"></i>
-              <span>Nenhuma experiência prévia com programação exigida.</span>
+            <li class="flex items-start gap-3 text-slate-700">
+              <i class="fa-solid fa-check text-emerald-500 mt-1"></i>
+              <span>Nenhuma experiência prévia com programação é exigida para aplicar os templates de System Prompt.</span>
             </li>
           </ul>
         </div>
 
-        <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div class="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
-            <i class="fa-solid fa-bullseye text-2xl text-accent"></i>
+        <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-slate-200">
+          <div class="w-12 h-12 bg-accent/15 rounded-2xl flex items-center justify-center mb-5">
+            <i class="fa-solid fa-bullseye text-xl text-cyan-600"></i>
           </div>
-          <h3 class="text-xl font-bold text-deepblue mb-4">Objetivos de Aprendizagem</h3>
-          <ul class="space-y-4">
-            <li class="flex gap-4">
-              <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">1</div>
-              <p class="text-gray-600"><strong>Diferenciar</strong> assistentes genéricos de tutores inteligentes focados em mediação pedagógica.</p>
+          <h3 class="text-xl font-bold text-deepblue mb-3">Objetivos de Aprendizagem</h3>
+          <ul class="space-y-3 text-sm">
+            <li class="flex gap-3">
+              <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs flex-shrink-0">1</span>
+              <p class="text-slate-700"><strong>Diferenciar</strong> chatbots de regras, LLMs sem freio e tutores inteligentes focados em mediação socrática.</p>
             </li>
-            <li class="flex gap-4">
-              <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center font-bold flex-shrink-0">2</div>
-              <p class="text-gray-600"><strong>Aplicar</strong> os 4 critérios de qualidade: Correção, Clareza, Adequação ao Público e Tratamento de Dúvidas.</p>
+            <li class="flex gap-3">
+              <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs flex-shrink-0">2</span>
+              <p class="text-slate-700"><strong>Aplicar</strong> os 4 critérios de qualidade: Correção Conceitual, Clareza e Didática, Adequação ao Público e Tratamento de Dúvidas.</p>
             </li>
-            <li class="flex gap-4">
-              <div class="w-8 h-8 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center font-bold flex-shrink-0">3</div>
-              <p class="text-gray-600"><strong>Executar</strong> bateria estruturada com 5 casos de teste em modelos como Claude Projects ou Gemini Gems.</p>
+            <li class="flex gap-3">
+              <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs flex-shrink-0">3</span>
+              <p class="text-slate-700"><strong>Executar</strong> uma bateria estruturada com 5 casos de teste para diagnosticar gargalos de transposição didática.</p>
             </li>
-            <li class="flex gap-4">
-              <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center font-bold flex-shrink-0">4</div>
-              <p class="text-gray-600"><strong>Refinar</strong> System Prompts com técnicas socráticas para fomentar a autonomia discente.</p>
+            <li class="flex gap-3">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs flex-shrink-0">4</span>
+              <p class="text-slate-700"><strong>Calibrar e validar</strong> System Prompts socráticos confirmando a evolução de desempenho sem regressões.</p>
             </li>
           </ul>
         </div>
+      </div>
+
+      <!-- Next Step Bar -->
+      <div class="bg-deepblue text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-purple flex items-center justify-center font-bold">1</span>
+          <div>
+            <div class="text-xs text-cyan-300 font-bold uppercase">Comece pela Etapa 1 da Trilha</div>
+            <div class="text-sm md:text-base font-bold">Assista à Videoaula de Fundamentação (1ª VA)</div>
+          </div>
+        </div>
+        <button onclick="openTab('videoaula')" class="btn-super px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+          <span>Avançar para Etapa 1: Videoaula</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
       </div>
     </div>
 
-    <!-- ABA: VIDEOAULA -->
+
+    <!-- =====================================================================
+         ABA 1: ETAPA 1 · VIDEOAULA (1ª VA)
+         ===================================================================== -->
     <div id="tab-videoaula" class="tab-content">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-deepblue mb-3">Conteúdo Multimídia</h2>
-        <p class="text-gray-500">Assista à exposição detalhada sobre o framework de testes e calibração de tutores.</p>
+      <div class="text-center mb-8">
+        <span class="inline-block bg-red-100 text-red-700 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+          Etapa 1 da Trilha · Material da 1ª VA
+        </span>
+        <h2 class="text-3xl font-extrabold text-deepblue mb-2">Videoaula de Fundamentação e Referências em Vídeo</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto text-sm md:text-base">
+          Assista à exposição sobre o framework de avaliação de tutores virtuais e veja como a mediação socrática opera no cenário global.
+        </p>
       </div>
 
-      <!-- Vídeo Principal (A ser gravado pelo aluno) -->
-      <div class="bg-cardbg p-3 md:p-6 rounded-3xl shadow-card border border-purple/30 max-w-4xl mx-auto transform transition-all duration-300 hover:shadow-xl mb-12 relative overflow-hidden">
-        <div class="absolute top-0 right-0 bg-purple text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-10">
-          Vídeo Principal (Sua Gravação)
+      <!-- Vídeo Principal -->
+      <div class="bg-cardbg p-4 md:p-6 rounded-3xl shadow-card border-2 border-purple/30 max-w-4xl mx-auto mb-10 relative overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="bg-purple text-white text-xs font-bold px-3 py-1 rounded-lg">Aula Principal · 1ª VA</span>
+            <span class="text-sm font-bold text-deepblue">Avaliação e Melhoria de Tutores Virtuais</span>
+          </div>
+          <a href="assets/apresentacao-tutores-virtuais.pptx" download class="text-xs font-bold text-purple hover:underline flex items-center gap-1.5">
+            <i class="fa-solid fa-file-powerpoint"></i> Baixar Slides (.pptx)
+          </a>
         </div>
+
         <div class="relative w-full rounded-2xl overflow-hidden shadow-inner bg-black" style="padding-bottom: 56.25%;">
-          <!-- Substitua por seu vídeo final no YouTube depois -->
-          <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/QOOT_WV8Tz0" title="Videoaula Principal" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/QOOT_WV8Tz0" title="Videoaula Principal: Avaliação e Melhoria de Tutores Virtuais" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
-        
-        <div class="flex flex-wrap items-center justify-center gap-6 mt-6 text-sm text-gray-500 font-medium">
-          <div class="flex items-center gap-2 bg-purple/5 px-4 py-2 rounded-full border border-purple/20 text-purple"><i class="fa-regular fa-clock"></i> 20 - 30 min</div>
-          <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-200"><i class="fa-solid fa-video text-gray-400"></i> Câmera Ativa</div>
-          <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full border border-gray-200"><i class="fa-solid fa-closed-captioning text-gray-400"></i> Legendas PT-BR</div>
+
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-5 text-xs md:text-sm text-slate-600 font-medium">
+          <div class="flex items-center gap-2 bg-purple/10 px-3.5 py-1.5 rounded-full text-purple font-semibold"><i class="fa-regular fa-clock"></i> Fundamentação Completa</div>
+          <div class="flex items-center gap-2 bg-slate-100 px-3.5 py-1.5 rounded-full"><i class="fa-solid fa-video text-slate-500"></i> Apresentação Guiada</div>
+          <div class="flex items-center gap-2 bg-slate-100 px-3.5 py-1.5 rounded-full"><i class="fa-solid fa-closed-captioning text-slate-500"></i> Português (PT-BR)</div>
         </div>
       </div>
 
       <!-- Vídeos de Referência -->
-      <div class="max-w-4xl mx-auto">
-        <h3 class="text-xl font-bold text-deepblue mb-6 flex items-center gap-3 border-b border-gray-200 pb-2">
-          <i class="fa-solid fa-film text-accent"></i> Vídeos de Referência e Inspiração
+      <div class="max-w-4xl mx-auto mb-10">
+        <h3 class="text-xl font-bold text-deepblue mb-5 flex items-center gap-2.5 border-b border-slate-200 pb-2">
+          <i class="fa-solid fa-film text-cyan-600"></i> Vídeos Complementares de Referência (Khan Academy)
         </h3>
-        
+
         <div class="grid md:grid-cols-2 gap-6">
-          <div class="bg-cardbg p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-            <p class="text-sm font-bold text-gray-700 mb-2 truncate">TED Talk: Sal Khan (Khan Academy)</p>
+          <div class="bg-cardbg p-4 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-sm font-bold text-slate-800 mb-2">TED Talk: Sal Khan (How AI Could Save Education)</p>
             <div class="relative w-full rounded-xl overflow-hidden bg-black" style="padding-bottom: 56.25%;">
               <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/hJP5GqnTrNo" title="How AI Could Save Education" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
           </div>
-          
-          <div class="bg-cardbg p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-            <p class="text-sm font-bold text-gray-700 mb-2 truncate">Demonstração: Tutor Khanmigo</p>
+
+          <div class="bg-cardbg p-4 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-sm font-bold text-slate-800 mb-2">Demonstração Prática: Tutor Socrático Khanmigo</p>
             <div class="relative w-full rounded-xl overflow-hidden bg-black" style="padding-bottom: 56.25%;">
               <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/XGkeJ9UsRQM" title="Khanmigo Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Step Navigation Footer -->
+      <div class="bg-deepblue text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <button onclick="openTab('planejamento')" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl font-semibold text-xs md:text-sm flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Voltar à Visão Geral
+        </button>
+        <div class="text-center sm:text-right flex flex-wrap items-center gap-4">
+          <div class="hidden sm:block">
+            <div class="text-xs text-cyan-300 font-bold uppercase">Próximo Passo · Etapa 2 (2ª VA)</div>
+            <div class="text-sm font-bold">Ler o eBook-HQ: Operação Byte Socrático</div>
+          </div>
+          <button onclick="openTab('ebook')" class="btn-super px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+            <span>Ir para Etapa 2: eBook-HQ</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- ABA: PRÁTICA INTERATIVA -->
-    <div id="tab-pratica" class="tab-content">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-deepblue mb-3">Avaliação Interativa</h2>
-        <p class="text-gray-500">Teste sua compreensão sobre a qualidade pedagógica com casos reais.</p>
+
+    <!-- =====================================================================
+         ABA 2: ETAPA 2 · EBOOK-HQ INTERATIVO (2ª VA · ITEM 1)
+         ===================================================================== -->
+    <div id="tab-ebook" class="tab-content">
+      <div class="text-center mb-8">
+        <span class="inline-block bg-purple text-white font-bold text-xs px-3.5 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm">
+          Etapa 2 da Trilha · 2ª VA (Item 1: eBook Interativo)
+        </span>
+        <h2 class="text-3xl font-extrabold text-deepblue mb-2">eBook-HQ: Operação Byte Socrático</h2>
+        <p class="text-slate-600 max-w-3xl mx-auto text-sm md:text-base">
+          Graphic Novel pedagógica interativa em 8 páginas. Acompanhe como o mentor <strong>Cauã</strong> audita o assistente <strong>Byte v1.0</strong> que travou os estudos de <strong>Leo</strong> e o reprograma no <strong>Byte v2.0 Socrático</strong>.
+        </p>
       </div>
 
-      <div class="bg-cardbg p-3 md:p-6 rounded-3xl shadow-card border border-gray-100 max-w-4xl mx-auto transform transition-all duration-300 hover:shadow-xl">
+      <!-- Action & Direct Access Banner -->
+      <div class="bg-deepblue text-white rounded-3xl p-6 mb-8 shadow-glow border border-purplelight/30">
+        <div class="grid md:grid-cols-12 gap-6 items-center">
+          <div class="md:col-span-7">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="bg-cyan-400 text-slate-950 font-mono-code font-extrabold text-xs px-2.5 py-0.5 rounded">8 PÁGINAS A4 ILUSTRADAS</span>
+              <span class="bg-purple/40 border border-purplelight/40 text-purple-200 font-mono-code text-xs px-2.5 py-0.5 rounded">5 CAPÍTULOS + KIT DE PROMPTS</span>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Acesso Direto e Leitura Interativa</h3>
+            <p class="text-xs md:text-sm text-slate-300 leading-relaxed mb-4">
+              Você pode folhear o eBook diretamente no leitor interativo abaixo (modo página a página com atalhos de teclado ou modo rolagem contínua Webtoon), abri-lo em tela cheia ou baixar o PDF A4 diagramado em alta resolução.
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <a href="ebook-hq.html" target="_blank" class="btn-super px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm text-white inline-flex items-center gap-2 shadow">
+                <i class="fa-solid fa-up-right-from-square"></i> Abrir Leitor Interativo em Nova Guia
+              </a>
+              <a href="assets/ebook-operacao-byte-socratico.pdf" download class="btn-cyan px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm text-slate-950 inline-flex items-center gap-2 shadow">
+                <i class="fa-solid fa-file-pdf"></i> Baixar eBook Completo em PDF (A4)
+              </a>
+            </div>
+          </div>
+
+          <!-- Chapter Summary List -->
+          <div class="md:col-span-5 bg-slate-900/90 border border-slate-700 rounded-2xl p-4 text-xs space-y-2">
+            <div class="font-bold text-cyan-300 uppercase tracking-wider text-[11px] mb-1">
+              <i class="fa-solid fa-list-ol mr-1"></i> Estrutura dos Capítulos do eBook:
+            </div>
+            <div class="flex justify-between text-slate-200 border-b border-slate-800 pb-1">
+              <span><strong>Págs. 01 e 02:</strong> Capa, Personagens e Sumário</span>
+              <span class="font-mono-code text-cyan-400">Intro</span>
+            </div>
+            <div class="flex justify-between text-slate-200 border-b border-slate-800 pb-1">
+              <span><strong>Cap. 1 (Pág. 03):</strong> A Armadilha da Resposta Pronta e PISA 2025</span>
+              <span class="font-mono-code text-amber-300">Diagnóstico</span>
+            </div>
+            <div class="flex justify-between text-slate-200 border-b border-slate-800 pb-1">
+              <span><strong>Cap. 2 (Pág. 04):</strong> Scanner 4D (Os 4 Critérios Pedagógicos)</span>
+              <span class="font-mono-code text-purple-300">Matriz</span>
+            </div>
+            <div class="flex justify-between text-slate-200 border-b border-slate-800 pb-1">
+              <span><strong>Cap. 3 (Págs. 05 e 06):</strong> Bateria de 5 Casos e Ficha Metodológica</span>
+              <span class="font-mono-code text-red-300">Nota 2/5</span>
+            </div>
+            <div class="flex justify-between text-slate-200 border-b border-slate-800 pb-1">
+              <span><strong>Cap. 4 (Pág. 07):</strong> Reprogramação Socrática e Validação v2.0</span>
+              <span class="font-mono-code text-emerald-300">Nota 4/5</span>
+            </div>
+            <div class="flex justify-between text-slate-200">
+              <span><strong>Cap. 5 (Pág. 08):</strong> Templates v2.0 e v2.1, Ciclo e Referências</span>
+              <span class="font-mono-code text-cyan-300">Kit Docente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Embedded Interactive Flipbook Reader -->
+      <div class="bg-cardbg p-3 md:p-5 rounded-3xl shadow-card border-2 border-purple/30 mb-10">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-2">
+          <span class="text-xs md:text-sm font-bold text-deepblue flex items-center gap-2">
+            <i class="fa-solid fa-book-open text-purple"></i> Leitor Interativo Embutido (Use os botões "Anterior / Próxima" ou "Modo Webtoon" na barra do leitor)
+          </span>
+          <a href="ebook-hq.html" target="_blank" class="text-xs font-bold text-purple hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-expand"></i> Expandir em Tela Cheia
+          </a>
+        </div>
+        <div class="w-full rounded-2xl overflow-hidden border-2 border-slate-800 shadow-inner bg-slate-950" style="height: 820px;">
+          <iframe src="ebook-hq.html" title="Leitor Interativo eBook-HQ: Operação Byte Socrático" class="w-full h-full border-0" loading="lazy"></iframe>
+        </div>
+      </div>
+
+      <!-- Step Navigation Footer -->
+      <div class="bg-deepblue text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <button onclick="openTab('videoaula')" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl font-semibold text-xs md:text-sm flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Etapa 1: Videoaula
+        </button>
+        <div class="text-center sm:text-right flex flex-wrap items-center gap-4">
+          <div class="hidden sm:block">
+            <div class="text-xs text-cyan-300 font-bold uppercase">Próximo Passo · Etapa 3 (2ª VA)</div>
+            <div class="text-sm font-bold">Consultar o Infográfico Visual e Interativo</div>
+          </div>
+          <button onclick="openTab('infografico')" class="btn-cyan text-slate-950 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+            <span>Ir para Etapa 3: Infográfico</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- =====================================================================
+         ABA 3: ETAPA 3 · INFOGRÁFICO VISUAL E INTERATIVO (2ª VA · ITEM 2)
+         ===================================================================== -->
+    <div id="tab-infografico" class="tab-content">
+      <div class="text-center mb-8">
+        <span class="inline-block bg-accent text-slate-950 font-extrabold text-xs px-3.5 py-1 rounded-full uppercase tracking-wider mb-2 shadow-sm">
+          Etapa 3 da Trilha · 2ª VA (Item 2: Mídia Alternativa · Infográfico)
+        </span>
+        <h2 class="text-3xl font-extrabold text-deepblue mb-2">Infográfico: Anatomia e Calibragem de um Tutor Socrático</h2>
+        <p class="text-slate-600 max-w-3xl mx-auto text-sm md:text-base">
+          Guia visual de consulta rápida para docentes: sintetiza em uma única prancha o diagnóstico da OCDE, o Scanner 4D, os resultados empíricos da bateria (Byte v1.0 vs. Byte v2.0) e as 4 camadas do System Prompt.
+        </p>
+      </div>
+
+      <!-- Action Banner for Infographic -->
+      <div class="bg-gradient-to-r from-deepblue via-slate-900 to-deepblue text-white rounded-3xl p-6 mb-8 shadow-card border border-cyan-500/40">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="max-w-2xl">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="bg-emerald-400 text-slate-950 font-mono-code font-extrabold text-xs px-2.5 py-0.5 rounded">PÔSTER CIENTÍFICO-PEDAGÓGICO</span>
+              <span class="text-xs text-cyan-300 font-mono-code">FILTROS INTERATIVOS + PROMPT COPIÁVEL</span>
+            </div>
+            <h3 class="text-xl font-bold mb-1">Explore com Filtros Interativos ou Baixe o Pôster em Alta Resolução</h3>
+            <p class="text-xs md:text-sm text-slate-300">
+              Use os botões no topo do infográfico abaixo para destacar as falhas do <strong>Byte v1.0 (média 3,6 · 72%)</strong> ou a evolução do <strong>Byte v2.0 (média 4,4 · 88%, +22,2% com 0% de regressão)</strong>.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a href="infografico.html" target="_blank" class="btn-super px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm text-white inline-flex items-center gap-2 shadow">
+              <i class="fa-solid fa-up-right-from-square"></i> Abrir Infográfico em Nova Guia
+            </a>
+            <a href="assets/infografico-anatomia-tutor-ia.pdf" download class="btn-cyan px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm text-slate-950 inline-flex items-center gap-2 shadow">
+              <i class="fa-solid fa-file-pdf"></i> Baixar Pôster em PDF (Página Única)
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Embedded Interactive Infographic -->
+      <div class="bg-cardbg p-3 md:p-5 rounded-3xl shadow-card border-2 border-cyan-500/40 mb-10">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-2">
+          <span class="text-xs md:text-sm font-bold text-deepblue flex items-center gap-2">
+            <i class="fa-solid fa-diagram-project text-cyan-600"></i> Visualizador Interativo do Infográfico
+          </span>
+          <a href="infografico.html" target="_blank" class="text-xs font-bold text-cyan-700 hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-expand"></i> Ver em Tela Cheia
+          </a>
+        </div>
+        <div class="w-full rounded-2xl overflow-hidden border-2 border-slate-800 shadow-inner bg-slate-950" style="height: 860px;">
+          <iframe src="infografico.html" title="Infográfico Interativo: Anatomia e Calibragem de um Tutor Socrático de IA" class="w-full h-full border-0" loading="lazy"></iframe>
+        </div>
+      </div>
+
+      <!-- Step Navigation Footer -->
+      <div class="bg-deepblue text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <button onclick="openTab('ebook')" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl font-semibold text-xs md:text-sm flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Etapa 2: eBook-HQ
+        </button>
+        <div class="text-center sm:text-right flex flex-wrap items-center gap-4">
+          <div class="hidden sm:block">
+            <div class="text-xs text-cyan-300 font-bold uppercase">Próximo Passo · Etapa 4 (1ª VA)</div>
+            <div class="text-sm font-bold">Praticar no Quiz Interativo (Genially)</div>
+          </div>
+          <button onclick="openTab('pratica')" class="btn-super px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+            <span>Ir para Etapa 4: Quiz Prático</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- =====================================================================
+         ABA 4: ETAPA 4 · PRÁTICA INTERATIVA / QUIZ GENIALLY (1ª VA)
+         ===================================================================== -->
+    <div id="tab-pratica" class="tab-content">
+      <div class="text-center mb-8">
+        <span class="inline-block bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+          Etapa 4 da Trilha · Avaliação Formativa (1ª VA)
+        </span>
+        <h2 class="text-3xl font-extrabold text-deepblue mb-2">Avaliação Interativa: Hora de Auditar o Tutor</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto text-sm md:text-base">
+          Agora que você assistiu à videoaula, leu o eBook-HQ e consultou o Infográfico, coloque os 4 critérios pedagógicos à prova neste quiz interativo no Genially.
+        </p>
+      </div>
+
+      <div class="bg-cardbg p-3 md:p-6 rounded-3xl shadow-card border border-slate-200 max-w-4xl mx-auto mb-10">
         <!-- Embed Oficial do Genially -->
         <div style="width: 100%;">
           <div style="position: relative; padding-bottom: 56.25%; padding-top: 0; height: 0; overflow: hidden; border-radius: 16px; border: 1.5px solid #E0E7FF; box-shadow: 0 4px 20px -2px rgba(30, 27, 75, 0.06);">
@@ -266,192 +644,291 @@
           </div>
         </div>
       </div>
+
+      <!-- Step Navigation Footer -->
+      <div class="bg-deepblue text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+        <button onclick="openTab('infografico')" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl font-semibold text-xs md:text-sm flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Etapa 3: Infográfico
+        </button>
+        <div class="text-center sm:text-right flex flex-wrap items-center gap-4">
+          <div class="hidden sm:block">
+            <div class="text-xs text-cyan-300 font-bold uppercase">Aprofundamento Técnico</div>
+            <div class="text-sm font-bold">Ver Síntese Metodológica, Tabelas e Repositórios</div>
+          </div>
+          <button onclick="openTab('metodologia')" class="btn-super px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+            <span>Ver Metodologia & Dados</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- ABA: METODOLOGIA -->
+
+    <!-- =====================================================================
+         ABA 5: SÍNTESE METODOLÓGICA, BATERIA V1 vs. V2 & REPOSITÓRIOS
+         ===================================================================== -->
     <div id="tab-metodologia" class="tab-content">
       <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-deepblue mb-3">Síntese Metodológica & Repositórios</h2>
-        <p class="text-gray-500">Resultados, códigos open-source e referenciais teóricos.</p>
+        <span class="inline-block bg-amber-100 text-amber-800 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-2">
+          Documentação Científica e Empírica
+        </span>
+        <h2 class="text-3xl font-extrabold text-deepblue mb-2">Síntese Metodológica, Bateria Comparativa & Repositórios</h2>
+        <p class="text-slate-600 max-w-2xl mx-auto text-sm md:text-base">
+          Dados consolidados da validação empírica (Byte v1.0 vs. Byte v2.0 em Claude Opus 4.6), benchmarks open-source e referenciais teóricos.
+        </p>
       </div>
 
       <!-- Repositórios GitHub -->
-      <div class="bg-gradient-to-r from-deepblue to-gray-900 p-8 rounded-3xl shadow-glow text-white mb-12">
+      <div class="bg-gradient-to-r from-deepblue to-slate-900 p-8 rounded-3xl shadow-glow text-white mb-10">
         <h3 class="text-xl font-bold mb-6 flex items-center gap-3">
-          <i class="fa-brands fa-github text-accent text-2xl"></i> Repositórios & Benchmarks Open-Source
+          <i class="fa-brands fa-github text-accent text-2xl"></i> Repositórios & Benchmarks Open-Source Consultados
         </h3>
         <div class="grid md:grid-cols-2 gap-4">
           <a href="https://github.com/kaushal0494/AITutor-EvalKit" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
             <h4 class="font-bold text-purplelight mb-2 flex items-center gap-2">
               AITutor-EvalKit <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
             </h4>
-            <p class="text-sm text-gray-300">Framework modular desenvolvido para avaliar a eficácia pedagógica de LLMs, focado em diálogos matemáticos e método "LLM-as-a-judge".</p>
+            <p class="text-sm text-slate-300">Framework modular desenvolvido para avaliar a eficácia pedagógica de LLMs, focado em diálogos tutoriais e método "LLM-as-a-judge".</p>
           </a>
           <a href="https://github.com/kaushal0494/UnifyingAITutorEvaluation" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
             <h4 class="font-bold text-purplelight mb-2 flex items-center gap-2">
-              UnifyingAITutor (MRBench) <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+              UnifyingAITutor (MRBench · Maurya et al., 2024) <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
             </h4>
-            <p class="text-sm text-gray-300">Benchmark que unifica 8 dimensões pedagógicas. Contém centenas de conversas analisadas para testar o valor educacional de IA.</p>
+            <p class="text-sm text-slate-300">Benchmark que unifica 8 dimensões pedagógicas em conversas reais de tutoria para mensurar o valor educacional de assistentes de IA.</p>
           </a>
           <a href="https://github.com/eth-lre/mathtutorbench" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
             <h4 class="font-bold text-accent mb-2 flex items-center gap-2">
-              MathTutorBench <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+              MathTutorBench (ETH Zürich, 2025) <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
             </h4>
-            <p class="text-sm text-gray-300">Avalia capacidades como perguntas socráticas e scaffolding, comparando o modelo de linguagem com respostas de professores reais.</p>
+            <p class="text-sm text-slate-300">Avalia capacidades como perguntas socráticas e scaffolding, comparando o modelo de linguagem com intervenções de professores reais.</p>
           </a>
-          <a href="https://github.com/liano3/LongTutor" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
+          <a href="https://arxiv.org/abs/2505.16160" target="_blank" class="block bg-white/5 hover:bg-white/10 border border-white/10 p-5 rounded-2xl transition group">
             <h4 class="font-bold text-accent mb-2 flex items-center gap-2">
-              EduBench <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
+              EduBench (Xu et al., 2025 · arXiv:2505.16160) <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-50 group-hover:opacity-100 transition"></i>
             </h4>
-            <p class="text-sm text-gray-300">Dataset super completo cobrindo 9 grandes cenários educacionais (correção de erros, tutoria personalizada, etc).</p>
+            <p class="text-sm text-slate-300">Dataset abrangente cobrindo 9 cenários educacionais para avaliação multidimensional de Large Language Models.</p>
           </a>
         </div>
       </div>
 
-      <!-- Tabela Casos de Teste -->
-      <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 mb-12 hover:shadow-lg transition-shadow">
-        <div class="flex items-center gap-4 mb-8">
-          <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
-            <i class="fa-solid fa-vial-circle-check"></i>
+      <!-- Tabela Consolidada Casos de Teste (v1.0 vs v2.0) -->
+      <div class="bg-cardbg p-6 md:p-8 rounded-3xl shadow-card border border-slate-200 mb-10">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-purple/10 text-purple rounded-xl flex items-center justify-center text-xl">
+              <i class="fa-solid fa-vial-circle-check"></i>
+            </div>
+            <div>
+              <h3 class="text-xl md:text-2xl font-bold text-deepblue">Resultados Empíricos da Bateria (Byte v1.0 vs. Byte v2.0)</h3>
+              <p class="text-xs text-slate-500">Modelo testado: Claude Opus 4.6 (sessões isoladas sem histórico) · Data: 2 de novembro de 2026 · Rubrica de 1 a 5</p>
+            </div>
           </div>
-          <h3 class="text-2xl font-bold text-deepblue">Bateria de Casos de Teste</h3>
+          <div class="flex gap-2 text-xs font-mono-code font-bold">
+            <span class="bg-red-100 text-red-800 px-3 py-1.5 rounded-lg">Média v1.0: 3,6 (72%)</span>
+            <span class="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg">Média v2.0: 4,4 (88% · +22,2%)</span>
+          </div>
         </div>
-        
-        <div class="overflow-x-auto rounded-xl border border-gray-200">
-          <table class="w-full text-left border-collapse">
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-left border-collapse text-sm">
             <thead>
-              <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                <th class="p-4 font-bold w-16 text-center border-b border-gray-200">Nº</th>
-                <th class="p-4 font-bold border-b border-gray-200">Critério Avaliado</th>
-                <th class="p-4 font-bold border-b border-gray-200">Diagnóstico & Resultado</th>
+              <tr class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                <th class="p-3.5 font-bold text-center">Caso</th>
+                <th class="p-3.5 font-bold">Prompt do Aluno e Critério</th>
+                <th class="p-3.5 font-bold text-center">Nota v1.0</th>
+                <th class="p-3.5 font-bold text-center">Nota v2.0</th>
+                <th class="p-3.5 font-bold">Diagnóstico e Evolução na Fase 4</th>
               </tr>
             </thead>
-            <tbody class="text-gray-700 divide-y divide-gray-100">
-              <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 text-center font-bold text-purple">01</td>
-                <td class="p-4 font-medium">Correção Conceitual</td>
-                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[10px]"></i>Resposta correta e consistente, mas sem aplicação prática.</td>
+            <tbody class="text-slate-700 divide-y divide-slate-100">
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 text-center font-mono-code font-bold text-purple">#01</td>
+                <td class="p-3.5">
+                  <div class="font-bold text-deepblue">Compilador vs. Interpretador</div>
+                  <div class="text-xs text-slate-500">Correção Conceitual</div>
+                </td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-slate-600">4/5</td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-emerald-600">5/5</td>
+                <td class="p-3.5 text-xs leading-relaxed">
+                  <strong>+25% na nota:</strong> Na v1.0 faltou exemplo cotidiano; na v2.0 adicionou a analogia da receita traduzida do japonês e pergunta indutiva sobre erro na última linha.
+                </td>
               </tr>
-              <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 text-center font-bold text-purple">02</td>
-                <td class="p-4 font-medium">Clareza & Sequência</td>
-                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-yellow-500 text-[10px]"></i>Explicação precisa, porém ritmo acelerado para nível básico.</td>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 text-center font-mono-code font-bold text-purple">#02</td>
+                <td class="p-3.5">
+                  <div class="font-bold text-deepblue">Laço <code>for</code> passo a passo</div>
+                  <div class="text-xs text-slate-500">Clareza e Didática</div>
+                </td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-amber-600">3/5</td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-emerald-600">4/5</td>
+                <td class="p-3.5 text-xs leading-relaxed">
+                  <strong>+33,3% na nota:</strong> Substituiu o despejo precoce de <em>list comprehension</em> pela analogia de lista de compras no supermercado, adiando a sintaxe formal para o 2º turno.
+                </td>
               </tr>
-              <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 text-center font-bold text-purple">03</td>
-                <td class="p-4 font-medium">Adequação ao Público</td>
-                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-red-500 text-[10px]"></i>Uso excessivo de termos técnicos sem contextualização prévia.</td>
+              <tr class="bg-emerald-50/60 hover:bg-emerald-50 transition">
+                <td class="p-3.5 text-center font-mono-code font-extrabold text-red-600">#03</td>
+                <td class="p-3.5">
+                  <div class="font-extrabold text-deepblue">Explicar variável "bem simples"</div>
+                  <div class="text-xs text-red-600 font-semibold">Adequação ao Público (Gargalo Crítico)</div>
+                </td>
+                <td class="p-3.5 text-center font-mono-code font-extrabold text-red-600">2/5</td>
+                <td class="p-3.5 text-center font-mono-code font-extrabold text-emerald-700">4/5</td>
+                <td class="p-3.5 text-xs leading-relaxed">
+                  <strong>+100% na nota:</strong> Na v1.0 usou jargão de <em>heap</em> e <em>Garbage Collector</em>; na v2.0 mediou com a analogia de caixas organizadoras etiquetadas e pergunta indutiva.
+                </td>
               </tr>
-              <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 text-center font-bold text-purple">04</td>
-                <td class="p-4 font-medium">Tratamento de Dúvidas</td>
-                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[10px]"></i>Solicitou contexto ao aluno antes de emitir a resposta definitiva.</td>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 text-center font-mono-code font-bold text-purple">#04</td>
+                <td class="p-3.5">
+                  <div class="font-bold text-deepblue">"Aquela coisa que guarda dado"</div>
+                  <div class="text-xs text-slate-500">Tratamento de Dúvidas (Pergunta Vaga)</div>
+                </td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-slate-600">4/5</td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-cyan-700">4/5</td>
+                <td class="p-3.5 text-xs leading-relaxed">
+                  <strong>Estável (0% de regressão):</strong> Manteve o pedido gentil de contexto usando exemplos cotidianos antes de assumir qual estrutura de dados o aluno queria.
+                </td>
               </tr>
-              <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 text-center font-bold text-purple">05</td>
-                <td class="p-4 font-medium">Limites de Escopo</td>
-                <td class="p-4 text-sm flex items-center gap-2"><i class="fa-solid fa-circle text-green-500 text-[10px]"></i>Recusou educadamente e direcionou o estudante ao seu foco.</td>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="p-3.5 text-center font-mono-code font-bold text-purple">#05</td>
+                <td class="p-3.5">
+                  <div class="font-bold text-deepblue">Resumo da Independência do Brasil</div>
+                  <div class="text-xs text-slate-500">Tratamento de Dúvidas (Limites de Escopo)</div>
+                </td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-emerald-600">5/5</td>
+                <td class="p-3.5 text-center font-mono-code font-bold text-emerald-600">5/5</td>
+                <td class="p-3.5 text-xs leading-relaxed">
+                  <strong>100% de aderência:</strong> Recusou educadamente a tarefa de História e convidou o estudante a criar um pequeno quiz em Python usando datas históricas.
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="grid md:grid-cols-2 gap-8 mb-12">
-        <div class="bg-gradient-to-br from-red-50 to-white p-8 rounded-3xl border border-red-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-          <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="relative z-10">
-            <span class="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full mb-4 shadow-sm">NOTA 2/5</span>
-            <h4 class="text-xl font-bold text-red-900 mb-3"><i class="fa-solid fa-xmark-circle mr-2 text-red-500"></i>Instrução Genérica</h4>
-            <div class="p-4 bg-white rounded-xl border border-red-100 mb-4 shadow-sm relative">
-              <i class="fa-solid fa-quote-left absolute top-3 left-3 text-red-100 text-2xl"></i>
-              <p class="text-sm text-gray-600 italic relative z-10 pl-6">"Você é um tutor de programação. Responda às dúvidas dos alunos."</p>
-            </div>
-            <ul class="space-y-2 text-sm text-red-800 font-medium">
-              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-minus opacity-50"></i> Não define o nível do estudante</li>
-              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-minus opacity-50"></i> Entrega respostas prontas e jargões avançados</li>
-            </ul>
+      <!-- Comparativo de Prompts -->
+      <div class="grid md:grid-cols-2 gap-8 mb-10">
+        <div class="bg-gradient-to-br from-red-50 to-white p-8 rounded-3xl border border-red-200 shadow-sm">
+          <span class="inline-block px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full mb-4">ANTES · NOTA 2/5 NO CASO #03</span>
+          <h4 class="text-xl font-bold text-red-900 mb-3"><i class="fa-solid fa-xmark-circle mr-2 text-red-500"></i>System Prompt Genérico (Byte v1.0)</h4>
+          <div class="p-4 bg-white rounded-xl border border-red-100 mb-4 font-mono-code text-xs text-slate-700 italic">
+            "Você é um tutor de programação. Responda às dúvidas dos alunos."
           </div>
+          <ul class="space-y-2 text-sm text-red-800 font-medium">
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-minus text-red-500"></i> Não define o nível cognitivo do estudante</li>
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-minus text-red-500"></i> Entrega respostas prontas e jargões avançados</li>
+          </ul>
         </div>
 
-        <div class="bg-gradient-to-br from-green-50 to-white p-8 rounded-3xl border border-green-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-          <div class="absolute -right-4 -top-4 w-24 h-24 bg-green-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="relative z-10">
-            <span class="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full mb-4 shadow-sm">NOTA 4/5</span>
-            <h4 class="text-xl font-bold text-green-900 mb-3"><i class="fa-solid fa-check-circle mr-2 text-green-500"></i>Instrução Socrática</h4>
-            <div class="p-4 bg-white rounded-xl border border-green-100 mb-4 shadow-sm relative">
-              <i class="fa-solid fa-quote-left absolute top-3 left-3 text-green-100 text-2xl"></i>
-              <p class="text-sm text-gray-600 italic relative z-10 pl-6">"Você é um tutor de apoio. Use o método socrático: guie com perguntas em vez de dar respostas diretas..."</p>
-            </div>
-            <ul class="space-y-2 text-sm text-green-800 font-medium">
-              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-plus opacity-50"></i> Estímulo à autonomia intelectual do aluno</li>
-              <li class="flex items-center gap-2"><i class="fa-solid fa-circle-plus opacity-50"></i> Mediação gradual e personalizada</li>
-            </ul>
+        <div class="bg-gradient-to-br from-emerald-50 to-white p-8 rounded-3xl border border-emerald-200 shadow-sm">
+          <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-4">DEPOIS · NOTA 4/5 NO CASO #03</span>
+          <h4 class="text-xl font-bold text-emerald-900 mb-3"><i class="fa-solid fa-check-circle mr-2 text-emerald-500"></i>System Prompt Socrático (Byte v2.0)</h4>
+          <div class="p-4 bg-white rounded-xl border border-emerald-100 mb-4 font-mono-code text-xs text-slate-700 italic">
+            "Você é um tutor de apoio para iniciantes. Use o método socrático: guie com 1 pergunta indutiva por vez em vez de dar respostas diretas. Use analogias cotidianas sem jargões."
           </div>
+          <ul class="space-y-2 text-sm text-emerald-800 font-medium">
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-plus text-emerald-600"></i> Estímulo à autonomia intelectual por andaimes (scaffolding)</li>
+            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-plus text-emerald-600"></i> Aprovação na bateria subiu de 60% para 100%</li>
+          </ul>
         </div>
       </div>
 
-      <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-gray-100 hover:shadow-lg transition-shadow">
+      <!-- Referências Bibliográficas Atualizadas -->
+      <div class="bg-cardbg p-8 rounded-3xl shadow-card border border-slate-200">
         <h3 class="text-xl font-bold text-deepblue mb-6 flex items-center gap-3">
-          <i class="fa-solid fa-book-open text-purple bg-purple/10 p-2 rounded-lg"></i> Referências Bibliográficas
+          <i class="fa-solid fa-book-open text-purple bg-purple/10 p-2.5 rounded-xl"></i> Referências Científicas e Benchmarks
         </h3>
-        <ul class="space-y-5">
-          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
-            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
-            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">OCDE (2025).</strong> Resultados do PISA 2025: O uso de ferramentas de Inteligência Artificial no Ensino e Aprendizagem. Organização para a Cooperação e Desenvolvimento Econômico.</p>
+        <ul class="space-y-3 text-sm text-slate-700">
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">OCDE (2026).</strong> <em>PISA 2025 Results (Volume I): Future-Ready Students</em>. OECD Publishing, Paris, divulgado em 8 de setembro de 2026 (48% dos estudantes brasileiros de 15 anos e 46% na média da OCDE utilizam chatbots de IA semanalmente; portal oficial: <code>oecd.org</code>).
           </li>
-          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
-            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
-            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">GISKARD (2025).</strong> Phare Benchmark: Analisando taxas de alucinação e incidentes pedagógicos em Large Language Models.</p>
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">CHEVALLARD, Yves (1985; 2ª ed. 1991).</strong> <em>La Transposition Didactique: du savoir savant au savoir enseigné</em>. La Pensée Sauvage. Fundamentação teórica do critério de Adequação ao Público.
           </li>
-          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
-            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
-            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">KHAN, Sal (2023).</strong> How AI Could Save (Not Destroy) Education. TED Talks Official.</p>
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">BLOOM, Benjamin S. (1984).</strong> The 2 Sigma Problem: The Search for Methods of Group Instruction as Effective as One-to-One Tutoring. <em>Educational Researcher</em>, 13(6), 4 a 16.
           </li>
-          <li class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100">
-            <i class="fa-solid fa-bookmark text-gray-300 mt-1"></i>
-            <p class="text-sm text-gray-600 leading-relaxed"><strong class="text-deepblue">VECTARA (2026).</strong> Hallucination Evaluation Leaderboard: Measuring factual consistency in LLM summarization and tutoring.</p>
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">WOOD, David; BRUNER, Jerome S.; ROSS, Gail (1976).</strong> The Role of Tutoring in Problem Solving. <em>Journal of Child Psychology and Psychiatry</em>, 17(2), 89 a 100.
+          </li>
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">KHAN, Sal (2023).</strong> <em>How AI Could Save (Not Destroy) Education</em> (TED Talk) e Arquitetura Pedagógica Socrática do tutor <strong>Khanmigo</strong>.
+          </li>
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">XU, Bin et al. (2025).</strong> <em>EduBench: A Comprehensive Benchmarking Dataset for Evaluating Large Language Models in Diverse Educational Scenarios</em>. arXiv:2505.16160.
+          </li>
+          <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <strong class="text-deepblue">BENCHMARKS COMPLEMENTARES:</strong> <em>AITutor-EvalKit</em> e <em>MRBench</em> (Maurya et al., 2024) e <em>MathTutorBench</em> (ETH Zürich, 2025).
           </li>
         </ul>
       </div>
     </div>
+
   </main>
 
-  <footer class="bg-deepblue text-gray-400 py-12 px-6 border-t border-gray-800 text-center">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-3xl mb-6 text-purple"><i class="fa-solid fa-graduation-cap bg-white/5 p-4 rounded-full border border-white/10"></i></div>
-      <p class="mb-2 font-medium text-white text-lg">Projeto da 1ª VA · Disciplina de Educação a Distância</p>
-      <p class="text-sm opacity-60 mb-8">Universidade Federal Rural de Pernambuco (UFRPE) 2026.2</p>
-      <div class="w-16 h-1 bg-purple/50 mx-auto rounded-full mb-8"></div>
-      <p class="text-xs tracking-widest uppercase opacity-80">Desenvolvido individualmente por <strong class="text-accent font-bold">Cauã da Cunha Lira</strong> · Licenciatura em Computação</p>
+  <!-- =======================================================================
+       FOOTER
+       ======================================================================= -->
+  <footer class="bg-deepblue text-slate-400 py-12 px-6 border-t border-slate-800 text-center">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-2xl mb-4 text-purplelight">
+        <i class="fa-solid fa-graduation-cap bg-white/5 p-3.5 rounded-full border border-white/10"></i>
+      </div>
+      <p class="mb-1 font-bold text-white text-base md:text-lg">
+        Plataforma Integrada 1ª VA e 2ª VA · Disciplina de Educação a Distância (EaD)
+      </p>
+      <p class="text-xs md:text-sm text-slate-400 mb-6">
+        Universidade Federal Rural de Pernambuco (UFRPE · Semestre 2026.2) · Docente: <strong>Prof. Ermeson</strong>
+      </p>
+
+      <!-- Direct Footer Links for Verification -->
+      <div class="flex flex-wrap justify-center gap-3 text-xs mb-6">
+        <a href="ebook-hq.html" class="bg-white/5 hover:bg-white/10 text-slate-200 px-3.5 py-2 rounded-lg border border-white/10 transition">
+          <i class="fa-solid fa-book-open text-purplelight mr-1"></i> eBook-HQ Web
+        </a>
+        <a href="assets/ebook-operacao-byte-socratico.pdf" download class="bg-white/5 hover:bg-white/10 text-slate-200 px-3.5 py-2 rounded-lg border border-white/10 transition">
+          <i class="fa-solid fa-file-pdf text-red-400 mr-1"></i> eBook-HQ PDF (8 págs.)
+        </a>
+        <a href="infografico.html" class="bg-white/5 hover:bg-white/10 text-slate-200 px-3.5 py-2 rounded-lg border border-white/10 transition">
+          <i class="fa-solid fa-diagram-project text-accent mr-1"></i> Infográfico Web
+        </a>
+        <a href="assets/infografico-anatomia-tutor-ia.pdf" download class="bg-white/5 hover:bg-white/10 text-slate-200 px-3.5 py-2 rounded-lg border border-white/10 transition">
+          <i class="fa-solid fa-file-pdf text-red-400 mr-1"></i> Infográfico Pôster PDF
+        </a>
+        <a href="assets/apresentacao-tutores-virtuais.pptx" download class="bg-white/5 hover:bg-white/10 text-slate-200 px-3.5 py-2 rounded-lg border border-white/10 transition">
+          <i class="fa-solid fa-file-powerpoint text-amber-400 mr-1"></i> Slides 1ª VA (.pptx)
+        </a>
+      </div>
+
+      <div class="w-16 h-1 bg-purple/50 mx-auto rounded-full mb-6"></div>
+      <p class="text-xs tracking-widest uppercase text-slate-400">
+        Desenvolvido por <strong class="text-accent font-bold">Cauã da Cunha Lira</strong> · Licenciatura em Computação · UFRPE
+      </p>
     </div>
   </footer>
 
   <script>
     function openTab(tabId) {
-      // Esconde todos os conteúdos
       const contents = document.querySelectorAll('.tab-content');
-      contents.forEach(content => {
-        content.classList.remove('active');
-      });
+      contents.forEach(content => content.classList.remove('active'));
 
-      // Remove a classe active de todos os botões
       const buttons = document.querySelectorAll('.nav-btn');
-      buttons.forEach(btn => {
-        btn.classList.remove('active');
-      });
+      buttons.forEach(btn => btn.classList.remove('active'));
 
-      // Ativa o conteúdo e botão selecionados
-      document.getElementById('tab-' + tabId).classList.add('active');
-      document.getElementById('tab-btn-' + tabId).classList.add('active');
-      
-      // Scroll suave para o topo do conteúdo se a navbar estiver fora da tela
-      const navPosition = document.querySelector('.glass-nav').getBoundingClientRect().top;
-      if (navPosition < 0) {
-        window.scrollTo({
-          top: document.querySelector('.glass-nav').offsetTop,
-          behavior: 'smooth'
-        });
+      const targetContent = document.getElementById('tab-' + tabId);
+      const targetBtn = document.getElementById('tab-btn-' + tabId);
+      if (targetContent) targetContent.classList.add('active');
+      if (targetBtn) targetBtn.classList.add('active');
+
+      const navEl = document.querySelector('.glass-nav');
+      if (navEl) {
+        const navPosition = navEl.getBoundingClientRect().top;
+        if (navPosition < 0) {
+          window.scrollTo({
+            top: navEl.offsetTop,
+            behavior: 'smooth'
+          });
+        }
       }
     }
   </script>
