@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infográfico: Anatomia e Calibragem de um Tutor Socrático de IA | 2ª VA EaD UFRPE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #050811;
+      --ink-dark: #0B0F19;
+      --purple-main: #6D28D9;
+      --purple-neon: #8B5CF6;
+      --cyan-neon: #06B6D4;
+      --red-glitch: #EF4444;
+      --amber-warn: #F59E0B;
+      --emerald-ok: #10B981;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-void);
+      color: #F8FAFC;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-comic-title {
+      font-family: 'Bangers', cursive;
+      letter-spacing: 1.4px;
+    }
+
+    .font-tech {
+      font-family: 'Chakra Petch', sans-serif;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Poster container on screen */
+    .infographic-poster {
+      width: 240mm;
+      max-width: 100%;
+      margin: 24px auto;
+      background-color: var(--ink-dark);
+      background-image:
+        radial-gradient(rgba(139, 92, 246, 0.14) 1.5px, transparent 1.5px),
+        radial-gradient(rgba(6, 182, 212, 0.10) 1.5px, #0B0F19 1.5px);
+      background-size: 22px 22px;
+      background-position: 0 0, 11px 11px;
+      border: 4px solid #334155;
+      border-radius: 18px;
+      padding: 12mm;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(139, 92, 246, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 2px solid #334155;
+      border-radius: 14px;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.45);
+      position: relative;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .score-chip {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      border: 1.5px solid #000;
+    }
+
+    .step-connector {
+      position: relative;
+    }
+
+    /* Interactive Mode Filter Highlight */
+    .mode-active-btn {
+      background: linear-gradient(135deg, #06B6D4 0%, #6D28D9 100%) !important;
+      color: #FFFFFF !important;
+      border-color: #22D3EE !important;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.45);
+    }
+
+    /* Print Poster Configuration: 1 Single High-Resolution Page (240mm x 505mm) */
+    @media print {
+      @page {
+        size: 240mm 505mm;
+        margin: 0;
+      }
+      html, body {
+        width: 240mm;
+        height: 505mm;
+        background: #0B0F19 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .infographic-poster {
+        width: 240mm !important;
+        height: 505mm !important;
+        margin: 0 !important;
+        padding: 8mm 10mm !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Interactive Control Bar (Web Only) -->
+  <header class="no-print sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold px-3.5 py-2 rounded-lg border border-slate-700 flex items-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left text-cyan-400"></i> Voltar ao Site
+        </a>
+        <div>
+          <span class="text-xs font-tech uppercase tracking-wider text-purple-400 block font-bold">Mídia Alternativa · Item 2 da 2ª VA</span>
+          <h1 class="text-sm md:text-base font-bold text-white">Infográfico Visual e Interativo: Anatomia de um Tutor Socrático</h1>
+        </div>
+      </div>
+
+      <!-- Interactive Comparison Filter + Actions -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="bg-slate-900 p-1 rounded-lg border border-slate-800 flex items-center gap-1 text-xs">
+          <button onclick="highlightVersion('all')" id="btnFilterAll" class="mode-active-btn px-2.5 py-1 rounded font-semibold text-slate-300 transition">
+            Comparar v1.0 vs. v2.0
+          </button>
+          <button onclick="highlightVersion('v1')" id="btnFilterV1" class="px-2.5 py-1 rounded font-semibold text-slate-300 hover:text-white transition">
+            Focar Falhas v1.0
+          </button>
+          <button onclick="highlightVersion('v2')" id="btnFilterV2" class="px-2.5 py-1 rounded font-semibold text-slate-300 hover:text-white transition">
+            Focar Evolução v2.0
+          </button>
+        </div>
+
+        <a href="ebook-hq.html" class="bg-purple-700 hover:bg-purple-600 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-book-open"></i> Ler eBook-HQ
+        </a>
+
+        <a href="assets/infografico-anatomia-tutor-ia.pdf" download class="bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-extrabold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition shadow">
+          <i class="fa-solid fa-file-pdf"></i> Baixar Pôster PDF
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN INFOGRAPHIC POSTER -->
+  <main class="infographic-poster" id="posterRoot">
+
+    <!-- =======================================================================
+         CABEÇALHO DO INFOGRÁFICO (HEADER BANNER)
+         ======================================================================= -->
+    <div class="section-card p-4 mb-3 bg-gradient-to-r from-slate-950 via-indigo-950/90 to-slate-950 border-2 border-cyan-400/80">
+      <div class="grid grid-cols-12 gap-3 items-center">
+        <div class="col-span-9">
+          <div class="flex flex-wrap items-center gap-2 mb-1.5">
+            <span class="badge-pill bg-amber-400 text-slate-950"><i class="fa-solid fa-bolt"></i> GUIA VISUAL DE BOLSO · 2ª VA EAD</span>
+            <span class="badge-pill bg-purple-900/90 text-purple-200 border border-purple-400/50">UFRPE · LICENCIATURA EM COMPUTAÇÃO · 2026.2</span>
+            <span class="badge-pill bg-cyan-950 text-cyan-300 border border-cyan-400/50">DOCENTE: PROF. ERMESON</span>
+          </div>
+          <h2 class="font-comic-title text-3xl md:text-4xl text-white tracking-wide leading-none mb-1">
+            ANATOMIA E CALIBRAGEM DE UM <span class="text-cyan-400">TUTOR SOCRÁTICO DE IA</span>
+          </h2>
+          <p class="text-xs text-slate-200 font-medium leading-snug">
+            Do chatbot genérico que entrega código pronto ao mediador pedagógico auditado: diagnóstico OCDE, matriz de 4 dimensões, bateria empírica de 5 casos e engenharia de System Prompt.
+          </p>
+        </div>
+        <div class="col-span-3 flex items-center justify-end gap-2.5">
+          <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-cyan-400 shadow-lg flex-shrink-0 bg-slate-900">
+            <img src="assets/hq/cover_hq.png" alt="Ícone do Tutor Byte dividido entre modo sem freio e modo socrático calibrado." class="w-full h-full object-cover">
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] font-tech uppercase text-slate-400">Autoria e Curadoria</div>
+            <div class="text-xs font-extrabold text-white leading-tight">Cauã da Cunha Lira</div>
+            <div class="mt-1 inline-block bg-emerald-400 text-slate-950 font-mono-code font-extrabold text-[10px] px-2 py-0.5 rounded">
+              GANHO +22,2% NA BATERIA
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         BLOCO 01: DIAGNÓSTICO E OS 3 NÍVEIS DE SISTEMAS NA EAD
+         ======================================================================= -->
+    <div class="grid grid-cols-12 gap-3 mb-3">
+      <!-- Estatísticas PISA 2025 (OCDE, 2026) -->
+      <div class="col-span-5 section-card p-3 border-l-4 border-l-amber-400 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-comic-title text-lg text-amber-300 tracking-wide">
+              <i class="fa-solid fa-chart-pie mr-1"></i> 1. POR QUE CALIBRAR É URGENTE?
+            </span>
+            <span class="font-mono-code text-[10px] bg-amber-400/20 text-amber-200 px-2 py-0.5 rounded border border-amber-400/40">PISA 2025 · OCDE (2026)</span>
+          </div>
+          <p class="text-[11px] text-slate-200 leading-snug mb-2">
+            O relatório <em>Future-Ready Students</em> (divulgado em 8 de setembro de 2026) mostra que os estudantes já adotaram chatbots por conta própria. Proibir é ineficaz; o papel docente é transformar a ferramenta em mediador.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center my-1">
+          <div class="bg-slate-950 p-2 rounded-lg border border-amber-400/50">
+            <div class="font-comic-title text-2xl text-amber-300 leading-none">48%</div>
+            <div class="text-[9.5px] text-slate-200 font-semibold mt-0.5 leading-tight">Uso semanal no Brasil (15 anos)</div>
+          </div>
+          <div class="bg-slate-950 p-2 rounded-lg border border-cyan-400/50">
+            <div class="font-comic-title text-2xl text-cyan-300 leading-none">46%</div>
+            <div class="text-[9.5px] text-slate-200 font-semibold mt-0.5 leading-tight">Média semanal nos países da OCDE</div>
+          </div>
+          <div class="bg-slate-950 p-2 rounded-lg border border-purple-400/50">
+            <div class="font-comic-title text-2xl text-purple-300 leading-none">11%</div>
+            <div class="text-[9.5px] text-slate-200 font-semibold mt-0.5 leading-tight">Nunca usam no Brasil (OCDE: 14%)</div>
+          </div>
+        </div>
+
+        <div class="bg-red-950/60 border border-red-500/50 rounded-lg p-2 mt-1.5 text-[10px] text-red-100 leading-tight flex items-start gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-red-400 mt-0.5"></i>
+          <div>
+            <strong>Os 2 Pecados do LLM sem Curadoria:</strong> (1) Entrega a lista pronta anulando o esforço cognitivo; (2) <strong>Alucina com tom de autoridade</strong> (inventa citações falsas como <em>"Turing, 2019"</em> e detalhes técnicos distorcidos).
+          </div>
+        </div>
+      </div>
+
+      <!-- Evolução dos 3 Níveis de Apoio -->
+      <div class="col-span-7 section-card p-3 border-l-4 border-l-cyan-400 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="font-comic-title text-lg text-cyan-300 tracking-wide">
+            <i class="fa-solid fa-layer-group mr-1"></i> 2. OS 3 NÍVEIS DE APOIO AO ESTUDANTE NA EAD
+          </span>
+          <span class="font-mono-code text-[10px] text-slate-300">EVOLUÇÃO DA MEDIAÇÃO TECNOLÓGICA</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5 flex-1 items-stretch">
+          <!-- Nível 1 -->
+          <div class="bg-slate-950 border border-slate-700 rounded-xl p-2.5 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-tech font-bold text-[10px] text-slate-400 uppercase">NÍVEL 01 · PASSADO</span>
+                <i class="fa-solid fa-sitemap text-slate-400 text-xs"></i>
+              </div>
+              <div class="font-bold text-white text-xs mb-1">Chatbot Baseado em Regras</div>
+              <p class="text-[10px] text-slate-300 leading-snug">
+                Opera por árvores de decisão fixas e botões pré-definidos. Qualquer dúvida de programação fora do script trava o diálogo.
+              </p>
+            </div>
+            <div class="mt-2 pt-1.5 border-t border-slate-800 text-[9.5px] text-slate-400 font-mono-code">
+              Flexibilidade: Baixa · Didática: Rígida
+            </div>
+          </div>
+
+          <!-- Nível 2 -->
+          <div id="cardNivel2" class="bg-red-950/35 border-2 border-red-500/70 rounded-xl p-2.5 flex flex-col justify-between transition-all">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-tech font-bold text-[10px] text-red-300 uppercase">NÍVEL 02 · RISCO ATUAL</span>
+                <span class="score-chip bg-red-600 text-white !text-[9.5px] !px-1.5 !py-0">BYTE v1.0</span>
+              </div>
+              <div class="font-bold text-red-200 text-xs mb-1">LLM Geral sem Freio Pedagógico</div>
+              <p class="text-[10px] text-red-100/90 leading-snug">
+                Domina linguagem natural e código, mas despeja jargões avançados (<em>heap, Garbage Collector</em>) e entrega respostas prontas.
+              </p>
+            </div>
+            <div class="mt-2 pt-1.5 border-t border-red-800/60 text-[9.5px] text-red-300 font-mono-code font-bold">
+              Média: 3,6 de 5,0 (72%) · Reprova em Leigo
+            </div>
+          </div>
+
+          <!-- Nível 3 -->
+          <div id="cardNivel3" class="bg-emerald-950/35 border-2 border-emerald-400 rounded-xl p-2.5 flex flex-col justify-between transition-all">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-tech font-bold text-[10px] text-emerald-300 uppercase">NÍVEL 03 · NOSSO ALVO</span>
+                <span class="score-chip bg-emerald-400 text-slate-950 !text-[9.5px] !px-1.5 !py-0">BYTE v2.0</span>
+              </div>
+              <div class="font-bold text-emerald-200 text-xs mb-1">Tutor Inteligente Calibrado</div>
+              <p class="text-[10px] text-emerald-100/90 leading-snug">
+                Combina o poder do LLM (Claude Projects, Gemini Gems, ChatGPT) com <strong>andaimes socráticos</strong> e analogias acessíveis.
+              </p>
+            </div>
+            <div class="mt-2 pt-1.5 border-t border-emerald-800/60 text-[9.5px] text-emerald-300 font-mono-code font-bold">
+              Média: 4,4 de 5,0 (88%) · 100% Aprovação
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         BLOCO 02: SCANNER 4D · MATRIZ DOS 4 CRITÉRIOS FUNDAMENTAIS DE AVALIAÇÃO
+         ======================================================================= -->
+    <div class="section-card p-3 mb-3 border-2 border-purple-500/70">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <div class="flex items-center gap-2">
+          <span class="font-comic-title text-xl text-purple-300 tracking-wide">
+            <i class="fa-solid fa-magnifying-glass-chart mr-1"></i> 3. MATRIZ DOS 4 CRITÉRIOS DE AUDITORIA PEDAGÓGICA (SCANNER 4D)
+          </span>
+        </div>
+        <span class="text-[10.5px] text-slate-300 font-medium">
+          Inspirado na <strong>Transposição Didática</strong> (Chevallard, 1991), <strong>Scaffolding</strong> (Wood, Bruner e Ross, 1976) e <strong>EduBench</strong> (Xu et al., 2025)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-4 gap-2.5">
+        <!-- Critério 01 -->
+        <div class="bg-slate-950 border-t-4 border-t-emerald-400 border border-slate-800 rounded-xl p-2.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-base text-emerald-300">01. CORREÇÃO CONCEITUAL</span>
+              <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
+            </div>
+            <p class="text-[10.5px] text-slate-200 leading-snug mb-1.5">
+              Avalia o rigor científico e sintático. O tutor jamais pode inventar referências bibliográficas ou ensinar conceitos falsos com tom de certeza.
+            </p>
+          </div>
+          <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-[9.5px] font-mono-code text-emerald-300">
+            <strong>Pergunta-chave:</strong> "O conceito ensinado é cientificamente verdadeiro?"
+          </div>
+        </div>
+
+        <!-- Critério 02 -->
+        <div class="bg-slate-950 border-t-4 border-t-cyan-400 border border-slate-800 rounded-xl p-2.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-base text-cyan-300">02. CLAREZA E DIDÁTICA</span>
+              <i class="fa-solid fa-lightbulb text-cyan-400 text-sm"></i>
+            </div>
+            <p class="text-[10.5px] text-slate-200 leading-snug mb-1.5">
+              Mede a organização passo a passo (<em>scaffolding</em>) e o uso de exemplos cotidianos antes da formalização abstrata do código.
+            </p>
+          </div>
+          <div class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[9.5px] font-mono-code text-cyan-300">
+            <strong>Pergunta-chave:</strong> "A progressão do raciocínio facilita a assimilação?"
+          </div>
+        </div>
+
+        <!-- Critério 03 -->
+        <div class="bg-slate-950 border-t-4 border-t-purple-400 border border-slate-800 rounded-xl p-2.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-base text-purple-300">03. ADEQUAÇÃO AO PÚBLICO</span>
+              <i class="fa-solid fa-users-viewfinder text-purple-400 text-sm"></i>
+            </div>
+            <p class="text-[10.5px] text-slate-200 leading-snug mb-1.5">
+              Calibragem vocabular ao iniciante. Proíbe despejar jargões de engenharia avançada quando o calouro pede socorro básico.
+            </p>
+          </div>
+          <div class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[9.5px] font-mono-code text-purple-300">
+            <strong>Pergunta-chave:</strong> "A linguagem respeita o estudante iniciante?"
+          </div>
+        </div>
+
+        <!-- Critério 04 -->
+        <div class="bg-slate-950 border-t-4 border-t-amber-400 border border-slate-800 rounded-xl p-2.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-comic-title text-base text-amber-300">04. TRATAMENTO DE DÚVIDAS</span>
+              <i class="fa-solid fa-circle-question text-amber-400 text-sm"></i>
+            </div>
+            <p class="text-[10.5px] text-slate-200 leading-snug mb-1.5">
+              Postura socrática e investigativa: pede contexto diante de perguntas vagas, guia com pistas indutivas e bloqueia desvios de escopo.
+            </p>
+          </div>
+          <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-[9.5px] font-mono-code text-amber-300">
+            <strong>Pergunta-chave:</strong> "O tutor devolve perguntas e mantém o escopo?"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         BLOCO 03: RAIO-X EMPÍRICO DOS 5 CASOS DE TESTE (BYTE v1.0 vs. BYTE v2.0)
+         ======================================================================= -->
+    <div class="grid grid-cols-12 gap-3 mb-3">
+      <!-- Tabela Gráfica Comparativa dos 5 Casos -->
+      <div class="col-span-8 section-card p-3 border-2 border-cyan-400/60 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <span class="font-comic-title text-xl text-cyan-300 tracking-wide">
+              <i class="fa-solid fa-vial-circle-check mr-1"></i> 4. BATERIA DE ESTRESSE EM PYTHON: BYTE v1.0 vs. BYTE v2.0
+            </span>
+            <span class="font-mono-code text-[10px] bg-slate-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">
+              Modelo: Claude Opus 4.6 · 10 rodadas isoladas · Rubrica de 1 a 5
+            </span>
+          </div>
+
+          <div class="space-y-1.5">
+            <!-- Caso 01 -->
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 grid grid-cols-12 gap-2 items-center">
+              <div class="col-span-3">
+                <div class="flex items-center gap-1">
+                  <span class="font-mono-code font-bold text-xs text-cyan-300">#01</span>
+                  <span class="font-bold text-white text-[10.5px] leading-tight">Compilador vs. Interpretador</span>
+                </div>
+                <div class="text-[9px] text-slate-400">Correção Conceitual</div>
+              </div>
+              <div class="col-span-4 flex items-center justify-center gap-1">
+                <span class="score-chip bg-slate-800 text-amber-300 row-v1 !text-[10px] !px-1.5">v1: 4/5</span>
+                <i class="fa-solid fa-arrow-right text-slate-500 text-[9px]"></i>
+                <span class="score-chip bg-emerald-400 text-slate-950 row-v2 !text-[10px] !px-1.5">v2: 5/5</span>
+                <span class="font-mono-code text-[9.5px] text-emerald-400 font-bold">+25%</span>
+              </div>
+              <div class="col-span-5 text-[10px] text-slate-200 leading-tight">
+                <strong>Evolução:</strong> Adicionou analogia da receita traduzida do japonês e pergunta indutiva final sobre erro na última linha.
+              </div>
+            </div>
+
+            <!-- Caso 02 -->
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 grid grid-cols-12 gap-2 items-center">
+              <div class="col-span-3">
+                <div class="flex items-center gap-1">
+                  <span class="font-mono-code font-bold text-xs text-cyan-300">#02</span>
+                  <span class="font-bold text-white text-[10.5px] leading-tight">Laço <code>for</code> passo a passo</span>
+                </div>
+                <div class="text-[9px] text-slate-400">Clareza e Didática</div>
+              </div>
+              <div class="col-span-4 flex items-center justify-center gap-1">
+                <span class="score-chip bg-amber-500/20 text-amber-300 border-amber-500/50 row-v1 !text-[10px] !px-1.5">v1: 3/5</span>
+                <i class="fa-solid fa-arrow-right text-slate-500 text-[9px]"></i>
+                <span class="score-chip bg-emerald-400 text-slate-950 row-v2 !text-[10px] !px-1.5">v2: 4/5</span>
+                <span class="font-mono-code text-[9.5px] text-emerald-400 font-bold">+33,3%</span>
+              </div>
+              <div class="col-span-5 text-[10px] text-slate-200 leading-tight">
+                <strong>Evolução:</strong> Substituiu <em>list comprehension</em> precoce pela analogia de lista de compras, adiando sintaxe para o 2º turno.
+              </div>
+            </div>
+
+            <!-- Caso 03 (Gargalo Crítico) -->
+            <div class="bg-gradient-to-r from-red-950/60 via-slate-950 to-emerald-950/60 p-2 rounded-lg border-2 border-emerald-400 grid grid-cols-12 gap-2 items-center">
+              <div class="col-span-3">
+                <div class="flex items-center gap-1">
+                  <span class="font-mono-code font-extrabold text-xs text-red-300">#03</span>
+                  <span class="font-extrabold text-white text-[10.5px] leading-tight">Variável "bem simples"</span>
+                </div>
+                <div class="text-[9px] text-emerald-300 font-semibold">Adequação ao Público</div>
+              </div>
+              <div class="col-span-4 flex items-center justify-center gap-1">
+                <span class="score-chip bg-red-600 text-white row-v1 !text-[10px] !px-1.5">v1: 2/5</span>
+                <i class="fa-solid fa-arrow-right text-emerald-400 text-[9px]"></i>
+                <span class="score-chip bg-emerald-400 text-slate-950 row-v2 !text-[10px] !px-1.5">v2: 4/5</span>
+                <span class="font-mono-code text-[9.5px] text-emerald-300 font-extrabold">+100%</span>
+              </div>
+              <div class="col-span-5 text-[10px] text-slate-100 leading-tight">
+                <strong>Virada Socrática:</strong> Trocou <em>heap</em> e <em>Garbage Collector</em> por <strong>caixas organizadoras etiquetadas</strong> e pergunta indutiva.
+              </div>
+            </div>
+
+            <!-- Caso 04 -->
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 grid grid-cols-12 gap-2 items-center">
+              <div class="col-span-3">
+                <div class="flex items-center gap-1">
+                  <span class="font-mono-code font-bold text-xs text-cyan-300">#04</span>
+                  <span class="font-bold text-white text-[10.5px] leading-tight">"Coisa que guarda dado"</span>
+                </div>
+                <div class="text-[9px] text-slate-400">Dúvida Vaga</div>
+              </div>
+              <div class="col-span-4 flex items-center justify-center gap-1">
+                <span class="score-chip bg-slate-800 text-cyan-300 row-v1 !text-[10px] !px-1.5">v1: 4/5</span>
+                <i class="fa-solid fa-arrow-right text-slate-500 text-[9px]"></i>
+                <span class="score-chip bg-cyan-400 text-slate-950 row-v2 !text-[10px] !px-1.5">v2: 4/5</span>
+                <span class="font-mono-code text-[9.5px] text-cyan-300 font-bold">0%</span>
+              </div>
+              <div class="col-span-5 text-[10px] text-slate-200 leading-tight">
+                <strong>Consistência:</strong> Solicitou contexto com gentileza usando exemplos cotidianos antes de escolher a estrutura.
+              </div>
+            </div>
+
+            <!-- Caso 05 -->
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 grid grid-cols-12 gap-2 items-center">
+              <div class="col-span-3">
+                <div class="flex items-center gap-1">
+                  <span class="font-mono-code font-bold text-xs text-cyan-300">#05</span>
+                  <span class="font-bold text-white text-[10.5px] leading-tight">Resumo de História</span>
+                </div>
+                <div class="text-[9px] text-slate-400">Limites de Escopo</div>
+              </div>
+              <div class="col-span-4 flex items-center justify-center gap-1">
+                <span class="score-chip bg-slate-800 text-emerald-300 row-v1 !text-[10px] !px-1.5">v1: 5/5</span>
+                <i class="fa-solid fa-arrow-right text-slate-500 text-[9px]"></i>
+                <span class="score-chip bg-emerald-400 text-slate-950 row-v2 !text-[10px] !px-1.5">v2: 5/5</span>
+                <span class="font-mono-code text-[9.5px] text-emerald-400 font-bold">100%</span>
+              </div>
+              <div class="col-span-5 text-[10px] text-slate-200 leading-tight">
+                <strong>Escudo de Escopo:</strong> Recusou com educação o resumo de História e convidou o aluno a criar um quiz histórico em Python.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra Síntese de Métricas -->
+        <div class="mt-2 pt-2 border-t border-slate-800 grid grid-cols-4 gap-2 text-center">
+          <div class="bg-slate-900 rounded p-1.5 border border-slate-800">
+            <div class="text-[9.5px] text-slate-400 uppercase font-tech">Média Byte v1.0</div>
+            <div class="font-mono-code font-bold text-sm text-red-300">3,6 de 5,0 (72%)</div>
+          </div>
+          <div class="bg-slate-900 rounded p-1.5 border border-emerald-500/40">
+            <div class="text-[9.5px] text-slate-400 uppercase font-tech">Média Byte v2.0</div>
+            <div class="font-mono-code font-bold text-sm text-emerald-300">4,4 de 5,0 (88%)</div>
+          </div>
+          <div class="bg-slate-900 rounded p-1.5 border border-cyan-500/40">
+            <div class="text-[9.5px] text-slate-400 uppercase font-tech">Taxa de Aprovação</div>
+            <div class="font-mono-code font-bold text-sm text-cyan-300">60% para 100%</div>
+          </div>
+          <div class="bg-slate-900 rounded p-1.5 border border-purple-500/40">
+            <div class="text-[9.5px] text-slate-400 uppercase font-tech">Taxa de Regressão</div>
+            <div class="font-mono-code font-bold text-sm text-purple-300">0% (Zero Quedas)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Visual do Caso #03: A Virada Socrática e Limite da Analogia -->
+      <div class="col-span-4 section-card p-3 border-2 border-amber-400/70 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-comic-title text-lg text-amber-300">ZOOM NO CASO #03 · O MOMENTO EUREKA</span>
+            <span class="score-chip bg-emerald-400 text-slate-950">2/5 para 4/5</span>
+          </div>
+
+          <div class="h-32 rounded-xl overflow-hidden border-2 border-cyan-400 mb-2 relative">
+            <img src="assets/hq/cap4_socratic.png" alt="Cena do momento Eureka em que o Byte v2.0 mostra caixas organizadoras etiquetadas para Leo." class="w-full h-full object-cover">
+            <div class="absolute bottom-1 right-1 bg-slate-950/90 text-cyan-300 font-mono-code text-[9px] px-2 py-0.5 rounded border border-cyan-400/50">
+              Transposição Didática em Ação
+            </div>
+          </div>
+
+          <div class="bg-red-950/50 border border-red-500/50 rounded-lg p-2 mb-1.5 text-[10px]">
+            <strong class="text-red-300 block uppercase font-tech text-[9.5px]">Como o Byte v1.0 falhou (Nota 2/5):</strong>
+            <span class="text-red-100 italic">"Variáveis são referências dinâmicas no heap gerenciadas pelo Garbage Collector..."</span>
+          </div>
+
+          <div class="bg-emerald-950/50 border border-emerald-400/60 rounded-lg p-2 mb-1.5 text-[10px]">
+            <strong class="text-emerald-300 block uppercase font-tech text-[9.5px]">Como o Byte v2.0 mediou (Nota 4/5):</strong>
+            <span class="text-emerald-100 italic">"Imagine caixas organizadoras no seu quarto. Se você colar a etiqueta <code>idade</code> e trocar o conteúdo de 18 para 19, o que muda?"</span>
+          </div>
+        </div>
+
+        <div class="bg-amber-950/40 border border-amber-400/60 rounded-lg p-2 text-[9.5px] text-amber-100 leading-tight">
+          <strong class="text-amber-300 uppercase font-tech block mb-0.5"><i class="fa-solid fa-lightbulb mr-1"></i>Nota do Mentor e Referência Khanmigo:</strong>
+          Seguindo o princípio de Sal Khan (TED, 2023) para o Problema dos 2 Sigmas de Bloom (1984), o tutor nunca entrega a resposta pronta. E atenção docente: em Python, variáveis são etiquetas ligadas a objetos; ao chegar em listas mutáveis, revisite a analogia da caixa!
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         BLOCO 04: ENGENHARIA DO SYSTEM PROMPT EM 4 CAMADAS + CICLO DOCENTE (4 FASES)
+         ======================================================================= -->
+    <div class="grid grid-cols-12 gap-3 mb-2">
+      <!-- Anatomia do System Prompt Socrático v2.0 -->
+      <div class="col-span-7 section-card p-3 border-2 border-emerald-400/70 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-comic-title text-xl text-emerald-300 tracking-wide">
+              <i class="fa-solid fa-terminal mr-1"></i> 5. ANATOMIA DO SYSTEM PROMPT SOCRÁTICO (4 CAMADAS)
+            </span>
+            <button onclick="copyInfographicPrompt()" id="btnCopyInfoPrompt" class="no-print bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-[10.5px] px-2.5 py-0.5 rounded transition">
+              <i class="fa-regular fa-copy"></i> Copiar Prompt v2.0
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <div class="bg-slate-950 p-2 rounded-lg border-l-4 border-l-cyan-400 border border-slate-800">
+              <div class="font-tech font-bold text-[10px] text-cyan-300 uppercase">Camada 1 · Persona e Nível</div>
+              <p class="text-[10px] text-slate-200 leading-tight mt-0.5">
+                Define a disciplina (<em>Introdução à Programação</em>) e trava o vocabulário no nível <strong>INICIANTE</strong>.
+              </p>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border-l-4 border-l-purple-400 border border-slate-800">
+              <div class="font-tech font-bold text-[10px] text-purple-300 uppercase">Camada 2 · Trava Socrática</div>
+              <p class="text-[10px] text-slate-200 leading-tight mt-0.5">
+                Proíbe entregar código pronto imediato e exige <strong>1 pergunta indutiva por vez</strong> (+ escada de dicas na v2.1).
+              </p>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border-l-4 border-l-amber-400 border border-slate-800">
+              <div class="font-tech font-bold text-[10px] text-amber-300 uppercase">Camada 3 · Transposição Didática</div>
+              <p class="text-[10px] text-slate-200 leading-tight mt-0.5">
+                Exige partir de <strong>analogias do cotidiano</strong> antes de apresentar termos técnicos ou sintaxe formal.
+              </p>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border-l-4 border-l-emerald-400 border border-slate-800">
+              <div class="font-tech font-bold text-[10px] text-emerald-300 uppercase">Camada 4 · Dúvidas e Escopo</div>
+              <p class="text-[10px] text-slate-200 leading-tight mt-0.5">
+                Pede contexto em perguntas vagas, admite incerteza sem inventar fontes e recusa temas alheios.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <pre id="infoPromptText" class="font-mono-code text-[9px] text-slate-100 whitespace-pre-wrap leading-snug bg-slate-950 p-2 rounded-lg border border-emerald-500/40">Você é um Tutor Pedagógico da disciplina [NOME DA DISCIPLINA] para estudantes de nível [INICIANTE ou INTERMEDIÁRIO].
+1. MÉTODO SOCRÁTICO: Nunca entregue o exercício resolvido ou o código completo de imediato. Guie o raciocínio do estudante fazendo 1 pergunta indutiva por vez.
+2. TRANSPOSIÇÃO DIDÁTICA: Explique conceitos abstratos utilizando analogias do cotidiano antes de introduzir termos técnicos ou sintaxe formal.
+3. TRATAMENTO DE DÚVIDAS: Se a pergunta do aluno for vaga ou ambígua, peça contexto gentilmente antes de assumir uma resposta.
+4. RIGOR E ESCOPO: Se não tiver certeza factual, admita. Recuse educadamente pedidos fora do escopo da disciplina.</pre>
+      </div>
+
+      <!-- Ciclo Contínuo de 4 Fases + Cuidados e Referências -->
+      <div class="col-span-5 section-card p-3 border-2 border-purple-400/70 flex flex-col justify-between">
+        <div>
+          <span class="font-comic-title text-xl text-purple-300 tracking-wide block mb-1.5">
+            <i class="fa-solid fa-rotate mr-1"></i> 6. CICLO DE CURADORIA DOCENTE (4 FASES)
+          </span>
+
+          <div class="grid grid-cols-2 gap-1.5 mb-2">
+            <div class="bg-slate-950 p-2 rounded-lg border border-cyan-500/40">
+              <div class="font-comic-title text-sm text-cyan-300">FASE 1 · TESTAR</div>
+              <p class="text-[9.5px] text-slate-200 leading-tight">Submeter o tutor aos 5 casos de estresse (conceito, passo a passo, leigo, vago e fora de escopo).</p>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border border-purple-500/40">
+              <div class="font-comic-title text-sm text-purple-300">FASE 2 · REGISTRAR</div>
+              <p class="text-[9.5px] text-slate-200 leading-tight">Pontuar de 1 a 5 nos 4 critérios objetivos para diagnosticar gargalos reais com precisão.</p>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border border-amber-500/40">
+              <div class="font-comic-title text-sm text-amber-300">FASE 3 · REVISAR</div>
+              <p class="text-[9.5px] text-slate-200 leading-tight">Reescrever o System Prompt injetando restrições socráticas, analogias e trava de escopo.</p>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border border-emerald-500/40">
+              <div class="font-comic-title text-sm text-emerald-300">FASE 4 · VALIDAR</div>
+              <p class="text-[9.5px] text-slate-200 leading-tight">Reexecutar toda a bateria para confirmar o ganho pedagógico (+22,2%) com 0% de regressão.</p>
+            </div>
+          </div>
+
+          <div class="bg-amber-950/40 border border-amber-400/60 rounded-lg p-2 mb-1.5">
+            <div class="font-tech font-bold text-[10px] text-amber-300 uppercase mb-0.5">
+              <i class="fa-solid fa-shield-heart mr-1"></i> Cuidados Antes de Usar com Turmas
+            </div>
+            <ul class="text-[9.5px] text-slate-100 list-disc list-inside space-y-0.5 leading-tight">
+              <li>Não insira dados pessoais dos estudantes na ferramenta.</li>
+              <li>Modelos mudam: repita a bateria a cada atualização.</li>
+              <li>O tutor apoia o professor, não o substitui.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 text-[9px] text-slate-300 leading-tight">
+          <strong class="text-cyan-300 uppercase font-tech">Referências Científicas:</strong>
+          OCDE (2026) <em>PISA 2025 Results (Vol. I): Future-Ready Students</em> (<code>oecd.org</code>) · Chevallard (1991) <em>Transposition Didactique</em> · Bloom (1984) <em>2 Sigma Problem</em> · Wood, Bruner e Ross (1976) <em>Scaffolding</em> · Sal Khan (2023) <em>Khanmigo</em> · Xu et al. (2025) <em>EduBench</em> · Maurya et al. (2024) <em>MRBench</em>.
+        </div>
+      </div>
+    </div>
+
+    <!-- RODAPÉ DO PÔSTER -->
+    <div class="flex items-center justify-between text-[10.5px] text-slate-300 border-t border-slate-800 pt-2 mt-1">
+      <div>
+        <strong>Projeto 2ª VA · Educação a Distância (EaD)</strong> · Universidade Federal Rural de Pernambuco (UFRPE · 2026.2) · Docente: Prof. Ermeson
+      </div>
+      <div class="font-mono-code text-cyan-300 font-bold">
+        INFOGRÁFICO SÍNTESE · CAUÃ DA CUNHA LIRA
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function copyInfographicPrompt() {
+      const text = document.getElementById('infoPromptText').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btnCopyInfoPrompt');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+        setTimeout(() => { btn.innerHTML = original; }, 2000);
+      });
+    }
+
+    function highlightVersion(mode) {
+      const btnAll = document.getElementById('btnFilterAll');
+      const btnV1 = document.getElementById('btnFilterV1');
+      const btnV2 = document.getElementById('btnFilterV2');
+      [btnAll, btnV1, btnV2].forEach(b => b.classList.remove('mode-active-btn'));
+
+      const v1Chips = document.querySelectorAll('.row-v1');
+      const v2Chips = document.querySelectorAll('.row-v2');
+      const card2 = document.getElementById('cardNivel2');
+      const card3 = document.getElementById('cardNivel3');
+
+      v1Chips.forEach(el => { el.style.opacity = '1'; el.style.transform = 'scale(1)'; });
+      v2Chips.forEach(el => { el.style.opacity = '1'; el.style.transform = 'scale(1)'; });
+      card2.style.opacity = '1';
+      card3.style.opacity = '1';
+
+      if (mode === 'all') {
+        btnAll.classList.add('mode-active-btn');
+      } else if (mode === 'v1') {
+        btnV1.classList.add('mode-active-btn');
+        v2Chips.forEach(el => { el.style.opacity = '0.25'; });
+        v1Chips.forEach(el => { el.style.transform = 'scale(1.1)'; });
+        card3.style.opacity = '0.35';
+      } else if (mode === 'v2') {
+        btnV2.classList.add('mode-active-btn');
+        v1Chips.forEach(el => { el.style.opacity = '0.25'; });
+        v2Chips.forEach(el => { el.style.transform = 'scale(1.1)'; });
+        card2.style.opacity = '0.35';
+      }
+    }
+  </script>
+</body>
+</html>
