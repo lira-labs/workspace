@@ -299,8 +299,11 @@
       .no-print {
         display: none !important;
       }
-      .comic-page {
+      .comic-page, .comic-page.active-page {
         display: flex !important;
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
         width: 210mm !important;
         height: 296.5mm !important;
         min-height: 296.5mm !important;
@@ -1076,7 +1079,7 @@
 
           <!-- Eureka Comic Panel (Item 2.1: Image fills 100% of frame height) -->
           <div class="grid grid-cols-12 gap-3 mb-2.5 items-stretch">
-            <div class="col-span-7 comic-frame min-h-[175px] border-cyan-400">
+            <div class="col-span-7 comic-frame min-h-[210px] border-cyan-400">
               <img src="assets/hq/cap4_socratic.png" alt="Ilustração do momento Eureka em que o robô Byte v2.0 projeta caixas organizadoras coloridas flutuantes, Leo estala os dedos sorrindo com uma lâmpada acesa sobre a cabeça e Cauã faz sinal de positivo ao fundo.">
             </div>
 
