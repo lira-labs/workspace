@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MVP Editorial — Página de HQ Real (Capítulo 1: A Armadilha da Resposta Pronta)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Space+Grotesk:wght@700;800&family=JetBrains+Mono:wght@700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #090D16;
+    }
+
+    /* Exact A4 Comic Book Page Container */
+    .hq-page {
+      width: 210mm;
+      height: 296.5mm;
+      margin: 16px auto;
+      background: #FAF8F5;
+      background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 0);
+      background-size: 10px 10px;
+      padding: 7mm 8mm 6mm 8mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+      border: 1px solid #334155;
+      overflow: hidden;
+    }
+
+    /* Comic Header Strip */
+    .hq-header {
+      height: 10mm;
+      background: #090D16;
+      border: 3px solid #090D16;
+      box-shadow: 3px 3px 0px #06B6D4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      margin-bottom: 3.5mm;
+      flex-shrink: 0;
+    }
+
+    /* Multi-Panel Grid Container */
+    .hq-grid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5mm;
+      width: 100%;
+    }
+
+    .hq-row {
+      display: flex;
+      gap: 3.5mm;
+      width: 100%;
+      position: relative;
+    }
+
+    /* Individual Comic Panel Frame */
+    .hq-panel {
+      position: relative;
+      border: 3.5px solid #090D16;
+      box-shadow: 4px 4px 0px #090D16;
+      overflow: hidden;
+      background: #090D16;
+    }
+
+    .hq-panel img.panel-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.045);
+      display: block;
+    }
+
+    /* Subtle Comic Halftone Overlay on Panel Corners */
+    .hq-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.18);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Classic Yellow Comic Narrative Caption Box (Recordatório) */
+    .caption-box {
+      position: absolute;
+      z-index: 10;
+      background: linear-gradient(135deg, #FEF08A 0%, #FACC15 100%);
+      color: #090D16;
+      border: 2.5px solid #090D16;
+      box-shadow: 3px 3px 0px #090D16;
+      padding: 4px 9px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 0.69rem;
+      line-height: 1.22;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .caption-box-cyan {
+      background: linear-gradient(135deg, #A5F3FC 0%, #22D3EE 100%);
+      color: #090D16;
+    }
+
+    /* Authentic Comic Speech Balloons with SVG Pointer Tails */
+    .balloon {
+      position: absolute;
+      z-index: 12;
+      background: #FFFFFF;
+      color: #090D16;
+      border: 2.5px solid #090D16;
+      border-radius: 18px;
+      padding: 6px 10px;
+      font-family: 'Comic Neue', 'Plus Jakarta Sans', cursive, sans-serif;
+      font-weight: 700;
+      font-size: 0.76rem;
+      line-height: 1.24;
+      box-shadow: 3px 3px 0px #090D16;
+      text-align: center;
+    }
+
+    .balloon b, .balloon strong {
+      color: #B91C1C;
+      font-weight: 800;
+    }
+
+    .balloon-caua b, .balloon-caua strong {
+      color: #0369A1;
+    }
+
+    /* Robotic Glitch Balloon (Byte v1.0) */
+    .balloon-glitch {
+      position: absolute;
+      z-index: 12;
+      background: #FFF1F2;
+      color: #7F1D1D;
+      border: 2.5px solid #DC2626;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.67rem;
+      line-height: 1.22;
+      box-shadow: 3px 3px 0px #991B1B;
+      text-align: left;
+    }
+
+    /* Thought Cloud Balloon */
+    .balloon-thought {
+      position: absolute;
+      z-index: 12;
+      background: #F8FAFC;
+      color: #1E293B;
+      border: 2.5px dashed #0284C7;
+      border-radius: 22px;
+      padding: 6px 11px;
+      font-family: 'Comic Neue', cursive, sans-serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 0.75rem;
+      line-height: 1.22;
+      box-shadow: 3px 3px 0px #0369A1;
+      text-align: center;
+    }
+
+    /* Speaker Name Micro-Badge */
+    .speaker-tag {
+      display: inline-block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.56rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      border: 1.5px solid #090D16;
+    }
+
+    /* Comic Sound Effects (Onomatopeias) */
+    .sfx {
+      position: absolute;
+      z-index: 14;
+      font-family: 'Bangers', cursive;
+      letter-spacing: 1px;
+      line-height: 1;
+      text-transform: uppercase;
+      pointer-events: none;
+      text-shadow:
+        2px 2px 0 #090D16,
+        -1.5px -1.5px 0 #090D16,
+        1.5px -1.5px 0 #090D16,
+        -1.5px 1.5px 0 #090D16,
+        4px 4px 0 #090D16;
+    }
+
+    /* SVG Pointer Tails */
+    .tail-svg {
+      position: absolute;
+      width: 28px;
+      height: 24px;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    /* Page Footer */
+    .hq-footer {
+      height: 6.5mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #334155;
+      border-top: 2.5px solid #090D16;
+      padding-top: 1.5mm;
+      margin-top: 2.5mm;
+      flex-shrink: 0;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+      body {
+        background: #FAF8F5;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .hq-page {
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 210mm !important;
+        height: 296.5mm !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Control Bar (Screen Only) -->
+  <div class="no-print bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between sticky top-0 z-50 text-white">
+    <div class="flex items-center gap-3">
+      <span class="bg-cyan-400 text-slate-950 font-extrabold text-xs px-2.5 py-1 rounded uppercase">MVP Editorial · Padrão HQ Real</span>
+      <span class="text-sm font-bold text-slate-200">Página 03 — Capítulo 1: A Armadilha da Resposta Pronta (5 Quadros Ilustrados + Lettering SVG)</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="ebook-hq.html" class="text-xs font-bold text-cyan-300 hover:underline">Voltar ao eBook</a>
+      <button onclick="window.print()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs px-3.5 py-1.5 rounded-lg shadow">
+        <i class="fa-solid fa-file-pdf mr-1"></i> Exportar PDF A4
+      </button>
+    </div>
+  </div>
+
+  <!-- A4 COMIC BOOK PAGE -->
+  <section class="hq-page">
+
+    <!-- Comic Issue Header Strip -->
+    <header class="hq-header">
+      <div class="flex items-center gap-2.5">
+        <span class="bg-rose-600 text-white font-extrabold text-[11px] px-2.5 py-0.5 border border-white uppercase tracking-wider" style="font-family: 'Space Grotesk', sans-serif;">CAPÍTULO 01</span>
+        <h1 class="text-white font-extrabold text-sm md:text-base tracking-wide uppercase" style="font-family: 'Bangers', cursive; letter-spacing: 1px;">
+          A ARMADILHA DA RESPOSTA PRONTA (E A ILUSÃO DE COMPETÊNCIA)
+        </h1>
+      </div>
+      <span class="text-cyan-300 font-bold text-[10px] uppercase tracking-widest" style="font-family: 'JetBrains Mono', monospace;">
+        OPERAÇÃO BYTE SOCRÁTICO · UFRPE
+      </span>
+    </header>
+
+    <!-- 5-PANEL COMIC GRID -->
+    <div class="hq-grid">
+
+      <!-- =========================================================
+           ROW 1: PANEL 1 (57% Width) + PANEL 2 (43% Width)
+           ========================================================= -->
+      <div class="hq-row" style="height: 83mm;">
+
+        <!-- PANEL 1: Late Night Lab Crisis & Byte v1.0 Code Dump -->
+        <div class="hq-panel" style="width: 57%;">
+          <img src="assets/hq/p3_panel1.jpg" alt="Quadro 1: Clara desesperada no laboratório e Byte v1.0 despejando código pronto" class="panel-art" style="object-position: center 45%;">
+
+          <!-- Narrative Recordatório -->
+          <div class="caption-box" style="top: 6px; left: 6px; max-width: 68%;">
+            <i class="fa-solid fa-clock text-rose-700 mr-1"></i> LAB. DA UFRPE · 23H40 · VÉSPERA DA ENTREGA DE PYTHON
+          </div>
+
+          <!-- Clara Speech Balloon (Bottom-Left over yellow sleeve, pointing up to Clara's mouth) -->
+          <div class="balloon" style="bottom: 8px; left: 7px; width: 47%;">
+            <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+            Socorro, Byte! Meu laço <b>while</b> travou tudo! Só me dá o <b>código pronto</b> pra eu entregar logo!
+            <!-- SVG Tail pointing UP-RIGHT toward Clara's mouth -->
+            <svg class="tail-svg" style="top: -19px; right: 26px;" viewBox="0 0 30 24">
+              <polygon points="4,24 22,2 20,24" fill="#FFFFFF" stroke="#090D16" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="5" y1="24" x2="19" y2="24" stroke="#FFFFFF" stroke-width="3.5"/>
+            </svg>
+          </div>
+
+          <!-- Byte v1.0 Glitch Balloon (Top-Right / Bottom-Right, pointing to Byte) -->
+          <div class="balloon-glitch" style="bottom: 8px; right: 7px; width: 46%;">
+            <span class="speaker-tag bg-rose-600 text-white border-rose-900">BYTE v1.0 [SEM FILTRO]</span><br>
+            &gt; PEDIDO ACEITO! Gerando 100% da solução final. Copie e cole agora!
+            <!-- SVG Tail pointing UP-LEFT toward Byte's red visor -->
+            <svg class="tail-svg" style="top: -18px; left: 22px;" viewBox="0 0 30 24">
+              <polygon points="10,24 4,2 24,24" fill="#FFF1F2" stroke="#DC2626" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="11" y1="24" x2="23" y2="24" stroke="#FFF1F2" stroke-width="3.5"/>
+            </svg>
+          </div>
+
+          <!-- Comic SFX -->
+          <div class="sfx text-amber-300 text-xl" style="top: 34px; right: 12px; transform: rotate(-7deg);">
+            ZAP-DUMP!
+          </div>
+        </div>
+
+        <!-- PANEL 2: Cognitive Shortcut / Frozen Mental Gears -->
+        <div class="hq-panel" style="width: 43%;">
+          <img src="assets/hq/p3_panel2.jpg" alt="Quadro 2: Clara sorrindo aliviada no Ctrl+C Ctrl+V com engrenagens mentais acorrentadas" class="panel-art" style="object-position: center 35%;">
+
+          <!-- Narrative Recordatório -->
+          <div class="caption-box" style="top: 6px; left: 6px; right: 6px;">
+            ATALHO COGNITIVO: NOTA 10 NA TAREFA... ZERO ESFORÇO MENTAL.
+          </div>
+
+          <!-- Comic SFX on Padlock -->
+          <div class="sfx text-rose-400 text-lg" style="top: 42%; right: 8px; transform: rotate(8deg);">
+            TRAVADO!
+          </div>
+
+          <!-- Clara Thought Cloud Balloon (Bottom over desk/arm, bubbles pointing to Clara) -->
+          <div class="balloon-thought" style="bottom: 7px; left: 8px; right: 8px;">
+            <span class="speaker-tag bg-sky-200 text-slate-900">PENSAMENTO DE CLARA</span><br>
+            "Ufa! Rodou de primeira no <b>Ctrl+C e Ctrl+V</b>! Nem precisei quebrar a cabeça..."
+            <!-- Thought Bubbles Trail pointing UP-LEFT to Clara's head -->
+            <svg class="tail-svg" style="top: -22px; left: 32px;" viewBox="0 0 30 24">
+              <circle cx="10" cy="6" r="4" fill="#F8FAFC" stroke="#0284C7" stroke-width="2"/>
+              <circle cx="16" cy="15" r="5.5" fill="#F8FAFC" stroke="#0284C7" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =========================================================
+           ROW 2: PANEL 3 (45% Width) + PANEL 4 (55% Width)
+           ========================================================= -->
+      <div class="hq-row" style="height: 85mm;">
+
+        <!-- PANEL 3: Classroom Exam Blackout -->
+        <div class="hq-panel" style="width: 45%;">
+          <img src="assets/hq/p3_panel3.jpg" alt="Quadro 3: Clara em pânico diante da folha de prova em branco e Cauã observando" class="panel-art" style="object-position: center 32%;">
+
+          <!-- Narrative Recordatório -->
+          <div class="caption-box" style="top: 6px; left: 6px;">
+            NO DIA SEGUINTE: PROVA PRÁTICA SEM IA.
+          </div>
+
+          <!-- Clara Panic Balloon (Top-Left over whiteboard, pointing down to Clara) -->
+          <div class="balloon" style="top: 32px; left: 6px; width: 57%; border-color: #DC2626;">
+            <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+            <b>Deu branco total!</b> Sem o Byte pra fazer por mim, não sei nem começar!
+            <!-- SVG Tail pointing DOWN to Clara's head -->
+            <svg class="tail-svg" style="bottom: -19px; left: 42%;" viewBox="0 0 30 24">
+              <polygon points="6,0 20,0 14,21" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="7" y1="0" x2="19" y2="0" stroke="#FFFFFF" stroke-width="3.5"/>
+            </svg>
+          </div>
+
+          <!-- Cauã Empathetic Diagnosis Balloon (Bottom-Right over dark hoodie, pointing up to Cauã) -->
+          <div class="balloon balloon-caua" style="bottom: 7px; right: 6px; width: 58%;">
+            <span class="speaker-tag bg-cyan-300 text-slate-950">CAUÃ (MONITOR)</span><br>
+            Calma, Clara. Isso é a <b>Ilusão de Competência</b>: o Byte v1.0 fez a tarefa, mas sabotou seu treino.
+            <!-- SVG Tail pointing UP to Cauã's mouth -->
+            <svg class="tail-svg" style="top: -19px; right: 28px;" viewBox="0 0 30 24">
+              <polygon points="8,24 18,2 22,24" fill="#FFFFFF" stroke="#090D16" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="9" y1="24" x2="21" y2="24" stroke="#FFFFFF" stroke-width="3.5"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- PANEL 4: Scientific Scaffolding Hologram Comparison -->
+        <div class="hq-panel" style="width: 55%;">
+          <img src="assets/hq/p3_panel4.jpg" alt="Quadro 4: Cauã projetando holograma comparando resposta pronta vs andaimagem socrática" class="panel-art" style="object-position: center 40%;">
+
+          <!-- OECD Empirical Data Recordatório -->
+          <div class="caption-box caption-box-cyan" style="top: 6px; left: 6px; right: 6px;">
+            <i class="fa-solid fa-chart-column mr-1"></i> DADO REAL (OCDE · PISA, 2026): 46% DOS ALUNOS USAM CHATBOTS TODA SEMANA. MAS COPIAR ≠ APRENDER!
+          </div>
+
+          <!-- Hologram Labels inside scene -->
+          <div class="sfx text-rose-400 text-[10.5px] bg-slate-950/90 px-1.5 py-0.5 rounded border border-rose-500/60" style="top: 56%; left: 26%; transform: rotate(-1deg);">
+            ORÁCULO PASSIVO
+          </div>
+          <div class="sfx text-cyan-300 text-[10.5px] bg-slate-950/90 px-1.5 py-0.5 rounded border border-cyan-400/60" style="top: 56%; left: 55%; transform: rotate(1deg);">
+            ANDAIMAGEM ATIVA!
+          </div>
+
+          <!-- Cauã Pedagogical Explanation Balloon (Bottom-Right, pointing left to Cauã) -->
+          <div class="balloon balloon-caua" style="bottom: 7px; right: 7px; width: 66%;">
+            <span class="speaker-tag bg-cyan-300 text-slate-950">CAUÃ</span><br>
+            Ver o código pronto apaga o cérebro. Um <b>Tutor Socrático</b> usa <b>Andaimagem (Scaffolding)</b>: dá pistas graduais e faz perguntas para <b>você</b> construir a lógica!
+            <!-- SVG Tail pointing UP-LEFT toward Cauã -->
+            <svg class="tail-svg" style="top: -18px; left: 18px;" viewBox="0 0 30 24">
+              <polygon points="10,24 2,3 24,24" fill="#FFFFFF" stroke="#090D16" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="11" y1="24" x2="23" y2="24" stroke="#FFFFFF" stroke-width="3.5"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =========================================================
+           ROW 3: PANEL 5 (100% Full-Width Widescreen Finale)
+           ========================================================= -->
+      <div class="hq-row" style="height: 82mm;">
+
+        <div class="hq-panel" style="width: 100%;">
+          <img src="assets/hq/p3_panel5.jpg" alt="Quadro 5: Cauã ativando o scanner ciano diante do Byte v1.0 em curto-circuito e Clara determinada" class="panel-art" style="object-position: center 38%;">
+
+          <!-- Cauã Call-to-Action Balloon (Top-Left in clean wall area, pointing down-right to Cauã) -->
+          <div class="balloon balloon-caua" style="top: 8px; left: 8px; width: 38%;">
+            <span class="speaker-tag bg-cyan-300 text-slate-950">CAUÃ</span><br>
+            Chega de "Oráculo de Cola"! Vamos auditar o <b>Byte v1.0</b> na nossa Arena de Testes com uma régua científica!
+            <!-- SVG Tail pointing DOWN-RIGHT to Cauã's head -->
+            <svg class="tail-svg" style="bottom: -19px; right: 34px;" viewBox="0 0 30 24">
+              <polygon points="6,0 20,0 24,21" fill="#FFFFFF" stroke="#090D16" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="7" y1="0" x2="19" y2="0" stroke="#FFFFFF" stroke-width="3.5"/>
+            </svg>
+          </div>
+
+          <!-- Comic SFX above sparking Byte v1.0 -->
+          <div class="sfx text-rose-400 text-2xl" style="top: 10px; left: 44%; transform: rotate(-5deg);">
+            BZZT-GLITCH!
+          </div>
+
+          <!-- Clara Question Balloon (Top-Right in clean wall area, pointing down-left to Clara) -->
+          <div class="balloon" style="top: 8px; right: 8px; width: 36%;">
+            <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+            Fechado, Cauã! Mas como a gente <b>mede na prática</b> se uma IA sabe mesmo ensinar?
+            <!-- SVG Tail pointing DOWN-LEFT to Clara's head -->
+            <svg class="tail-svg" style="bottom: -19px; left: 36px;" viewBox="0 0 30 24">
+              <polygon points="10,0 24,0 6,21" fill="#FFFFFF" stroke="#090D16" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="11" y1="0" x2="23" y2="0" stroke="#FFFFFF" stroke-width="3.5"/>
+            </svg>
+          </div>
+
+          <!-- Cliffhanger Next Chapter Caption Box (Bottom-Center over glass table) -->
+          <div class="caption-box" style="bottom: 8px; right: 8px; background: linear-gradient(135deg, #22D3EE 0%, #FACC15 100%); font-size: 0.72rem; padding: 5px 12px;">
+            CONTINUA NO CAPÍTULO 02: A RÉGUA DOS 4 CRITÉRIOS PEDAGÓGICOS <i class="fa-solid fa-caret-right ml-1"></i>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Comic Page Footer -->
+    <footer class="hq-footer">
+      <span>OPERAÇÃO BYTE SOCRÁTICO · GRAPHIC NOVEL PEDAGÓGICA (2ª VA EaD · UFRPE)</span>
+      <span class="bg-slate-900 text-amber-300 px-2.5 py-0.5 rounded border border-slate-700">PÁGINA 03 DE 08</span>
+    </footer>
+
+  </section>
+
+</body>
+</html>
