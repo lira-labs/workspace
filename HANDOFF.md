@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 02/11/2026 21:49
+- **Ultima Atualizacao:** 02/11/2026 22:18
 - **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -17,6 +17,12 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica)
+- [x] **Etapa 1 — Consolidação do Tema do Seminário (Entrega até 10/11)**:
+  - Respostas consolidadas em texto corrido, linguagem simples e direta para o Google Forms sobre **Criptografia Pós-Quântica** (1ª VA: `https://www.youtube.com/watch?v=HQlqOFRr98A`).
+  - Mapeamento do problema, contexto de aplicação, limitações, tecnologias fortalecedoras (5G/6G, Computação de Borda, Blockchain), tecnologias conflitantes (IoT restrito, tempo real extremo, middleboxes/roteadores antigos) e resumo em uma frase para cada item.
+  - Aguardando atualização da professora e discussões em sala (11/11 e 18/11) para iniciar a **Etapa 2 (Proposta do projeto + vídeo até 24/11)**.
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
 - [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático")**:
