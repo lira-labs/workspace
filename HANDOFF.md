@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 02/11/2026 22:18
+- **Ultima Atualizacao:** 03/11/2026 15:45
 - **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -25,10 +25,11 @@
   - Aguardando atualização da professora e discussões em sala (11/11 e 18/11) para iniciar a **Etapa 2 (Proposta do projeto + vídeo até 24/11)**.
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
-- [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático")**:
-  - `code/projeto_ead_tutores/ebook-hq.html` e PDF A4 de 8 páginas `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf`.
-  - Publicado oficialmente no FlipHTML5: `https://online.fliphtml5.com/caualira02/lhzk/`.
-  - 6 ilustrações originais estilo Webtoon/Spider-Verse em `assets/hq/`.
+- [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Upgrade Editorial Completo Multi-Quadros)**:
+  - `code/projeto_ead_tutores/ebook-hq.html` e PDF A4 de 8 páginas `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` (mais MVP da Página 03 em `code/projeto_ead_tutores/mvp-pagina-hq.html` e arquitetura em `code/projeto_ead_tutores/COMICFORGE_ARCHITECTURE.md`).
+  - Todas as 8 páginas convertidas para o padrão de **Graphic Novel real multi-quadros** (*Spider-Verse / Science Comics*): sarjetas com retícula, múltiplos quadros ilustrados por página com consistência de *Character Bible* (**Cauã Lira**, **Clara** e **Byte v1.0 / v2.0**), recordatórios amarelos/cianos, onomatopeias e balões de fala/pensamento/glitch com rabichos vetoriais SVG apontando para os personagens.
+  - Todas as 21 imagens dos quadros estão embutidas diretamente em **Base64 (`data:image/jpeg;base64,...`)** dentro do `ebook-hq.html` (além dos arquivos `.jpg` em `code/projeto_ead_tutores/assets/hq/`), garantindo renderização imediata no preview remoto do notebook.
+  - Publicado no FlipHTML5: `https://online.fliphtml5.com/caualira02/lhzk/` (pronto para re-upload opcional do novo PDF multi-quadros).
   - Dados reais da bateria executada em instâncias isoladas de `Claude Opus 4.6` (Média v1.0: `3,6` / `72%` → Média v2.0: `4,4` / `88%`, `+22,2%` de evolução, `0%` de regressão e `100%` de aprovação).
 - [x] **Item 2 — Infográfico Visual e Interativo ("Anatomia e Calibragem de um Tutor Socrático de IA")**:
   - `code/projeto_ead_tutores/infografico.html` (com filtros interativos v1.0 vs. v2.0 e cópia de prompt) e pôster PDF de página única `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf`.
