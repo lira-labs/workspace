@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 02/11/2026 19:35
+- **Ultima Atualizacao:** 02/11/2026 21:49
 - **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -26,7 +26,8 @@
   - Dados reais da bateria executada em instâncias isoladas de `Claude Opus 4.6` (Média v1.0: `3,6` / `72%` → Média v2.0: `4,4` / `88%`, `+22,2%` de evolução, `0%` de regressão e `100%` de aprovação).
 - [x] **Item 2 — Infográfico Visual e Interativo ("Anatomia e Calibragem de um Tutor Socrático de IA")**:
   - `code/projeto_ead_tutores/infografico.html` (com filtros interativos v1.0 vs. v2.0 e cópia de prompt) e pôster PDF de página única `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf`.
-- [x] **Atualização da Plataforma Web (`code/projeto_ead_tutores/index.html`)**:
+- [x] **Atualização e Deploy em Produção da Plataforma Web (`code/projeto_ead_tutores/index.html`)**:
+  - Publicado e auditado na Vercel em produção: `https://projeto-ead-caua.vercel.app` (`HTTP 200 OK` em todas as rotas e PDFs).
   - Trilha sequencial de estudo em 4 etapas integrando 1ª VA (Videoaula YouTube + Slides `.pptx` + Quiz Genially) e 2ª VA (eBook-HQ no FlipHTML5 + Leitor Nativo + Infográfico Visual) com leitores embutidos e todos os links auditados.
 
 ### 1. Entregas da VA2 (100% Concluídas, Auditadas e Públicas no GitHub)
