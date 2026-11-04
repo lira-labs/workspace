@@ -476,6 +476,32 @@ A segunda limitação é a dependência de constelações privadas, que foi exat
 
 A terceira limitação é física e prática. O sinal do satélite sofre com chuva forte, o servidor de borda precisa de energia estável, o que nem sempre existe em áreas isoladas, e alguém precisa saber dar manutenção nesses equipamentos. O Zero Trust, por sua vez, exige que todo aparelho e todo profissional estejam cadastrados e com identidade digital, o que dá trabalho para montar e manter. Além disso, a criptografia pós-quântica ainda é nova na prática, e a forma de implementar esses algoritmos sem deixar brechas continua sendo amadurecida pela comunidade \cite{bernstein2017pqc}.
 
+\subsection{Métricas e avaliação teórica da proposta}
+
+Por ser uma proposta de projeto teórico, é fundamental explicar como saberíamos se essa arquitetura funciona de verdade se ela fosse instalada em um posto piloto. Para isso, pensamos em quatro métricas bem simples e diretas, apresentadas na Tabela~\ref{tab:metricas}.
+
+\begin{table}[H]
+\centering
+\caption{Métricas para avaliação teórica e prática em um posto piloto.}
+\label{tab:metricas}
+\small
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{azulclaro}{white}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+\textbf{O que avaliar} & \textbf{Como medir na prática} & \textbf{Resultado esperado} \\
+\midrule
+Atraso da conexão segura & Comparar o tempo de abertura do túnel híbrido (ML-KEM + clássico) com o clássico puro pelo satélite. & Aumento de poucos milissegundos, imperceptível para o médico. \\
+Sobrecarga de dados no satélite & Medir quantos bytes a mais a criptografia consome em um ECG (cerca de 50~KB) e em um ultrassom (cerca de 15~MB). & Menos de 5~KB a mais por exame, o que quase não pesa no link. \\
+Esforço do servidor de borda & Medir o uso de CPU, memória RAM e aquecimento do mini computador ao processar vários exames seguidos. & Servidor rodando com folga, sem travar nem esquentar demais. \\
+Resiliência durante quedas de sinal & Desconectar a antena de propósito por 1 hora e conferir se todos os atendimentos da fila chegam perfeitos ao hospital. & 100\% dos exames entregues sem perda ou alteração. \\
+\bottomrule
+\end{tabularx}
+\fonte{elaborada pelo autor (2026).}
+\end{table}
+
+A primeira métrica mede o tempo de resposta: queremos ter certeza de que o atraso extra causado pelas chaves maiores do ML-KEM não vai deixar o início da teleconsulta lento. A segunda mede o bolso: como a internet via satélite pode cobrar por pacote de dados em planos mais restritos, precisamos garantir que o tamanho maior da chave e da assinatura não estoure o plano de dados da unidade de saúde. A terceira confere se um mini computador barato e comum de fato aguenta fazer o trabalho de borda o dia todo no clima quente do interior. Por fim, a quarta métrica avalia a confiabilidade: comprovar que nenhuma informação se perde quando a chuva corta o sinal do satélite.
+
 \subsection{Viabilidade}
 
 Do ponto de vista técnico, a proposta é viável já hoje. Os algoritmos ML-KEM e ML-DSA estão padronizados desde 2024 \cite{nist2024fips203,nist2024fips204}, e já existem bibliotecas de código aberto e navegadores comuns que usam a troca de chaves híbrida no dia a dia. Os satélites LEO já oferecem internet comercial em áreas rurais do Brasil, com desempenho suficiente para chamadas de vídeo \cite{michel2022starlink}. O servidor de borda pode ser um mini computador comum, sem nenhum equipamento especial, e o Zero Trust já tem um guia de referência público que ajuda a montar a política de acesso \cite{rose2020zta}.

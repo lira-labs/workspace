@@ -20,9 +20,10 @@
 
 ### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica · Profa. Jeisa)
 - [x] **Etapa 1 — Consolidação do Tema do Seminário (Concluída em 02/11)**: Respostas consolidadas em texto simples e humano para o Google Forms.
-- [x] **Etapa 2 — Proposta de Projeto Teórico (em andamento para 24/11)** · branch eature/if-2va-pqc-telessaude:
+- [x] **Etapa 2 — Proposta de Projeto Teórico e Roteiro de Vídeo (em andamento para 24/11)** · branch eature/if-2va-pqc-telessaude:
   - Cenário: **Telessaúde segura no interior** = PQC (tema 17, Cauã) + Satélites LEO (tema 8, Alexander) + Edge Computing (tema 2, Daniel) + Zero Trust (tema 9, João Victor V.).
-  - Documento compilado com Tectonic e commitado: papers/04-internet-futuro/main.pdf (19 páginas, capa oficial da UFRPE, caixas de resumo, 5 ilustrações autorais infográficas, 4 fotos reais/históricas, diagramas em TikZ e padrão ABNT).
+  - Documento compilado com Tectonic e commitado: papers/04-internet-futuro/main.pdf (19 páginas, capa oficial da UFRPE, caixas de resumo, 5 ilustrações autorais infográficas, 4 fotos reais/históricas, diagramas em TikZ, subseção de Métricas e Avaliação Teórica e padrão ABNT).
+  - Roteiro de vídeo de ~9 minutos estruturado slide a slide com falas em primeira pessoa e minutagem: papers/04-internet-futuro/roteiro_video.md.
   - Branch atualizada e sincronizada com o GitHub (eature/if-2va-pqc-telessaude).
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
