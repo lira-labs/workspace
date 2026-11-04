@@ -48,7 +48,10 @@
   - Publicação no FlipHTML5 atualizada com a nova versão de 12 páginas: [https://online.fliphtml5.com/caualira02/ebook-caua-2va/](https://online.fliphtml5.com/caualira02/ebook-caua-2va/).
   - Arquivo PDF nomeado para upload: code/projeto_ead_tutores/assets/ebook-caua-2va.pdf.
 - [x] **Item 2 — Infográfico Visual e Interativo ("Anatomia e Calibragem de um Tutor Socrático de IA")**:
-  - `code/projeto_ead_tutores/infografico.html` e pôster PDF de página única `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf`.
+  - `code/projeto_ead_tutores/infografico.html` (1.00 MB, com artes Base64 embutidas, filtro interativo de comparação v1.0 vs v2.0 e botão de cópia de prompt).
+  - `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf` (1.71 MB, pôster de página única contínua de alta resolução 240mm x 540mm gerado via headless Edge).
+  - 100% alinhado à HQ de 12 páginas: ilustrações do robô Byte (dualidade), Scanner 4D, Clara e a metáfora das caixas no Caso #03 (+100% ganho), matriz de 4 critérios, 5 casos canônicos de Python e as 4 travas do System Prompt.
+  - Deploy em produção atualizado com sucesso na Vercel (`https://projeto-ead-caua.vercel.app/infografico.html`).
 - [x] **Item 3 — Plataforma Web e Hub Unificado**:
   - `code/projeto_ead_tutores/index.html` conectando Videoaula, Slides, Quiz, eBook-HQ de 12 Páginas e Infográfico em produção na Vercel (`https://projeto-ead-caua.vercel.app`).
 
