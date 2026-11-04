@@ -45,6 +45,8 @@
     - *Pág. 11*: Cap. 05 (Parte 1) · Manual de Campo Docente com Templates Copiáveis (Byte v2.0 e v2.1 Anti-Loop).
     - *Pág. 12*: Cap. 05 (Parte 2) · Epílogo Triunfante (Polo EaD), Os 3 Pilares Éticos e Referências Científicas Completas.
   - Pipeline de automação e renderização consolidado em `core/tools/generate_full_ebook.py` e `core/tools/render_pdf.ps1`.
+  - Publicação no FlipHTML5 atualizada com a nova versão de 12 páginas: [https://online.fliphtml5.com/caualira02/ebook-caua-2va/](https://online.fliphtml5.com/caualira02/ebook-caua-2va/).
+  - Arquivo PDF nomeado para upload: code/projeto_ead_tutores/assets/ebook-caua-2va.pdf.
 - [x] **Item 2 — Infográfico Visual e Interativo ("Anatomia e Calibragem de um Tutor Socrático de IA")**:
   - `code/projeto_ead_tutores/infografico.html` e pôster PDF de página única `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf`.
 - [x] **Item 3 — Plataforma Web e Hub Unificado**:
