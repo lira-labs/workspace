@@ -1,4 +1,4 @@
-﻿param (
+param (
     [Parameter(Mandatory=$false)]
     [ValidateSet("push", "pull", "status")]
     [string]$Action = "push",
@@ -40,7 +40,8 @@ if ($Action -eq "push") {
     git clone $authUrl $tempCloneDir --quiet
 
     Write-Host "[2/3] Copiando arquivos locais de papers/ para o Overleaf..."
-    Get-ChildItem -Path $papersDir -Exclude ".git", "CONTEXT.md" | ForEach-Object {
+    # 04-internet-futuro tem projeto Overleaf proprio (disciplina Internet do Futuro) e nao entra aqui
+    Get-ChildItem -Path $papersDir -Exclude ".git", "CONTEXT.md", "04-internet-futuro" | ForEach-Object {
         Copy-Item -Path $_.FullName -Destination $tempCloneDir -Recurse -Force
     }
 

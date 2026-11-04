@@ -22,6 +22,12 @@
 - **Figuras:** `03-arena/figures/` (`utopia_metrics.png`, `distopia_metrics.png`)
 - **Código Relacionado:** `code/topicos_avancados_ia_cp03/` (Arena Utopia vs. Distopia em 20 rodadas)
 
+### 4. `04-internet-futuro/` — Proposta de Projeto 2ª VA · Internet do Futuro (Profa. Jeisa)
+- **Arquivo Principal:** `main.tex` + `refs.bib` (pasta autocontida)
+- **Tema:** Telessaúde segura no interior com Criptografia Pós-Quântica (tema 17) + Satélites LEO (tema 8) + Edge Computing (tema 2)
+- **Overleaf:** projeto PRÓPRIO e separado. Excluída de `core/tools/sync_overleaf.ps1` para não vazar no Overleaf das outras disciplinas.
+- **Entrega:** documento + vídeo de até 10 min em 24/11/2026
+
 ---
 
 ## 🔄 Como Compilar no Overleaf
