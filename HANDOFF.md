@@ -4,8 +4,8 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 03/11/2026 15:45
-- **Branch Ativo:** `main` (Sincronizado com `develop` e `feature/cp03-distopia-utopia`)
+- **Ultima Atualizacao:** 04/11/2026 12:20
+- **Branch Ativo:** `main` (Sincronizado com `origin/main`)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -18,29 +18,29 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica)
-- [x] **Etapa 1 — Consolidação do Tema do Seminário (Entrega até 10/11)**:
-  - Respostas consolidadas em texto corrido, linguagem simples e direta para o Google Forms sobre **Criptografia Pós-Quântica** (1ª VA: `https://www.youtube.com/watch?v=HQlqOFRr98A`).
-  - Mapeamento do problema, contexto de aplicação, limitações, tecnologias fortalecedoras (5G/6G, Computação de Borda, Blockchain), tecnologias conflitantes (IoT restrito, tempo real extremo, middleboxes/roteadores antigos) e resumo em uma frase para cada item.
-  - Aguardando atualização da professora e discussões em sala (11/11 e 18/11) para iniciar a **Etapa 2 (Proposta do projeto + vídeo até 24/11)**.
-- [/] **Etapa 2 — Proposta de projeto teórico (entrega 24/11)** · branch `feature/if-2va-pqc-telessaude`:
-  - Cenário escolhido: **Telessaúde segura no interior** = PQC (tema 17) + Satélites LEO (tema 8, Alexander) + Edge Computing (tema 2, Daniel).
-  - Primeira versão completa em `papers/04-internet-futuro/main.tex` + `refs.bib` (10 referências, arquitetura em 4 camadas em TikZ, 4 cenários de uso). Ainda NÃO compilada (sem LaTeX local).
-  - Pendências: criar projeto NOVO no Overleaf e compilar; receber o documento de exemplo (tema 21) da professora para ajustar estrutura; roteiro do vídeo de até 10 min.
-  - Linguagem: o usuário prefere **texto corrido, simples e humano**, sem listas robóticas nem termos complicados.
-
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
-- [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Upgrade Editorial Completo Multi-Quadros)**:
-  - `code/projeto_ead_tutores/ebook-hq.html` e PDF A4 de 8 páginas `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` (mais MVP da Página 03 em `code/projeto_ead_tutores/mvp-pagina-hq.html` e arquitetura em `code/projeto_ead_tutores/COMICFORGE_ARCHITECTURE.md`).
-  - Todas as 8 páginas convertidas para o padrão de **Graphic Novel real multi-quadros** (*Spider-Verse / Science Comics*): sarjetas com retícula, múltiplos quadros ilustrados por página com consistência de *Character Bible* (**Cauã Lira**, **Clara** e **Byte v1.0 / v2.0**), recordatórios amarelos/cianos, onomatopeias e balões de fala/pensamento/glitch com rabichos vetoriais SVG apontando para os personagens.
-  - Todas as 21 imagens dos quadros estão embutidas diretamente em **Base64 (`data:image/jpeg;base64,...`)** dentro do `ebook-hq.html` (além dos arquivos `.jpg` em `code/projeto_ead_tutores/assets/hq/`), garantindo renderização imediata no preview remoto do notebook.
-  - Publicado no FlipHTML5: `https://online.fliphtml5.com/caualira02/lhzk/` (pronto para re-upload opcional do novo PDF multi-quadros).
-  - Dados reais da bateria executada em instâncias isoladas de `Claude Opus 4.6` (Média v1.0: `3,6` / `72%` → Média v2.0: `4,4` / `88%`, `+22,2%` de evolução, `0%` de regressão e `100%` de aprovação).
+- [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Edição Expandida Definitiva de 12 Páginas A4)**:
+  - `code/projeto_ead_tutores/ebook-hq.html` (5.11 MB, 100% autocontido com as 16 artes embutidas em Base64, leitor interativo, modo folhear vs webtoon, dark/light mode e botões de cópia de prompts com 1 clique).
+  - `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` (4.69 MB, exportação A4 perfeita cravada em **exatamente 12 páginas** via headless Edge).
+  - Todas as 16 artes geradas em nanquim e retícula (*halftone* / *Spider-Verse* / *Science Comics*), sem cortes de personagens nas bordas e livres de erros de IA (textos truncados em inglês removidos).
+  - **Estrutura Canônica das 12 Páginas**:
+    - *Pág. 01*: Capa de Revista HQ (*Comic Cover* vertical 896x1200 com Cauã, Clara e Byte v1.0/v2.0).
+    - *Pág. 02*: Dossiê #00 · Quem é Quem (Cauã Mentor, Clara Caloura e Byte Dualidade) + Fluxo Operacional.
+    - *Pág. 03*: Cap. 01 (Parte 1) · A Armadilha da Resposta Mastigada (23h40 no polo) + Apagão na Prova.
+    - *Pág. 04*: Cap. 01 (Parte 2) · A Evaporação do Esforço Cognitivo (Scaffolding Bruner/Vygotsky) + Dados PISA 2025/2026.
+    - *Pág. 05*: Cap. 02 · O Scanner Pedagógico de 4 Critérios (Correção, Clareza, ZDP e Escopo) + Rubrica 1 a 5.
+    - *Pág. 06*: Cap. 03 (Parte 1) · Primeiros Combates do Byte v1.0 (Casos #01, #02, #04 e #05 Escudo de Escopo).
+    - *Pág. 07*: Cap. 03 (Parte 2) · Splash do Desastre Didático do Caso #03 (CPython/Heap) + Terminal de Auditoria.
+    - *Pág. 08*: Cap. 03 (Parte 3) · Cirurgia Neural no System Prompt + As 4 Travas Pedagógicas.
+    - *Pág. 09*: Cap. 04 (Parte 1) · Reteste Empírico (Metáforas das Caixas Organizadoras e Cesta de Compras).
+    - *Pág. 10*: Cap. 04 (Parte 2) · Matriz Comparativa de Resultados (+22,2% ganho) + Impacto Teórico (Khanmigo & Bloom).
+    - *Pág. 11*: Cap. 05 (Parte 1) · Manual de Campo Docente com Templates Copiáveis (Byte v2.0 e v2.1 Anti-Loop).
+    - *Pág. 12*: Cap. 05 (Parte 2) · Epílogo Triunfante (Polo EaD), Os 3 Pilares Éticos e Referências Científicas Completas.
+  - Pipeline de automação e renderização consolidado em `core/tools/generate_full_ebook.py` e `core/tools/render_pdf.ps1`.
 - [x] **Item 2 — Infográfico Visual e Interativo ("Anatomia e Calibragem de um Tutor Socrático de IA")**:
-  - `code/projeto_ead_tutores/infografico.html` (com filtros interativos v1.0 vs. v2.0 e cópia de prompt) e pôster PDF de página única `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf`.
-- [x] **Atualização e Deploy em Produção da Plataforma Web (`code/projeto_ead_tutores/index.html`)**:
-  - Publicado e auditado na Vercel em produção: `https://projeto-ead-caua.vercel.app` (`HTTP 200 OK` em todas as rotas e PDFs).
-  - Trilha sequencial de estudo em 4 etapas integrando 1ª VA (Videoaula YouTube + Slides `.pptx` + Quiz Genially) e 2ª VA (eBook-HQ no FlipHTML5 + Leitor Nativo + Infográfico Visual) com leitores embutidos e todos os links auditados.
+  - `code/projeto_ead_tutores/infografico.html` e pôster PDF de página única `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf`.
+- [x] **Item 3 — Plataforma Web e Hub Unificado**:
+  - `code/projeto_ead_tutores/index.html` conectando Videoaula, Slides, Quiz, eBook-HQ de 12 Páginas e Infográfico em produção na Vercel (`https://projeto-ead-caua.vercel.app`).
 
 ### 1. Entregas da VA2 (100% Concluídas, Auditadas e Públicas no GitHub)
 - [x] **`va2/brw.md` (Brainwriting Híbrido)**: Concluído e auditado.

@@ -1,5 +1,8 @@
 \documentclass[12pt,a4paper]{article}
 
+% ---------------------------------------------------------
+% Pacotes
+% ---------------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
@@ -9,182 +12,523 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
-\usepackage{xcolor}
+\usepackage{array}
+\usepackage{float}
+\usepackage[table]{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,fit,backgrounds}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{caption}
 \usepackage[hidelinks]{hyperref}
+\usepackage[alf]{abntex2cite} % precisa vir depois do hyperref
+
+% ---------------------------------------------------------
+% Cores e identidade visual
+% ---------------------------------------------------------
+\definecolor{azul}{HTML}{1F3A5F}
+\definecolor{azulclaro}{HTML}{E8EEF5}
+\definecolor{verdeborda}{HTML}{2E7D5B}
+\definecolor{laranja}{HTML}{C8642B}
+\definecolor{roxo}{HTML}{6A4C93}
+\definecolor{cinza}{HTML}{5A5A5A}
+
+\titleformat{\section}{\Large\bfseries\color{azul}}{\thesection}{0.8em}{}[{\color{azul!40}\titlerule[0.8pt]}]
+\titleformat{\subsection}{\large\bfseries\color{azul}}{\thesubsection}{0.8em}{}
+\titleformat{\paragraph}[runin]{\normalsize\bfseries\color{azul}}{}{}{}[.]
+\titlespacing*{\section}{0pt}{1.6em}{0.9em}
+
+\captionsetup{font=small, labelfont={bf,color=azul}, justification=centering, skip=6pt}
+
+% Fonte das figuras e tabelas (padrao ABNT, abaixo da ilustracao)
+\newcommand{\fonte}[1]{\par\vspace{3pt}{\centering\footnotesize Fonte: #1\par}}
+
+% Caixa de resumo no fim de cada secao
+\newtcolorbox{emresumo}{
+  enhanced, breakable,
+  colback=azulclaro, colframe=azul,
+  boxrule=0pt, leftrule=4pt, arc=2pt,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+  before skip=12pt, after skip=8pt,
+  fontupper=\small
+}
+\newcommand{\resumo}[1]{\begin{emresumo}\textbf{\color{azul}Em resumo:} #1\end{emresumo}}
+
+% Cabecalho e rodape
+\pagestyle{fancy}
+\setlength{\headheight}{24pt}
+\addtolength{\topmargin}{-12pt}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{cinza}Telessaúde segura no interior}
+\fancyhead[R]{\footnotesize\color{cinza}Internet do Futuro -- UFRPE}
+\fancyfoot[C]{\small\color{azul}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{azul!30}\leaders\hrule height \headrulewidth\hfill}}
 
 \onehalfspacing
 \setlength{\parindent}{1.25cm}
-
-\title{\textbf{Telessaúde segura no interior:}\\
-criptografia pós-quântica com satélites LEO e computação de borda}
-\author{Cauã Lira\\
-\small Licenciatura em Computação -- Universidade Federal Rural de Pernambuco (UFRPE)\\
-\small Disciplina: Internet do Futuro -- Profa. Jeisa Pereira de Oliveira Domingues\\
-\small 2ª VA -- Etapa 2: Proposta de projeto (teórico)}
-\date{Novembro de 2026}
+\setlength{\parskip}{3pt}
 
 \begin{document}
 
-\maketitle
+% =========================================================
+% CAPA
+% =========================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  \fill[azul] (current page.north west) rectangle ([yshift=-0.9cm]current page.north east);
+  \fill[azul] (current page.south west) rectangle ([yshift=0.9cm]current page.south east);
+\end{tikzpicture}
+\centering
+\vspace*{0.4cm}
+\includegraphics[height=3.2cm]{figures/brasao_ufrpe.png}\par
+\vspace{0.5cm}
+{\large\bfseries\color{azul} UNIVERSIDADE FEDERAL RURAL DE PERNAMBUCO\par}
+\vspace{0.15cm}
+{\normalsize Licenciatura em Computação\par}
+{\normalsize Disciplina: Internet do Futuro\par}
 
-\begin{abstract}
-\noindent
-Este documento apresenta uma proposta teórica para proteger os dados de pacientes atendidos por telessaúde em lugares afastados, como o sertão de Pernambuco e comunidades ribeirinhas da Amazônia. A ideia junta três tecnologias vistas na disciplina: a criptografia pós-quântica, que protege os dados contra os computadores quânticos do futuro; os satélites de órbita baixa (LEO), que levam internet até onde não chega fibra óptica; e a computação de borda, que coloca um pequeno servidor dentro do posto de saúde para fazer o trabalho pesado perto do paciente. O texto explica o problema, o papel de cada tecnologia, um esboço da arquitetura em camadas, alguns cenários de uso e uma discussão honesta sobre benefícios, limitações e viabilidade.
+\vspace{2.0cm}
+{\color{azul}\rule{0.6\textwidth}{1pt}\par}
+\vspace{0.5cm}
+{\huge\bfseries\color{azul} Telessaúde segura no interior\par}
+\vspace{0.4cm}
+{\Large Criptografia pós-quântica com satélites LEO,\\ computação de borda e Zero Trust\par}
+\vspace{0.5cm}
+{\color{azul}\rule{0.6\textwidth}{1pt}\par}
 
-\medskip
-\noindent\textbf{Palavras-chave:} criptografia pós-quântica; satélites LEO; computação de borda; telessaúde; segurança de dados.
-\end{abstract}
+\vspace{0.8cm}
+{\large Proposta de projeto teórico -- 2ª VA, Etapa 2\par}
+
+\vfill
+{\large\bfseries Cauã Lira\par}
+\vspace{0.2cm}
+{\normalsize Professora: Jeisa Pereira de Oliveira Domingues\par}
+\vspace{1.4cm}
+{\normalsize Recife\par}
+{\normalsize Novembro de 2026\par}
+\vspace*{0.6cm}
+\end{titlepage}
 
 % =========================================================
-\section{O problema que será investigado}
+% RESUMO
+% =========================================================
+\thispagestyle{fancy}
+\section*{Resumo}
 
-A telessaúde já é uma realidade no Brasil e, desde 2022, é autorizada por lei em todo o território nacional \cite{brasil2022telessaude}. Ela é especialmente importante para quem mora longe dos grandes centros, porque permite que um paciente em um posto de saúde no interior seja atendido por um especialista que está a centenas de quilômetros de distância. O problema é que muitos desses lugares não têm fibra óptica nem um sinal de celular confiável, e a forma mais prática de levar internet até lá hoje é por satélite.
+Este documento apresenta uma proposta teórica para proteger os dados de pacientes atendidos por telessaúde em lugares afastados, como o sertão de Pernambuco e as comunidades ribeirinhas da Amazônia. A ideia junta quatro tecnologias vistas na disciplina. A criptografia pós-quântica, tema do meu seminário, protege os dados contra os computadores quânticos do futuro. Os satélites de órbita baixa (LEO) levam internet até onde a fibra óptica não chega. A computação de borda coloca um pequeno servidor dentro do posto de saúde para fazer o trabalho pesado perto do paciente. E o modelo Zero Trust garante que nenhum aparelho ou pessoa tenha acesso a um prontuário só por estar ``dentro da rede''. Ao longo do texto, explico o problema, o papel de cada tecnologia, um esboço da arquitetura em camadas, alguns cenários do dia a dia e uma discussão sincera sobre benefícios, limitações e viabilidade.
 
-Junto com a conexão vem uma preocupação que pouca gente enxerga: a segurança dos dados de saúde. Um prontuário, um exame de coração ou um ultrassom de pré-natal são informações que continuam sendo sensíveis pelo resto da vida da pessoa. A Lei Geral de Proteção de Dados (LGPD) inclusive trata esse tipo de informação como dado sensível, que precisa de cuidado redobrado \cite{brasil2018lgpd}. Hoje esses dados viajam protegidos pela criptografia atual, como RSA e curvas elípticas, que funciona bem contra os computadores que temos agora.
+\vspace{0.4cm}
+\noindent\textbf{\color{azul}Palavras-chave:} criptografia pós-quântica; satélites LEO; computação de borda; Zero Trust; telessaúde.
 
-Acontece que essa proteção tem prazo de validade. Quando os computadores quânticos ficarem fortes o suficiente, eles vão conseguir quebrar a criptografia atual \cite{bernstein2017pqc}. E o perigo não começa só nesse dia. Já existe o ataque conhecido como \emph{``colha agora, descriptografe depois''}, em que alguém copia os dados criptografados hoje e guarda para abrir no futuro, quando tiver acesso a um computador quântico. Mosca \cite{mosca2018cybersecurity} explica isso de um jeito simples: se o tempo que um dado precisa ficar em segredo, somado ao tempo que levamos para trocar nossa criptografia, for maior do que o tempo até surgir um computador quântico capaz, então já estamos atrasados. Dados de saúde, que precisam ficar em segredo por décadas, se encaixam exatamente nessa situação.
+\vspace{0.8cm}
+\begin{tcolorbox}[enhanced, colback=white, colframe=azul, arc=3pt, boxrule=0.8pt,
+  title={\bfseries As quatro tecnologias desta proposta}, colbacktitle=azul, coltitle=white, fontupper=\small]
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{>{\bfseries}l X l}
+\textcolor{azul}{Criptografia pós-quântica} & protege os dados hoje e no futuro & tema 17 -- Cauã \\
+\textcolor{laranja}{Satélites LEO} & leva a internet até o posto isolado & tema 8 -- Alexander \\
+\textcolor{verdeborda}{Computação de borda} & faz o trabalho pesado dentro do posto & tema 2 -- Daniel \\
+\textcolor{roxo}{Zero Trust} & confere quem pode acessar cada dado & tema 9 -- João Victor V. \\
+\end{tabularx}
+\end{tcolorbox}
 
-Por isso, o problema investigado nesta proposta é o seguinte: \textbf{como garantir que os dados de pacientes atendidos por telessaúde em regiões remotas continuem protegidos hoje e daqui a vinte ou trinta anos, mesmo usando uma conexão via satélite e equipamentos simples dentro do posto de saúde?}
+\newpage
+
+% =========================================================
+\section{Introdução e o problema investigado}
+% =========================================================
+
+A telessaúde já faz parte da realidade brasileira e, desde 2022, é autorizada por lei em todo o território nacional \cite{brasil2022telessaude}. Ela é especialmente importante para quem mora longe dos grandes centros, porque permite que um paciente num posto de saúde do interior seja atendido por um especialista que está a centenas de quilômetros de distância. O problema é que muitos desses lugares não têm fibra óptica nem um sinal de celular confiável, e hoje a forma mais prática de levar internet até lá é pelo céu, usando satélites. A Figura~\ref{fig:posto} mostra a cena que guia todo este trabalho.
+
+\begin{figure}[H]
+\centering
+\caption{Posto de saúde no sertão conectado por satélite a um hospital na cidade.}
+\label{fig:posto}
+\includegraphics[width=0.88\textwidth]{figures/posto_sertao.jpg}
+\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\end{figure}
+
+Junto com a conexão vem uma preocupação que pouca gente enxerga: a segurança dos dados de saúde. Um prontuário, um exame do coração ou um ultrassom de pré-natal são informações que continuam sensíveis pelo resto da vida da pessoa. A Lei Geral de Proteção de Dados (LGPD) inclusive coloca esse tipo de informação na categoria de dado sensível, que precisa de cuidado redobrado \cite{brasil2018lgpd}. Hoje esses dados viajam protegidos pela criptografia atual, como o RSA e as curvas elípticas, que funcionam bem contra os computadores que temos agora.
+
+Acontece que essa proteção tem prazo de validade. Quando os computadores quânticos ficarem fortes o suficiente, eles vão conseguir quebrar a criptografia atual \cite{bernstein2017pqc}. E o perigo não começa só nesse dia. Já existe um ataque conhecido como \emph{``colha agora, descriptografe depois''}, em que alguém copia os dados criptografados hoje e guarda para abrir no futuro, quando tiver um computador quântico nas mãos. A Figura~\ref{fig:colha} ilustra essa ideia.
+
+\begin{figure}[H]
+\centering
+\caption{O ataque ``colha agora, descriptografe depois'': os dados roubados hoje são guardados até existir um computador quântico capaz de abri-los. Os cadeados pós-quânticos (em azul) resistem.}
+\label{fig:colha}
+\includegraphics[width=0.85\textwidth]{figures/colha_agora.jpg}
+\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\end{figure}
+
+\citeonline{mosca2018cybersecurity} explica esse risco com uma conta bem simples. Pense em três tempos: $X$ é quanto tempo um dado precisa ficar em segredo, $Y$ é quanto tempo levamos para trocar toda a nossa criptografia, e $Z$ é quanto tempo falta para surgir um computador quântico capaz de quebrá-la. Se
+\[
+X + Y > Z,
+\]
+então já estamos atrasados, porque os dados vão ficar expostos antes de perderem a importância. Um prontuário médico precisa ficar em segredo por décadas, o que deixa o $X$ enorme. Por isso, dados de saúde são um dos exemplos mais claros de informação que precisa de proteção pós-quântica desde já.
+
+Com tudo isso em mente, o problema investigado nesta proposta é o seguinte:
+
+\begin{tcolorbox}[enhanced, colback=white, colframe=azul, boxrule=0.8pt, arc=3pt, left=12pt, right=12pt]
+\centering\itshape
+Como garantir que os dados de pacientes atendidos por telessaúde em regiões remotas continuem protegidos hoje e daqui a vinte ou trinta anos, mesmo usando conexão via satélite e equipamentos simples dentro do posto de saúde?
+\end{tcolorbox}
+
+\resumo{a telessaúde leva atendimento ao interior pelo satélite, mas os dados de saúde precisam ficar em segredo por décadas, e a criptografia de hoje não vai resistir aos computadores quânticos. É esse o buraco que a proposta quer fechar.}
+
+% =========================================================
+\section{Ponto de partida: o que a Etapa 1 mostrou}
+% =========================================================
+
+Esta proposta nasce das respostas que dei no formulário da Etapa 1, sobre o meu tema de seminário. Lá, eu disse que a criptografia pós-quântica serve para proteger os dados da internet contra os computadores quânticos e que ela faz mais sentido onde as informações precisam ficar em segredo por muitos anos, citando justamente hospitais e governos. A telessaúde no interior junta essas duas coisas num cenário só.
+
+Também apontei as principais limitações: as chaves são maiores, os aparelhos simples sofrem para rodar esses algoritmos e trocar a segurança de sistemas inteiros dá muito trabalho. Na mesma resposta, citei a computação de borda como uma tecnologia que fortalece a minha, porque ela pode fazer o trabalho pesado no lugar dos aparelhos fracos. E, entre os conflitos, mencionei os aparelhos de Internet das Coisas com pouca memória e bateria.
+
+O projeto foi montado para responder a essas mesmas questões. A Tabela~\ref{tab:etapa1} mostra essa ligação.
+
+\begin{table}[H]
+\centering
+\caption{Como a proposta responde ao que foi levantado na Etapa 1.}
+\label{tab:etapa1}
+\small
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{azulclaro}{white}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{O que a Etapa 1 disse} & \textbf{Como a proposta trata disso} \\
+\midrule
+O problema é o ataque ``colha agora, descriptografe depois''. & Os dados saem do posto já protegidos com algoritmos pós-quânticos. \\
+Faz mais sentido em saúde, onde o dado vale por décadas. & O cenário escolhido é justamente o prontuário de pacientes do interior. \\
+Aparelhos simples não aguentam o peso dos algoritmos. & O servidor de borda faz o trabalho pesado no lugar deles. \\
+Chaves maiores consomem mais internet. & A conexão LEO tem velocidade suficiente e a borda comprime os arquivos grandes. \\
+Edge Computing fortalece a tecnologia. & A borda virou uma camada inteira da arquitetura. \\
+\bottomrule
+\end{tabularx}
+\fonte{elaborada pelo autor (2026).}
+\end{table}
+
+\resumo{o projeto não começou do zero. Ele pega o que eu mesmo levantei na Etapa 1, inclusive os pontos fracos da minha tecnologia, e monta uma arquitetura que tenta resolver cada um deles.}
 
 % =========================================================
 \section{Objetivos da proposta}
+% =========================================================
 
-O objetivo geral é propor uma arquitetura de telessaúde para regiões remotas que proteja os dados dos pacientes contra ameaças atuais e futuras, juntando a criptografia pós-quântica com os satélites de órbita baixa e a computação de borda.
+O \textbf{objetivo geral} é propor uma arquitetura de telessaúde para regiões remotas que proteja os dados dos pacientes contra ameaças de hoje e do futuro, juntando a criptografia pós-quântica com os satélites de órbita baixa, a computação de borda e o modelo Zero Trust.
 
-Para chegar nisso, a proposta tem alguns objetivos mais específicos. O primeiro é usar a criptografia pós-quântica para proteger tanto a troca de chaves quanto as assinaturas digitais dos dados de saúde, desde o posto até o hospital de referência. O segundo é usar os satélites LEO para dar uma conexão com velocidade e atraso parecidos com os da internet da cidade, que é o que permite fazer uma teleconsulta em vídeo sem travar. O terceiro é usar a computação de borda para tirar o peso da criptografia dos aparelhos mais simples do posto, além de manter o atendimento funcionando quando o sinal do satélite cair. Por fim, a proposta quer discutir com sinceridade se essa combinação é viável no Brasil de hoje, olhando para custo, energia, dependência de empresas privadas e maturidade das tecnologias.
+Para chegar lá, a proposta tem alguns \textbf{objetivos específicos}. O primeiro é usar a criptografia pós-quântica para proteger tanto a troca de chaves quanto as assinaturas digitais dos exames, desde o posto até o hospital de referência. O segundo é usar os satélites LEO para garantir uma conexão com velocidade e atraso parecidos com os da internet da cidade, o que permite fazer uma teleconsulta em vídeo sem travar. O terceiro é usar a computação de borda para tirar o peso da criptografia dos aparelhos simples do posto e manter o atendimento funcionando quando o sinal do satélite cair. O quarto é aplicar o Zero Trust para que cada aparelho, profissional e médico seja conferido toda vez que pedir acesso a um dado, e não só uma vez na entrada. Por fim, a proposta quer discutir com sinceridade se essa combinação é viável no Brasil de hoje, olhando para custo, energia, dependência de empresas privadas e maturidade das tecnologias.
+
+\resumo{o objetivo é proteger os dados de saúde do interior hoje e no futuro, usando cada tecnologia para cobrir um ponto específico: proteção, conexão, processamento local e controle de acesso.}
 
 % =========================================================
 \section{As tecnologias e o papel de cada uma}
+% =========================================================
 
 \subsection{Criptografia pós-quântica (tema 17 -- Cauã)}
 
-A criptografia pós-quântica é um conjunto de novos algoritmos que rodam nos computadores e celulares comuns de hoje, mas que foram pensados para resistir tanto aos computadores normais quanto aos quânticos \cite{bernstein2017pqc}. Em 2024 o NIST, que é o órgão de padronização dos Estados Unidos e uma referência mundial na área, publicou os primeiros padrões oficiais: o ML-KEM, usado para combinar uma chave secreta entre duas partes \cite{nist2024fips203}, e o ML-DSA, usado para assinar digitalmente um documento e provar que ele não foi alterado \cite{nist2024fips204}.
+A criptografia pós-quântica é um conjunto de novos algoritmos que rodam nos computadores e celulares comuns de hoje, mas que foram pensados para resistir tanto aos computadores normais quanto aos quânticos \cite{bernstein2017pqc}. A ameaça que ela enfrenta já é concreta: computadores quânticos de verdade, como o da Figura~\ref{fig:ibm}, já existem e estão ficando mais fortes a cada geração. Eles ainda não conseguem quebrar a criptografia atual, mas é isso que os especialistas esperam para os próximos anos.
 
-Na nossa arquitetura, ela é a \textbf{camada de proteção}. Ela entra em dois momentos. Na hora de abrir a conexão entre o posto e o hospital, o ML-KEM combina a chave que vai proteger tudo o que passar pelo satélite. E na hora de guardar um exame, o ML-DSA assina o arquivo, para que o médico do outro lado tenha certeza de que aquele exame veio mesmo daquele posto e não foi mexido no caminho. Como esses algoritmos ainda são novos, a proposta usa o chamado \emph{modo híbrido}, que junta o algoritmo clássico com o pós-quântico. Assim, se um dos dois tiver algum defeito descoberto no futuro, o outro continua segurando a proteção.
+\begin{figure}[H]
+\centering
+\caption{Computador quântico IBM Q System One, instalado na Alemanha em 2021.}
+\label{fig:ibm}
+\includegraphics[width=0.62\textwidth]{figures/ibm_quantum.jpg}
+\fonte{IBM Research (2021), licença CC BY 2.0, via Wikimedia Commons.}
+\end{figure}
+
+Em 2024, o NIST, órgão de padronização dos Estados Unidos e referência mundial na área, publicou os primeiros padrões oficiais dessa nova criptografia. O ML-KEM serve para duas partes combinarem uma chave secreta pela internet \cite{nist2024fips203}, e o ML-DSA serve para assinar digitalmente um arquivo e provar que ele não foi alterado \cite{nist2024fips204}.
+
+Na nossa arquitetura, ela é a \textbf{camada de proteção}. Ela entra em dois momentos. Na hora de abrir a conexão entre o posto e o hospital, o ML-KEM combina a chave que vai proteger tudo o que passar pelo satélite. Na hora de guardar um exame, o ML-DSA assina o arquivo, para que o médico do outro lado tenha certeza de que aquele exame veio mesmo daquele posto e não foi mexido no caminho. Como esses algoritmos ainda são novos, a proposta usa o \emph{modo híbrido}, que junta um algoritmo clássico com o pós-quântico. Assim, se um dos dois tiver algum defeito descoberto no futuro, o outro continua segurando a proteção.
+
+O preço dessa proteção é o tamanho. A Tabela~\ref{tab:chaves} compara os algoritmos de hoje com os novos padrões.
+
+\begin{table}[H]
+\centering
+\caption{Tamanho, em bytes, das chaves e assinaturas atuais e pós-quânticas.}
+\label{tab:chaves}
+\small
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{azulclaro}{white}
+\begin{tabular}{l l r r}
+\toprule
+\textbf{Algoritmo} & \textbf{Para que serve} & \textbf{Chave pública} & \textbf{\shortstack[r]{Texto cifrado /\\assinatura}} \\
+\midrule
+X25519 (atual) & combinar chave & 32 & 32 \\
+ML-KEM-768 (pós-quântico) & combinar chave & 1.184 & 1.088 \\
+Ed25519 (atual) & assinar & 32 & 64 \\
+ML-DSA-65 (pós-quântico) & assinar & 1.952 & 3.309 \\
+\bottomrule
+\end{tabular}
+\fonte{elaborada pelo autor com base em \citeonline{nist2024fips203} e \citeonline{nist2024fips204}.}
+\end{table}
 
 \subsection{Satélites de órbita baixa -- LEO (tema 8 -- Alexander)}
 
-Os satélites LEO ficam bem mais perto da Terra do que os satélites de internet tradicionais. Enquanto um satélite geoestacionário fica a cerca de 36 mil quilômetros de altura, os de órbita baixa ficam entre algumas centenas e pouco mais de mil quilômetros. Por estarem tão perto, o atraso da conexão cai muito, e por isso eles são lançados em grandes constelações com centenas ou milhares de satélites \cite{delportillo2019leo}. Medições feitas em redes desse tipo mostram atrasos na faixa de dezenas de milissegundos e velocidades suficientes para chamadas de vídeo \cite{michel2022starlink}.
+Os satélites LEO ficam bem mais perto da Terra do que os satélites de internet tradicionais. Enquanto um satélite geoestacionário fica a cerca de 36 mil quilômetros de altura, os de órbita baixa ficam entre algumas centenas e pouco mais de mil quilômetros. Por estarem tão perto, o atraso da conexão cai muito. Em troca, cada satélite cobre uma área pequena e passa rápido pelo céu, por isso eles são lançados em constelações com centenas ou milhares de unidades \cite{delportillo2019leo}. A Figura~\ref{fig:sat} mostra um lote desses satélites logo depois de um lançamento.
 
-Na nossa arquitetura, os satélites LEO são a \textbf{camada de transporte}. São eles que ligam o posto de saúde isolado ao resto da internet. Um ponto importante é que os dados já saem do posto protegidos pela criptografia pós-quântica. Ou seja, a empresa dona do satélite só transporta os pacotes, mas não consegue ler o que tem dentro deles.
+\begin{figure}[H]
+\centering
+\caption{Lote de satélites Starlink logo após o lançamento, em 2019, com a Terra ao fundo.}
+\label{fig:sat}
+\includegraphics[width=0.72\textwidth]{figures/starlink_satelites.jpg}
+\fonte{SpaceX (2019), domínio público (CC0), via Wikimedia Commons.}
+\end{figure}
+
+Medições feitas em redes desse tipo mostram atrasos na faixa de dezenas de milissegundos e velocidades suficientes para chamadas de vídeo \cite{michel2022starlink}, coisa que os satélites antigos não conseguiam entregar.
+
+Na nossa arquitetura, os satélites LEO são a \textbf{camada de transporte}. São eles que ligam o posto isolado ao resto da internet. Um ponto importante é que os dados já saem do posto protegidos pela criptografia pós-quântica. Ou seja, a empresa dona do satélite só transporta os pacotes, mas não consegue ler o que tem dentro deles.
 
 \subsection{Computação de borda -- Edge Computing (tema 2 -- Daniel)}
 
-A computação de borda é a ideia de colocar capacidade de processamento perto de onde os dados nascem, em vez de mandar tudo para uma nuvem distante \cite{shi2016edge}. Satyanarayanan \cite{satyanarayanan2017emergence} mostra que isso ajuda a diminuir o atraso, economizar internet e continuar funcionando mesmo quando a conexão com a nuvem cai.
+A computação de borda é a ideia de colocar capacidade de processamento perto de onde os dados nascem, em vez de mandar tudo para uma nuvem distante \cite{shi2016edge}. \citeonline{satyanarayanan2017emergence} mostra que isso ajuda a diminuir o atraso, economizar internet e continuar funcionando mesmo quando a ligação com a nuvem cai.
 
-Na nossa arquitetura, a borda é a \textbf{camada de processamento local}. Ela é um pequeno servidor, do tamanho de um mini computador, instalado dentro do próprio posto de saúde. Esse servidor resolve uma limitação da criptografia pós-quântica que apareceu na Etapa 1: aparelhos simples, como um eletrocardiógrafo portátil ou um tablet antigo, nem sempre têm força para rodar esses algoritmos mais pesados. Com a borda, esses aparelhos só precisam mandar os dados pela rede interna do posto, e o servidor de borda faz o trabalho pesado de criptografar, assinar e enviar. Além disso, ele guarda uma cópia local dos atendimentos, o que permite que o posto continue trabalhando durante uma chuva forte que derrube o sinal do satélite.
+Na nossa arquitetura, a borda é a \textbf{camada de processamento local}. Ela é um pequeno servidor, do tamanho de um mini computador, instalado dentro do próprio posto. Esse servidor resolve uma limitação da criptografia pós-quântica que apareceu na Etapa 1: aparelhos simples, como um eletrocardiógrafo portátil ou um tablet antigo, nem sempre têm força para rodar esses algoritmos mais pesados. Com a borda, esses aparelhos só precisam mandar os dados pela rede interna do posto, e o servidor faz o trabalho pesado de criptografar, assinar e enviar. Além disso, ele guarda uma cópia local dos atendimentos, o que permite que o posto continue trabalhando durante uma chuva forte que derrube o sinal do satélite.
 
-\subsection{Resumo dos papéis}
+\subsection{Zero Trust (tema 9 -- João Victor Vasconcelos)}
 
-A Tabela~\ref{tab:papeis} resume o que cada tecnologia faz na proposta e qual limitação ela ajuda a resolver.
+O Zero Trust, ou ``confiança zero'', muda a forma de pensar a segurança de uma rede. No modelo antigo, quem estava dentro da rede era considerado confiável. No Zero Trust, ninguém é confiável só por estar dentro: cada pedido de acesso precisa ser conferido, levando em conta quem está pedindo, de qual aparelho e para quê \cite{rose2020zta}. A ideia central é dar a cada pessoa ou aparelho só o acesso mínimo que ele precisa para fazer o seu trabalho \cite{syed2022zta}.
 
-\begin{table}[h]
+Na nossa arquitetura, o Zero Trust é a \textbf{camada de controle de acesso}, e ela atravessa todas as outras. No posto, o servidor de borda só aceita dados de aparelhos cadastrados. No hospital, um médico só consegue abrir o prontuário do paciente que está atendendo, e não o de qualquer pessoa. E aqui as duas tecnologias se ajudam: o Zero Trust depende de certificados e assinaturas digitais para saber quem é quem, e a criptografia pós-quântica garante que essas identidades não possam ser falsificadas por um computador quântico no futuro.
+
+\subsection{Comparando as quatro tecnologias}
+
+A Tabela~\ref{tab:papeis} junta tudo: o papel de cada tecnologia, o que ela tem de melhor e qual ponto fraco dela é coberto por outra.
+
+\begin{table}[H]
 \centering
-\caption{Papel de cada tecnologia na arquitetura proposta.}
+\caption{Papel, ponto forte e ponto fraco de cada tecnologia na proposta.}
 \label{tab:papeis}
 \small
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Tecnologia} & \textbf{Papel na arquitetura} & \textbf{O que ela resolve} \\
+\textbf{Tecnologia} & \textbf{Papel na arquitetura} & \textbf{Ponto forte} & \textbf{Ponto fraco e quem cobre} \\
 \midrule
-Criptografia pós-quântica & Protege a troca de chaves e assina os exames, do posto até o hospital. & Impede que os dados sejam abertos no futuro por um computador quântico. \\
-\addlinespace
-Satélites LEO & Transporta os dados entre o posto isolado e a internet. & Leva conexão rápida e com pouco atraso a lugares sem fibra. \\
-\addlinespace
-Computação de borda & Faz a criptografia pesada no lugar dos aparelhos simples e guarda cópia local. & Tira o peso dos aparelhos fracos e mantém o posto funcionando sem sinal. \\
+\rowcolor{azul!8}\textcolor{azul}{\textbf{Criptografia pós-quântica}} & Protege a troca de chaves e assina os exames. & Resiste aos computadores quânticos. & Pesada para aparelhos simples, coberta pela \textbf{borda}. \\
+\rowcolor{laranja!10}\textcolor{laranja}{\textbf{Satélites LEO}} & Transporta os dados do posto até a internet. & Conexão rápida em qualquer lugar. & O tráfego passa por uma empresa privada, coberto pela \textbf{criptografia}. \\
+\rowcolor{verdeborda!10}\textcolor{verdeborda}{\textbf{Computação de borda}} & Processa, protege e guarda os dados no posto. & Funciona mesmo sem sinal. & Vira um alvo dentro do posto, coberto pelo \textbf{Zero Trust}. \\
+\rowcolor{roxo!10}\textcolor{roxo}{\textbf{Zero Trust}} & Confere quem pode acessar cada dado. & Limita o estrago de um invasor. & Depende de identidades seguras, coberto pela \textbf{criptografia}. \\
 \bottomrule
 \end{tabularx}
+\fonte{elaborada pelo autor (2026).}
 \end{table}
+
+\resumo{cada tecnologia tem um papel claro e, o mais importante, cada uma cobre um ponto fraco de outra. A criptografia protege, o satélite conecta, a borda trabalha no local e o Zero Trust controla quem entra.}
 
 % =========================================================
 \section{Esboço inicial da arquitetura}
+% =========================================================
 
-A arquitetura foi pensada em quatro camadas, que seguem o caminho do dado desde o paciente até o especialista. A Figura~\ref{fig:arquitetura} mostra esse caminho.
+A arquitetura foi pensada em quatro camadas que seguem o caminho do dado, desde o paciente até o especialista, e uma quinta camada que atravessa todas elas, que é a do Zero Trust. A Figura~\ref{fig:arquitetura} mostra esse desenho.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
+\caption{Esboço da arquitetura proposta em camadas.}
+\label{fig:arquitetura}
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   font=\small,
-  box/.style={draw, rounded corners, align=center, minimum width=3.0cm, minimum height=1.0cm, fill=white},
-  layer/.style={draw, dashed, rounded corners, inner sep=6pt},
-  arrow/.style={-{Stealth[length=2.5mm]}, thick}
+  box/.style={draw=#1, line width=1pt, rounded corners=4pt, align=center, text width=3.1cm, minimum height=2.1cm, fill=#1!8},
+  arrow/.style={-{Stealth[length=3mm]}, line width=1.1pt, color=azul},
+  lbl/.style={font=\scriptsize\bfseries, color=#1}
 ]
-% Camada 1
-\node[box] (eq) {Aparelhos do posto\\(ECG, tablet, ultrassom)};
-% Camada 2
-\node[box, right=1.2cm of eq, fill=green!8] (edge) {Servidor de borda\\cripto pós-quântica\\+ cópia local};
-% Camada 3
-\node[box, right=1.2cm of edge, fill=blue!6] (sat) {Antena + satélites\\LEO + estação\\terrestre};
-% Camada 4
-\node[box, below=1.6cm of sat, fill=orange!10] (cloud) {Hospital de referência\\/ nuvem de telessaúde};
-\node[box, left=1.2cm of cloud] (med) {Médico\\especialista};
+\node[box=cinza] (eq) {\textbf{Aparelhos do posto}\\[2pt]\footnotesize ECG portátil, ultrassom de bolso, tablet};
+\node[box=verdeborda, right=1.3cm of eq] (edge) {\textbf{Servidor de borda}\\[2pt]\footnotesize assina e cifra com cripto pós-quântica, guarda cópia local};
+\node[box=laranja, right=1.3cm of edge] (sat) {\textbf{Satélites LEO}\\[2pt]\footnotesize antena no telhado, constelação e estação terrestre};
+\node[box=azul, right=1.3cm of sat] (cloud) {\textbf{Hospital de referência}\\[2pt]\footnotesize confere assinatura e guarda o prontuário cifrado};
+\node[draw=azul, line width=1pt, rounded corners=4pt, fill=white, below=1.0cm of cloud, text width=3.1cm, align=center, minimum height=1.0cm] (med) {\textbf{Médico especialista}};
 
-\draw[arrow] (eq) -- node[above]{\scriptsize Wi-Fi} node[below]{\scriptsize interno} (edge);
-\draw[arrow] (edge) -- node[above]{\scriptsize túnel} node[below]{\scriptsize híbrido} (sat);
-\draw[arrow] (sat) -- node[right, align=left]{\scriptsize dados ainda\\\scriptsize cifrados} (cloud);
-\draw[arrow] (cloud) -- node[above]{\scriptsize acesso} (med);
+\node[lbl=cinza, above=3pt of eq] {CAMADA 1 -- DISPOSITIVOS};
+\node[lbl=verdeborda, above=3pt of edge] {CAMADA 2 -- BORDA};
+\node[lbl=laranja, above=3pt of sat] {CAMADA 3 -- TRANSPORTE};
+\node[lbl=azul, above=3pt of cloud] {CAMADA 4 -- CENTRAL};
 
-\begin{scope}[on background layer]
-\node[layer, fit=(eq), label={[font=\scriptsize\bfseries]above:Camada 1: Dispositivos}] {};
-\node[layer, fit=(edge), label={[font=\scriptsize\bfseries]above:Camada 2: Borda}] {};
-\node[layer, fit=(sat), label={[font=\scriptsize\bfseries]above:Camada 3: Transporte}] {};
-\node[layer, fit=(cloud)(med), label={[font=\scriptsize\bfseries]below:Camada 4: Central / Nuvem}] {};
-\end{scope}
-\end{tikzpicture}
-\caption{Esboço da arquitetura proposta, do aparelho no posto até o especialista. Os dados saem da borda já protegidos e só voltam a ser abertos no hospital de referência.}
-\label{fig:arquitetura}
+\draw[arrow] (eq) -- node[above, font=\scriptsize, text=black]{Wi-Fi} node[below, font=\scriptsize, text=black]{interno} (edge);
+\draw[arrow] (edge) -- node[above, font=\scriptsize, text=black]{túnel} node[below, font=\scriptsize, text=black]{híbrido} (sat);
+\draw[arrow] (sat) -- node[above, font=\scriptsize, text=black]{ainda} node[below, font=\scriptsize, text=black]{cifrado} (cloud);
+\draw[arrow] (cloud) -- (med);
+
+% Camada transversal Zero Trust
+\coordinate (zl) at ($(eq.south west)+(0,-2.0)$);
+\coordinate (zr) at ($(cloud.south east)+(-3.6,-2.0)$);
+\node[draw=roxo, line width=1pt, fill=roxo!10, rounded corners=4pt, minimum height=0.9cm,
+      fit={($(eq.south west)+(0,-1.6)$) ($(sat.south east)+(0,-2.4)$)}, inner sep=0pt] (zt) {};
+\node[font=\small, color=roxo, align=center] at (zt.center) {\textbf{CAMADA TRANSVERSAL -- ZERO TRUST}\quad\footnotesize cada aparelho, profissional e médico é conferido a cada pedido};
+\foreach \n in {eq, edge, sat} { \draw[roxo, dashed, line width=0.8pt] (\n.south) -- (\n.south |- zt.north); }
+\draw[roxo, dashed, line width=0.8pt] (med.west) -| ($(zt.east)+(0,0)$);
+\end{tikzpicture}}
+\fonte{elaborada pelo autor (2026).}
 \end{figure}
 
-\paragraph{Camada 1 -- Dispositivos.} É onde o atendimento acontece. Aqui ficam os aparelhos usados pela equipe do posto, como um eletrocardiógrafo portátil, um ultrassom de bolso ou o tablet do agente de saúde. Esses aparelhos se ligam ao servidor de borda pela rede Wi-Fi interna do posto, que é protegida com uma senha forte e só aceita aparelhos cadastrados. Eles não precisam rodar criptografia pós-quântica, o que permite aproveitar equipamentos simples ou mais antigos.
+\paragraph{Camada 1 -- Dispositivos} É onde o atendimento acontece. Aqui ficam os aparelhos usados pela equipe do posto, como um eletrocardiógrafo portátil, um ultrassom de bolso ou o tablet do agente de saúde. Eles se ligam ao servidor de borda pela rede Wi-Fi interna do posto e não precisam rodar criptografia pós-quântica, o que permite aproveitar equipamentos simples ou mais antigos.
 
-\paragraph{Camada 2 -- Borda.} É o coração da proposta. O servidor de borda recebe os dados dos aparelhos, organiza o atendimento e guarda uma cópia local. Antes de mandar qualquer coisa para fora, ele assina cada exame com ML-DSA e abre um túnel seguro com o hospital usando a troca de chaves híbrida, que junta um algoritmo clássico com o ML-KEM. Ele também pode comprimir arquivos grandes, como imagens de ultrassom, para gastar menos internet. Se o sinal cair, ele segura os dados numa fila e envia tudo quando a conexão voltar.
+\paragraph{Camada 2 -- Borda} É o coração da proposta. O servidor de borda recebe os dados dos aparelhos, organiza o atendimento e guarda uma cópia local. Antes de mandar qualquer coisa para fora, ele assina cada exame com ML-DSA e abre um túnel seguro com o hospital usando a troca de chaves híbrida, que junta um algoritmo clássico com o ML-KEM. Ele também comprime arquivos grandes, como imagens de ultrassom, para gastar menos internet. Se o sinal cair, ele segura os dados numa fila e envia tudo quando a conexão voltar.
 
-\paragraph{Camada 3 -- Transporte.} É formada pela antena instalada no telhado do posto, pela constelação de satélites LEO e pela estação terrestre que liga os satélites à internet. Essa camada só leva os pacotes de um lado para o outro. Como eles já estão protegidos, nem a empresa do satélite nem alguém que intercepte o sinal no meio do caminho consegue ler o conteúdo.
+\paragraph{Camada 3 -- Transporte} É formada pela antena instalada no telhado do posto (Figura~\ref{fig:antena}), pela constelação de satélites LEO e pela estação terrestre que liga os satélites à internet. Essa camada só leva os pacotes de um lado para o outro. Como eles já estão protegidos, nem a empresa do satélite nem alguém que intercepte o sinal no caminho consegue ler o conteúdo.
 
-\paragraph{Camada 4 -- Central / Nuvem.} É o hospital de referência ou o núcleo de telessaúde do estado. Lá, um servidor abre o túnel, confere a assinatura de cada exame e guarda o prontuário já criptografado. O médico especialista acessa o sistema por essa camada para fazer a teleconsulta ou dar o laudo. Como os prontuários ficam guardados por muitos anos, eles também são armazenados com criptografia pós-quântica, e não só durante a viagem.
+\begin{figure}[H]
+\centering
+\caption{Antenas planas de internet via satélite LEO, do mesmo tipo que seria instalado no telhado do posto.}
+\label{fig:antena}
+\includegraphics[width=0.62\textwidth]{figures/starlink_antena.jpg}
+\fonte{Ka23 13 (2025), licença CC BY 4.0, via Wikimedia Commons.}
+\end{figure}
+
+\paragraph{Camada 4 -- Central} É o hospital de referência ou o núcleo de telessaúde do estado. Lá, um servidor abre o túnel, confere a assinatura de cada exame e guarda o prontuário criptografado. O médico especialista acessa o sistema por essa camada para fazer a teleconsulta ou dar o laudo. Como os prontuários ficam guardados por muitos anos, eles são armazenados com criptografia pós-quântica, e não só protegidos durante a viagem.
+
+\paragraph{Camada transversal -- Zero Trust} Ela não fica num lugar só, mas acompanha o dado do começo ao fim. No posto, confere se o aparelho está cadastrado e se o profissional está logado. No hospital, confere se o médico tem permissão para ver aquele paciente específico. Cada pedido é conferido de novo, mesmo que venha de alguém que acabou de ser liberado.
+
+\subsection{O caminho de um exame, passo a passo}
+
+Para deixar a arquitetura mais concreta, a Figura~\ref{fig:caminho} acompanha um eletrocardiograma desde o momento em que é feito no posto até chegar ao cardiologista. É o mesmo exame do Cenário 1, apresentado na próxima seção.
+
+\begin{figure}[H]
+\centering
+\caption{O caminho do eletrocardiograma do Seu José, do posto até o cardiologista.}
+\label{fig:caminho}
+\begin{tikzpicture}[
+  font=\small,
+  num/.style={circle, fill=#1, text=white, font=\bfseries, minimum size=0.85cm},
+  step/.style={draw=#1, fill=#1!7, rounded corners=4pt, text width=11.6cm, align=left, minimum height=1.05cm, inner sep=6pt},
+  conn/.style={line width=1.1pt, color=azul!50}
+]
+\node[num=cinza] (n1) {1};
+\node[step=cinza, right=0.4cm of n1] (s1) {\textbf{Exame feito no posto.} O aparelho portátil grava o eletrocardiograma do Seu José.};
+\node[num=roxo, below=0.55cm of n1] (n2) {2};
+\node[step=roxo, right=0.4cm of n2] (s2) {\textbf{Conferência de acesso.} O servidor de borda confere se o aparelho é cadastrado e se a técnica está logada (Zero Trust).};
+\node[num=verdeborda, below=0.55cm of n2] (n3) {3};
+\node[step=verdeborda, right=0.4cm of n3] (s3) {\textbf{Proteção na borda.} O servidor assina o exame com ML-DSA e guarda uma cópia local.};
+\node[num=laranja, below=0.55cm of n3] (n4) {4};
+\node[step=laranja, right=0.4cm of n4] (s4) {\textbf{Viagem pelo satélite.} O exame segue dentro do túnel híbrido (clássico + ML-KEM) pela constelação LEO.};
+\node[num=azul, below=0.55cm of n4] (n5) {5};
+\node[step=azul, right=0.4cm of n5] (s5) {\textbf{Chegada ao hospital.} O servidor central confere a assinatura e guarda o exame no prontuário, ainda cifrado.};
+\node[num=roxo, below=0.55cm of n5] (n6) {6};
+\node[step=roxo, right=0.4cm of n6] (s6) {\textbf{Acesso do especialista.} O cardiologista é conferido de novo (Zero Trust), abre o exame e chama o posto por vídeo.};
+\foreach \a/\b in {n1/n2, n2/n3, n3/n4, n4/n5, n5/n6} { \draw[conn] (\a) -- (\b); }
+\end{tikzpicture}
+\fonte{elaborada pelo autor (2026).}
+\end{figure}
+
+\resumo{o dado nasce no aparelho, ganha proteção pós-quântica na borda, viaja cifrado pelo satélite e só é aberto no hospital, por um médico que foi conferido. Em nenhum momento ele fica exposto no caminho.}
 
 % =========================================================
 \section{Contexto de aplicação e cenários de uso}
+% =========================================================
 
-O contexto escolhido são as Unidades Básicas de Saúde em áreas rurais e isoladas, como distritos do sertão pernambucano, ilhas e comunidades ribeirinhas da Amazônia. São lugares onde a fibra óptica não chega, onde o sinal de celular é fraco ou inexistente, e onde o especialista mais próximo pode estar a horas de estrada ou de barco. A seguir estão quatro cenários que mostram como a arquitetura funciona no dia a dia.
+O contexto escolhido são as Unidades Básicas de Saúde em áreas rurais e isoladas, como distritos do sertão pernambucano, ilhas e comunidades ribeirinhas da Amazônia. São lugares onde a fibra óptica não chega, o sinal de celular é fraco ou não existe, e o especialista mais próximo pode estar a horas de estrada ou de barco. A seguir, quatro cenários mostram como a arquitetura funciona no dia a dia.
 
-\paragraph{Cenário 1 -- Teleconsulta com cardiologista.} Seu José, de 67 anos, chega ao posto de um distrito do sertão sentindo uma dor no peito. A técnica de enfermagem faz um eletrocardiograma com um aparelho portátil, que manda o exame para o servidor de borda pelo Wi-Fi do posto. O servidor assina o exame, abre o túnel protegido e envia tudo pelo satélite. Em poucos minutos, um cardiologista no Recife abre o exame, confere a assinatura e conversa por vídeo com a equipe do posto para decidir se Seu José precisa ser levado ao hospital.
+\subsection*{Cenário 1 -- Teleconsulta com o cardiologista}
 
-\paragraph{Cenário 2 -- Pré-natal na comunidade ribeirinha.} Uma gestante faz um ultrassom com um aparelho de bolso durante a visita mensal da equipe de saúde. O arquivo é grande, então o servidor de borda comprime e envia no fim do dia, quando o posto tem menos uso de internet. O exame fica guardado no prontuário dela no hospital de referência, protegido por muitos anos, já que esse tipo de informação continua sendo íntima e sensível ao longo de toda a vida da mãe e da criança.
+Seu José, de 67 anos, chega ao posto de um distrito do sertão sentindo uma dor no peito. A técnica de enfermagem faz um eletrocardiograma com um aparelho portátil, que manda o exame para o servidor de borda pelo Wi-Fi do posto. O servidor confere o aparelho, assina o exame, abre o túnel protegido e envia tudo pelo satélite. Em poucos minutos, um cardiologista no Recife abre o exame, confere a assinatura e conversa por vídeo com a equipe do posto para decidir se Seu José precisa ser levado ao hospital (Figura~\ref{fig:jose}).
 
-\paragraph{Cenário 3 -- Chuva forte e queda do sinal.} Durante uma tempestade, o sinal do satélite cai por algumas horas. O posto não para de atender, porque os aparelhos continuam conversando com o servidor de borda, que guarda tudo numa fila. Quando o sinal volta, o servidor envia os atendimentos acumulados, sempre com a mesma proteção pós-quântica.
+\begin{figure}[H]
+\centering
+\caption{Cenário 1: Seu José faz um eletrocardiograma no posto enquanto o cardiologista acompanha por vídeo.}
+\label{fig:jose}
+\includegraphics[width=0.85\textwidth]{figures/seu_jose_ecg.jpg}
+\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\end{figure}
 
-\paragraph{Cenário 4 -- Tentativa de ``colha agora, descriptografe depois''.} Imagine que alguém consiga copiar o tráfego que passa pela estação terrestre do satélite e guarde esses dados por anos, esperando um computador quântico. Na arquitetura proposta, essa cópia não serve para nada, porque a chave que protegeu a conexão foi combinada com ML-KEM, que foi feito justamente para resistir a esse tipo de ataque.
+\subsection*{Cenário 2 -- Pré-natal na comunidade ribeirinha}
+
+Uma gestante faz um ultrassom com um aparelho de bolso durante a visita mensal da equipe de saúde a uma comunidade à beira do rio (Figura~\ref{fig:ribeirinha}). O arquivo é grande, então o servidor de borda comprime e envia no fim do dia, quando o posto usa menos a internet. O exame fica guardado no prontuário dela no hospital de referência, protegido por muitos anos, já que esse tipo de informação continua sendo íntima ao longo de toda a vida da mãe e da criança.
+
+\begin{figure}[H]
+\centering
+\caption{Cenário 2: ultrassom de pré-natal num posto ribeirinho conectado por satélite.}
+\label{fig:ribeirinha}
+\includegraphics[width=0.85\textwidth]{figures/ribeirinha_prenatal.jpg}
+\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\end{figure}
+
+\subsection*{Cenário 3 -- Chuva forte e queda do sinal}
+
+Durante uma tempestade, o sinal do satélite cai por algumas horas. O posto não para de atender, porque os aparelhos continuam conversando com o servidor de borda, que guarda tudo numa fila (Figura~\ref{fig:chuva}). Quando o sinal volta, o servidor envia os atendimentos acumulados, sempre com a mesma proteção pós-quântica.
+
+\begin{figure}[H]
+\centering
+\caption{Cenário 3: mesmo sem sinal do satélite, o servidor de borda mantém o posto funcionando.}
+\label{fig:chuva}
+\includegraphics[width=0.85\textwidth]{figures/chuva_borda.jpg}
+\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\end{figure}
+
+\subsection*{Cenário 4 -- Tentativa de ``colha agora, descriptografe depois''}
+
+Imagine que alguém consiga copiar o tráfego que passa pela estação terrestre do satélite e guarde esses dados por anos, esperando um computador quântico, exatamente como na Figura~\ref{fig:colha}. Na arquitetura proposta, essa cópia não serve para nada, porque a chave que protegeu a conexão foi combinada com ML-KEM, que foi feito justamente para resistir a esse tipo de ataque. E mesmo que essa pessoa tente se passar por um médico para entrar direto no sistema, o Zero Trust exige uma identidade assinada que ela não tem como falsificar.
+
+\resumo{os cenários mostram a arquitetura funcionando em situações reais do interior: uma emergência, um acompanhamento de rotina, uma falha de sinal e uma tentativa de ataque. Em todas, o dado do paciente continua protegido.}
 
 % =========================================================
 \section{Discussão: benefícios, limitações e viabilidade}
+% =========================================================
 
 \subsection{Benefícios}
 
-O maior benefício é que a proposta protege hoje um dado que precisa continuar seguro por décadas, em vez de esperar o computador quântico aparecer para só então correr atrás do prejuízo. Outro ponto forte é que as três tecnologias se ajudam de verdade: o satélite leva a conexão, a borda tira o peso da criptografia dos aparelhos simples e mantém o posto funcionando sem sinal, e a criptografia pós-quântica garante que nada do que passa pelo satélite possa ser aberto no futuro. Também vale destacar que os dados não ficam nas mãos da empresa do satélite, já que ela só transporta pacotes que não consegue ler. Por fim, a proposta ajuda a cumprir a LGPD, que exige cuidado especial com dados de saúde \cite{brasil2018lgpd}.
+O maior benefício é que a proposta protege hoje um dado que precisa continuar seguro por décadas, em vez de esperar o computador quântico aparecer para só então correr atrás do prejuízo. Outro ponto forte é que as quatro tecnologias se ajudam de verdade: o satélite leva a conexão, a borda tira o peso da criptografia dos aparelhos simples e mantém o posto funcionando sem sinal, a criptografia pós-quântica garante que nada do que passa pelo satélite possa ser aberto no futuro, e o Zero Trust limita o estrago caso alguém consiga entrar na rede. Também vale destacar que os dados não ficam nas mãos da empresa do satélite, já que ela só transporta pacotes que não consegue ler. Por fim, a proposta ajuda a cumprir a LGPD, que exige cuidado especial com dados de saúde \cite{brasil2018lgpd}.
 
 \subsection{Limitações}
 
-A primeira limitação é o tamanho das chaves. Na criptografia de curvas elípticas usada hoje, a chave pública tem 32 bytes. No ML-KEM-768, ela passa para 1.184 bytes, e a assinatura do ML-DSA-65 chega a 3.309 bytes \cite{nist2024fips203,nist2024fips204}. Num link via satélite, onde cada megabyte pode custar caro, isso pesa um pouco mais na abertura de cada conexão. Por outro lado, estudos que testaram esses algoritmos dentro do protocolo TLS mostram que, com uma conexão razoável, o atraso extra é pequeno perto do tempo total da comunicação \cite{paquin2020benchmarking}.
+A primeira limitação é o tamanho das chaves. Como mostrou a Tabela~\ref{tab:chaves}, a chave pública do ML-KEM-768 tem 1.184 bytes, contra 32 bytes do algoritmo atual, e a assinatura do ML-DSA-65 chega a 3.309 bytes. Num link via satélite, onde cada megabyte pode custar caro, isso pesa um pouco mais na abertura de cada conexão. Por outro lado, estudos que testaram esses algoritmos dentro do protocolo TLS mostram que, com uma conexão razoável, o atraso extra é pequeno perto do tempo total da comunicação \cite{paquin2020benchmarking}.
 
 A segunda limitação é a dependência de constelações privadas, que foi exatamente a pergunta do seminário sobre satélites LEO. Se a empresa dona do satélite mudar o preço, cortar o serviço numa região ou sair do país, os postos ficam sem conexão. A criptografia protege o conteúdo, mas não protege contra a falta de serviço.
 
-A terceira limitação é física e prática. O sinal do satélite sofre com chuva forte, o servidor de borda precisa de energia estável, o que nem sempre existe em áreas isoladas, e alguém precisa saber dar manutenção nesses equipamentos. Além disso, a criptografia pós-quântica ainda é nova na prática, e a forma de implementar esses algoritmos sem deixar brechas ainda está sendo amadurecida pela comunidade \cite{bernstein2017pqc}.
+A terceira limitação é física e prática. O sinal do satélite sofre com chuva forte, o servidor de borda precisa de energia estável, o que nem sempre existe em áreas isoladas, e alguém precisa saber dar manutenção nesses equipamentos. O Zero Trust, por sua vez, exige que todo aparelho e todo profissional estejam cadastrados e com identidade digital, o que dá trabalho para montar e manter. Além disso, a criptografia pós-quântica ainda é nova na prática, e a forma de implementar esses algoritmos sem deixar brechas continua sendo amadurecida pela comunidade \cite{bernstein2017pqc}.
 
 \subsection{Viabilidade}
 
-Do ponto de vista técnico, a proposta é viável já hoje. Os algoritmos ML-KEM e ML-DSA estão padronizados desde 2024 \cite{nist2024fips203,nist2024fips204}, e já existem bibliotecas de código aberto e navegadores comuns que usam a troca de chaves híbrida no dia a dia. Os satélites LEO já oferecem internet comercial em áreas rurais do Brasil, com desempenho suficiente para chamadas de vídeo \cite{michel2022starlink}, e o servidor de borda pode ser um mini computador comum, sem nenhum equipamento especial.
+Do ponto de vista técnico, a proposta é viável já hoje. Os algoritmos ML-KEM e ML-DSA estão padronizados desde 2024 \cite{nist2024fips203,nist2024fips204}, e já existem bibliotecas de código aberto e navegadores comuns que usam a troca de chaves híbrida no dia a dia. Os satélites LEO já oferecem internet comercial em áreas rurais do Brasil, com desempenho suficiente para chamadas de vídeo \cite{michel2022starlink}. O servidor de borda pode ser um mini computador comum, sem nenhum equipamento especial, e o Zero Trust já tem um guia de referência público que ajuda a montar a política de acesso \cite{rose2020zta}.
 
-O maior desafio está no lado financeiro e humano. Cada posto precisaria de uma antena, de um pequeno servidor, de energia confiável (talvez com placa solar e bateria) e de treinamento para a equipe. Por isso, o caminho mais realista seria começar com um projeto piloto em poucos postos, de preferência em parceria com o núcleo de telessaúde do estado e com uma universidade, medir os resultados e só depois pensar em ampliar. Para diminuir a dependência de uma única empresa, a arquitetura também deixa espaço para trocar o satélite por fibra ou rádio quando essas opções chegarem à região, sem mexer nas camadas de borda e de proteção.
+O maior desafio está no lado financeiro e humano. Cada posto precisaria de uma antena, de um pequeno servidor, de energia confiável (talvez com placa solar e bateria) e de treinamento para a equipe. Por isso, o caminho mais realista seria começar com um projeto piloto em poucos postos, de preferência em parceria com o núcleo de telessaúde do estado e com uma universidade, medir os resultados e só depois pensar em ampliar. Para diminuir a dependência de uma única empresa, a arquitetura também deixa espaço para trocar o satélite por fibra ou rádio quando essas opções chegarem à região, sem mexer nas camadas de borda, proteção e controle de acesso.
+
+A Figura~\ref{fig:fofa} resume essa discussão num quadro de forças, fraquezas, oportunidades e ameaças.
+
+\begin{figure}[H]
+\centering
+\caption{Quadro de forças, fraquezas, oportunidades e ameaças (FOFA) da proposta.}
+\label{fig:fofa}
+\begin{tikzpicture}[
+  quad/.style={draw=#1, line width=1pt, fill=#1!8, rounded corners=4pt, text width=6.9cm, minimum height=4.6cm, align=left, inner sep=8pt, font=\small},
+  ttl/.style={font=\bfseries, color=#1}
+]
+\node[quad=verdeborda] (f) {{\color{verdeborda}\textbf{FORÇAS}}\\[3pt]
+-- Protege dados que valem por décadas\\
+-- Tecnologias que se cobrem entre si\\
+-- Satélite não consegue ler os dados\\
+-- Posto funciona mesmo sem sinal};
+\node[quad=laranja, right=0.3cm of f] (fr) {{\color{laranja}\textbf{FRAQUEZAS}}\\[3pt]
+-- Chaves e assinaturas maiores\\
+-- Precisa de energia estável no posto\\
+-- Exige cadastro e manutenção\\
+-- Algoritmos ainda novos na prática};
+\node[quad=azul, below=0.3cm of f] (o) {{\color{azul}\textbf{OPORTUNIDADES}}\\[3pt]
+-- Lei da telessaúde de 2022\\
+-- Padrões do NIST publicados em 2024\\
+-- Expansão da internet LEO no Brasil\\
+-- Parcerias com universidades e o SUS};
+\node[quad=roxo, right=0.3cm of o] (a) {{\color{roxo}\textbf{AMEAÇAS}}\\[3pt]
+-- Dependência de empresas privadas\\
+-- Mudanças de preço ou de cobertura\\
+-- Falhas descobertas nos algoritmos\\
+-- Falta de verba para manter os postos};
+\end{tikzpicture}
+\fonte{elaborada pelo autor (2026).}
+\end{figure}
+
+\resumo{a proposta traz ganhos reais de segurança e já é possível com tecnologia disponível hoje. Os maiores obstáculos não são técnicos, mas de custo, energia, manutenção e dependência de empresas privadas, por isso o melhor caminho é começar com um piloto.}
 
 % =========================================================
 \section{Considerações finais}
+% =========================================================
 
-Esta proposta mostrou que a criptografia pós-quântica não precisa ficar restrita a bancos e grandes empresas. Quando ela é combinada com os satélites de órbita baixa e com a computação de borda, dá para levar telessaúde segura até lugares onde a internet mal chega, protegendo os dados dos pacientes não só hoje, mas pelas próximas décadas. As três tecnologias se completam: cada uma cobre um ponto fraco da outra. Ainda existem desafios reais, principalmente de custo, energia e dependência de empresas privadas, mas a base técnica já existe. Como trabalho futuro, a proposta poderia ser fortalecida com o modelo Zero Trust (tema 9), para controlar melhor quem acessa cada prontuário, e com a identidade descentralizada (tema 4), para dar ao paciente mais controle sobre os próprios dados.
+Esta proposta mostrou que a criptografia pós-quântica não precisa ficar restrita a bancos e grandes empresas. Quando ela é combinada com os satélites de órbita baixa, a computação de borda e o Zero Trust, dá para levar telessaúde segura até lugares onde a internet mal chega, protegendo os dados dos pacientes não só hoje, mas pelas próximas décadas.
 
-\bibliographystyle{abbrv}
+O que mais me chamou atenção ao montar este projeto foi perceber que nenhuma dessas tecnologias resolve o problema sozinha. A criptografia sem o satélite não chega ao posto, o satélite sem a criptografia expõe os dados, a borda sem o Zero Trust vira um alvo fácil, e todas elas juntas cobrem os pontos fracos umas das outras. Ainda existem desafios reais, principalmente de custo, energia e dependência de empresas privadas, mas a base técnica já existe.
+
+Como trabalho futuro, a proposta poderia ganhar a identidade descentralizada (tema 4), para dar ao próprio paciente mais controle sobre quem pode ver os seus dados, e a Green Networking (tema 5), para pensar em postos alimentados por energia solar, o que ajudaria a resolver o problema da energia nas áreas isoladas.
+
+% =========================================================
 \bibliography{refs}
 
 \end{document}
