@@ -18,6 +18,13 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
+### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica · Profa. Jeisa)
+- [x] **Etapa 1 — Consolidação do Tema do Seminário (Concluída em 02/11)**: Respostas consolidadas em texto simples e humano para o Google Forms.
+- [x] **Etapa 2 — Proposta de Projeto Teórico (em andamento para 24/11)** · branch eature/if-2va-pqc-telessaude:
+  - Cenário: **Telessaúde segura no interior** = PQC (tema 17, Cauã) + Satélites LEO (tema 8, Alexander) + Edge Computing (tema 2, Daniel) + Zero Trust (tema 9, João Victor V.).
+  - Documento compilado com Tectonic e commitado: papers/04-internet-futuro/main.pdf (19 páginas, capa oficial da UFRPE, caixas de resumo, 5 ilustrações autorais infográficas, 4 fotos reais/históricas, diagramas em TikZ e padrão ABNT).
+  - Branch atualizada e sincronizada com o GitHub (eature/if-2va-pqc-telessaude).
+
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
 - [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Edição Expandida Definitiva de 12 Páginas A4)**:
   - `code/projeto_ead_tutores/ebook-hq.html` (5.11 MB, 100% autocontido com as 16 artes embutidas em Base64, leitor interativo, modo folhear vs webtoon, dark/light mode e botões de cópia de prompts com 1 clique).
