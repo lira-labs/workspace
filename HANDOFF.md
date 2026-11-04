@@ -23,6 +23,11 @@
   - Respostas consolidadas em texto corrido, linguagem simples e direta para o Google Forms sobre **Criptografia Pós-Quântica** (1ª VA: `https://www.youtube.com/watch?v=HQlqOFRr98A`).
   - Mapeamento do problema, contexto de aplicação, limitações, tecnologias fortalecedoras (5G/6G, Computação de Borda, Blockchain), tecnologias conflitantes (IoT restrito, tempo real extremo, middleboxes/roteadores antigos) e resumo em uma frase para cada item.
   - Aguardando atualização da professora e discussões em sala (11/11 e 18/11) para iniciar a **Etapa 2 (Proposta do projeto + vídeo até 24/11)**.
+- [/] **Etapa 2 — Proposta de projeto teórico (entrega 24/11)** · branch `feature/if-2va-pqc-telessaude`:
+  - Cenário escolhido: **Telessaúde segura no interior** = PQC (tema 17) + Satélites LEO (tema 8, Alexander) + Edge Computing (tema 2, Daniel).
+  - Primeira versão completa em `papers/04-internet-futuro/main.tex` + `refs.bib` (10 referências, arquitetura em 4 camadas em TikZ, 4 cenários de uso). Ainda NÃO compilada (sem LaTeX local).
+  - Pendências: criar projeto NOVO no Overleaf e compilar; receber o documento de exemplo (tema 21) da professora para ajustar estrutura; roteiro do vídeo de até 10 min.
+  - Linguagem: o usuário prefere **texto corrido, simples e humano**, sem listas robóticas nem termos complicados.
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
 - [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Upgrade Editorial Completo Multi-Quadros)**:
