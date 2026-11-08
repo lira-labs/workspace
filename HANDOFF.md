@@ -21,6 +21,11 @@
 ## ✅ O que foi Concluído nesta Sessão
 
 ### 000. Tecnologias na Educação · Grupo Zeta (Compasso Educacional)
+- [x] **Pesquisa e Diretriz Rigorosa Anti-AI Slop (Simon Willison & Ética em EdTech)**:
+  - *Definição de AI Slop:* Conteúdo digital massivo, prolixo e de baixo valor gerado por IA sem curadoria humana, que polui interfaces, documentações e códigos.
+  - *Na Aplicação e UI:* Eliminação de paredes de texto, disclaimers minúsculos desnecessários e formulários inchados; priorização de design subtrativo (apenas o sinal essencial na tela).
+  - *Na Documentação:* Textos concisos, diretos e humanos, sem 'encher linguiça' com parágrafos gerados por IA ou jargões vazios.
+  - *Na Pedagogia:* A IA nunca faz o trabalho pelo aluno (não gera resumos ou respostas prontas); atua apenas como provocadora socrática mínima (2 linhas) para destravar o raciocínio.
 - [x] **Classificação Contextual Segura e Recursos de Aprendizagem (eat/compasso-estudo-ia)**:
   - Implementação de heurísticas contextuais seguras (infer_category): não assume rigidamente que todo PDF ou YouTube é estudo ou lazer; analisa o título da janela (ex.: fatura/boleto -> neutro, aula/cálculo -> estudo, games/feed -> distração).
   - Adição do botão e modal **'💡 Empacou no conteúdo? Destravar com Copiloto IA'** na tela principal de Foco (quebra em 3 passos, método Feynman e micro-pausa restaurativa).
