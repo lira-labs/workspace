@@ -21,6 +21,13 @@
 ## ✅ O que foi Concluído nesta Sessão
 
 ### 000. Tecnologias na Educação · Grupo Zeta (Compasso Educacional)
+- [x] **Classificação Contextual Segura e Recursos de Aprendizagem (eat/compasso-estudo-ia)**:
+  - Implementação de heurísticas contextuais seguras (infer_category): não assume rigidamente que todo PDF ou YouTube é estudo ou lazer; analisa o título da janela (ex.: fatura/boleto -> neutro, aula/cálculo -> estudo, games/feed -> distração).
+  - Adição do botão e modal **'💡 Empacou no conteúdo? Destravar com Copiloto IA'** na tela principal de Foco (quebra em 3 passos, método Feynman e micro-pausa restaurativa).
+  - Adição do modal de celebração com micro-avaliação metacognitiva (1 a 5 estrelas) ao concluir o bloco.
+  - Tratamento amigável para câmera opcional ('Modo Janelas Ativo · Câmera Opcional').
+  - Validação de 22 testes unitários em Python e testes de visão/política em Node 100% aprovados.
+  - Branch sincronizada e publicada no GitHub: https://github.com/grupo-zeta/prob-tech-fit-cp01/tree/feat/compasso-estudo-ia.
 - [x] **Alinhamento Pedagógico e Criação da Branch Oficial (eat/compasso-estudo-ia)**:
   - Resolução da dúvida pedagógica do professor: virada conceitual de 'vigia de produtividade' para 'Espelho Metacognitivo e Autorregulação da Aprendizagem' (Zimmerman & Dunlosky).
   - Conceito central: 1 hora de hiperfoco > 6 horas de estudo zumbi arrastado.
