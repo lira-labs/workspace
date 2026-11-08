@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root {
       --bg-0: #0a0b0d;
@@ -359,11 +361,39 @@
       overflow: hidden;
     }
 
-    .canvas-wrap canvas {
-      display: block;
+    #pe60-leaflet-map {
       width: 100%;
       height: 100%;
-      cursor: crosshair;
+      background: #07080a;
+      z-index: 1;
+    }
+
+    .map-overlay-tl, .map-overlay-br {
+      z-index: 500;
+    }
+
+    .leaflet-container {
+      font-family: var(--font-mono) !important;
+      background: #07080a !important;
+    }
+
+    .tile-dark-filter {
+      filter: invert(100%) hue-rotate(180deg) brightness(88%) contrast(95%);
+    }
+
+    .sicoe-tooltip {
+      background: rgba(10, 11, 13, 0.94) !important;
+      border: 1px solid var(--border-strong) !important;
+      border-radius: 0px !important;
+      color: var(--text-0) !important;
+      font-family: var(--font-mono) !important;
+      font-size: 10.5px !important;
+      padding: 3px 6px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.65) !important;
+    }
+
+    .sicoe-tooltip::before {
+      display: none !important;
     }
 
     .map-overlay-tl {
@@ -606,19 +636,22 @@
       <!-- Left: Geodesic Canvas of PE-60 -->
       <div class="panel">
         <div class="panel-head">
-          <span>[GIS-PE60] TRAÇADO GEODÉSICO OFICIAL GTFS (shapes.txt #178-389-2) vs. VIEWPORT CITTAMOBI (m3p)</span>
-          <div style="display:flex; gap:6px;">
-            <button id="btn-layer-gp" class="btn active" onclick="setGisLayer('grafoparada')">SINAL GRAFOPARADA (IMU+GPS)</button>
-            <button id="btn-layer-catraca" class="btn" onclick="setGisLayer('catraca')">VISÃO SÓ CATRACA (CEGA)</button>
-            <button id="btn-layer-citta" class="btn" onclick=" toggleCittamobi534()">534 PARADAS CITTAMOBI: <span id="lbl-citta-toggle">ON</span></button>
+          <span>[GIS-PE60] MAPA CARTOGRÁFICO REAL (OPENSTREETMAP / SATÉLITE ESRI) + SHAPE GTFS #178-389-2</span>
+          <div style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button id="btn-tile-dark" class="btn active" onclick="setBaseTile('dark')">MAPA ESCURO</button>
+            <button id="btn-tile-sat" class="btn" onclick="setBaseTile('sat')">SATÉLITE REAL</button>
+            <button id="btn-tile-osm" class="btn" onclick="setBaseTile('osm')">VIAS OSM</button>
+            <button id="btn-layer-gp" class="btn active" onclick="setGisLayer('grafoparada')">GRAFOPARADA</button>
+            <button id="btn-layer-catraca" class="btn" onclick="setGisLayer('catraca')">SÓ CATRACA</button>
+            <button id="btn-layer-citta" class="btn active" onclick="toggleCittamobi534()">534 CITTAMOBI: <span id="lbl-citta-toggle">ON</span></button>
           </div>
         </div>
         <div class="canvas-wrap">
-          <canvas id="pe60-map-canvas"></canvas>
+          <div id="pe60-leaflet-map"></div>
           <div class="map-overlay-tl">
-            <div style="color:var(--emerald); font-weight:700;">CORREDOR: LINHA 178 / 191 (TI CABO &rarr; PORTO DE SUAPE)</div>
-            <div>BBOX WGS84: [-8.3940, -35.0366] &rarr; [-8.2811, -34.9727]</div>
-            <div id="map-hover-readout" style="color:var(--amber); margin-top:4px;">Passe o cursor ou clique sobre um dos 20 nós do corredor para inspecionar</div>
+            <div style="color:var(--emerald); font-weight:700;">MAPA REAL INTERATIVO: TI CABO &rarr; RODOVIA PE-60 &rarr; PORTO DE SUAPE</div>
+            <div>USE O SCROLL DO MOUSE PARA ZOOM IN/OUT · ARRASTE PARA NAVEGAR</div>
+            <div id="map-hover-readout" style="color:var(--amber); margin-top:3px;">Clique sobre qualquer parada oficial ou nas 534 paradas do Cittamobi</div>
           </div>
           <div class="map-overlay-br">
             <span><i class="legend-dot" style="background:var(--emerald);"></i>Regular (&le;35m)</span>
@@ -1258,132 +1291,149 @@
       runLiveStgcnInference();
     }
 
+    let leafletMap = null;
+    let baseTileLayers = {};
+    let currentTileLayer = null;
+    let cittaLayerGroup = null;
+    let corridorPolylineLayer = null;
+    let corridorGlowLayer = null;
+    let stopsLayerGroup = null;
+    let selectedReticleMarker = null;
+
+    function initRealLeafletMap() {
+      if (leafletMap) return;
+      leafletMap = L.map("pe60-leaflet-map", {
+        center: [-8.304873, -35.021349],
+        zoom: 13,
+        zoomControl: false
+      });
+      L.control.zoom({ position: "topright" }).addTo(leafletMap);
+
+      baseTileLayers = {
+        dark: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          className: "tile-dark-filter", attribution: "&copy; OpenStreetMap contributors"
+        }),
+        sat: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          maxZoom: 19,
+          attribution: "&copy; Esri World Imagery"
+        }),
+        osm: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap contributors"
+        })
+      };
+
+      currentTileLayer = baseTileLayers.dark;
+      currentTileLayer.addTo(leafletMap);
+
+      cittaLayerGroup = L.layerGroup().addTo(leafletMap);
+      stopsLayerGroup = L.layerGroup().addTo(leafletMap);
+
+      // Draw Official GTFS Shape Polyline (`shapes.txt` #178-389-2)
+      if (TELEMETRIA.polyline && TELEMETRIA.polyline.length > 1) {
+        corridorGlowLayer = L.polyline(TELEMETRIA.polyline, {
+          color: "#00b8d9",
+          weight: 8,
+          opacity: 0.25
+        }).addTo(leafletMap);
+
+        corridorPolylineLayer = L.polyline(TELEMETRIA.polyline, {
+          color: "#00b8d9",
+          weight: 3,
+          opacity: 0.92
+        }).addTo(leafletMap);
+      }
+
+      // Fit initial bounds to the 20 corridor stops (excluding the far southern turnaround #20 so zoom is sharp on PE-60)
+      const mainCorridorCoords = TELEMETRIA.stops.slice(0, 19).map(s => [s.lat, s.lon]);
+      leafletMap.fitBounds(mainCorridorCoords, { padding: [36, 36] });
+    }
+
+    function setBaseTile(mode) {
+      initRealLeafletMap();
+      if (currentTileLayer) leafletMap.removeLayer(currentTileLayer);
+      currentTileLayer = baseTileLayers[mode] || baseTileLayers.dark;
+      currentTileLayer.addTo(leafletMap);
+      document.getElementById("btn-tile-dark").classList.toggle("active", mode === "dark");
+      document.getElementById("btn-tile-sat").classList.toggle("active", mode === "sat");
+      document.getElementById("btn-tile-osm").classList.toggle("active", mode === "osm");
+    }
+
     function drawPe60GisCanvas() {
-      const canvas = document.getElementById("pe60-map-canvas");
-      if (!canvas) return;
-      const rect = canvas.parentElement.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      const ctx = canvas.getContext("2d");
-      ctx.scale(dpr, dpr);
+      initRealLeafletMap();
+      leafletMap.invalidateSize();
 
-      const W = rect.width;
-      const H = rect.height;
-
-      // Clear background
-      ctx.fillStyle = "#07080a";
-      ctx.fillRect(0, 0, W, H);
-
-      // Technical Coordinate Grid
-      ctx.strokeStyle = "#12151c";
-      ctx.lineWidth = 1;
-      const stepGrid = 48;
-      for (let x = 0; x < W; x += stepGrid) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-      }
-      for (let y = 0; y < H; y += stepGrid) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-      }
-
-      // Bounding box focused on the 20 stops of Cabo -> PE-60 -> Complexo Industrial de Suape
-      const minLat = -8.332, maxLat = -8.278;
-      const minLon = -35.041, maxLon = -34.996;
-      const padLeft = 64, padRight = 135, padTop = 58, padBottom = 56;
-
-      function project(lat, lon) {
-        const clat = Math.max(minLat, Math.min(maxLat, lat));
-        const clon = Math.max(minLon, Math.min(maxLon, lon));
-        const ny = (clat - minLat) / (maxLat - minLat); // 1 = North (TI Cabo), 0 = South (Suape)
-        const nx = (clon - minLon) / (maxLon - minLon); // 0 = West (Cabo), 1 = East (Suape)
-        const sx = padLeft + (1 - ny) * (W - padLeft - padRight);
-        const sy = padTop + (1 - nx) * (H - padTop - padBottom);
-        return [sx, sy];
-      }
-
-      // 1. Draw 534 Cittamobi Viewport Stops (Real m3p API coordinates)
+      // 1. Render 534 Cittamobi Viewport Stops (`api.cittamobi.com.br/m3p/js/stops/viewport`)
+      cittaLayerGroup.clearLayers();
       if (showCittamobi534 && TELEMETRIA.cittamobi_viewport_534_stops) {
-        ctx.fillStyle = "rgba(82, 94, 118, 0.42)";
-        for (const cs of TELEMETRIA.cittamobi_viewport_534_stops) {
-          const [cx, cy] = project(cs.lat, cs.lon);
-          if (cx >= 0 && cx <= W && cy >= 0 && cy <= H) {
-            ctx.fillRect(cx - 1.5, cy - 1.5, 3, 3);
-          }
-        }
-      }
-
-      // 2. Draw Official GTFS Shape Polyline (`shapes.txt` #178-389-2)
-      const poly = TELEMETRIA.polyline;
-      if (poly && poly.length > 1) {
-        ctx.save();
-        ctx.beginPath();
-        poly.forEach((pt, idx) => {
-          const [px, py] = project(pt[0], pt[1]);
-          if (idx === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
+        TELEMETRIA.cittamobi_viewport_534_stops.forEach((cs) => {
+          const cm = L.circleMarker([cs.lat, cs.lon], {
+            radius: 3,
+            color: "#4d5870",
+            weight: 1,
+            fillColor: "#6c7a96",
+            fillOpacity: 0.65
+          });
+          cm.bindTooltip(
+            `[CITTAMOBI #${cs.id}] ${cs.mnemonic || 'Sem nome'} | activeVehicles: ${cs.active_services}`,
+            { className: "sicoe-tooltip", direction: "top" }
+          );
+          cittaLayerGroup.addLayer(cm);
         });
-        ctx.strokeStyle = "rgba(0, 184, 217, 0.28)";
-        ctx.lineWidth = 6;
-        ctx.stroke();
-
-        ctx.strokeStyle = "#00b8d9";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
       }
 
-      // 3. Draw the 20 Official Corridor Stops
-      stopScreenPositions = [];
+      // 2. Render the 20 Official Corridor Stops (GTFS CTM)
+      stopsLayerGroup.clearLayers();
       TELEMETRIA.stops.forEach((st) => {
-        const [sx, sy] = project(st.lat, st.lon);
-        stopScreenPositions.push({ seq: st.seq, x: sx, y: sy, stop: st });
-
         const isCatraca = gisLayerMode === "catraca";
         let color = "#00d68f";
         if (!isCatraca) {
           if (st.operational_state === "CRITICAL") color = "#ff3b5c";
           else if (st.operational_state === "WARNING") color = "#ffaa00";
         }
+        const isSelected = st.seq === activeStopSeq;
 
-        // Pulse halo for critical abandonment nodes
-        if (!isCatraca && st.operational_state === "CRITICAL") {
-          ctx.beginPath();
-          ctx.arc(sx, sy, 14, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(255, 59, 92, 0.16)";
-          ctx.fill();
+        // Halo for critical stops or selected stop
+        if (isSelected || (!isCatraca && st.operational_state === "CRITICAL")) {
+          const halo = L.circleMarker([st.lat, st.lon], {
+            radius: isSelected ? 15 : 12,
+            color: isSelected ? "#ffffff" : color,
+            weight: isSelected ? 2 : 1,
+            fillColor: color,
+            fillOpacity: isSelected ? 0.28 : 0.16
+          });
+          stopsLayerGroup.addLayer(halo);
         }
 
-        // Selected crosshair reticle
-        if (st.seq === activeStopSeq) {
-          ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(sx - 11, sy - 11, 22, 22);
-          ctx.beginPath();
-          ctx.moveTo(sx - 16, sy); ctx.lineTo(sx + 16, sy);
-          ctx.moveTo(sx, sy - 16); ctx.lineTo(sx, sy + 16);
-          ctx.stroke();
-        }
+        const marker = L.circleMarker([st.lat, st.lon], {
+          radius: isSelected ? 7.5 : 6,
+          color: isSelected ? "#ffffff" : "#07080a",
+          weight: isSelected ? 2.5 : 1.5,
+          fillColor: color,
+          fillOpacity: 1.0
+        });
 
-        // Node circle
-        ctx.beginPath();
-        ctx.arc(sx, sy, st.seq === activeStopSeq ? 6.5 : 5, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = "#07080a";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        const ttText = `#${String(st.seq).padStart(2, '0')} ${st.name} [GTFS ${st.stop_id}] | GPS: ${st.wait_gps_min}m | Desist.: ${st.abandonment_10m} | STGCN t+30m: ${st.stgcn_horizon_min[2]}m`;
+        marker.bindTooltip(ttText, {
+          permanent: isSelected || st.seq === 1 || st.seq === 11 || st.seq === 19,
+          direction: st.seq % 2 === 0 ? "top" : "bottom",
+          className: "sicoe-tooltip"
+        });
 
-        // Compact technical label
-        if (st.seq === 1 || st.seq === 7 || st.seq === 11 || st.seq === 15 || st.seq === 19 || st.seq === 20 || st.seq === activeStopSeq) {
-          ctx.font = "600 10.5px 'IBM Plex Mono'";
-          ctx.fillStyle = st.seq === activeStopSeq ? "#ffffff" : "#c0c8d8";
-          const offsetY = (st.seq % 2 === 0) ? -12 : 17;
-          ctx.fillText(`#${String(st.seq).padStart(2, '0')} ${st.name.slice(0, 18)}`, sx - 24, sy + offsetY);
-        }
+        marker.on("mouseover", () => {
+          document.getElementById("map-hover-readout").textContent = ttText;
+        });
+
+        marker.on("click", () => {
+          selectStopNode(st.seq, true);
+        });
+
+        stopsLayerGroup.addLayer(marker);
       });
     }
 
-    function selectStopNode(seq) {
+    function selectStopNode(seq, panMap = true) {
       activeStopSeq = seq;
       document.querySelectorAll("#quick-stop-selector .btn").forEach(b => b.classList.remove("active"));
       const qbtn = document.getElementById(`qbtn-${seq}`);
@@ -1426,6 +1476,9 @@
       }
 
       drawPe60GisCanvas();
+      if (panMap && leafletMap) {
+        leafletMap.panTo([st.lat, st.lon], { animate: true, duration: 0.4 });
+      }
       pingLiveCittamobiStop();
       runLiveStgcnInference();
     }
@@ -1440,43 +1493,6 @@
  178-389-2,05:51:04,05:51:04,030701,19,,0,0  # Rotatória Adm. Suape (Ocupação < 8% -> REMANEJADO)
 +178-389-2_EXP,05:54:00,05:54:00,${st.stop_id},${st.seq},,0,0  # Cobertura Expressa p/ ${st.name} (Espera cai de ${st.stgcn_horizon_min[2].toFixed(1)}m -> 18,5m)`;
     }
-
-    // Canvas mouse interaction
-    const mapCanvas = document.getElementById("pe60-map-canvas");
-    mapCanvas.addEventListener("mousemove", (e) => {
-      const rect = mapCanvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      let hit = null;
-      for (const node of stopScreenPositions) {
-        if (Math.hypot(mx - node.x, my - node.y) <= 11) {
-          hit = node.stop;
-          break;
-        }
-      }
-      const ro = document.getElementById("map-hover-readout");
-      if (hit) {
-        ro.textContent = `NÓ #${hit.seq}: ${hit.name} | Espera GPS: ${hit.wait_gps_min}m | Desistências (10m): ${hit.abandonment_10m} | STGCN t+30m: ${hit.stgcn_horizon_min[2]}m`;
-      }
-    });
-
-    mapCanvas.addEventListener("click", (e) => {
-      const rect = mapCanvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      for (const node of stopScreenPositions) {
-        if (Math.hypot(mx - node.x, my - node.y) <= 13) {
-          selectStopNode(node.seq);
-          break;
-        }
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (document.getElementById("mod-gis").classList.contains("active")) {
-        drawPe60GisCanvas();
-      }
-    });
 
     // =========================================================================
     // MODULE 02: REAL-TIME IMU OSCILLOSCOPE & KINEMATIC FSM
