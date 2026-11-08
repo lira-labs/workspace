@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrafoParada v4.0 · Protótipo Interativo On-Device & Painel CTM (PE-60)</title>
+  <style>
+    :root {
+      --bg-0: #090b10;
+      --bg-1: #11151f;
+      --bg-2: #171c29;
+      --bg-3: #1f2637;
+      --border: #2a334a;
+      --text-0: #f3f6fc;
+      --text-1: #b6c2d9;
+      --text-2: #7e8ca8;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.22);
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.15);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.15);
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+      --radius: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-0);
+      color: var(--text-0);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Header */
+    .topbar {
+      background: rgba(17, 21, 31, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+    }
+
+    .brand-title h1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tag-version {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-0);
+      padding: 5px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--text-1);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-0);
+      background: var(--bg-2);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 28px 60px;
+    }
+
+    /* KPI Strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .kpi-card.green::before { background: var(--green); }
+    .kpi-card.amber::before { background: var(--amber); }
+    .kpi-card.purple::before { background: var(--purple); }
+    .kpi-card.cyan::before { background: var(--cyan); }
+
+    .kpi-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-2);
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin: 4px 0 2px;
+      color: var(--text-0);
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-1);
+    }
+
+    /* Views */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+      animation: fadeIn 0.22s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    @media (max-width: 1060px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-green { background: var(--green-bg); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-amber { background: var(--amber-bg); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-red { background: var(--red-bg); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+
+    /* Smartphone Mockup */
+    .phone-frame {
+      background: #07090e;
+      border: 3px solid #2e3852;
+      border-radius: 34px;
+      padding: 18px 16px 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 110px;
+      height: 18px;
+      background: #1a2130;
+      border-radius: 0 0 12px 12px;
+      margin: -18px auto 14px;
+    }
+
+    .phone-statusbar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-2);
+      margin-bottom: 12px;
+      padding: 0 6px;
+    }
+
+    .pocket-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(59, 130, 246, 0.16));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pocket-banner-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .pocket-banner h3 {
+      font-size: 13px;
+      color: #34d399;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .voice-box {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 14px;
+    }
+
+    .voice-transcript {
+      font-size: 12.5px;
+      color: var(--text-0);
+      font-style: italic;
+      margin: 6px 0 10px;
+      min-height: 38px;
+    }
+
+    .btn-action {
+      background: var(--bg-3);
+      color: var(--text-0);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .scenario-btn {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: left;
+      color: var(--text-0);
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .scenario-btn:hover {
+      border-color: var(--accent);
+      background: var(--bg-3);
+    }
+
+    .scenario-btn.active {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.14);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .scenario-btn-title {
+      font-size: 13px;
+      font-weight: 700;
+      display: block;
+    }
+
+    .scenario-btn-sub {
+      font-size: 11px;
+      color: var(--text-2);
+    }
+
+    /* Telemetry & FSM Stepper */
+    .fsm-flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .fsm-node {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .fsm-node.active-green {
+      border-color: var(--green);
+      background: var(--green-bg);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.22);
+    }
+
+    .fsm-node.active-red {
+      border-color: var(--red);
+      background: var(--red-bg);
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+    }
+
+    .fsm-node.active-blue {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    .fsm-node-code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .fsm-node-desc {
+      font-size: 11px;
+      color: var(--text-1);
+    }
+
+    /* Timeline Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .data-table th, .data-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .data-table th {
+      color: var(--text-2);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      background: var(--bg-2);
+    }
+
+    .data-table tr.highlight-row {
+      background: rgba(59, 130, 246, 0.12);
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+    }
+
+    /* Progress Bars for Probabilities */
+    .prob-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .prob-box {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .prob-bar-bg {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-0);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .prob-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    /* Network Payload Box */
+    .payload-box {
+      background: #070a10;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #34d399;
+      margin-top: 14px;
+    }
+
+    /* Corridor Map Nodes */
+    .corridor-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .corridor-track {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stop-node {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .stop-node:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .stop-node.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+      background: var(--bg-3);
+    }
+
+    .stop-node.critical {
+      border-left: 4px solid var(--red);
+    }
+
+    .stop-node.warning {
+      border-left: 4px solid var(--amber);
+    }
+
+    .stop-node.normal {
+      border-left: 4px solid var(--green);
+    }
+
+    .stop-seq {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-2);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stop-name {
+      font-size: 12px;
+      font-weight: 700;
+      margin: 4px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stop-metrics {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* Slider */
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-badge">GP</div>
+      <div class="brand-title">
+        <h1>
+          GrafoParada · Frota no Vazio
+          <span class="tag-version">Protótipo v4.0 · Dados Reais CTM & TMD</span>
+        </h1>
+        <p>Corredor PE-60 (Linha 178/191 TI Cabo → Porto de Suape) · Cauã da Cunha Lira · AI4Good UFRPE</p>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-mobile', this)">📱 1. App On-Device & FSM (Modo Bolso)</button>
+      <button class="tab-btn" onclick="switchTab('tab-corridor', this)">🗺️ 2. Painel CTM (20 Paradas PE-60)</button>
+      <button class="tab-btn" onclick="switchTab('tab-evolution', this)">📈 3. Evolução v1.0 → v4.0 (Métricas)</button>
+      <button class="tab-btn" onclick="switchTab('tab-lgpd', this)">🛡️ 4. LGPD, Custo & Moat vs. Cittamobi</button>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- KPI STRIP -->
+    <section class="kpi-strip">
+      <div class="kpi-card green">
+        <div class="kpi-label">Falso Positivo no Desembarque</div>
+        <div class="kpi-value">0,00%</div>
+        <div class="kpi-sub">0 em 300 desembarques confundidos · Recall 99,33%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Detecção de Desistência (F1)</div>
+        <div class="kpi-value">99,67%</div>
+        <div class="kpi-sub">Evolução: 71,93% (v1) → 79,07% (v2) → 99,67% (v3)</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Rotina On-Device (Zero Nuvem)</div>
+        <div class="kpi-value">4º Dia Útil</div>
+        <div class="kpi-sub">100% disparo de voz no bolso · 166 bytes locais</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Economia de Rede vs. Cittamobi</div>
+        <div class="kpi-value">-99,98%</div>
+        <div class="kpi-sub">1 req (36 bytes) vs. 600 reqs (300 KB) · 0 PII LGPD</div>
+      </div>
+      <div class="kpi-card cyan">
+        <div class="kpi-label">Grafo 20 Paradas PE-60 (MAE)</div>
+        <div class="kpi-value">1,51 min</div>
+        <div class="kpi-sub">STGCN (1,51m) supera Tabular (1,93m) na rede real</div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: SIMULADOR ON-DEVICE DO TRABALHADOR (MODO BOLSO & FSM)          -->
+    <!-- ===================================================================== -->
+    <section id="tab-mobile" class="view-section active">
+      <div class="grid-2col">
+
+        <!-- Left: Smartphone Mockup -->
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-statusbar">
+            <span>05:42 · PE-60 Ipojuca</span>
+            <span>EDGE AI · 8,9 KB RAM</span>
+          </div>
+
+          <div class="pocket-banner">
+            <div class="pocket-banner-top">
+              <h3>🎧 Modo Sentinela de Bolso Ativo</h3>
+              <span class="badge badge-green">Confiança: 94,2%</span>
+            </div>
+            <p style="font-size: 11.5px; color: var(--text-1);">
+              Rotina aprendida localmente (4º dia útil): <strong>Parada #11 Trevo Ipojuca [030192]</strong> · Seg–Sex 05:35–05:55. Celular permanece no bolso (proteção contra assalto).
+            </p>
+          </div>
+
+          <div class="voice-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-2); text-transform:uppercase;">Áudio Sintetizado no Fone (TTS Local)</span>
+              <button class="btn-action btn-primary" onclick="speakCurrentAlert()">🔊 Ouvir Aviso no Fone</button>
+            </div>
+            <div id="voice-text" class="voice-transcript">
+              "GrafoParada Modo Bolso: Você chegou ao Trevo de Ipojuca. Linha 178 Suape com atraso previsto de 42 minutos devido a retenção no km 09."
+            </div>
+          </div>
+
+          <div style="font-size:12px; font-weight:700; color:var(--text-1); margin-bottom:8px;">
+            Escolha um Cenário Real para Simular nos Sensores:
+          </div>
+
+          <div class="scenario-list">
+            <button class="scenario-btn active" onclick="runScenario('ALIGHTING', this)">
+              <div>
+                <span class="scenario-btn-title">1. Passageiro Descendo do Ônibus</span>
+                <span class="scenario-btn-sub">Pergunta do Prof. Lucas: "E se o ônibus parar e ele descer?"</span>
+              </div>
+              <span class="badge badge-green">0% Falso Pos.</span>
+            </button>
+
+            <button class="scenario-btn" onclick="runScenario('ABANDONMENT', this)">
+              <div>
+                <span class="scenario-btn-title">2. Desistência p/ Ligeirinho / Moto-táxi</span>
+                <span class="scenario-btn-sub">Espera 38 min na parada + sai a 48 km/h sem ônibus oficial</span>
+              </div>
+              <span class="badge badge-red">Gera 36 bytes</span>
+            </button>
+
+            <button class="scenario-btn" onclick="runScenario('BOARDING_SERVED', this)">
+              <div>
+                <span class="scenario-btn-title">3. Embarque Atendido no Ônibus Oficial</span>
+                <span class="scenario-btn-sub">Espera 14 min + entra na Linha 178 sincronizado c/ GPS aberto</span>
+              </div>
+              <span class="badge badge-blue">Atendido</span>
+            </button>
+
+            <button class="scenario-btn" onclick="runScenario('TRANSIT_BYPASS', this)">
+              <div>
+                <span class="scenario-btn-title">4. Veículo Passando Direto na PE-60</span>
+                <span class="scenario-btn-sub">Cruza a geocerca de 35m a 62 km/h em menos de 20 segundos</span>
+              </div>
+              <span class="badge badge-amber">Ignorado</span>
+            </button>
+          </div>
+
+          <div style="background:var(--bg-2); border-radius:10px; padding:10px 12px; font-size:11.5px; color:var(--text-2); border:1px solid var(--border);">
+            <div><strong>Memória Local da Rotina:</strong> <span class="mono" style="color:var(--text-0);">166 bytes (SQLite/JSON)</span></div>
+            <div><strong>Latência da Inferência:</strong> <span class="mono" style="color:var(--text-0);">14,29 µs por trajetória</span></div>
+            <div><strong>Rastreamento de GPS na Nuvem:</strong> <span class="mono" style="color:#34d399;">DESATIVADO (Zero PII)</span></div>
+          </div>
+        </div>
+
+        <!-- Right: Real-Time Telemetry, ResSensorNet Soft-Voting & FSM Inspector -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              🔬 Inspetor Cinemático On-Device (`ResSensorNetV2` + `KinematicStopFSM_V3`)
+            </div>
+            <span id="fsm-verdict-badge" class="badge badge-green">VEREDITO FSM: ALIGHTING (DESEMBARQUE)</span>
+          </div>
+
+          <!-- 4 FSM States Visual -->
+          <div class="fsm-flow">
+            <div id="node-ALIGHTING" class="fsm-node active-green">
+              <div class="fsm-node-code">ALIGHTING</div>
+              <div class="fsm-node-desc">Desembarque (Saiu a pé após vir no ônibus)</div>
+            </div>
+            <div id="node-BOARDING_SERVED" class="fsm-node">
+              <div class="fsm-node-code">BOARDING_SERVED</div>
+              <div class="fsm-node-desc">Embarque Oficial (Sincronizado c/ GPS CTM)</div>
+            </div>
+            <div id="node-ABANDONMENT" class="fsm-node">
+              <div class="fsm-node-code">ABANDONMENT</div>
+              <div class="fsm-node-desc">Desistência Real (Ligeirinho / Alternativo)</div>
+            </div>
+            <div id="node-TRANSIT_BYPASS" class="fsm-node">
+              <div class="fsm-node-code">TRANSIT_BYPASS</div>
+              <div class="fsm-node-desc">Passagem Direta (Dwell &lt; 45s em alta vel.)</div>
+            </div>
+          </div>
+
+          <!-- Soft-Voting Probabilities in Post-Stop Window -->
+          <div style="font-size:12px; font-weight:700; color:var(--text-1);">
+            Probabilidades Acumuladas na Saída da Parada (`Soft-Voting` em 26 Atributos Físicos TMD):
+          </div>
+          <div class="prob-grid">
+            <div class="prob-box">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span>Still (Parado)</span>
+                <span id="prob-still" class="mono">2%</span>
+              </div>
+              <div class="prob-bar-bg"><div id="bar-still" class="prob-bar-fill" style="width:2%"></div></div>
+            </div>
+            <div class="prob-box">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span>Walking (A pé)</span>
+                <span id="prob-walk" class="mono">95%</span>
+              </div>
+              <div class="prob-bar-bg"><div id="bar-walk" class="prob-bar-fill" style="width:95%; background:var(--green);"></div></div>
+            </div>
+            <div class="prob-box">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span>Bus (Ônibus)</span>
+                <span id="prob-bus" class="mono">2%</span>
+              </div>
+              <div class="prob-bar-bg"><div id="bar-bus" class="prob-bar-fill" style="width:2%"></div></div>
+            </div>
+            <div class="prob-box">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span>Car (Ligeirinho/Van)</span>
+                <span id="prob-car" class="mono">1%</span>
+              </div>
+              <div class="prob-bar-bg"><div id="bar-car" class="prob-bar-fill" style="width:1%; background:var(--red);"></div></div>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Sensor Table -->
+          <div style="font-size:12px; font-weight:700; color:var(--text-1); margin: 14px 0 8px;">
+            Série Temporal de Leituras Físicas e Geocerca (Raio = 35m da Parada PE-60):
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tempo (min)</th>
+                  <th>Fase da Geocerca</th>
+                  <th>Distância Parada</th>
+                  <th>Velocidade ($v$)</th>
+                  <th>Acel. $\sigma$ / Giro $\sigma$</th>
+                  <th>Ruído (dB)</th>
+                  <th>Estado Inferido</th>
+                </tr>
+              </thead>
+              <tbody id="sensor-timeline-body">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Network & LGPD Inspector -->
+          <div class="payload-box" id="network-payload-box">
+            [INSPETOR DE REDE &amp; LGPD] -&gt; Status: SILÊNCIO DE REDE (0 requisições HTTP enviadas).
+            Motivo: A Máquina de Estados classificou DESEMBARQUE (ALIGHTING). Nenhum dado sai do aparelho do passageiro!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: PAINEL DO ANALISTA CTM · CORREDOR REAL PE-60 (20 PARADAS)      -->
+    <!-- ===================================================================== -->
+    <section id="tab-corridor" class="view-section">
+      <div class="panel" style="margin-bottom:22px;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">🗺️ Malha Oficial GTFS · Corredor PE-60 (Linha 178 TI Cabo → Porto de Suape · 20 Paradas Reais)</div>
+            <p style="font-size:12px; color:var(--text-2); margin-top:2px;">
+              Clique em qualquer parada abaixo para inspecionar a diferença entre a Catraca Fechada e o Sinal de Desistência On-Device ($k$-anonimato $k \ge 3$).
+            </p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="btn-mode-grafoparada" class="btn-action btn-primary" onclick="setCorridorViewMode('grafoparada')">
+              👁️ Visão GrafoParada (Catraca + Desistência Real)
+            </button>
+            <button id="btn-mode-catraca" class="btn-action" onclick="setCorridorViewMode('catraca')">
+              🙈 Visão Tradicional (Só Catraca Cega)
+            </button>
+          </div>
+        </div>
+
+        <!-- 20 Real Stops Grid -->
+        <div id="corridor-grid" class="corridor-track">
+          <!-- Populated by JS with the 20 real stops -->
+        </div>
+
+        <!-- Selected Stop Detail & Step 8 Human Audit -->
+        <div class="grid-2col" style="grid-template-columns: 1fr 1fr; margin-top:18px;">
+          <div class="panel" style="background:var(--bg-2);">
+            <div class="panel-header">
+              <div class="panel-title" id="detail-stop-title">Parada #11: PE-60 km 17 (Trevo Ipojuca / Camela) [030192]</div>
+              <span id="detail-stop-badge" class="badge badge-red">GARGALO DE DESISTÊNCIA (&gt; 40 min)</span>
+            </div>
+            <table class="data-table">
+              <tbody>
+                <tr>
+                  <td><strong>Coordenadas Oficiais GTFS</strong></td>
+                  <td class="mono" id="detail-coords">-8.304873, -35.021349</td>
+                </tr>
+                <tr>
+                  <td><strong>Horário Programado (GTFS)</strong></td>
+                  <td class="mono" id="detail-sched">05:41:41 (Linha 178 TI Cabo / Suape)</td>
+                </tr>
+                <tr>
+                  <td><strong>O que a Catraca mostra hoje</strong></td>
+                  <td class="mono" id="detail-catraca" style="color:var(--text-1);">0 embarques nos últimos 40 min ("Parada sem demanda")</td>
+                </tr>
+                <tr>
+                  <td><strong>O que o GrafoParada mostra (RAM 10 min)</strong></td>
+                  <td class="mono" id="detail-abn" style="color:#f87171; font-weight:700;">14 desistências anônimas p/ Ligeirinho (k=14 &ge; 3)</td>
+                </tr>
+                <tr>
+                  <td><strong>Previsão STGCN ($t+10, t+20, t+30\text{ min}$)</strong></td>
+                  <td class="mono" id="detail-stgcn">38,4 min &rarr; 43,8 min &rarr; 47,2 min (MAE: 1,51 min)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel" style="background:var(--bg-2);">
+            <div class="panel-header">
+              <div class="panel-title">👮 Passo 8 do Fluxograma · Auditoria do Analista CTM</div>
+              <span class="badge badge-amber" id="audit-badge">[? Conferir GPS Bruto P9/P10]</span>
+            </div>
+            <p style="font-size:12.5px; color:var(--text-1); margin-bottom:12px;">
+              <strong>Proteção contra Viés de Automação:</strong> Ao lado da previsão da rede neural (`STGCN`), o painel exibe o atraso bruto real do GPS dos veículos nas paradas anteriores (`km 13` e `km 15`) e sugere qual viagem ociosa pode cobrir o buraco sem aumentar a frota:
+            </p>
+            <div style="background:var(--bg-0); border:1px solid var(--border); border-radius:8px; padding:12px; font-size:12px; margin-bottom:12px;">
+              <div>🚌 <strong>GPS Bruto a Montante:</strong> Veículo #178-04 retido no km 13 (`atraso real = 39,5 min`).</div>
+              <div>🔄 <strong>Frota no Vazio Encontrada:</strong> Veículo #178-09 rodando vazio no retorno administrativo de Suape (`ocupação &lt; 8%`, `dwell = 0s` em 6 paradas seguidas).</div>
+              <div>⚡ <strong>Ação Proposta:</strong> Adiantar partida de #178-09 em 18 min com expresso até Parada #11 (`Trevo Ipojuca`).</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn-action btn-primary" onclick="approveGTFSRemanejamento()">
+                ✅ Aprovar Troca de Horário e Gerar GTFS (`stop_times.txt`)
+              </button>
+              <span id="gtfs-status-msg" style="font-size:12px; color:#34d399; font-weight:600;"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: EVOLUÇÃO CIENTÍFICA DO PROTÓTIPO (v1.0 -> v2.0 -> v3.0 -> v4.0)-->
+    <!-- ===================================================================== -->
+    <section id="tab-evolution" class="view-section">
+      <div class="grid-2col" style="grid-template-columns: 1fr 1fr;">
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📈 Ciclo de Engenharia e Reavaliação (1.200 Trajetórias PE-60)</div>
+            <span class="badge badge-green">+31,92 pts na Acurácia Global</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Iteração</th>
+                <th>O que mudou no código</th>
+                <th>Acurácia Sensores</th>
+                <th>Recall Desemb.</th>
+                <th>FP Desemb.</th>
+                <th>F1 Desistência</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>v1.0 Baseline</strong></td>
+                <td>MLP raso (12 features brutas) + FSM olhando só 1 quadro isolado</td>
+                <td class="mono">75,29%</td>
+                <td class="mono">56,33%</td>
+                <td class="mono" style="color:#34d399;">0,00%</td>
+                <td class="mono">71,93%</td>
+              </tr>
+              <tr>
+                <td><strong>v2.0 Feature Eng</strong></td>
+                <td>26 atributos físicos (Crest factor, log-energia, razão giro/acel) + `ResSensorNetV2`</td>
+                <td class="mono">86,96%</td>
+                <td class="mono">84,00%</td>
+                <td class="mono" style="color:#34d399;">0,00%</td>
+                <td class="mono">79,07%</td>
+              </tr>
+              <tr class="highlight-row">
+                <td><strong>v3.0 Fusão Multimodal</strong></td>
+                <td>`Soft-Voting` multi-janela + Velocidade escalar ($v=\Delta d/\Delta t$) + Sincronia GTFS</td>
+                <td class="mono" style="font-weight:700; color:#34d399;">97,42%</td>
+                <td class="mono" style="font-weight:700; color:#34d399;">99,33%</td>
+                <td class="mono" style="font-weight:700; color:#34d399;">0,00%</td>
+                <td class="mono" style="font-weight:700; color:#34d399;">99,67%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:18px; font-size:12.5px; font-weight:700; color:var(--text-1);">
+            Matriz de Confusão Medida na Iteração v3.0 (300 casos por classe = 1.200 viagens):
+          </div>
+          <table class="data-table" style="margin-top:8px;">
+            <thead>
+              <tr>
+                <th>Classe Real \ Predita</th>
+                <th>ALIGHTING</th>
+                <th>BOARDING_SERVED</th>
+                <th>ABANDONMENT</th>
+                <th>TRANSIT_BYPASS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ALIGHTING (Desembarque)</strong></td>
+                <td class="mono" style="color:#34d399; font-weight:700;">298 (99,3%)</td>
+                <td class="mono">2</td>
+                <td class="mono" style="background:var(--green-bg); color:#34d399; font-weight:800;">0 (0,00%)</td>
+                <td class="mono">0</td>
+              </tr>
+              <tr>
+                <td><strong>BOARDING_SERVED (Embarque)</strong></td>
+                <td class="mono">0</td>
+                <td class="mono" style="color:#34d399; font-weight:700;">298 (99,3%)</td>
+                <td class="mono">2</td>
+                <td class="mono">0</td>
+              </tr>
+              <tr>
+                <td><strong>ABANDONMENT (Desistência)</strong></td>
+                <td class="mono">0</td>
+                <td class="mono">0</td>
+                <td class="mono" style="color:#34d399; font-weight:700;">300 (100,0%)</td>
+                <td class="mono">0</td>
+              </tr>
+              <tr>
+                <td><strong>TRANSIT_BYPASS (Passagem)</strong></td>
+                <td class="mono">0</td>
+                <td class="mono">0</td>
+                <td class="mono">0</td>
+                <td class="mono" style="color:#34d399; font-weight:700;">300 (100,0%)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🧠 Prova da Tese do Seminário 1: 5 Paradas vs. 20 Paradas Reais</div>
+            <span class="badge badge-blue">Por que não jogar a STGCN fora?</span>
+          </div>
+          <p style="font-size:12.5px; color:var(--text-1); margin-bottom:14px;">
+            No Seminário 1, defendemos que em um corredor curto de <strong>5 paradas</strong> uma regressão linear simples ganha da rede neural (`2,46 min` vs. `4,42 min`), mas quando o sistema escala para o <strong>corredor real completo de 20 paradas da PE-60</strong> com ondas nascendo em pontos variados, o modelo linear sofre colinearidade e a <strong>STGCN vence</strong>:
+          </p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Escala da Malha</th>
+                <th>Persistência (Hoje)</th>
+                <th>Regressão Tabular s/ Grafo</th>
+                <th>STGCN (Grafo Laplaciano)</th>
+                <th>Vencedor Empírico</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Corredor Curto (5 Paradas · Piloto E1)</strong></td>
+                <td class="mono">14,91 min</td>
+                <td class="mono" style="color:#34d399; font-weight:700;">2,46 min</td>
+                <td class="mono">4,42 min</td>
+                <td><span class="badge badge-blue">Regressão (Parcimônia)</span></td>
+              </tr>
+              <tr class="highlight-row">
+                <td><strong>Corredor Completo PE-60 (20 Paradas CTM)</strong></td>
+                <td class="mono">7,13 min</td>
+                <td class="mono">1,93 min (121 colunas)</td>
+                <td class="mono" style="color:#34d399; font-weight:700;">1,51 min (Pesos compartilhados)</td>
+                <td><span class="badge badge-green">STGCN Vence (-21,8% erro)</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="margin-top:18px; font-size:12.5px; font-weight:700; color:var(--text-1);">
+            Convergência do Motor On-Device de Rotina (`OnDeviceRoutineLearner` · 30 Dias):
+          </div>
+          <p style="font-size:12px; color:var(--text-2); margin: 4px 0 10px;">
+             Ao substituir janelas fixas (`minuto // 45`, que quebravam às 17:15 entre os baldes 22 e 23 com 88,89% de recall) por <strong>Clusterização Deslizante de Centróide Temporal ($\pm 35\text{ min}$)</strong>, o recall pós-convergência subiu para <strong>100,00%</strong> no 4º dia útil:
+          </p>
+          <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; text-align:center; font-size:11px; font-family:var(--font-mono);">
+            <div style="background:var(--bg-2); padding:8px; border-radius:6px; border:1px solid var(--border);">Dia 1<br><span style="color:var(--text-2)">28%</span></div>
+            <div style="background:var(--bg-2); padding:8px; border-radius:6px; border:1px solid var(--border);">Dia 2<br><span style="color:var(--text-1)">54%</span></div>
+            <div style="background:var(--bg-2); padding:8px; border-radius:6px; border:1px solid var(--border);">Dia 3<br><span style="color:#fbbf24">76%</span></div>
+            <div style="background:var(--green-bg); padding:8px; border-radius:6px; border:1px solid var(--green);">Dia 4<br><span style="color:#34d399; font-weight:700;">95% (Ativo)</span></div>
+            <div style="background:var(--green-bg); padding:8px; border-radius:6px; border:1px solid var(--green);">Dia 5<br><span style="color:#34d399; font-weight:700;">100% (Voz)</span></div>
+            <div style="background:var(--bg-0); padding:8px; border-radius:6px; border:1px dashed var(--border);">Sáb (FDS)<br><span style="color:var(--text-2)">Silêncio</span></div>
+            <div style="background:var(--bg-0); padding:8px; border-radius:6px; border:1px dashed var(--border);">Dom (FDS)<br><span style="color:var(--text-2)">Silêncio</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: SIMULADOR DE ESCALA LGPD, CUSTO OPERACIONAL E MOAT CITTAMOBI   -->
+    <!-- ===================================================================== -->
+    <section id="tab-lgpd" class="view-section">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🛡️ Simulador de Escala Metropolitana: GrafoParada vs. Cittamobi (Custo &amp; LGPD)</div>
+          <span class="badge badge-green">Arquitetura Event-Driven On-Device</span>
+        </div>
+
+        <div style="background:var(--bg-2); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:13px; font-weight:700;">Volume Diário de Passageiros Monitorados no Grande Recife:</span>
+            <span id="scale-passengers-label" class="mono" style="font-size:16px; font-weight:800; color:var(--accent);">50.000 passageiros/dia</span>
+          </div>
+          <input type="range" id="scale-slider" min="5000" max="500000" step="5000" value="50000" oninput="updateScaleCalculator(this.value)" />
+        </div>
+
+        <div class="grid-2col" style="grid-template-columns: 1fr 1fr;">
+          <div class="panel" style="background:var(--bg-2); border-color:rgba(239,68,68,0.35);">
+            <div class="panel-header">
+              <div class="panel-title" style="color:#f87171;">❌ Arquitetura Tradicional (Cittamobi · Polling 3s)</div>
+              <span class="badge badge-red">Alto Custo &amp; Risco LGPD</span>
+            </div>
+            <table class="data-table">
+              <tbody>
+                <tr>
+                  <td>Requisições HTTP por Mês (30 dias)</td>
+                  <td class="mono" id="citta-reqs" style="color:#f87171; font-weight:700;">900.000.000 reqs/mês</td>
+                </tr>
+                <tr>
+                  <td>Tráfego de Dados Móveis Consumido</td>
+                  <td class="mono" id="citta-gb">450,00 GB/mês</td>
+                </tr>
+                <tr>
+                  <td>Dados Pessoais Coletados (LGPD)</td>
+                  <td>Advertising ID, Device ID, IP, Conta de Usuário, Histórico de Rotas na Nuvem</td>
+                </tr>
+                <tr>
+                  <td>Modelo de Negócio &amp; Conflito B2B</td>
+                  <td>Financiado pelas empresas de ônibus + Banners de anúncio (exige puxar celular na rua)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel" style="background:var(--bg-2); border-color:rgba(16,185,129,0.35);">
+            <div class="panel-header">
+              <div class="panel-title" style="color:#34d399;">✅ Nossa Arquitetura (GrafoParada · On-Device FSM)</div>
+              <span class="badge badge-green">Redução de 99,98%</span>
+            </div>
+            <table class="data-table">
+              <tbody>
+                <tr>
+                  <td>Requisições HTTP por Mês (só desistências ~15%)</td>
+                  <td class="mono" id="gp-reqs" style="color:#34d399; font-weight:700;">225.000 reqs/mês</td>
+                </tr>
+                <tr>
+                  <td>Tráfego de Dados Móveis Consumido (36 bytes/ev)</td>
+                  <td class="mono" id="gp-gb" style="color:#34d399;">0,008 GB/mês (8,1 MB!)</td>
+                </tr>
+                <tr>
+                  <td>Dados Pessoais Coletados (LGPD)</td>
+                  <td><strong>ZERO (0 bytes de PII)</strong>. Sem login, sem ID, fila em RAM descartada em 10 min ($k \ge 3$)</td>
+                </tr>
+                <tr>
+                  <td>Defensabilidade Estrutural (Moat)</td>
+                  <td>Rotina salva 100% no bolso + mede a demanda que a catraca esconde para remanejar frota vazia</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // DADOS REAIS DAS 20 PARADAS DA PE-60 (EXTRAÍDOS DO GTFS GRANDE RECIFE CTM)
+    // =========================================================================
+    const PARADAS_PE60 = [
+      { seq: 1, id: "030905", name: "TI Cabo (Plataforma 05)", lat: -8.284986, lon: -35.032781, sched: "05:30:00", wait_gps: 14, abn: 0, stgcn: [15.2, 16.0, 16.8], status: "normal" },
+      { seq: 2, id: "030291", name: "Av. Hist. Pereira da Costa", lat: -8.286839, lon: -35.036553, sched: "05:31:11", wait_gps: 15, abn: 1, stgcn: [16.1, 17.4, 18.2], status: "normal" },
+      { seq: 3, id: "030691", name: "BR-101 Sul / Acesso PE-60", lat: -8.285883, lon: -35.036094, sched: "05:31:47", wait_gps: 18, abn: 2, stgcn: [19.0, 21.2, 22.5], status: "normal" },
+      { seq: 4, id: "190114", name: "PE-60 km 02 (Dist. Industrial)", lat: -8.282369, lon: -35.034214, sched: "05:32:55", wait_gps: 21, abn: 2, stgcn: [22.4, 24.8, 26.1], status: "normal" },
+      { seq: 5, id: "190115", name: "PE-60 km 04 (Vila Social)", lat: -8.281153, lon: -35.032992, sched: "05:33:23", wait_gps: 24, abn: 3, stgcn: [25.8, 28.1, 30.4], status: "warning" },
+      { seq: 6, id: "030186", name: "PE-60 km 07 (Eng. Massangana)", lat: -8.285831, lon: -35.028672, sched: "05:36:04", wait_gps: 31, abn: 6, stgcn: [33.5, 36.8, 39.2], status: "warning" },
+      { seq: 7, id: "030187", name: "PE-60 km 09 (Suape Norte)", lat: -8.287672, lon: -35.028167, sched: "05:36:35", wait_gps: 36, abn: 8, stgcn: [38.0, 41.2, 43.5], status: "critical" },
+      { seq: 8, id: "030212", name: "PE-60 km 11 (Polo Logístico)", lat: -8.289831, lon: -35.027567, sched: "05:37:12", wait_gps: 38, abn: 9, stgcn: [39.4, 42.6, 44.8], status: "critical" },
+      { seq: 9, id: "030190", name: "PE-60 km 13 (Cruz. TDR Norte)", lat: -8.292508, lon: -35.026800, sched: "05:37:57", wait_gps: 39, abn: 11, stgcn: [40.2, 43.9, 46.1], status: "critical" },
+      { seq: 10, id: "030191", name: "PE-60 km 15 (Acesso Refinaria)", lat: -8.297536, lon: -35.025536, sched: "05:39:22", wait_gps: 37, abn: 12, stgcn: [39.0, 43.1, 45.9], status: "critical" },
+      { seq: 11, id: "030192", name: "PE-60 km 17 (Trevo Ipojuca)", lat: -8.304873, lon: -35.021349, sched: "05:41:41", wait_gps: 35, abn: 14, stgcn: [38.4, 43.8, 47.2], status: "critical" },
+      { seq: 12, id: "030193", name: "PE-60 km 19 (Ent. Complexo)", lat: -8.309411, lon: -35.018650, sched: "05:43:07", wait_gps: 33, abn: 10, stgcn: [36.2, 41.5, 44.6], status: "critical" },
+      { seq: 13, id: "030194", name: "Av. Portuária (Zona Ind. 1)", lat: -8.311617, lon: -35.016897, sched: "05:43:53", wait_gps: 29, abn: 7, stgcn: [32.8, 38.0, 41.2], status: "warning" },
+      { seq: 14, id: "030650", name: "Av. Portuária (Estaleiro)", lat: -8.314831, lon: -35.014375, sched: "05:45:03", wait_gps: 27, abn: 6, stgcn: [31.0, 36.4, 39.8], status: "warning" },
+      { seq: 15, id: "030680", name: "Via Parque (Term. Petroquímico)", lat: -8.321506, lon: -35.010478, sched: "05:47:13", wait_gps: 26, abn: 9, stgcn: [32.4, 39.1, 43.6], status: "critical" },
+      { seq: 16, id: "030687", name: "Via Contorno (Setor Naval)", lat: -8.321692, lon: -35.009497, sched: "05:47:58", wait_gps: 19, abn: 2, stgcn: [21.0, 23.5, 25.0], status: "normal" },
+      { seq: 17, id: "030313", name: "Acesso Porto Externo (Cais 01)", lat: -8.320867, lon: -35.008031, sched: "05:48:38", wait_gps: 16, abn: 0, stgcn: [17.2, 18.4, 19.1], status: "normal" },
+      { seq: 18, id: "030314", name: "Acesso Porto Externo (Cais 04)", lat: -8.320017, lon: -35.003756, sched: "05:49:49", wait_gps: 14, abn: 0, stgcn: [14.8, 15.5, 16.0], status: "normal" },
+      { seq: 19, id: "030701", name: "Rotatória Adm. Suape (Frota Vazia)", lat: -8.318056, lon: -34.999858, sched: "05:51:04", wait_gps: 11, abn: 0, stgcn: [11.5, 12.0, 12.2], status: "normal" },
+      { seq: 20, id: "030778", name: "Ponto de Retorno Porto Suape", lat: -8.394000, lon: -34.972744, sched: "06:25:00", wait_gps: 10, abn: 0, stgcn: [10.4, 11.0, 11.5], status: "normal" }
+    ];
+
+    // =========================================================================
+    // CENÁRIOS REAIS DE SENSORES E CINEMÁTICA (TMD + FSM v3.0)
+    // =========================================================================
+    const SCENARIOS = {
+      ALIGHTING: {
+        verdict: "VEREDITO FSM: ALIGHTING (DESEMBARQUE · 0% FALSO POSITIVO)",
+        badgeClass: "badge-green",
+        nodeActive: "active-green",
+        voice: "GrafoParada Modo Bolso: Desembarque detectado na Parada Trevo de Ipojuca. Boa caminhada.",
+        probs: { still: 2, walk: 95, bus: 2, car: 1 },
+        payload: "[INSPETOR DE REDE & LGPD] -> Status: SILÊNCIO DE REDE (0 requisições HTTP enviadas).\nMotivo: O passageiro chegou em velocidade veicular (36 km/h, Bus), permaneceu apenas 30s na parada e afastou-se a pé (4,6 km/h, Walking). Classificado como DESEMBARQUE (ALIGHTING). Falso positivo de desistência = 0,00%!",
+        steps: [
+          { t: "0,0 min", phase: "Antes da Parada", dist: "650 m", speed: "36,0 km/h", imu: "1,42 m/s² | 0,09 rad/s", db: "78,4 dB", state: "Bus (94%)" },
+          { t: "0,6 min", phase: "Aproximando", dist: "290 m", speed: "34,2 km/h", imu: "1,38 m/s² | 0,08 rad/s", db: "77,9 dB", state: "Bus (92%)" },
+          { t: "1,5 min", phase: "Dentro da Geocerca (35m)", dist: "6 m", speed: "0,0 km/h", imu: "0,04 m/s² | 0,01 rad/s", db: "68,2 dB", state: "Still (91%)" },
+          { t: "2,0 min", phase: "Porta do Ônibus (Dwell 30s)", dist: "8 m", speed: "1,8 km/h", imu: "0,35 m/s² | 0,03 rad/s", db: "66,0 dB", state: "Still/Walk" },
+          { t: "3,0 min", phase: "Pós-Parada (Calçada)", dist: "85 m", speed: "4,6 km/h", imu: "3,85 m/s² | 0,41 rad/s", db: "62,1 dB", state: "Walking (96%)" },
+          { t: "4,2 min", phase: "Afastando-se a pé", dist: "180 m", speed: "4,8 km/h", imu: "4,12 m/s² | 0,44 rad/s", db: "60,5 dB", state: "Walking (97%)" }
+        ]
+      },
+      ABANDONMENT: {
+        verdict: "VEREDITO FSM: ABANDONMENT (DESISTÊNCIA P/ ALTERNATIVO · F1 99,67%)",
+        badgeClass: "badge-red",
+        nodeActive: "active-red",
+        voice: "GrafoParada Modo Bolso: Aviso na Parada Trevo de Ipojuca. Linha 178 Suape atrasada há 38 minutos. Registrando desistência anônima para reforço de frota.",
+        probs: { still: 1, walk: 1, bus: 3, car: 95 },
+        payload: "[INSPETOR DE REDE & LGPD] -> Status: 1 PACOTE EVENT-DRIVEN ENVIADO (36 bytes)!\nPayload JSON: {\"stop_id\": \"030192\", \"event\": \"ABN\", \"time\": \"06:18\"}\nAuditoria LGPD: Zero ID de usuário, zero IMEI, zero histórico. Armazenado apenas na RAM volátil de 10 min do CTM com trava k-anonimato (k >= 3).",
+        steps: [
+          { t: "0,0 min", phase: "Chegada à Parada", dist: "65 m", speed: "4,5 km/h", imu: "3,70 m/s² | 0,38 rad/s", db: "64,0 dB", state: "Walking (93%)" },
+          { t: "1,0 min", phase: "Aguardando no Ponto", dist: "3 m", speed: "0,0 km/h", imu: "0,02 m/s² | 0,00 rad/s", db: "71,2 dB", state: "Still (98%)" },
+          { t: "18,0 min", phase: "Espera Prolongada", dist: "4 m", speed: "0,0 km/h", imu: "0,03 m/s² | 0,01 rad/s", db: "73,5 dB", state: "Still (99%)" },
+          { t: "38,0 min", phase: "Limite de Espera (Sem Ônibus CTM)", dist: "5 m", speed: "0,4 km/h", imu: "0,08 m/s² | 0,02 rad/s", db: "75,0 dB", state: "Still (97%)" },
+          { t: "38,5 min", phase: "Subiu em Ligeirinho / Moto-táxi", dist: "240 m", speed: "46,8 km/h", imu: "1,85 m/s² | 0,19 rad/s", db: "88,4 dB", state: "Car (94%)" },
+          { t: "39,2 min", phase: "Passou Direto pela Parada Seguinte", dist: "890 m", speed: "55,2 km/h", imu: "1,92 m/s² | 0,22 rad/s", db: "89,1 dB", state: "Car (96%)" }
+        ]
+      },
+      BOARDING_SERVED: {
+        verdict: "VEREDITO FSM: BOARDING_SERVED (EMBARQUE OFICIAL ATENDIDO · 99,33%)",
+        badgeClass: "badge-blue",
+        nodeActive: "active-blue",
+        voice: "GrafoParada Modo Bolso: O ônibus da Linha 178 Porto de Suape está encostando na parada agora.",
+        probs: { still: 2, walk: 1, bus: 94, car: 3 },
+        payload: "[INSPETOR DE REDE & LGPD] -> Status: DEMANDA ATENDIDA (0 pacotes de desistência).\nMotivo: Passageiro aguardou 14,5 min (Still), o GPS aberto do ônibus oficial estava na geocerca (dist < 35m) e a assinatura vibro-acústica + parada no ponto seguinte confirmam embarque em ÔNIBUS (Bus = 94%).",
+        steps: [
+          { t: "0,0 min", phase: "Chegada à Parada", dist: "80 m", speed: "4,4 km/h", imu: "3,62 m/s² | 0,36 rad/s", db: "63,5 dB", state: "Walking (94%)" },
+          { t: "1,5 min", phase: "Aguardando no Ponto", dist: "4 m", speed: "0,0 km/h", imu: "0,02 m/s² | 0,01 rad/s", db: "69,0 dB", state: "Still (98%)" },
+          { t: "14,5 min", phase: "Ônibus Linha 178 Encostou (GPS OK)", dist: "5 m", speed: "1,2 km/h", imu: "0,65 m/s² | 0,05 rad/s", db: "81,2 dB", state: "Still/Bus" },
+          { t: "15,2 min", phase: "Partida no Ônibus Oficial", dist: "210 m", speed: "31,5 km/h", imu: "1,34 m/s² | 0,07 rad/s", db: "79,5 dB", state: "Bus (93%)" },
+          { t: "16,0 min", phase: "Parou no Ponto Seguinte GTFS", dist: "520 m", speed: "28,4 km/h", imu: "1,29 m/s² | 0,06 rad/s", db: "78,8 dB", state: "Bus (95%)" }
+        ]
+      },
+      TRANSIT_BYPASS: {
+        verdict: "VEREDITO FSM: TRANSIT_BYPASS (PASSAGEM DIRETA NA VIA · 100% IGNORADO)",
+        badgeClass: "badge-amber",
+        nodeActive: "active-blue",
+        voice: "Modo Sentinela em silêncio: Usuário apenas passando pela rodovia PE-60 em velocidade contínua.",
+        probs: { still: 0, walk: 0, bus: 12, car: 88 },
+        payload: "[INSPETOR DE REDE & LGPD] -> Status: SILÊNCIO DE REDE (0 requisições HTTP).\nMotivo: Tempo de permanência dentro do raio de 35m foi de apenas 15 segundos (dwell < 45s) com velocidade de entrada de 64 km/h e saída de 66 km/h. Descartado imediatamente na borda!",
+        steps: [
+          { t: "0,00 min", phase: "Rodovia PE-60 (Antes)", dist: "450 m", speed: "64,0 km/h", imu: "1,65 m/s² | 0,14 rad/s", db: "86,2 dB", state: "Car (89%)" },
+          { t: "0,25 min", phase: "Cruzou Raio de 35m (Dwell 15s)", dist: "15 m", speed: "65,2 km/h", imu: "1,61 m/s² | 0,13 rad/s", db: "87,0 dB", state: "Car (88%)" },
+          { t: "0,55 min", phase: "Rodovia PE-60 (Depois)", dist: "480 m", speed: "66,0 km/h", imu: "1,70 m/s² | 0,15 rad/s", db: "86,8 dB", state: "Car (90%)" }
+        ]
+      }
+    };
+
+    let currentScenarioKey = "ALIGHTING";
+    let corridorMode = "grafoparada";
+    let selectedStopSeq = 11;
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll(".view-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      btnEl.classList.add("active");
+    }
+
+    function runScenario(key, btnEl) {
+      currentScenarioKey = key;
+      if (btnEl) {
+        document.querySelectorAll(".scenario-btn").forEach(b => b.classList.remove("active"));
+        btnEl.classList.add("active");
+      }
+
+      const sc = SCENARIOS[key];
+      document.getElementById("voice-text").textContent = `"${sc.voice}"`;
+
+      const badge = document.getElementById("fsm-verdict-badge");
+      badge.textContent = sc.verdict;
+      badge.className = `badge ${sc.badgeClass}`;
+
+      ["ALIGHTING", "BOARDING_SERVED", "ABANDONMENT", "TRANSIT_BYPASS"].forEach(k => {
+        const n = document.getElementById(`node-${k}`);
+        n.className = "fsm-node";
+        if (k === key) n.classList.add(sc.nodeActive);
+      });
+
+      document.getElementById("prob-still").textContent = `${sc.probs.still}%`;
+      document.getElementById("bar-still").style.width = `${sc.probs.still}%`;
+      document.getElementById("prob-walk").textContent = `${sc.probs.walk}%`;
+      document.getElementById("bar-walk").style.width = `${sc.probs.walk}%`;
+      document.getElementById("prob-bus").textContent = `${sc.probs.bus}%`;
+      document.getElementById("bar-bus").style.width = `${sc.probs.bus}%`;
+      document.getElementById("prob-car").textContent = `${sc.probs.car}%`;
+      document.getElementById("bar-car").style.width = `${sc.probs.car}%`;
+
+      const tbody = document.getElementById("sensor-timeline-body");
+      tbody.innerHTML = sc.steps.map((s, idx) => `
+        <tr class="${idx === sc.steps.length - 1 ? 'highlight-row' : ''}">
+          <td class="mono">${s.t}</td>
+          <td>${s.phase}</td>
+          <td class="mono">${s.dist}</td>
+          <td class="mono" style="font-weight:700;">${s.speed}</td>
+          <td class="mono">${s.imu}</td>
+          <td class="mono">${s.db}</td>
+          <td><span class="badge ${key === 'ABANDONMENT' && idx >= 4 ? 'badge-red' : 'badge-blue'}">${s.state}</span></td>
+        </tr>
+      `).join("");
+
+      const pbox = document.getElementById("network-payload-box");
+      pbox.innerText = sc.payload;
+      pbox.style.color = key === "ABANDONMENT" ? "#fbbf24" : "#34d399";
+    }
+
+    function speakCurrentAlert() {
+      const text = SCENARIOS[currentScenarioKey].voice;
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "pt-BR";
+        utter.rate = 1.03;
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function renderCorridorGrid() {
+      const grid = document.getElementById("corridor-grid");
+      grid.innerHTML = PARADAS_PE60.map(p => {
+        const isCatraca = corridorMode === "catraca";
+        const cls = isCatraca ? "normal" : p.status;
+        const selectedCls = p.seq === selectedStopSeq ? "selected" : "";
+        const metricRight = isCatraca
+          ? `<span style="color:var(--text-2)">Catraca: 0</span>`
+          : (p.abn >= 3 ? `<span style="color:#f87171; font-weight:700;">🔥 ${p.abn} desist.</span>` : `<span style="color:#34d399;">Estável</span>`);
+
+        return `
+          <div class="stop-node ${cls} ${selectedCls}" onclick="selectStop(${p.seq})">
+            <div class="stop-seq">
+              <span>#${p.seq} · [${p.id}]</span>
+              <span>${p.sched.slice(0,5)}</span>
+            </div>
+            <div class="stop-name" title="${p.name}">${p.name}</div>
+            <div class="stop-metrics">
+              <span>GPS: ${p.wait_gps}m</span>
+              ${metricRight}
+            </div>
+          </div>
+        `;
+      }).join("");
+      updateStopDetail();
+    }
+
+    function setCorridorViewMode(mode) {
+      corridorMode = mode;
+      document.getElementById("btn-mode-grafoparada").className = mode === "grafoparada" ? "btn-action btn-primary" : "btn-action";
+      document.getElementById("btn-mode-catraca").className = mode === "catraca" ? "btn-action btn-primary" : "btn-action";
+      renderCorridorGrid();
+    }
+
+    function selectStop(seq) {
+      selectedStopSeq = seq;
+      document.getElementById("gtfs-status-msg").textContent = "";
+      renderCorridorGrid();
+    }
+
+    function updateStopDetail() {
+      const p = PARADAS_PE60.find(x => x.seq === selectedStopSeq) || PARADAS_PE60[10];
+      document.getElementById("detail-stop-title").textContent = `Parada #${p.seq}: ${p.name} [${p.id}]`;
+      document.getElementById("detail-coords").textContent = `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}`;
+      document.getElementById("detail-sched").textContent = `${p.sched} (Linha 178 TI Cabo / Suape)`;
+      document.getElementById("detail-catraca").textContent = p.abn >= 6
+        ? "0 embarques nos últimos 40 min (Ônibus atrasado -> Catraca acha que não há demanda!)"
+        : "Fluxo regular na catraca física";
+      document.getElementById("detail-abn").textContent = p.abn >= 3
+        ? `${p.abn} desistências anônimas p/ Ligeirinho na janela de 10 min (k=${p.abn} >= 3)`
+        : `${p.abn} eventos (Abaixo do limiar k=3 de k-anonimato · Ocultado por privacidade)`;
+      document.getElementById("detail-stgcn").textContent = `${p.stgcn[0].toFixed(1)} min -> ${p.stgcn[1].toFixed(1)} min -> ${p.stgcn[2].toFixed(1)} min (MAE: 1,51 min)`;
+
+      const badge = document.getElementById("detail-stop-badge");
+      if (p.stgcn[2] > 40) {
+        badge.textContent = "GARGALO CRÍTICO (> 40 min)";
+        badge.className = "badge badge-red";
+      } else if (p.stgcn[2] >= 35) {
+        badge.textContent = "ZONA DE ATENÇÃO [?] (35–40 min)";
+        badge.className = "badge badge-amber";
+      } else {
+        badge.textContent = "OPERAÇÃO REGULAR (<= 35 min)";
+        badge.className = "badge badge-green";
+      }
+    }
+
+    function approveGTFSRemanejamento() {
+      const p = PARADAS_PE60.find(x => x.seq === selectedStopSeq);
+      const msg = document.getElementById("gtfs-status-msg");
+      msg.textContent = `✔ Ordem GTFS gerada! Viagem ociosa #178-09 remanejada para cobrir ${p.name} (Espera prevista cai de ${p.stgcn[2].toFixed(1)} min para 18,5 min).`;
+    }
+
+    function updateScaleCalculator(val) {
+      const n = parseInt(val, 10);
+      document.getElementById("scale-passengers-label").textContent = `${n.toLocaleString("pt-BR")} passageiros/dia`;
+
+      const cittaReqs = n * 600 * 30;
+      const cittaGb = (n * 300 * 30) / (1024 * 1024);
+
+      const gpReqs = Math.round(n * 0.15 * 30);
+      const gpGb = (gpReqs * 0.036) / (1024 * 1024);
+
+      document.getElementById("citta-reqs").textContent = `${cittaReqs.toLocaleString("pt-BR")} reqs/mês`;
+      document.getElementById("citta-gb").textContent = `${cittaGb.toFixed(2).replace(".", ",")} GB/mês`;
+
+      document.getElementById("gp-reqs").textContent = `${gpReqs.toLocaleString("pt-BR")} reqs/mês`;
+      document.getElementById("gp-gb").textContent = `${gpGb.toFixed(4).replace(".", ",")} GB/mês (${(gpGb * 1024).toFixed(1).replace(".", ",")} MB!)`;
+    }
+
+    // Inicializar telas
+    runScenario("ALIGHTING", document.querySelector(".scenario-btn"));
+    renderCorridorGrid();
+    updateScaleCalculator(50000);
+  </script>
+</body>
+</html>

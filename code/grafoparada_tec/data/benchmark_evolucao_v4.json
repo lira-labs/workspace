@@ -1,0 +1,409 @@
+{
+  "timestamp": "2026-11-08T16:20:00-03:00",
+  "corredor": "Linha 178 / 191 (TI Cabo -> Porto de Suape · PE-60 · Grande Recife CTM)",
+  "paradas": [
+    {
+      "seq": 1,
+      "stop_id": "030905",
+      "stop_name": "TI Cabo (Plataforma 05) [030905]",
+      "lat": -8.284986112077355,
+      "lon": -35.032780555502704,
+      "scheduled_time": "05:30:00"
+    },
+    {
+      "seq": 2,
+      "stop_id": "030291",
+      "stop_name": "Av. Hist. Pereira da Costa (Centro) [030291]",
+      "lat": -8.286838889855828,
+      "lon": -35.0365527777243,
+      "scheduled_time": "05:31:11"
+    },
+    {
+      "seq": 3,
+      "stop_id": "030691",
+      "stop_name": "BR-101 Sul / Acesso PE-60 [030691]",
+      "lat": -8.285883334299927,
+      "lon": -35.03609444439103,
+      "scheduled_time": "05:31:47"
+    },
+    {
+      "seq": 4,
+      "stop_id": "190114",
+      "stop_name": "PE-60 km 02 (Distrito Industrial) [190114]",
+      "lat": -8.282369445409856,
+      "lon": -35.03421388883579,
+      "scheduled_time": "05:32:55"
+    },
+    {
+      "seq": 5,
+      "stop_id": "190115",
+      "stop_name": "PE-60 km 04 (Vila Social) [190115]",
+      "lat": -8.281152778742781,
+      "lon": -35.032991666613775,
+      "scheduled_time": "05:33:23"
+    },
+    {
+      "seq": 6,
+      "stop_id": "030186",
+      "stop_name": "PE-60 km 07 (Engenho Massangana) [030186]",
+      "lat": -8.285830556522159,
+      "lon": -35.02867222217007,
+      "scheduled_time": "05:36:04"
+    },
+    {
+      "seq": 7,
+      "stop_id": "030187",
+      "stop_name": "PE-60 km 09 (Acesso Suape Norte) [030187]",
+      "lat": -8.287672223189444,
+      "lon": -35.0281666666146,
+      "scheduled_time": "05:36:35"
+    },
+    {
+      "seq": 8,
+      "stop_id": "030212",
+      "stop_name": "PE-60 km 11 (Polo Logístico) [030212]",
+      "lat": -8.289830556523533,
+      "lon": -35.02756666661472,
+      "scheduled_time": "05:37:12"
+    },
+    {
+      "seq": 9,
+      "stop_id": "030190",
+      "stop_name": "PE-60 km 13 (Cruzamento TDR Norte) [030190]",
+      "lat": -8.29250833430219,
+      "lon": -35.02679999994818,
+      "scheduled_time": "05:37:57"
+    },
+    {
+      "seq": 10,
+      "stop_id": "030191",
+      "stop_name": "PE-60 km 15 (Acesso Refinaria) [030191]",
+      "lat": -8.297536112081696,
+      "lon": -35.02553611105952,
+      "scheduled_time": "05:39:22"
+    },
+    {
+      "seq": 11,
+      "stop_id": "030192",
+      "stop_name": "PE-60 km 17 (Trevo Ipojuca / Camela) [030192]",
+      "lat": -8.304872538980653,
+      "lon": -35.02134879162632,
+      "scheduled_time": "05:41:41"
+    },
+    {
+      "seq": 12,
+      "stop_id": "030193",
+      "stop_name": "PE-60 km 19 (Entrada Complexo Suape) [030193]",
+      "lat": -8.309411112085785,
+      "lon": -35.01864999994958,
+      "scheduled_time": "05:43:07"
+    },
+    {
+      "seq": 13,
+      "stop_id": "030194",
+      "stop_name": "Av. Portuária (Zona Industrial 1) [030194]",
+      "lat": -8.311616667642104,
+      "lon": -35.01689722217208,
+      "scheduled_time": "05:43:53"
+    },
+    {
+      "seq": 14,
+      "stop_id": "030650",
+      "stop_name": "Av. Portuária (Estaleiro / Pátio) [030650]",
+      "lat": -8.314830556532101,
+      "lon": -35.014374999950284,
+      "scheduled_time": "05:45:03"
+    },
+    {
+      "seq": 15,
+      "stop_id": "030680",
+      "stop_name": "Via Parque Suape (Terminal Petroquímico) [030680]",
+      "lat": -8.3215055565344,
+      "lon": -35.01047777772871,
+      "scheduled_time": "05:47:13"
+    },
+    {
+      "seq": 16,
+      "stop_id": "030687",
+      "stop_name": "Via Contorno Suape (Setor Naval) [030687]",
+      "lat": -8.321691667645538,
+      "lon": -35.0094972221733,
+      "scheduled_time": "05:47:58"
+    },
+    {
+      "seq": 17,
+      "stop_id": "030313",
+      "stop_name": "Acesso Porto Externo (Cais 01) [030313]",
+      "lat": -8.320866667645292,
+      "lon": -35.00803055550687,
+      "scheduled_time": "05:48:38"
+    },
+    {
+      "seq": 18,
+      "stop_id": "030314",
+      "stop_name": "Acesso Porto Externo (Cais 04) [030314]",
+      "lat": -8.320016667645014,
+      "lon": -35.00375555550753,
+      "scheduled_time": "05:49:49"
+    },
+    {
+      "seq": 19,
+      "stop_id": "030701",
+      "stop_name": "Rotatória Administrativa Suape [030701]",
+      "lat": -8.31805555653323,
+      "lon": -34.99985833328591,
+      "scheduled_time": "05:51:04"
+    },
+    {
+      "seq": 20,
+      "stop_id": "030778",
+      "stop_name": "Ponto de Retorno Porto de Suape [030778]",
+      "lat": -8.394000001004004,
+      "lon": -34.97274444440123,
+      "scheduled_time": "06:25:00"
+    }
+  ],
+  "iteracoes_cinematica": {
+    "v1": {
+      "sensor_acc": 75.29,
+      "acc_global": 67.75,
+      "fp_desembarque": 0.0,
+      "recall_desembarque": 56.33,
+      "prec_abn": 72.54,
+      "rec_abn": 71.33,
+      "f1_abn": 71.93,
+      "matriz": [
+        [
+          169,
+          5,
+          0,
+          126
+        ],
+        [
+          2,
+          162,
+          81,
+          55
+        ],
+        [
+          1,
+          57,
+          214,
+          28
+        ],
+        [
+          21,
+          11,
+          0,
+          268
+        ]
+      ]
+    },
+    "v2": {
+      "sensor_acc": 86.96,
+      "acc_global": 84.67,
+      "fp_desembarque": 0.0,
+      "recall_desembarque": 84.0,
+      "prec_abn": 85.33,
+      "rec_abn": 73.67,
+      "f1_abn": 79.07,
+      "matriz": [
+        [
+          252,
+          0,
+          0,
+          48
+        ],
+        [
+          2,
+          247,
+          38,
+          13
+        ],
+        [
+          0,
+          70,
+          221,
+          9
+        ],
+        [
+          3,
+          1,
+          0,
+          296
+        ]
+      ]
+    },
+    "v3": {
+      "sensor_acc": 97.42,
+      "acc_global": 99.67,
+      "fp_desembarque": 0.0,
+      "recall_desembarque": 99.33,
+      "prec_abn": 99.34,
+      "rec_abn": 100.0,
+      "f1_abn": 99.67,
+      "matriz": [
+        [
+          298,
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          298,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          300,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          300
+        ]
+      ],
+      "latency_us": 65.36,
+      "peak_ram_kb": 15.37
+    },
+    "classes": [
+      "ALIGHTING",
+      "BOARDING_SERVED",
+      "ABANDONMENT",
+      "TRANSIT_BYPASS"
+    ]
+  },
+  "rotina_on_device": {
+    "dia_convergencia": 4,
+    "recall_voz_pos_convergencia": 100.0,
+    "falso_disparo_fim_de_semana": 0.0,
+    "storage_local_bytes": 166,
+    "nuvem_bytes_enviados": 0,
+    "evolucao_30dias": [
+      {
+        "dia": 1,
+        "tipo": "Util",
+        "confianca_ida": 0.28,
+        "voz_ativa": false
+      },
+      {
+        "dia": 2,
+        "tipo": "Util",
+        "confianca_ida": 0.538,
+        "voz_ativa": false
+      },
+      {
+        "dia": 3,
+        "tipo": "Util",
+        "confianca_ida": 0.757,
+        "voz_ativa": false
+      },
+      {
+        "dia": 4,
+        "tipo": "Util",
+        "confianca_ida": 0.944,
+        "voz_ativa": true
+      },
+      {
+        "dia": 5,
+        "tipo": "Util",
+        "confianca_ida": 1.0,
+        "voz_ativa": true
+      },
+      {
+        "dia": 6,
+        "tipo": "FimDeSemana",
+        "confianca_ida": 1.0,
+        "voz_ativa": false
+      },
+      {
+        "dia": 7,
+        "tipo": "FimDeSemana",
+        "confianca_ida": 1.0,
+        "voz_ativa": false
+      },
+      {
+        "dia": 8,
+        "tipo": "Util",
+        "confianca_ida": 1.0,
+        "voz_ativa": true
+      },
+      {
+        "dia": 9,
+        "tipo": "Util",
+        "confianca_ida": 1.0,
+        "voz_ativa": true
+      },
+      {
+        "dia": 10,
+        "tipo": "Util",
+        "confianca_ida": 1.0,
+        "voz_ativa": true
+      },
+      {
+        "dia": 11,
+        "tipo": "Util",
+        "confianca_ida": 1.0,
+        "voz_ativa": true
+      },
+      {
+        "dia": 12,
+        "tipo": "Util",
+        "confianca_ida": 1.0,
+        "voz_ativa": true
+      },
+      {
+        "dia": 13,
+        "tipo": "FimDeSemana",
+        "confianca_ida": 1.0,
+        "voz_ativa": false
+      },
+      {
+        "dia": 14,
+        "tipo": "FimDeSemana",
+        "confianca_ida": 1.0,
+        "voz_ativa": false
+      }
+    ]
+  },
+  "escalabilidade_grafo": {
+    "corredor_curto_5_paradas": {
+      "regressao_tabular_mae": 2.46,
+      "stgcn_mae": 4.42,
+      "vencedor": "Regressão Tabular (Parcimônia em linha curta de 5 nós)"
+    },
+    "corredor_completo_20_paradas_pe60": {
+      "persistencia": {
+        "mae_min": 7.13,
+        "erro_sem_aviso_pct": 0.0,
+        "alerta_exato_pct": 0.0
+      },
+      "regressao_tabular_20nos": {
+        "mae_min": 1.93,
+        "erro_sem_aviso_pct": 0.0,
+        "alerta_exato_pct": 0.0
+      },
+      "stgcn_grafo_20nos": {
+        "mae_min": 1.51,
+        "erro_sem_aviso_pct": 0.0,
+        "alerta_exato_pct": 0.0
+      },
+      "vencedor": "STGCN com Grafo Laplaciano (Regressão linear sofre colinearidade ao achatar 20 paradas)"
+    }
+  },
+  "lgpd_custo": {
+    "cittamobi_reqs_30min": 600,
+    "grafoparada_reqs_30min": 1,
+    "cittamobi_kb": 300.0,
+    "grafoparada_kb": 0.036,
+    "reducao_rede_pct": 99.98,
+    "pii_bytes": 0,
+    "k_anonimato": 3,
+    "ram_janela_volatil_min": 10
+  }
+}
