@@ -4,55 +4,51 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 08/11/2026 16:56
-- **Branch Ativo:** eature/if-2va-pqc-telessaude (Workspace) | eat/compasso-estudo-ia (Sub-repo code/prob-tech-fit-cp01)
-- **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
-- **Branch Ativo:** `main` (Sincronizado com `origin/main`)
-- **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
+- **Última Atualização:** 08/11/2026 20:45
+- **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
+- **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace`
-  - *Overleaf*: `https://git.overleaf.com/6a920bb3130d092cbf505259`
+  - *Overleaf*: `https://git.overleaf.com/6a922427f1ca2007335f685f` (Grupo Zeta CP-01)
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
 
 ### 000. Tecnologias na Educação · Grupo Zeta (Compasso Educacional)
+- [x] **Auto-Tracking Silencioso e Autônomo (Psicologia Comportamental BJ Fogg $B=MAP$ & Nudge)**:
+  - *Problema Resolvido:* O estudante abandona ferramentas de estudo quando precisa ligar timers manuais, preencher formulários ou lembrar de ativar o app toda vez.
+  - *Implementação:* Seletor e setting persistente de `auto_tracking`. Ao detectar estudo ativo sustentado (>15s em janelas categorizadas como `focus` ou `study`), inicia silenciosamente o bloco `⚡ Auto-Foco`. Se detectar 5 minutos de ociosidade contínua, encerra o bloco e salva as métricas no SQLite.
+  - *Toggle na UI:* Adicionado no rodapé da interface (`web/index.html` e `web/app.js`), integrado à API `/api/auto_tracking`.
+- [x] **Correção do CLI / Launcher Windows (`iniciar.ps1` — "Run Failed")**:
+  - *Diagnóstico do Erro:* O launcher original buscava apenas `py.exe` ou caminhos fechados de cache. Em sistemas com Python instalado via `uv`, Microsoft Store ou instalador padrão no PATH (`python.exe` / `python3.exe`), o script falhava com exit code 1 ("Run Failed").
+  - *Solução:* Adicionada checagem dinâmica via `Get-Command` com fallbacks para `python.exe`, `py.exe` e `python3.exe`. Testado e validado com sucesso.
+- [x] **Guia Canônico de Arquitetura e Harness (`docs/GUIA_ARQUITETURA_E_HARNESS.md`)**:
+  - Documento mestre criado na branch para orientar o Igor (hacker principal) e qualquer harness/agente futuro.
+  - Cobre: Fundamentação teórica ($B=MAP$, Nudge, SRL Zimmerman, 1h hiperfoco vs 6h zumbi), diretrizes Anti-AI Slop, mapa completo do repositório, comandos de execução e testes.
 - [x] **Pesquisa e Diretriz Rigorosa Anti-AI Slop (Simon Willison & Ética em EdTech)**:
   - *Definição de AI Slop:* Conteúdo digital massivo, prolixo e de baixo valor gerado por IA sem curadoria humana, que polui interfaces, documentações e códigos.
   - *Na Aplicação e UI:* Eliminação de paredes de texto, disclaimers minúsculos desnecessários e formulários inchados; priorização de design subtrativo (apenas o sinal essencial na tela).
   - *Na Documentação:* Textos concisos, diretos e humanos, sem 'encher linguiça' com parágrafos gerados por IA ou jargões vazios.
   - *Na Pedagogia:* A IA nunca faz o trabalho pelo aluno (não gera resumos ou respostas prontas); atua apenas como provocadora socrática mínima (2 linhas) para destravar o raciocínio.
-- [x] **Classificação Contextual Segura e Recursos de Aprendizagem (eat/compasso-estudo-ia)**:
-  - Implementação de heurísticas contextuais seguras (infer_category): não assume rigidamente que todo PDF ou YouTube é estudo ou lazer; analisa o título da janela (ex.: fatura/boleto -> neutro, aula/cálculo -> estudo, games/feed -> distração).
+- [x] **Classificação Contextual Segura e Recursos de Aprendizagem (`feat/compasso-estudo-ia`)**:
+  - Implementação de heurísticas contextuais seguras (`infer_category`): não assume rigidamente que todo PDF ou YouTube é estudo ou lazer; analisa o título da janela (ex.: fatura/boleto -> neutro, aula/cálculo -> estudo, games/feed -> distração).
   - Adição do botão e modal **'💡 Empacou no conteúdo? Destravar com Copiloto IA'** na tela principal de Foco (quebra em 3 passos, método Feynman e micro-pausa restaurativa).
   - Adição do modal de celebração com micro-avaliação metacognitiva (1 a 5 estrelas) ao concluir o bloco.
   - Tratamento amigável para câmera opcional ('Modo Janelas Ativo · Câmera Opcional').
-  - Validação de 22 testes unitários em Python e testes de visão/política em Node 100% aprovados.
+  - Suíte completa de **23 testes unitários Python** e testes de visão/política em Node **100% aprovados**.
   - Branch sincronizada e publicada no GitHub: https://github.com/grupo-zeta/prob-tech-fit-cp01/tree/feat/compasso-estudo-ia.
-- [x] **Alinhamento Pedagógico e Criação da Branch Oficial (eat/compasso-estudo-ia)**:
-  - Resolução da dúvida pedagógica do professor: virada conceitual de 'vigia de produtividade' para 'Espelho Metacognitivo e Autorregulação da Aprendizagem' (Zimmerman & Dunlosky).
-  - Conceito central: 1 hora de hiperfoco > 6 horas de estudo zumbi arrastado.
-  - Definição dos 3 Modos Universais de Estudo (não restrito a programadores): 📖 Leitura & Pesquisa, ✍️ Produção & Escrita, 🎓 Assistir Aula.
-  - Especificação em texto simples criada em docs/specs/compasso-estudo-ia.md.
-  - Handoff interno da equipe criado em docs/handoffs/compasso-estudo-ia-2026-11-05.md.
-- [x] **Redesenho Completo do Frontend (compasso/web/)**:
-  - Interface moderna, escura, limpa e profissional inspirada em Linear/Antigravity em compasso/web/style.css.
-  - Reestruturação de compasso/web/index.html com hierarquia visual clara, preservando 100% dos IDs e funções existentes.
-  - Atualização dos perfis em compasso/web/presets.js com dicas do Método Feynman e Recuperação Ativa.
-  - Validação técnica aprovada (21 testes Python e testes de visão/política OK).
-  - Branch publicada no GitHub: https://github.com/grupo-zeta/prob-tech-fit-cp01/tree/feat/compasso-estudo-ia.
 
 ### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica · Profa. Jeisa)
 - [x] **Etapa 1 — Consolidação do Tema do Seminário (Concluída em 02/11)**: Respostas consolidadas em texto simples e humano para o Google Forms.
-- [x] **Etapa 2 — Proposta de Projeto Teórico e Roteiro de Vídeo (em andamento para 24/11)** · branch eature/if-2va-pqc-telessaude:
+- [x] **Etapa 2 — Proposta de Projeto Teórico e Roteiro de Vídeo (em andamento para 24/11)** · branch feature/if-2va-pqc-telessaude:
   - Cenário: **Telessaúde segura no interior** = PQC (tema 17, Cauã) + Satélites LEO (tema 8, Alexander) + Edge Computing (tema 2, Daniel) + Zero Trust (tema 9, João Victor V.).
   - Documento compilado com Tectonic e commitado: papers/04-internet-futuro/main.pdf (19 páginas, capa oficial da UFRPE, caixas de resumo, 5 ilustrações autorais infográficas, 4 fotos reais/históricas, diagramas em TikZ, subseção de Métricas e Avaliação Teórica e padrão ABNT).
   - Roteiro de vídeo de ~9 minutos estruturado slide a slide com falas em primeira pessoa e minutagem: papers/04-internet-futuro/roteiro_video.md.
-  - Branch atualizada e sincronizada com o GitHub (eature/if-2va-pqc-telessaude).
+  - Branch atualizada e sincronizada com o GitHub (feature/if-2va-pqc-telessaude).
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
 - [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Edição Expandida Definitiva de 12 Páginas A4)**:
