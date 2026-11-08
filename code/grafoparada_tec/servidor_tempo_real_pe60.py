@@ -12,7 +12,10 @@ Executa:
 """
 from __future__ import annotations
 
+import asyncio
 import csv
+import hashlib
+import io
 import json
 import math
 import os
@@ -24,6 +27,8 @@ import urllib.parse
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+
+import edge_tts
 
 import networkx as nx
 import numpy as np
@@ -274,24 +279,26 @@ class LiveGrafoParadaEngine:
                         "robbery_reports_30d": cand["robbery_reports_30d"],
                     }
 
-        # Constrói o Alerta de Voz Antirroubo e Antissolidão (Modo Escudo no Bolso)
+        # Constrói o Alerta de Voz Antirroubo e Antissolidão (Natural e Humano para Voz Neural)
+        clean_name = name.replace("PE-60", "P E meia zero").replace(" / ", " ").replace("km ", "quilômetro ")
         if keep_phone_in_pocket and alone_warning and best_companion:
+            comp_clean = best_companion["name"].replace("PE-60", "P E meia zero").replace(" / ", " ").replace("km ", "quilômetro ")
             shield_voice = (
-                f"Alerta de Segurança GrafoParada na parada {name}: Área com {rob} relatos de roubo. "
-                f"Não tire o celular do bolso! Há apenas {pax} pessoa aguardando aqui. "
-                f"Para não ficar sozinho, a parada {best_companion['name']} a {best_companion['distance_m']:.0f} metros "
-                f"tem {best_companion['active_waiting_users']} passageiros aguardando juntos agora."
+                f"Oi, atenção aqui na parada {clean_name}: a comunidade relatou {rob} assaltos neste trecho. "
+                f"Por segurança, não tire o celular do bolso! Como você está esperando quase sozinho aqui, "
+                f"uma dica: na parada {comp_clean}, a {best_companion['distance_m']:.0f} metros, "
+                f"tem {best_companion['active_waiting_users']} pessoas esperando juntas no claro."
             )
         elif keep_phone_in_pocket:
             shield_voice = (
-                f"Alerta de Segurança GrafoParada: Você está em {name} ({rob} alertas de assalto). "
-                f"Mantenha o celular guardado no bolso com a tela apagada. Há {pax} passageiros aguardando neste ponto. "
-                f"Eu avisarei no seu fone quando o ônibus estiver encostando."
+                f"Atenção na parada {clean_name}: local com alerta de assalto. "
+                f"Deixe o celular guardado no bolso com a tela apagada. Tem {pax} pessoas esperando aqui com você, "
+                f"e eu te aviso no fone assim que o ônibus estiver chegando."
             )
         else:
             shield_voice = (
-                f"GrafoParada Segurança Comunitária: Parada {name} classificada como ponto iluminado com companhia. "
-                f"{pax} passageiros conectados aguardando no local."
+                f"Você está na parada {clean_name}. Ponto iluminado e seguro, "
+                f"com {pax} pessoas esperando o ônibus agora."
             )
 
         return {
@@ -589,40 +596,40 @@ class LiveGrafoParadaEngine:
         nearest = closest_gtfs[0] if closest_gtfs else None
         if nearest:
             d0 = nearest["distance_m"]
-            sname = nearest["stop_name"]
+            sname = nearest["stop_name"].replace("PE-60", "P E meia zero").replace(" / ", " ").replace("km ", "quilômetro ")
             pax0 = nearest["active_waiting_users"]
             rob0 = nearest["robbery_reports_30d"]
             comp0 = nearest["companion_stop_recommendation"]
             no_phone_msg = (
-                f"ATENÇÃO: Local com {rob0} alertas de roubo. NÃO PEGUE O CELULAR! Mantenha-o no bolso."
+                f"Cuidado: trecho com {rob0} alertas de assalto. Não pegue o celular, deixe ele guardado no bolso!"
                 if nearest["keep_phone_in_pocket"]
-                else f"Local com grupo ativo ({pax0} passageiros aguardando)."
+                else f"Ponto tranquilo, com {pax0} pessoas esperando agora."
             )
             companion_msg = (
-                f" Você está quase sozinho aqui ({pax0} pessoa); a parada {comp0['name']} a {comp0['distance_m']:.0f} metros tem {comp0['active_waiting_users']} pessoas esperando juntas."
+                f" Como você está quase só aqui, a parada {comp0['name'].replace('PE-60', 'P E meia zero')}, a {comp0['distance_m']:.0f} metros, tem {comp0['active_waiting_users']} pessoas esperando juntas."
                 if (pax0 <= 2 and comp0)
                 else ""
             )
             if d0 <= 35.0:
                 geofence_state = "INSIDE_35M_GEOFENCE"
                 voice_alert = (
-                    f"GrafoParada Modo Bolso: Você está na parada {sname} ({d0:.1f}m). "
+                    f"Oi! Você chegou na parada {sname}. "
                     f"{no_phone_msg}{companion_msg}"
                 )
             elif d0 <= 180.0:
                 geofence_state = "APPROACHING_POCKET_RADAR"
                 voice_alert = (
-                    f"GrafoParada Modo Bolso: Aproximando-se de {sname} a {d0:.0f}m. "
+                    f"Você está a {d0:.0f} metros da parada {sname}. "
                     f"{no_phone_msg}{companion_msg}"
                 )
             else:
                 geofence_state = "OUTSIDE_GEOFENCE"
                 voice_alert = (
-                    f"Radar Geodésico: Parada mais próxima é {sname} a {d0:.0f}m ({pax0} passageiros aguardando)."
+                    f"A parada mais próxima de você é {sname}, a {d0:.0f} metros, com {pax0} pessoas aguardando."
                 )
         else:
             geofence_state = "NO_STOPS"
-            voice_alert = "Nenhuma parada encontrada."
+            voice_alert = "Nenhuma parada encontrada por perto."
 
         return {
             "queried_at": time.strftime("%H:%M:%S", time.localtime()),
@@ -795,6 +802,35 @@ class LiveGrafoParadaEngine:
 
 
 ENGINE = LiveGrafoParadaEngine()
+TTS_CACHE_RAM: dict[str, bytes] = {}
+ALLOWED_NEURAL_VOICES = {
+    "pt-BR-FranciscaNeural",
+    "pt-BR-AntonioNeural",
+    "pt-BR-ThalitaMultilingualNeural",
+}
+
+
+async def _generate_edge_tts_mp3(text: str, voice: str) -> bytes:
+    comm = edge_tts.Communicate(text, voice, rate="+4%")
+    buf = io.BytesIO()
+    async for chunk in comm.stream():
+        if chunk["type"] == "audio":
+            buf.write(chunk["data"])
+    return buf.getvalue()
+
+
+def synthesize_neural_ptbr(text: str, voice: str = "pt-BR-FranciscaNeural") -> bytes:
+    """Gera áudio MP3 neural humano em português brasileiro via Microsoft Edge Neural TTS com cache em RAM."""
+    if voice not in ALLOWED_NEURAL_VOICES:
+        voice = "pt-BR-FranciscaNeural"
+    clean_text = text.strip()[:600]
+    key = hashlib.sha256(f"{voice}::{clean_text}".encode("utf-8")).hexdigest()
+    if key in TTS_CACHE_RAM:
+        return TTS_CACHE_RAM[key]
+    mp3_bytes = asyncio.run(_generate_edge_tts_mp3(clean_text, voice))
+    if mp3_bytes:
+        TTS_CACHE_RAM[key] = mp3_bytes
+    return mp3_bytes
 
 
 def proxy_cittamobi_live(endpoint: str) -> dict:
@@ -848,6 +884,23 @@ class GrafoParadaLiveHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         qs = urllib.parse.parse_qs(parsed.query)
+
+        # 0. Endpoint Live Neural TTS PT-BR (`/api/live/tts?text=...&voice=pt-BR-FranciscaNeural`)
+        if parsed.path == "/api/live/tts":
+            text = qs.get("text", ["Oi! GrafoParada ativo no bolso."])[0]
+            voice = qs.get("voice", ["pt-BR-FranciscaNeural"])[0]
+            try:
+                mp3 = synthesize_neural_ptbr(text, voice)
+                self.send_response(200)
+                self.send_header("Content-Type", "audio/mpeg")
+                self.send_header("Cache-Control", "public, max-age=3600")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Content-Length", str(len(mp3)))
+                self.end_headers()
+                self.wfile.write(mp3)
+            except Exception as e:
+                self._send_json({"error": str(e)}, status=500)
+            return
 
         # 1. Endpoint Live Nearby Stops Radar (`/api/live/nearby-stops?lat=...&lon=...`)
         if parsed.path == "/api/live/nearby-stops":
