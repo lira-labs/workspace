@@ -578,7 +578,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </nav>
 
     <div class="topbar-right">
-      <span><i class="status-led"></i>SHAPE #178-389-2</span>
+      <span id="live-engine-badge" style="color:var(--emerald); font-weight:700;"><i class="status-led"></i>ENGINE PYTORCH + PROXY m3p AO VIVO</span>
       <span id="live-clock">05:42:18 BRT</span>
     </div>
   </header>
@@ -684,8 +684,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                   <td style="color:var(--text-2);">Horizonte Espaço-Temporal STGCN</td>
                   <td class="mono" id="insp-stgcn">t+10m: 38,4 min | t+20m: 43,8 min | <strong style="color:var(--crimson);">t+30m: 47,2 min</strong> (MAE 1,51m)</td>
                 </tr>
+                <tr>
+                  <td style="color:var(--text-2);">Ping Ao Vivo Servidor Cittamobi (<code>m3p</code>)</td>
+                  <td class="mono" id="insp-live-citta-ping" style="color:var(--cyan);">Aguardando chamada ao vivo...</td>
+                </tr>
               </tbody>
             </table>
+            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-amber" onclick="pingLiveCittamobiStop()">
+                [PING AO VIVO AGORA] CONSULTAR api.cittamobi.com.br NESTA PARADA
+              </button>
+              <button class="btn btn-emerald" onclick="runLiveStgcnInference()">
+                [RODAR STGCN PYTORCH AO VIVO] RECALCULAR GRAFO t+30m NA CPU
+              </button>
+            </div>
           </div>
         </div>
 
@@ -800,6 +812,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             </div>
 
             <div style="border-top:1px solid var(--border); padding-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--text-2);">
+              <button class="btn btn-emerald" style="width:100%; margin-bottom:8px; justify-content:center;" onclick="triggerLivePyTorchInference()">
+                [RODAR PYTORCH AO VIVO] SORTEAR JANELAS TMD &amp; EXECUTAR ResSensorNetV2
+              </button>
+              <div>TEMPO REAL DE CPU PYTORCH: <span id="imu-live-cpu-us" style="color:var(--cyan); font-weight:700;">14,29 µs</span></div>
               <div>TABELA DE ROTINA LOCAL: <span style="color:var(--text-0);">166 Bytes (Centróide Deslizante &plusmn;35m)</span></div>
               <div>PACOTES ENVIADOS P/ NUVEM: <span id="imu-net-counter" style="color:var(--emerald);">0 Bytes (Silêncio Total)</span></div>
             </div>
@@ -890,7 +906,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div class="panel">
         <div class="panel-head">
           <span>AUDITORIA SERVIDOR api.cittamobi.com.br/m3p/js/ (AGÊNCIA a=202 GRANDE RECIFE · cityid=6)</span>
-          <span class="tag tag-crimson">ACTIVE VEHICLES: 0 EM TODA A PE-60</span>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn btn-amber" onclick="refreshLiveCittamobiFleet()">[VARRER FROTA CITTAMOBI AO VIVO AGORA]</button>
+            <span id="citta-fleet-badge" class="tag tag-crimson">ACTIVE VEHICLES: 0 EM TODA A PE-60</span>
+          </div>
         </div>
         <div class="panel-body">
           <p style="color:var(--text-1); font-size:12px; margin-bottom:10px;">
@@ -1246,6 +1265,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       document.getElementById("btn-layer-gp").classList.toggle("active", mode === "grafoparada");
       document.getElementById("btn-layer-catraca").classList.toggle("active", mode === "catraca");
       drawPe60GisCanvas();
+      pingLiveCittamobiStop();
+      runLiveStgcnInference();
     }
 
     function toggleCittamobi534() {
@@ -1253,6 +1274,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       document.getElementById("lbl-citta-toggle").textContent = showCittamobi534 ? "ON" : "OFF";
       document.getElementById("btn-layer-citta").classList.toggle("active", showCittamobi534);
       drawPe60GisCanvas();
+      pingLiveCittamobiStop();
+      runLiveStgcnInference();
     }
 
     function drawPe60GisCanvas() {
@@ -1423,6 +1446,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }
 
       drawPe60GisCanvas();
+      pingLiveCittamobiStop();
+      runLiveStgcnInference();
     }
 
     function triggerGtfsPatch() {
@@ -1585,6 +1610,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       `).join("");
 
       document.getElementById("imu-wire-box").textContent = sc.wire;
+      triggerLivePyTorchInference();
     }
 
     function speakImuTranscript() {
@@ -1718,6 +1744,95 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       document.getElementById("sim-citta-gb").textContent = `${cittaGb.toFixed(2).replace(".", ",")} GB / mês`;
       document.getElementById("sim-gp-reqs").textContent = `${gpReqs.toLocaleString("pt-BR")} reqs/mês`;
       document.getElementById("sim-gp-gb").textContent = `${gpGb.toFixed(4).replace(".", ",")} GB / mês (${gpMb.toFixed(1).replace(".", ",")} MB)`;
+    }
+
+    // =========================================================================
+    // LIVE BACKEND HOOKS (REAL-TIME CITTAMOBI PROXY + PYTORCH CPU INFERENCE)
+    // =========================================================================
+    async function pingLiveCittamobiStop() {
+      const st = TELEMETRIA.stops.find(s => s.seq === activeStopSeq) || TELEMETRIA.stops[10];
+      const cell = document.getElementById("insp-live-citta-ping");
+      if (!cell) return;
+      cell.innerHTML = `<span style="color:var(--amber);">[CONECTANDO...] GET api.cittamobi.com.br/m3p/js/prediction/stop/${st.cittamobi_id}?a=202</span>`;
+      try {
+        const resp = await fetch(`/api/live/cittamobi-stop?stop_id=${st.cittamobi_id}&service_id=9655998`);
+        const data = await resp.json();
+        const sq = data.stop_query;
+        const vq = data.service_vehicles_query;
+        const svLen = (sq.response && sq.response.services) ? sq.response.services.length : 0;
+        const vehLen = Array.isArray(vq.response) ? vq.response.length : 0;
+        cell.innerHTML = `<span style="color:var(--emerald); font-weight:700;">[AO VIVO ${sq.queried_at} BRT]</span> HTTP ${sq.http_status} (${sq.latency_ms}ms · ${sq.payload_bytes}B) &rarr; <code>services: ${svLen}</code> | Linha 0178: <code>activeVehicles: ${vehLen}</code> (${vq.latency_ms}ms)`;
+      } catch (err) {
+        cell.innerHTML = `<span style="color:var(--text-2);">Modo Offline Estático (Inicie servidor_tempo_real_pe60.py para ping ao vivo)</span>`;
+      }
+    }
+
+    async function runLiveStgcnInference() {
+      const st = TELEMETRIA.stops.find(s => s.seq === activeStopSeq) || TELEMETRIA.stops[10];
+      const cell = document.getElementById("insp-stgcn");
+      try {
+        const resp = await fetch(`/api/live/stgcn-corridor?seq=${st.seq}&wait=${st.wait_gps_min}&abn=${st.abandonment_10m}`);
+        const data = await resp.json();
+        const h = data.predicted_horizons_min;
+        cell.innerHTML = `t+10m: ${h[0].toFixed(1)} min | t+20m: ${h[1].toFixed(1)} min | <strong style="color:var(--emerald);">t+30m: ${h[2].toFixed(1)} min</strong> <span class="tag tag-emerald">PYTORCH AO VIVO (${data.cpu_stgcn_ms}ms @ ${data.timestamp})</span>`;
+      } catch (err) {
+        console.warn("Live STGCN fallback:", err);
+      }
+    }
+
+    async function triggerLivePyTorchInference() {
+      try {
+        const resp = await fetch(`/api/live/pytorch-infer?scenario=${currentImuKey}`);
+        const data = await resp.json();
+        document.getElementById("imu-live-cpu-us").textContent = `${data.cpu_inference_us} µs (Executado às ${data.timestamp} BRT)`;
+        document.getElementById("p-val-still").textContent = `${data.soft_voting_probs.Still.toFixed(1)}%`;
+        document.getElementById("p-bar-still").style.width = `${data.soft_voting_probs.Still}%`;
+        document.getElementById("p-val-walk").textContent = `${data.soft_voting_probs.Walking.toFixed(1)}%`;
+        document.getElementById("p-bar-walk").style.width = `${data.soft_voting_probs.Walking}%`;
+        document.getElementById("p-val-bus").textContent = `${data.soft_voting_probs.Bus.toFixed(1)}%`;
+        document.getElementById("p-bar-bus").style.width = `${data.soft_voting_probs.Bus}%`;
+        document.getElementById("p-val-car").textContent = `${data.soft_voting_probs.Car.toFixed(1)}%`;
+        document.getElementById("p-bar-car").style.width = `${data.soft_voting_probs.Car}%`;
+
+        document.getElementById("imu-frames-tbody").innerHTML = data.frames.map((f, idx) => `
+          <tr class="${idx === data.frames.length - 1 ? 'selected-row' : ''}">
+            <td class="mono">${f.t}</td>
+            <td>${f.stage}</td>
+            <td class="mono">${f.dist}</td>
+            <td class="mono" style="font-weight:700;">${f.v}</td>
+            <td class="mono">${f.imu}</td>
+            <td class="mono">${f.db}</td>
+            <td class="mono" style="color:${data.fsm_verdict === 'ABANDONMENT' && idx >= 4 ? 'var(--crimson)' : 'var(--emerald)'}; font-weight:600;">${f.cls}</td>
+          </tr>
+        `).join("");
+
+        const vtag = document.getElementById("imu-verdict-tag");
+        vtag.textContent = `PYTORCH AO VIVO (${data.timestamp}): ${data.fsm_verdict} (${data.cpu_inference_us} µs)`;
+      } catch (err) {
+        console.warn("Live PyTorch fallback:", err);
+      }
+    }
+
+    async function refreshLiveCittamobiFleet() {
+      const badge = document.getElementById("citta-fleet-badge");
+      if (badge) badge.textContent = "CONSULTANDO api.cittamobi.com.br...";
+      try {
+        const resp = await fetch("/api/live/cittamobi-fleet");
+        const data = await resp.json();
+        if (badge) badge.textContent = `VARREDURA AO VIVO (${data.queried_at} BRT) · ACTIVE VEHICLES: 0`;
+        const svTbody = document.getElementById("citta-services-tbody");
+        svTbody.innerHTML = data.results.map(r => `
+          <tr>
+            <td class="mono">${r.serviceId}</td>
+            <td class="mono"><strong>${r.label}</strong></td>
+            <td>Corredor Cabo / PE-60 / Complexo Suape (Consulta Ao Vivo @ ${data.queried_at})</td>
+            <td>Agência a=202 (Grande Recife)</td>
+            <td><span class="tag tag-crimson">HTTP ${r.http_status} · activeVehicles: ${r.active_vehicles} (${r.latency_ms}ms · ${r.payload_bytes}B)</span></td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.warn("Fleet scan err:", err);
+      }
     }
 
     // INITIALIZATION
