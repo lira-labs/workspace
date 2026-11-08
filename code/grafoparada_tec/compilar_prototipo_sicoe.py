@@ -416,6 +416,46 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       display: none !important;
     }
 
+    @keyframes pulseUserBeacon {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 184, 217, 0.85); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 14px rgba(0, 184, 217, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 184, 217, 0); }
+    }
+
+    .user-gps-beacon {
+      width: 18px;
+      height: 18px;
+      background: #00b8d9;
+      border: 2.5px solid #ffffff;
+      border-radius: 50%;
+      animation: pulseUserBeacon 1.6s infinite;
+      cursor: grab;
+    }
+
+    .user-radar-bar {
+      background: #080a0e;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .btn-cyan {
+      background: var(--cyan-dim);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .btn-cyan:hover, .btn-cyan.active {
+      background: var(--cyan);
+      color: #041014;
+    }
+
     .map-overlay-tl {
       position: absolute;
       top: 10px;
@@ -674,15 +714,92 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div id="map-hover-readout" style="color:var(--amber); margin-top:3px;">Clique sobre qualquer parada oficial ou nas 534 paradas do Cittamobi</div>
           </div>
           <div class="map-overlay-br">
+            <span><i class="legend-dot" style="background:var(--cyan); border:1px solid #fff; border-radius:50%;"></i>Sua Posição (Arrastável / Clique)</span>
             <span><i class="legend-dot" style="background:var(--emerald);"></i>Regular (&le;35m)</span>
-            <span><i class="legend-dot" style="background:var(--amber);"></i>Atenção [?] (35–40m)</span>
-            <span><i class="legend-dot" style="background:var(--crimson);"></i>Gargalo Crítico (&gt;40m + Desistência k&ge;3)</span>
-            <span><i class="legend-dot" style="background:#3b4254;"></i>534 Nós Cittamobi (activeVehicles: 0)</span>
+            <span><i class="legend-dot" style="background:var(--amber);"></i>Atenção [?]</span>
+            <span><i class="legend-dot" style="background:var(--crimson);"></i>Crítico (k&ge;3)</span>
+            <span><i class="legend-dot" style="background:#3b4254;"></i>Nós Cittamobi</span>
           </div>
         </div>
-        <div style="padding:10px 12px; background:var(--bg-2); border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px;">
-          <span>SELECIONE QUALQUER PARADA NA BARRA NUMÉRICA:</span>
+        <div class="user-radar-bar">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="color:var(--cyan); font-weight:700;">[LOCALIZAÇÃO DO USUÁRIO]:</span>
+            <button id="btn-gps-real" class="btn btn-cyan" onclick="useRealBrowserGps()">
+              [USAR MEU GPS REAL AGORA (NAVEGADOR)]
+            </button>
+            <button class="btn btn-emerald" onclick="setSimulatedUserLocation(-8.304950, -35.021420, 'Trabalhador na PE-60 (Trevo Ipojuca · 12m da Parada #11)', true)">
+              [SIMULAR NA PARADA #11 (PE-60)]
+            </button>
+            <button class="btn" onclick="setSimulatedUserLocation(-8.285150, -35.032290, 'Passageiro no TI Cabo (14m da Parada #01)', true)">
+              [SIMULAR NO TI CABO]
+            </button>
+            <button class="btn" onclick="setSimulatedUserLocation(-8.062850, -34.878950, 'Usuário no Centro do Recife (Av. Conde da Boa Vista)', true)">
+              [SIMULAR NO CENTRO DO RECIFE]
+            </button>
+          </div>
+          <span style="color:var(--text-1); font-size:10.5px;">DICA: Clique em qualquer ponto do mapa ou arraste o pino azul para mover o usuário!</span>
+        </div>
+
+        <div style="padding:8px 12px; background:var(--bg-2); border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:11px;">
+          <span>CORREDOR PE-60 (20 NÓS):</span>
           <div id="quick-stop-selector" style="display:flex; gap:3px; flex-wrap:wrap;"></div>
+        </div>
+
+        <!-- LIVE NEARBY STOPS RECOGNITION RADAR PANEL -->
+        <div style="border-top:1px solid var(--border); background:var(--bg-1); padding:10px 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px; font-family:var(--font-mono); font-size:11px;">
+            <div>
+              <strong style="color:var(--cyan);">RADAR DE RECONHECIMENTO DE PARADAS PRÓXIMAS AO USUÁRIO</strong>
+              <span id="user-loc-coords-badge" style="color:var(--text-1); margin-left:6px;">(-8.304950, -35.021420)</span>
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <span id="user-geofence-badge" class="tag tag-emerald">DENTRO DA GEOCERCA 35m (11,6m)</span>
+              <button class="btn btn-amber" style="padding:3px 8px; font-size:10.5px;" onclick="speakNearestStopVoice()">
+                [OUVIR VOZ MODO BOLSO DA PARADA MAIS PRÓXIMA]
+              </button>
+            </div>
+          </div>
+
+          <div id="user-pocket-voice-bar" style="background:#06070a; border:1px solid var(--border-strong); border-left:3px solid var(--cyan); padding:7px 10px; font-family:var(--font-mono); font-size:11px; color:var(--text-0); margin-bottom:8px;">
+            "Carregando radar geodésico de paradas próximas..."
+          </div>
+
+          <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:10px;">
+            <div>
+              <div style="font-family:var(--font-mono); font-size:10.5px; color:var(--text-2); margin-bottom:4px;">
+                PARADAS OFICIAIS CTM MAIS PRÓXIMAS (7.238 PARADAS GTFS GRANDE RECIFE):
+              </div>
+              <table class="tech-table">
+                <thead>
+                  <tr>
+                    <th>GTFS ID</th>
+                    <th>Parada Reconhecida</th>
+                    <th>Distância</th>
+                    <th>Caminhada</th>
+                    <th>Status Geocerca</th>
+                  </tr>
+                </thead>
+                <tbody id="nearby-gtfs-tbody"></tbody>
+              </table>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10.5px; color:var(--text-2); margin-bottom:4px;">
+                <span>PARADAS NO CITTAMOBI AO REDOR (<code>stops/viewport</code> AO VIVO):</span>
+                <span id="nearby-citta-meta" style="color:var(--amber);">Consultando...</span>
+              </div>
+              <table class="tech-table">
+                <thead>
+                  <tr>
+                    <th>ID m3p</th>
+                    <th>Logradouro Cittamobi</th>
+                    <th>Distância</th>
+                    <th>Linhas Ativas</th>
+                  </tr>
+                </thead>
+                <tbody id="nearby-citta-tbody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1318,7 +1435,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     let corridorPolylineLayer = null;
     let corridorGlowLayer = null;
     let stopsLayerGroup = null;
-    let selectedReticleMarker = null;
+    let userRadarLayerGroup = null;
+    let userMarker = null;
+    let userPos = { lat: -8.304950, lon: -35.021420, label: "Trabalhador na PE-60 (Trevo Ipojuca)" };
+    let lastPocketVoicePrompt = "GrafoParada Modo Bolso ativo.";
 
     function initRealLeafletMap() {
       if (leafletMap) return;
@@ -1349,6 +1469,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       cittaLayerGroup = L.layerGroup().addTo(leafletMap);
       stopsLayerGroup = L.layerGroup().addTo(leafletMap);
+      userRadarLayerGroup = L.layerGroup().addTo(leafletMap);
+
+      // Clicking anywhere on the map moves the user to that exact point and scans nearby stops!
+      leafletMap.on("click", (ev) => {
+        setSimulatedUserLocation(
+          ev.latlng.lat,
+          ev.latlng.lng,
+          "Posição definida por clique no mapa",
+          false
+        );
+      });
 
       // Draw Official GTFS Shape Polyline (`shapes.txt` #178-389-2)
       if (TELEMETRIA.polyline && TELEMETRIA.polyline.length > 1) {
@@ -1851,6 +1982,223 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }
     }
 
+    // =========================================================================
+    // LIVE USER LOCATION & NEARBY STOPS RADAR (HTML5 GPS + GTFS + CITTAMOBI)
+    // =========================================================================
+    function haversineLocalM(lat1, lon1, lat2, lon2) {
+      const R = 6371000.0;
+      const toRad = d => (d * Math.PI) / 180.0;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(Math.max(0, 1 - a)));
+    }
+
+    function useRealBrowserGps() {
+      const btn = document.getElementById("btn-gps-real");
+      if (!navigator.geolocation) {
+        alert("Este navegador não suporta a API HTML5 Geolocation.");
+        return;
+      }
+      if (btn) btn.textContent = "[OBTENDO SINAL GPS DO NAVEGADOR...]";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (btn) btn.textContent = "[GPS REAL ATIVO NO MAPA]";
+          setSimulatedUserLocation(
+            pos.coords.latitude,
+            pos.coords.longitude,
+            `Seu GPS Real (±${Math.round(pos.coords.accuracy || 15)}m)`,
+            true
+          );
+        },
+        (err) => {
+          if (btn) btn.textContent = "[USAR MEU GPS REAL AGORA (NAVEGADOR)]";
+          // Fallback informativo caso a permissão de localização do Windows/Navegador esteja bloqueada
+          document.getElementById("user-pocket-voice-bar").innerHTML =
+            `<span style="color:var(--amber);">[AVISO GPS NAVEGADOR: ${err.message}]</span> Permita o acesso à localização no navegador ou clique em qualquer rua do mapa para posicionar seu marcador!`;
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    }
+
+    function speakNearestStopVoice() {
+      if ("speechSynthesis" in window && lastPocketVoicePrompt) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(lastPocketVoicePrompt);
+        u.lang = "pt-BR";
+        u.rate = 1.03;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    async function setSimulatedUserLocation(lat, lon, label, flyTo = true) {
+      userPos = { lat, lon, label };
+      initRealLeafletMap();
+
+      const coordBadge = document.getElementById("user-loc-coords-badge");
+      if (coordBadge) {
+        coordBadge.textContent = `${label} · (${lat.toFixed(6)}, ${lon.toFixed(6)})`;
+      }
+
+      if (flyTo && leafletMap) {
+        leafletMap.setView([lat, lon], Math.max(leafletMap.getZoom(), 16), { animate: true });
+      }
+
+      // Draw User Beacon + 35m Geofence Ring + 180m Pocket Radar Ring
+      userRadarLayerGroup.clearLayers();
+
+      // 180m Pocket Voice Pre-Trigger Ring
+      L.circle([lat, lon], {
+        radius: 180,
+        color: "#00b8d9",
+        weight: 1,
+        dashArray: "4, 6",
+        fillColor: "#00b8d9",
+        fillOpacity: 0.04
+      }).addTo(userRadarLayerGroup);
+
+      // 35m Official GrafoParada Geofence Ring
+      L.circle([lat, lon], {
+        radius: 35,
+        color: "#00d68f",
+        weight: 2,
+        fillColor: "#00d68f",
+        fillOpacity: 0.16
+      }).addTo(userRadarLayerGroup);
+
+      // Draggable User Avatar Beacon
+      const beaconIcon = L.divIcon({
+        className: "",
+        html: `<div class="user-gps-beacon" title="Você está aqui (Arraste para caminhar)"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      });
+
+      userMarker = L.marker([lat, lon], { icon: beaconIcon, draggable: true }).addTo(userRadarLayerGroup);
+      userMarker.bindTooltip(
+        `VOCÊ ESTÁ AQUI: ${label} (${lat.toFixed(5)}, ${lon.toFixed(5)}) — Arraste para caminhar`,
+        { permanent: true, direction: "top", offset: [0, -10], className: "sicoe-tooltip" }
+      );
+
+      userMarker.on("dragend", (ev) => {
+        const p = ev.target.getLatLng();
+        setSimulatedUserLocation(p.lat, p.lng, "Usuário movido manualmente no mapa", false);
+      });
+
+      // Query Backend `/api/live/nearby-stops` for the 7,238 GTFS stops + live Cittamobi viewport around the user
+      try {
+        const resp = await fetch(`/api/live/nearby-stops?lat=${lat}&lon=${lon}&k=5`);
+        const data = await resp.json();
+
+        lastPocketVoicePrompt = data.pocket_voice_prompt;
+        document.getElementById("user-pocket-voice-bar").innerHTML =
+          `<strong style="color:var(--cyan);">[VOZ MODO BOLSO AUTOMÁTICA]:</strong> "${data.pocket_voice_prompt}" ` +
+          `<span style="color:var(--text-2); float:right;">Varredura Haversine em ${data.gtfs_total_indexed.toLocaleString("pt-BR")} paradas GTFS (${data.gtfs_scan_cpu_ms} ms)</span>`;
+
+        const gfBadge = document.getElementById("user-geofence-badge");
+        const topStop = data.closest_gtfs_stops && data.closest_gtfs_stops[0];
+        if (topStop) {
+          if (topStop.inside_geofence_35m) {
+            gfBadge.className = "tag tag-emerald";
+            gfBadge.textContent = `DENTRO DA GEOCERCA 35m (${topStop.distance_m}m de #${topStop.stop_id})`;
+          } else if (topStop.inside_pocket_radar_150m) {
+            gfBadge.className = "tag tag-cyan";
+            gfBadge.textContent = `RADAR DE APROXIMAÇÃO 150m (${topStop.distance_m}m de #${topStop.stop_id})`;
+          } else {
+            gfBadge.className = "tag tag-amber";
+            gfBadge.textContent = `FORA DA GEOCERCA (Mais próxima a ${topStop.distance_m}m)`;
+          }
+
+          // If the closest stop belongs to the 20-stop PE-60 corridor, sync the right-hand inspector!
+          if (topStop.is_pe60_corridor && topStop.pe60_seq && topStop.distance_m <= 120.0) {
+            if (activeStopSeq !== topStop.pe60_seq) {
+              selectStopNode(topStop.pe60_seq, false);
+            }
+          }
+        }
+
+        // Draw dashed vector lines on the Leaflet map from the user to the 3 closest stops + highlight markers
+        (data.closest_gtfs_stops || []).slice(0, 3).forEach((st, idx) => {
+          const lineCol = st.inside_geofence_35m ? "#00d68f" : (idx === 0 ? "#00b8d9" : "#ffaa00");
+          L.polyline([[lat, lon], [st.lat, st.lon]], {
+            color: lineCol,
+            weight: idx === 0 ? 2.5 : 1.5,
+            dashArray: "4, 4",
+            opacity: 0.9
+          }).addTo(userRadarLayerGroup);
+
+          // Also plot non-PE60 official RMR stops so if the user is in Recife/Olinda they see their neighborhood stops!
+          if (!st.is_pe60_corridor) {
+            const rmrMarker = L.circleMarker([st.lat, st.lon], {
+              radius: 6,
+              color: "#ffffff",
+              weight: 1.5,
+              fillColor: "#00b8d9",
+              fillOpacity: 0.95
+            }).addTo(userRadarLayerGroup);
+            rmrMarker.bindTooltip(
+              `[PARADA CTM #${st.stop_id}] ${st.stop_name} — a ${st.distance_m}m de você`,
+              { permanent: idx === 0, direction: "bottom", className: "sicoe-tooltip" }
+            );
+          }
+        });
+
+        // Populate Official GTFS Nearby Stops Table
+        const gtfsTbody = document.getElementById("nearby-gtfs-tbody");
+        gtfsTbody.innerHTML = (data.closest_gtfs_stops || []).map((st, idx) => {
+          const badge = st.inside_geofence_35m
+            ? `<span class="tag tag-emerald">NA PARADA (&le;35m)</span>`
+            : (st.inside_pocket_radar_150m ? `<span class="tag tag-cyan">PRÓXIMA (&le;150m)</span>` : `<span class="tag">A CAMINHO</span>`);
+          return `
+            <tr class="${idx === 0 ? 'selected-row' : ''}" style="cursor:pointer;" onclick="leafletMap.setView([${st.lat}, ${st.lon}], 17);">
+              <td class="mono"><strong>${st.stop_id}</strong></td>
+              <td>${st.stop_name}</td>
+              <td class="mono" style="color:${st.inside_geofence_35m ? 'var(--emerald)' : 'var(--text-0)'}; font-weight:700;">${st.distance_m} m</td>
+              <td class="mono">~${st.walk_time_s}s a pé</td>
+              <td>${badge}</td>
+            </tr>
+          `;
+        }).join("");
+
+        // Populate Live Cittamobi Nearby Stops Table (`stops/viewport`)
+        const cvp = data.cittamobi_viewport_live || {};
+        const cpred = data.cittamobi_nearest_stop_prediction;
+        document.getElementById("nearby-citta-meta").textContent =
+          `HTTP ${cvp.http_status || 200} (${cvp.latency_ms || 0}ms · ${cvp.total_stops_in_bbox || 0} nós no raio)`;
+
+        const cittaTbody = document.getElementById("nearby-citta-tbody");
+        const cList = cvp.closest_cittamobi_stops || [];
+        if (cList.length === 0) {
+          cittaTbody.innerHTML = `<tr><td colspan="4" class="mono" style="color:var(--text-2);">Nenhuma parada Cittamobi no raio imediato.</td></tr>`;
+        } else {
+          cittaTbody.innerHTML = cList.map((cs, idx) => {
+            const predInfo = (idx === 0 && cpred)
+              ? ` | prev: ${cpred.services_returned} linhas (${cpred.latency_ms}ms)`
+              : ``;
+            return `
+              <tr style="cursor:pointer;" onclick="leafletMap.setView([${cs.lat}, ${cs.lon}], 17);">
+                <td class="mono" style="color:var(--amber);">#${cs.cittamobi_id}</td>
+                <td class="mono">${cs.mnemonic}</td>
+                <td class="mono"><strong>${cs.distance_m} m</strong></td>
+                <td class="mono"><span class="tag tag-crimson">services: ${cs.active_services}${predInfo}</span></td>
+              </tr>
+            `;
+          }).join("");
+        }
+      } catch (err) {
+        // Offline client-side fallback using embedded 20 PE-60 stops + 534 Cittamobi stops
+        const scored = TELEMETRIA.stops.map(st => ({
+          ...st,
+          distance_m: Math.round(haversineLocalM(lat, lon, st.lat, st.lon) * 10) / 10
+        })).sort((a, b) => a.distance_m - b.distance_m);
+        const top = scored[0];
+        lastPocketVoicePrompt = `Modo Bolso: Parada mais próxima é ${top.name} a ${top.distance_m} metros.`;
+        document.getElementById("user-pocket-voice-bar").textContent = `"${lastPocketVoicePrompt}"`;
+      }
+    }
+
     // INITIALIZATION
     initQuickStopButtons();
     selectStopNode(11);
@@ -1863,7 +2211,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const idxMap = { "mod-gis": 0, "mod-imu": 1, "mod-citta": 2, "mod-bench": 3 };
       switchModule(modParam, document.querySelectorAll(".nav-btn")[idxMap[modParam] || 0]);
     }
-    requestAnimationFrame(drawPe60GisCanvas);
+    requestAnimationFrame(() => {
+      drawPe60GisCanvas();
+      setSimulatedUserLocation(
+        -8.304950,
+        -35.021420,
+        "Trabalhador na PE-60 (Trevo Ipojuca · 12m da Parada #11)",
+        false
+      );
+    });
     requestAnimationFrame(renderImuOscilloscope);
   </script>
 </body>
