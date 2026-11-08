@@ -873,13 +873,16 @@ class GrafoParadaLiveHandler(SimpleHTTPRequestHandler):
 
     def _send_json(self, payload: dict, status: int = 200):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+            pass
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -893,13 +896,20 @@ class GrafoParadaLiveHandler(SimpleHTTPRequestHandler):
                 mp3 = synthesize_neural_ptbr(text, voice)
                 self.send_response(200)
                 self.send_header("Content-Type", "audio/mpeg")
+                self.send_header("Accept-Ranges", "bytes")
                 self.send_header("Cache-Control", "public, max-age=3600")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.send_header("Content-Length", str(len(mp3)))
                 self.end_headers()
-                self.wfile.write(mp3)
+                try:
+                    self.wfile.write(mp3)
+                except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+                    pass
             except Exception as e:
-                self._send_json({"error": str(e)}, status=500)
+                try:
+                    self._send_json({"error": str(e)}, status=500)
+                except Exception:
+                    pass
             return
 
         # 1. Endpoint Live Nearby Stops Radar (`/api/live/nearby-stops?lat=...&lon=...`)
@@ -992,14 +1002,34 @@ class GrafoParadaLiveHandler(SimpleHTTPRequestHandler):
             self._send_json(res)
             return
 
+        # 9. Serve prototipo_grafoparada.html directly for `/`, `/index.html`, `/prototipo_grafoparada.html` or any HTML path
+        if parsed.path in ("/", "/index.html", "/prototipo_grafoparada.html", "/code/grafoparada_tec/prototipo_grafoparada.html"):
+            html_file = BASE_DIR / "prototipo_grafoparada.html"
+            if html_file.exists():
+                body = html_file.read_bytes()
+                try:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
+                    pass
+                return
+
         super().do_GET()
 
 
+class ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = False
+
+
 def main():
-    port = int(os.environ.get("PORT", "8765"))
-    server = ThreadingHTTPServer(("0.0.0.0", port), GrafoParadaLiveHandler)
+    port = int(os.environ.get("PORT", "8890"))
+    server = ExclusiveThreadingHTTPServer(("127.0.0.1", port), GrafoParadaLiveHandler)
     print(f"\n==========================================================================")
-    print(f" [ONLINE] Console GrafoParada SICOE v4.6 em Tempo Real:")
+    print(f" [ONLINE] Console GrafoParada v6.0 em Tempo Real:")
     print(f" -> URL: http://localhost:{port}/prototipo_grafoparada.html")
     print(f"==========================================================================\n")
     server.serve_forever()
