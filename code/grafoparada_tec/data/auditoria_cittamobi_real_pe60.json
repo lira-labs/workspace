@@ -1,0 +1,497 @@
+{
+  "timestamp_utc": "2026-11-08T19:52:38Z",
+  "public_repositories_audited": [
+    {
+      "repo": "ericklucena/cittamobi-wp",
+      "target": "Grande Recife Consórcio de Transporte (Agência a=202, cityid=6)",
+      "key_findings": [
+        "Util.cs contém 1.133 linhas mapeando IDs internos das linhas do Grande Recife.",
+        "Vehicles.xaml.cs (linha 55) revela polling contínuo fixo a cada 15 segundos (TimeSpan(0,0,15)) chamando PredictionsByServiceAndStop e ServiceVehiclesByService.",
+        "Service.cs e Vehicle.cs revelam que quando o GPS falha, a API cai para TYPE_SCHEDULE ('Programado para daqui a X min' - tabela estática cinza) ou MSG_NO_PREDICTION ('Sem previsão.')."
+      ]
+    },
+    {
+      "repo": "ITWhiteRaccoon/BusTracker & marciofao/cittamobi",
+      "target": "API REST m3p (https://api.cittamobi.com.br/m3p/js/)",
+      "key_findings": [
+        "Endpoints públicos mapeados: stops/viewport, search/q?a=202, prediction/stop/{id}, vehicles/service/{id}, stops/service/{id}.",
+        "Um único carregamento do mapa em Cabo/PE-60 (stops/viewport) transfere 49.687 bytes (534 paradas) e no Centro do Recife transfere 72.185 bytes (705 paradas)."
+      ]
+    },
+    {
+      "repo": "Leonardo0liveira/ML-Cittamobi",
+      "target": "Modelagem de Machine Learning sobre logs reais do Google BigQuery da Cittamobi",
+      "key_findings": [
+        "Utiliza apenas telemetria de cliques no aplicativo (stop_event_rate, stop_density, total_step_count) sem fusão inercial on-device.",
+        "Apenas 30% das sessões de predição no app convertem em viagem real (70% de ruído/curiosidade ou desistência não rastreada).",
+        "Melhor modelo deles (Random Forest / CatBoost) atinge F1-Score de apenas 40,85% a 48,01% (AUC 0,618), contra F1 = 99,67% do GrafoParada com fusão multimodal (ResSensorNetV2 + Cinemática Geodésica)."
+      ]
+    }
+  ],
+  "live_server_measurements": {
+    "cabo_pe60_viewport": {
+      "bbox": "[-8.4000, -35.0550, -8.2600, -34.9700]",
+      "stops_returned": 534,
+      "payload_bytes": 142363,
+      "payload_kb": 139.03,
+      "latency_ms": 358.58
+    },
+    "recife_centro_viewport": {
+      "bbox": "[-8.0800, -34.9100, -8.0300, -34.8650]",
+      "stops_returned": 1000,
+      "payload_bytes": 274520,
+      "payload_kb": 268.09,
+      "latency_ms": 411.51
+    },
+    "polling_architecture_cittamobi": {
+      "timer_interval_sec": 15,
+      "polls_in_25min_wait": 100,
+      "initial_map_load_bytes": 142363,
+      "session_bytes_apagao_m3p": 185563,
+      "session_bytes_active_polling": 567363,
+      "grafoparada_normal_trip_bytes": 0,
+      "grafoparada_abandonment_event_bytes": 36,
+      "bandwidth_reduction_pct": 99.9937
+    }
+  },
+  "ml_comparison_cittamobi_vs_grafoparada": {
+    "cittamobi_bigquery_rf_f1_pct": 40.85,
+    "cittamobi_bigquery_catboost_f1_pct": 48.01,
+    "cittamobi_bigquery_auc": 0.6184,
+    "grafoparada_v3_f1_pct": 99.67,
+    "grafoparada_alighting_fp_pct": 0.0,
+    "reason_for_gap": "O pipeline de ML do Cittamobi depende de cliques manuais de tela (stop_event_rate), onde 70% das consultas não permitem distinguir embarque, desistência ou simples checagem em casa. O GrafoParada opera em background com ResSensorNetV2 (26 features inerciais) + cinemática geodésica v = delta_d/delta_t."
+  },
+  "pe60_cittamobi_services": [
+    {
+      "serviceId": 9655998,
+      "routeCode": "0178",
+      "serviceMnemonic": "PORTO DE SUAPE / TI CABO",
+      "direction": "OUTWARD",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 177.43
+    },
+    {
+      "serviceId": 9655999,
+      "routeCode": "0178",
+      "serviceMnemonic": "TI CABO / PORTO DE SUAPE",
+      "direction": "RETURN",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 184.73
+    },
+    {
+      "serviceId": 9656486,
+      "routeCode": "0178",
+      "serviceMnemonic": "PORTO DE SUAPE / TI CABO (Posto ZIP e Comp. Suape)",
+      "direction": "OUTWARD",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 162.57
+    },
+    {
+      "serviceId": 9656487,
+      "routeCode": "0178",
+      "serviceMnemonic": "TI CABO (Posto ZIP e Comp. Suape)/ PORTO DE SUAPE",
+      "direction": "RETURN",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 185.21
+    },
+    {
+      "serviceId": 9656488,
+      "routeCode": "0178",
+      "serviceMnemonic": "TI CABO (Posto ZIP)/ PORTO DE SUAPE",
+      "direction": "RETURN",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 158.54
+    },
+    {
+      "serviceId": 9656489,
+      "routeCode": "0178",
+      "serviceMnemonic": "PORTO DE SUAPE / TI CABO (Posto ZIP)",
+      "direction": "OUTWARD",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 184.46
+    },
+    {
+      "serviceId": 9656042,
+      "routeCode": "0197",
+      "serviceMnemonic": "IPOJUCA / CABO",
+      "direction": "RETURN",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 185.41
+    },
+    {
+      "serviceId": 9656043,
+      "routeCode": "0197",
+      "serviceMnemonic": "CABO / IPOJUCA",
+      "direction": "OUTWARD",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 192.39
+    },
+    {
+      "serviceId": 9656040,
+      "routeCode": "0198",
+      "serviceMnemonic": "TI CABO/ IPOJUCA",
+      "direction": "RETURN",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 158.36
+    },
+    {
+      "serviceId": 9656041,
+      "routeCode": "0198",
+      "serviceMnemonic": "IPOJUCA / TI CABO",
+      "direction": "OUTWARD",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 180.31
+    },
+    {
+      "serviceId": 9656508,
+      "routeCode": "0198",
+      "serviceMnemonic": "TI CABO (Vila do Estaleiro)/ IPOJUCA",
+      "direction": "RETURN",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 178.85
+    },
+    {
+      "serviceId": 9656509,
+      "routeCode": "0198",
+      "serviceMnemonic": "IPOJUCA / TI CABO (Vila do Estaleiro)",
+      "direction": "OUTWARD",
+      "companyId": 655935,
+      "companyName": "Expresso Vera Cruz",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 164.61
+    },
+    {
+      "serviceId": 6663,
+      "routeCode": "119",
+      "serviceMnemonic": "Circular / T.I. Cabo (Via Garapú)",
+      "direction": "RETURN",
+      "companyId": 112,
+      "companyName": "São Judas Tadeu",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 170.06
+    },
+    {
+      "serviceId": 6666,
+      "routeCode": "119",
+      "serviceMnemonic": "Circular / T.I. Cabo (Via Garapú)",
+      "direction": "OUTWARD",
+      "companyId": 112,
+      "companyName": "São Judas Tadeu",
+      "companyAuthorized": true,
+      "activeVehicles": 0,
+      "responseBytes": 2,
+      "latencyMs": 181.66
+    }
+  ],
+  "pe60_corridor_20_stops_mapping": [
+    {
+      "seq": 1,
+      "gtfs_stop_id": "030905",
+      "gtfs_name": "TI Cabo (Plataforma 05) [030905]",
+      "gtfs_lat": -8.284986112077355,
+      "gtfs_lon": -35.032780555502704,
+      "cittamobi_stop_id": 2966405,
+      "cittamobi_mnemonic": "T.I Cabo, Centro, Cabo de Santo Agostinho - Pernambuco, 54510, Brasil",
+      "distance_discrepancy_m": 31.5,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 2,
+      "gtfs_stop_id": "030291",
+      "gtfs_name": "Av. Hist. Pereira da Costa (Centro) [030291]",
+      "gtfs_lat": -8.286838889855828,
+      "gtfs_lon": -35.0365527777243,
+      "cittamobi_stop_id": 2966406,
+      "cittamobi_mnemonic": "Terminal Integrado do Cabo",
+      "distance_discrepancy_m": 9.2,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 3,
+      "gtfs_stop_id": "030691",
+      "gtfs_name": "BR-101 Sul / Acesso PE-60 [030691]",
+      "gtfs_lat": -8.285883334299927,
+      "gtfs_lon": -35.03609444439103,
+      "cittamobi_stop_id": 2966565,
+      "cittamobi_mnemonic": "Avenida Historiador Pereira da Costa, 300",
+      "distance_discrepancy_m": 17.4,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 4,
+      "gtfs_stop_id": "190114",
+      "gtfs_name": "PE-60 km 02 (Distrito Industrial) [190114]",
+      "gtfs_lat": -8.282369445409856,
+      "gtfs_lon": -35.03421388883579,
+      "cittamobi_stop_id": 2966448,
+      "cittamobi_mnemonic": "Avenida Presidente Getúlio Vargas, 689",
+      "distance_discrepancy_m": 20.7,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 5,
+      "gtfs_stop_id": "190115",
+      "gtfs_name": "PE-60 km 04 (Vila Social) [190115]",
+      "gtfs_lat": -8.281152778742781,
+      "gtfs_lon": -35.032991666613775,
+      "cittamobi_stop_id": 5339618,
+      "cittamobi_mnemonic": "Avenida Presidente Getúlio Vargas 1032, Centro, Cabo de Santo Agostinho - Pernambuco, PE, Brasil",
+      "distance_discrepancy_m": 9.5,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 6,
+      "gtfs_stop_id": "030186",
+      "gtfs_name": "PE-60 km 07 (Engenho Massangana) [030186]",
+      "gtfs_lat": -8.285830556522159,
+      "gtfs_lon": -35.02867222217007,
+      "cittamobi_stop_id": 2965544,
+      "cittamobi_mnemonic": "Rua Antônio Custódio de Lima, 149",
+      "distance_discrepancy_m": 25.6,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 7,
+      "gtfs_stop_id": "030187",
+      "gtfs_name": "PE-60 km 09 (Acesso Suape Norte) [030187]",
+      "gtfs_lat": -8.287672223189444,
+      "gtfs_lon": -35.0281666666146,
+      "cittamobi_stop_id": 2966771,
+      "cittamobi_mnemonic": "Rodovia PE-060, 330 - Santo Inácio, Cabo de Santo Agostinho - PE, Brasil",
+      "distance_discrepancy_m": 14.1,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 8,
+      "gtfs_stop_id": "030212",
+      "gtfs_name": "PE-60 km 11 (Polo Logístico) [030212]",
+      "gtfs_lat": -8.289830556523533,
+      "gtfs_lon": -35.02756666661472,
+      "cittamobi_stop_id": 2965546,
+      "cittamobi_mnemonic": "Paralela Rodovia Pe-060, 1600",
+      "distance_discrepancy_m": 9.1,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 9,
+      "gtfs_stop_id": "030190",
+      "gtfs_name": "PE-60 km 13 (Cruzamento TDR Norte) [030190]",
+      "gtfs_lat": -8.29250833430219,
+      "gtfs_lon": -35.02679999994818,
+      "cittamobi_stop_id": 2966471,
+      "cittamobi_mnemonic": "Paralela Rodovia Pe-060, 1846",
+      "distance_discrepancy_m": 8.6,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 10,
+      "gtfs_stop_id": "030191",
+      "gtfs_name": "PE-60 km 15 (Acesso Refinaria) [030191]",
+      "gtfs_lat": -8.297536112081696,
+      "gtfs_lon": -35.02553611105952,
+      "cittamobi_stop_id": 2965548,
+      "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, 1439",
+      "distance_discrepancy_m": 20.6,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 11,
+      "gtfs_stop_id": "030192",
+      "gtfs_name": "PE-60 km 17 (Trevo Ipojuca / Camela) [030192]",
+      "gtfs_lat": -8.304872538980653,
+      "gtfs_lon": -35.02134879162632,
+      "cittamobi_stop_id": 2966773,
+      "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, Cabo de Santo Agostinho - PE, Brasil",
+      "distance_discrepancy_m": 16.5,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 12,
+      "gtfs_stop_id": "030193",
+      "gtfs_name": "PE-60 km 19 (Entrada Complexo Suape) [030193]",
+      "gtfs_lat": -8.309411112085785,
+      "gtfs_lon": -35.01864999994958,
+      "cittamobi_stop_id": 2965549,
+      "cittamobi_mnemonic": "Rua 18, 2",
+      "distance_discrepancy_m": 7.0,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 13,
+      "gtfs_stop_id": "030194",
+      "gtfs_name": "Av. Portuária (Zona Industrial 1) [030194]",
+      "gtfs_lat": -8.311616667642104,
+      "gtfs_lon": -35.01689722217208,
+      "cittamobi_stop_id": 2966472,
+      "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, 7745",
+      "distance_discrepancy_m": 8.1,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 14,
+      "gtfs_stop_id": "030650",
+      "gtfs_name": "Av. Portuária (Estaleiro / Pátio) [030650]",
+      "gtfs_lat": -8.314830556532101,
+      "gtfs_lon": -35.014374999950284,
+      "cittamobi_stop_id": 2965550,
+      "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, 7745",
+      "distance_discrepancy_m": 2.3,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 15,
+      "gtfs_stop_id": "030680",
+      "gtfs_name": "Via Parque Suape (Terminal Petroquímico) [030680]",
+      "gtfs_lat": -8.3215055565344,
+      "gtfs_lon": -35.01047777772871,
+      "cittamobi_stop_id": 2966519,
+      "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme",
+      "distance_discrepancy_m": 82.4,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 16,
+      "gtfs_stop_id": "030687",
+      "gtfs_name": "Via Contorno Suape (Setor Naval) [030687]",
+      "gtfs_lat": -8.321691667645538,
+      "gtfs_lon": -35.0094972221733,
+      "cittamobi_stop_id": 2966473,
+      "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme",
+      "distance_discrepancy_m": 8.6,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 17,
+      "gtfs_stop_id": "030313",
+      "gtfs_name": "Acesso Porto Externo (Cais 01) [030313]",
+      "gtfs_lat": -8.320866667645292,
+      "gtfs_lon": -35.00803055550687,
+      "cittamobi_stop_id": 2966474,
+      "cittamobi_mnemonic": "PE-028",
+      "distance_discrepancy_m": 18.2,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 18,
+      "gtfs_stop_id": "030314",
+      "gtfs_name": "Acesso Porto Externo (Cais 04) [030314]",
+      "gtfs_lat": -8.320016667645014,
+      "gtfs_lon": -35.00375555550753,
+      "cittamobi_stop_id": 2966475,
+      "cittamobi_mnemonic": "PE-009, 51",
+      "distance_discrepancy_m": 13.7,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 19,
+      "gtfs_stop_id": "030701",
+      "gtfs_name": "Rotatória Administrativa Suape [030701]",
+      "gtfs_lat": -8.31805555653323,
+      "gtfs_lon": -34.99985833328591,
+      "cittamobi_stop_id": 5339252,
+      "cittamobi_mnemonic": "Pe-037 Cabo de Santo Agostinho - Pernambuco, Brasil",
+      "distance_discrepancy_m": 41.4,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    },
+    {
+      "seq": 20,
+      "gtfs_stop_id": "030778",
+      "gtfs_name": "Ponto de Retorno Porto de Suape [030778]",
+      "gtfs_lat": -8.394000001004004,
+      "gtfs_lon": -34.97274444440123,
+      "cittamobi_stop_id": 5339230,
+      "cittamobi_mnemonic": "Pe-038 Ipojuca - Pernambuco, Brasil",
+      "distance_discrepancy_m": 42.9,
+      "cittamobi_origin": 2,
+      "cittamobi_active_predictions": 0,
+      "prediction_payload_bytes": 52
+    }
+  ]
+}

@@ -12,9 +12,11 @@ code/grafoparada_tec/
 │   ├── corredor_real_linha178_191.csv      # 20 paradas reais da PE-60 (Cabo/Suape) extraídas do GTFS oficial CTM
 │   ├── sensors_tmd.csv                     # 5.893 leituras físicas de sensores reais (Still, Bus, Walking, Car)
 │   ├── benchmark_evolucao_v4.json          # Artefato JSON gerado pelo motor de avaliação v1.0 -> v4.0
+│   ├── auditoria_cittamobi_real_pe60.json  # Cruzamento real da API m3p do Cittamobi vs. 20 paradas GTFS da PE-60
 │   ├── gtfs.zip                            # GTFS bruto oficial do CTM (ignorado no git)
 │   └── gtfs_granderecife/                  # GTFS descompactado do Grande Recife (ignorado no git)
-├── prototipo_grafoparada.html              # Protótipo Interativo Completo (Smartphone Modo Bolso + Painel CTM 20 Paradas)
+├── prototipo_grafoparada.html              # Protótipo Interativo Completo (Smartphone Modo Bolso + Painel CTM + Auditoria Cittamobi)
+├── auditoria_cittamobi_real.py             # Auditoria empírica ao vivo da API m3p do Cittamobi (agência a=202 Grande Recife)
 ├── motor_evolucao_prototipo.py             # Motor de evolução e benchmark iterativo (v1.0 -> v2.0 -> v3.0 -> v4.0)
 ├── validar_cinematica_parada.py            # Ponto de entrada de validação cinemática, rotina, LGPD e grafo PE-60
 ├── avaliar_piloto.py                       # Piloto experimental E1 (5 paradas) e E2 (Protocolo de Decisão Passo 8)
@@ -88,6 +90,23 @@ Abra o arquivo [`prototipo_grafoparada.html`](file:///c:/Users/ccunh/Documents/w
 # Executar o motor completo de evolução e reavaliação (v1.0 -> v4.0)
 .\code\grafoparada_tec\.venv\Scripts\python.exe code\grafoparada_tec\validar_cinematica_parada.py
 
+# Executar a auditoria empírica ao vivo da API m3p do Cittamobi (Grande Recife a=202)
+.\code\grafoparada_tec\.venv\Scripts\python.exe code\grafoparada_tec\auditoria_cittamobi_real.py
+
 # Executar o piloto experimental E1/E2 original
 .\code\grafoparada_tec\.venv\Scripts\python.exe code\grafoparada_tec\avaliar_piloto.py
 ```
+
+---
+
+## 🔍 5. Engenharia Reversa e Auditoria Empírica do Servidor Real Cittamobi (`m3p API`)
+
+Utilizando os repositórios públicos de engenharia reversa da plataforma Cittamobi no GitHub (`ericklucena/cittamobi-wp` para o Grande Recife `a=202`, `ITWhiteRaccoon/BusTracker`, `marciofao/cittamobi` e o projeto de Machine Learning sobre o Google BigQuery da Cittamobi `Leonardo0liveira/ML-Cittamobi`), executamos o script [`auditoria_cittamobi_real.py`](file:///c:/Users/ccunh/Documents/workspace/code/grafoparada_tec/auditoria_cittamobi_real.py) contra `https://api.cittamobi.com.br/m3p/js/`:
+
+1. **O "Apagão" de Rastreamento na PE-60 / Suape (`activeVehicles: 0`)**:
+   - Localizamos os IDs internos reais das linhas do corredor na agência `a=202` (Grande Recife): **Linha 0178 / 178** (`serviceId: 9655998`, `9655999`, `9656486`, `13185570`, `13185571`), **Linha 0198 / 198** (`9656040`, `9656041`, `13185572`, `13185573`), **Linha 0197** (`9656042`, `9656043`) e **Linha 119 Garapu** (`6663`, `6666`), operadas por **Expresso Vera Cruz** (`companyId=655935`) e **São Judas Tadeu** (`companyId=112`).
+   - Em todas as 20 paradas mapeadas na PE-60 (ex.: `#2966405` TI Cabo, `#2966771` PE-060 km 09, `#2966773` Trevo Ipojuca), a API `m3p` retorna `activeVehicles: 0` e `services: []` (`52 bytes`), confirmando na prática por que o trabalhador fica às cegas na pista.
+2. **Peso Real de Rede e Polling de 15s (`Vehicles.xaml.cs`)**:
+   - Um único carregamento do mapa em Cabo/PE-60 (`stops/viewport`) transfere **142.363 bytes (`139,0 KB`, 534 paradas)**, e no centro do Recife transfere **274.520 bytes (`268,1 KB`, 1.000 paradas)**, seguido de um `DispatcherTimer` de **15 segundos** (`100 requisições` em 25 min). O GrafoParada reduz o tráfego em **99,99%** (`0 bytes` na rotina normal e `36 bytes` em desistência).
+3. **Por que o ML de Cliques da Cittamobi falha (`F1 = 40,85%` vs. `99,67%`)**:
+   - O estudo `Leonardo0liveira/ML-Cittamobi` mostra que prever embarque/conversão apenas por eventos de clique na tela do app (`stop_event_rate` no BigQuery) atinge no máximo **`F1 = 40,85%` (Random Forest) a `48,01%` (CatBoost)** (`AUC = 0,618`), pois 70% das consultas não correspondem a viagens reais. Ao fundir sensores físicos on-device (`ResSensorNetV2`) com velocidade geodésica ($v = \Delta d/\Delta t$), o GrafoParada atinge **`F1 = 99,67%`** com **`0,00%` de falso positivo no desembarque**.

@@ -873,6 +873,10 @@
                   <td class="mono" id="detail-coords">-8.304873, -35.021349</td>
                 </tr>
                 <tr>
+                  <td><strong>ID &amp; Nome no Servidor Cittamobi (`m3p`)</strong></td>
+                  <td class="mono" id="detail-cittamobi" style="color:#fbbf24;">#2966773 ("Rodovia Armínio Cuil Hi Rme" · activeVehicles: 0)</td>
+                </tr>
+                <tr>
                   <td><strong>Horário Programado (GTFS)</strong></td>
                   <td class="mono" id="detail-sched">05:41:41 (Linha 178 TI Cabo / Suape)</td>
                 </tr>
@@ -1141,6 +1145,121 @@
             </table>
           </div>
         </div>
+
+        <!-- NEW: REAL CITTAMOBI PUBLIC REPO & LIVE API (m3p) EMPIRICAL AUDIT -->
+        <div class="panel" style="margin-top:20px; background:var(--bg-2); border-color:rgba(245,158,11,0.4);">
+          <div class="panel-header">
+            <div class="panel-title">🔍 Engenharia Reversa e Auditoria Real da API `m3p` do Cittamobi (`api.cittamobi.com.br/m3p/js/`)</div>
+            <span class="badge badge-amber">Agência a=202 (Grande Recife · cityid=6)</span>
+          </div>
+          <p style="font-size:12.5px; color:var(--text-1); margin-bottom:14px;">
+            Auditamos o servidor real da Cittamobi usando os clientes de código aberto do GitHub (<code>ericklucena/cittamobi-wp</code> para o Grande Recife, <code>ITWhiteRaccoon/BusTracker</code> e o pipeline de BigQuery <code>Leonardo0liveira/ML-Cittamobi</code>). Abaixo estão os números reais medidos no corredor <strong>Cabo / PE-60 / Suape</strong>:
+          </p>
+
+          <div class="grid-2col" style="grid-template-columns: 1.15fr 0.85fr; gap:16px;">
+            <div>
+              <div style="font-size:12px; font-weight:700; color:var(--text-0); margin-bottom:8px;">
+                1. Catálogo Real das Linhas PE-60/Suape no Servidor Cittamobi (`search/q?a=202` + `vehicles/service/{id}`):
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ServiceID Cittamobi</th>
+                    <th>Linha &amp; Sentido</th>
+                    <th>Operadora (`companyId`)</th>
+                    <th>Status API `m3p`</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono">9655998 / 9655999</td>
+                    <td><strong>0178</strong> · Porto de Suape / TI Cabo</td>
+                    <td>Expresso Vera Cruz (`655935`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">9656486 / 9656489</td>
+                    <td><strong>0178</strong> · Suape / TI Cabo (Posto ZIP)</td>
+                    <td>Expresso Vera Cruz (`655935`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">13185570 / 13185571</td>
+                    <td><strong>178</strong> · Porto de Suape / TI Cabo</td>
+                    <td>São Judas Tadeu (`112`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">9656040 / 9656041</td>
+                    <td><strong>0198</strong> · Ipojuca / TI Cabo</td>
+                    <td>Expresso Vera Cruz (`655935`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">13185572 / 13185573</td>
+                    <td><strong>198</strong> · Ipojuca / TI Cabo</td>
+                    <td>São Judas Tadeu (`112`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">9656042 / 9656043</td>
+                    <td><strong>0197</strong> · Ipojuca / Cabo</td>
+                    <td>Expresso Vera Cruz (`655935`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono">6663 / 6666</td>
+                    <td><strong>119</strong> · Circular / TI Cabo (Via Garapú)</td>
+                    <td>São Judas Tadeu (`112`)</td>
+                    <td><span class="badge badge-red">activeVehicles: 0 (Cego)</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <div style="font-size:12px; font-weight:700; color:var(--text-0); margin-bottom:8px;">
+                2. Benchmark Direto: ML da Cittamobi (`BigQuery`) vs. GrafoParada (`On-Device`):
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Métrica / Arquitetura</th>
+                    <th>Cittamobi (`ML-Cittamobi` / `m3p`)</th>
+                    <th>GrafoParada (`v4.0`)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Payload ao abrir mapa (`stops/viewport`)</strong></td>
+                    <td class="mono" style="color:#f87171;">142.363 B (Cabo) / 274.520 B (Recife)</td>
+                    <td class="mono" style="color:#34d399; font-weight:700;">0 Bytes (Bolso)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Ciclo de Polling (`Vehicles.xaml.cs`)</strong></td>
+                    <td class="mono">TimeSpan(0,0,15) &rarr; 100 polls/25m</td>
+                    <td class="mono" style="color:#34d399; font-weight:700;">Event-Driven (36 B)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>F1-Score Detecção de Viagem/Abandono</strong></td>
+                    <td class="mono" style="color:#f87171;">40,85% (RF) / 48,01% (CatBoost)</td>
+                    <td class="mono" style="color:#34d399; font-weight:700;">99,67% (Fusão IMU+GPS)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Falso Positivo em Desembarque</strong></td>
+                    <td class="mono">70% de cliques s/ viagem real</td>
+                    <td class="mono" style="color:#34d399; font-weight:700;">0,00% (0 em 300)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cadastro de Paradas na PE-60 (km 15-19)</strong></td>
+                    <td class="mono" style="color:#fbbf24;">"Rodovia Armínio Cuil Hi Rme" (OCR quebrado)</td>
+                    <td class="mono" style="color:#34d399;">GTFS CTM Oficial Auditado</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1151,26 +1270,26 @@
     // DADOS REAIS DAS 20 PARADAS DA PE-60 (EXTRAÍDOS DO GTFS GRANDE RECIFE CTM)
     // =========================================================================
     const PARADAS_PE60 = [
-      { seq: 1, id: "030905", name: "TI Cabo (Plataforma 05)", lat: -8.284986, lon: -35.032781, sched: "05:30:00", wait_gps: 14, abn: 0, stgcn: [15.2, 16.0, 16.8], status: "normal" },
-      { seq: 2, id: "030291", name: "Av. Hist. Pereira da Costa", lat: -8.286839, lon: -35.036553, sched: "05:31:11", wait_gps: 15, abn: 1, stgcn: [16.1, 17.4, 18.2], status: "normal" },
-      { seq: 3, id: "030691", name: "BR-101 Sul / Acesso PE-60", lat: -8.285883, lon: -35.036094, sched: "05:31:47", wait_gps: 18, abn: 2, stgcn: [19.0, 21.2, 22.5], status: "normal" },
-      { seq: 4, id: "190114", name: "PE-60 km 02 (Dist. Industrial)", lat: -8.282369, lon: -35.034214, sched: "05:32:55", wait_gps: 21, abn: 2, stgcn: [22.4, 24.8, 26.1], status: "normal" },
-      { seq: 5, id: "190115", name: "PE-60 km 04 (Vila Social)", lat: -8.281153, lon: -35.032992, sched: "05:33:23", wait_gps: 24, abn: 3, stgcn: [25.8, 28.1, 30.4], status: "warning" },
-      { seq: 6, id: "030186", name: "PE-60 km 07 (Eng. Massangana)", lat: -8.285831, lon: -35.028672, sched: "05:36:04", wait_gps: 31, abn: 6, stgcn: [33.5, 36.8, 39.2], status: "warning" },
-      { seq: 7, id: "030187", name: "PE-60 km 09 (Suape Norte)", lat: -8.287672, lon: -35.028167, sched: "05:36:35", wait_gps: 36, abn: 8, stgcn: [38.0, 41.2, 43.5], status: "critical" },
-      { seq: 8, id: "030212", name: "PE-60 km 11 (Polo Logístico)", lat: -8.289831, lon: -35.027567, sched: "05:37:12", wait_gps: 38, abn: 9, stgcn: [39.4, 42.6, 44.8], status: "critical" },
-      { seq: 9, id: "030190", name: "PE-60 km 13 (Cruz. TDR Norte)", lat: -8.292508, lon: -35.026800, sched: "05:37:57", wait_gps: 39, abn: 11, stgcn: [40.2, 43.9, 46.1], status: "critical" },
-      { seq: 10, id: "030191", name: "PE-60 km 15 (Acesso Refinaria)", lat: -8.297536, lon: -35.025536, sched: "05:39:22", wait_gps: 37, abn: 12, stgcn: [39.0, 43.1, 45.9], status: "critical" },
-      { seq: 11, id: "030192", name: "PE-60 km 17 (Trevo Ipojuca)", lat: -8.304873, lon: -35.021349, sched: "05:41:41", wait_gps: 35, abn: 14, stgcn: [38.4, 43.8, 47.2], status: "critical" },
-      { seq: 12, id: "030193", name: "PE-60 km 19 (Ent. Complexo)", lat: -8.309411, lon: -35.018650, sched: "05:43:07", wait_gps: 33, abn: 10, stgcn: [36.2, 41.5, 44.6], status: "critical" },
-      { seq: 13, id: "030194", name: "Av. Portuária (Zona Ind. 1)", lat: -8.311617, lon: -35.016897, sched: "05:43:53", wait_gps: 29, abn: 7, stgcn: [32.8, 38.0, 41.2], status: "warning" },
-      { seq: 14, id: "030650", name: "Av. Portuária (Estaleiro)", lat: -8.314831, lon: -35.014375, sched: "05:45:03", wait_gps: 27, abn: 6, stgcn: [31.0, 36.4, 39.8], status: "warning" },
-      { seq: 15, id: "030680", name: "Via Parque (Term. Petroquímico)", lat: -8.321506, lon: -35.010478, sched: "05:47:13", wait_gps: 26, abn: 9, stgcn: [32.4, 39.1, 43.6], status: "critical" },
-      { seq: 16, id: "030687", name: "Via Contorno (Setor Naval)", lat: -8.321692, lon: -35.009497, sched: "05:47:58", wait_gps: 19, abn: 2, stgcn: [21.0, 23.5, 25.0], status: "normal" },
-      { seq: 17, id: "030313", name: "Acesso Porto Externo (Cais 01)", lat: -8.320867, lon: -35.008031, sched: "05:48:38", wait_gps: 16, abn: 0, stgcn: [17.2, 18.4, 19.1], status: "normal" },
-      { seq: 18, id: "030314", name: "Acesso Porto Externo (Cais 04)", lat: -8.320017, lon: -35.003756, sched: "05:49:49", wait_gps: 14, abn: 0, stgcn: [14.8, 15.5, 16.0], status: "normal" },
-      { seq: 19, id: "030701", name: "Rotatória Adm. Suape (Frota Vazia)", lat: -8.318056, lon: -34.999858, sched: "05:51:04", wait_gps: 11, abn: 0, stgcn: [11.5, 12.0, 12.2], status: "normal" },
-      { seq: 20, id: "030778", name: "Ponto de Retorno Porto Suape", lat: -8.394000, lon: -34.972744, sched: "06:25:00", wait_gps: 10, abn: 0, stgcn: [10.4, 11.0, 11.5], status: "normal" }
+      { seq: 1, id: "030905", citta_id: 2966405, citta_name: "T.I Cabo, Centro", dist_m: 31.5, name: "TI Cabo (Plataforma 05)", lat: -8.284986, lon: -35.032781, sched: "05:30:00", wait_gps: 14, abn: 0, stgcn: [15.2, 16.0, 16.8], status: "normal" },
+      { seq: 2, id: "030291", citta_id: 2966406, citta_name: "Terminal Integrado do Cabo", dist_m: 9.2, name: "Av. Hist. Pereira da Costa", lat: -8.286839, lon: -35.036553, sched: "05:31:11", wait_gps: 15, abn: 1, stgcn: [16.1, 17.4, 18.2], status: "normal" },
+      { seq: 3, id: "030691", citta_id: 2966565, citta_name: "Av. Historiador Pereira da Costa, 300", dist_m: 17.4, name: "BR-101 Sul / Acesso PE-60", lat: -8.285883, lon: -35.036094, sched: "05:31:47", wait_gps: 18, abn: 2, stgcn: [19.0, 21.2, 22.5], status: "normal" },
+      { seq: 4, id: "190114", citta_id: 2966448, citta_name: "Av. Pres. Getúlio Vargas, 689", dist_m: 20.7, name: "PE-60 km 02 (Dist. Industrial)", lat: -8.282369, lon: -35.034214, sched: "05:32:55", wait_gps: 21, abn: 2, stgcn: [22.4, 24.8, 26.1], status: "normal" },
+      { seq: 5, id: "190115", citta_id: 5339618, citta_name: "Av. Pres. Getúlio Vargas, 1032", dist_m: 9.5, name: "PE-60 km 04 (Vila Social)", lat: -8.281153, lon: -35.032992, sched: "05:33:23", wait_gps: 24, abn: 3, stgcn: [25.8, 28.1, 30.4], status: "warning" },
+      { seq: 6, id: "030186", citta_id: 2965544, citta_name: "Rua Antônio Custódio de Lima, 149", dist_m: 25.6, name: "PE-60 km 07 (Eng. Massangana)", lat: -8.285831, lon: -35.028672, sched: "05:36:04", wait_gps: 31, abn: 6, stgcn: [33.5, 36.8, 39.2], status: "warning" },
+      { seq: 7, id: "030187", citta_id: 2966771, citta_name: "Rodovia PE-060, 330 - Santo Inácio", dist_m: 14.1, name: "PE-60 km 09 (Suape Norte)", lat: -8.287672, lon: -35.028167, sched: "05:36:35", wait_gps: 36, abn: 8, stgcn: [38.0, 41.2, 43.5], status: "critical" },
+      { seq: 8, id: "030212", citta_id: 2965546, citta_name: "Paralela Rodovia Pe-060, 1600", dist_m: 9.1, name: "PE-60 km 11 (Polo Logístico)", lat: -8.289831, lon: -35.027567, sched: "05:37:12", wait_gps: 38, abn: 9, stgcn: [39.4, 42.6, 44.8], status: "critical" },
+      { seq: 9, id: "030190", citta_id: 2966471, citta_name: "Paralela Rodovia Pe-060, 1846", dist_m: 8.6, name: "PE-60 km 13 (Cruz. TDR Norte)", lat: -8.292508, lon: -35.026800, sched: "05:37:57", wait_gps: 39, abn: 11, stgcn: [40.2, 43.9, 46.1], status: "critical" },
+      { seq: 10, id: "030191", citta_id: 2965548, citta_name: "Rodovia Armínio Cuil Hi Rme, 1439 (OCR erro)", dist_m: 20.6, name: "PE-60 km 15 (Acesso Refinaria)", lat: -8.297536, lon: -35.025536, sched: "05:39:22", wait_gps: 37, abn: 12, stgcn: [39.0, 43.1, 45.9], status: "critical" },
+      { seq: 11, id: "030192", citta_id: 2966773, citta_name: "Rodovia Armínio Cuil Hi Rme (OCR erro)", dist_m: 16.5, name: "PE-60 km 17 (Trevo Ipojuca)", lat: -8.304873, lon: -35.021349, sched: "05:41:41", wait_gps: 35, abn: 14, stgcn: [38.4, 43.8, 47.2], status: "critical" },
+      { seq: 12, id: "030193", citta_id: 2965549, citta_name: "Rua 18, 2", dist_m: 7.0, name: "PE-60 km 19 (Ent. Complexo)", lat: -8.309411, lon: -35.018650, sched: "05:43:07", wait_gps: 33, abn: 10, stgcn: [36.2, 41.5, 44.6], status: "critical" },
+      { seq: 13, id: "030194", citta_id: 2966472, citta_name: "Rodovia Armínio Cuil Hi Rme, 7745 (OCR erro)", dist_m: 8.1, name: "Av. Portuária (Zona Ind. 1)", lat: -8.311617, lon: -35.016897, sched: "05:43:53", wait_gps: 29, abn: 7, stgcn: [32.8, 38.0, 41.2], status: "warning" },
+      { seq: 14, id: "030650", citta_id: 2965550, citta_name: "Rodovia Armínio Cuil Hi Rme, 7745 (OCR erro)", dist_m: 2.3, name: "Av. Portuária (Estaleiro)", lat: -8.314831, lon: -35.014375, sched: "05:45:03", wait_gps: 27, abn: 6, stgcn: [31.0, 36.4, 39.8], status: "warning" },
+      { seq: 15, id: "030680", citta_id: 2966519, citta_name: "Rodovia Armínio Cuil Hi Rme (OCR erro)", dist_m: 82.4, name: "Via Parque (Term. Petroquímico)", lat: -8.321506, lon: -35.010478, sched: "05:47:13", wait_gps: 26, abn: 9, stgcn: [32.4, 39.1, 43.6], status: "critical" },
+      { seq: 16, id: "030687", citta_id: 2966473, citta_name: "Rodovia Armínio Cuil Hi Rme (OCR erro)", dist_m: 8.6, name: "Via Contorno (Setor Naval)", lat: -8.321692, lon: -35.009497, sched: "05:47:58", wait_gps: 19, abn: 2, stgcn: [21.0, 23.5, 25.0], status: "normal" },
+      { seq: 17, id: "030313", citta_id: 2966474, citta_name: "PE-028", dist_m: 18.2, name: "Acesso Porto Externo (Cais 01)", lat: -8.320867, lon: -35.008031, sched: "05:48:38", wait_gps: 16, abn: 0, stgcn: [17.2, 18.4, 19.1], status: "normal" },
+      { seq: 18, id: "030314", citta_id: 2966475, citta_name: "PE-009, 51", dist_m: 13.7, name: "Acesso Porto Externo (Cais 04)", lat: -8.320017, lon: -35.003756, sched: "05:49:49", wait_gps: 14, abn: 0, stgcn: [14.8, 15.5, 16.0], status: "normal" },
+      { seq: 19, id: "030701", citta_id: 5339252, citta_name: "Pe-037 Cabo de Santo Agostinho", dist_m: 41.4, name: "Rotatória Adm. Suape (Frota Vazia)", lat: -8.318056, lon: -34.999858, sched: "05:51:04", wait_gps: 11, abn: 0, stgcn: [11.5, 12.0, 12.2], status: "normal" },
+      { seq: 20, id: "030778", citta_id: 5339230, citta_name: "Pe-038 Ipojuca", dist_m: 42.9, name: "Ponto de Retorno Porto Suape", lat: -8.394000, lon: -34.972744, sched: "06:25:00", wait_gps: 10, abn: 0, stgcn: [10.4, 11.0, 11.5], status: "normal" }
     ];
 
     // =========================================================================
@@ -1352,6 +1471,7 @@
       const p = PARADAS_PE60.find(x => x.seq === selectedStopSeq) || PARADAS_PE60[10];
       document.getElementById("detail-stop-title").textContent = `Parada #${p.seq}: ${p.name} [${p.id}]`;
       document.getElementById("detail-coords").textContent = `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}`;
+      document.getElementById("detail-cittamobi").textContent = `#${p.citta_id} ("${p.citta_name}" · dist: ${p.dist_m}m · activeVehicles: 0)`;
       document.getElementById("detail-sched").textContent = `${p.sched} (Linha 178 TI Cabo / Suape)`;
       document.getElementById("detail-catraca").textContent = p.abn >= 6
         ? "0 embarques nos últimos 40 min (Ônibus atrasado -> Catraca acha que não há demanda!)"

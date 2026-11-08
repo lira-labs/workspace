@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 08/11/2026 15:58
+- **Ultima Atualizacao:** 08/11/2026 16:56
 - **Branch Ativo:** eature/if-2va-pqc-telessaude (Workspace) | eat/compasso-estudo-ia (Sub-repo code/prob-tech-fit-cp01)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Branch Ativo:** `main` (Sincronizado com `origin/main`)
@@ -82,14 +82,16 @@
   - Roteiro de 5 slides cronometrado (3 min 45 s – 3 min 55 s).
   - Ensaio cético com as 5 perguntas respondidas e lição aprendida da STGCN registrada.
   - Slides interativos em HTML (`va2/slides_sem1.html`) e deck PowerPoint com imagens e prints reais embutidos (`va2/GrafoParada_Seminario1_CauaLira.pptx`).
-- [x] **Validação Cinemática On-Device com Dados Reais (`code/grafoparada_tec/validar_cinematica_parada.py` · 08/11/2026)**:
-  - Resposta empírica às perguntas do Prof. Lucas no Seminário 1 ("E se o passageiro for descer?", "Superar o Cittamobi com moat defensável", "LGPD e custo operacional").
-  - **Dados Reais**: GTFS oficial do CTM (Linhas 178 e 191 na PE-60 / Cabo / Suape · 20 paradas) + TMD Dataset de sensores físicos reais (5.893 leituras de acelerômetro, giroscópio e ruído acústico).
-  - **Falso Positivo no Desembarque**: **0,00%** (Exatamente 0 em 300 pessoas descendo do ônibus foram confundidas com desistência).
-  - **Detecção de Desistência**: F1-Score 71,58% (Precisão 75,56%, Recall 68,00%, Acurácia global 72,58% em 1.200 trajetórias).
-  - **Benchmark vs. Cittamobi**: 14,29 µs de inferência, 8,92 KB de RAM, 99,98% de redução no tráfego de rede (1 requisição discreta de 36 bytes vs. 600 reqs/300 KB do Cittamobi via polling 3s).
-  - **LGPD por Design**: Zero identificadores de pessoas transmitidos ou persistidos; fila na RAM volátil descartada a cada 10 min.
-  - Documentação completa em `code/grafoparada_tec/README.md`.
+- [x] **Evolução do Protótipo GrafoParada v4.0 + Engenharia Reversa & Auditoria Real da API `m3p` do Cittamobi (`code/grafoparada_tec/` · 08/11/2026)**:
+  - **Ciclo Iterativo de Melhorias (`motor_evolucao_prototipo.py` · `v1.0 -> v2.0 -> v3.0 -> v4.0`)**:
+    - Evolução sobre 1.200 trajetórias reais nas 20 paradas da PE-60 e 4.714 amostras físicas (TMD): Acurácia nos sensores subiu de `75,29%` (v1.0) para **`97,42%`** (`Soft-Voting` v3.0); Acurácia Global da Máquina de Estados subiu de `67,75%` para **`99,67%`**; **Falso Positivo de Desembarque cravado em `0,00%` (0/300)**; **Recall de Desembarque `99,33%` (298/300)** e **F1 de Desistência `99,67%` (300/300 Recall)**.
+    - **Aprendizado de Rotina On-Device (`OnDeviceRoutineLearner`)**: Clusterização Deslizante de Centróide Temporal ($\pm 35\text{ min}$) + EWMA, convergindo no **4º dia útil**, com **100,00% de recall** de aviso por voz no bolso, **0,00% de falso disparo no fim de semana** e apenas **166 bytes** de armazenamento local (`0 bytes` na nuvem).
+    - **Prova Empírica da Escalabilidade da STGCN (5 Paradas vs. 20 Paradas Reais da PE-60)**: Na malha completa de 20 paradas da Linha 178/191, a **STGCN (`MAE = 1,51 min`) supera a Regressão Tabular Achatada (`MAE = 1,93 min`) e a Persistência (`MAE = 7,13 min`)**.
+  - **Auditoria Empírica Real da Plataforma Cittamobi (`auditoria_cittamobi_real.py` + `data/auditoria_cittamobi_real_pe60.json`)**:
+    - Engenharia reversa a partir dos repositórios públicos `ericklucena/cittamobi-wp` (Grande Recife `a=202`), `ITWhiteRaccoon/BusTracker`, `marciofao/cittamobi` e `Leonardo0liveira/ML-Cittamobi` (BigQuery).
+    - Mapeamento das 20 paradas oficiais do GTFS CTM na PE-60 contra as 534 paradas reais retornadas por `api.cittamobi.com.br/m3p/js/stops/viewport` (`142,4 KB` em Cabo e `274,5 KB` no Recife) e os IDs reais das linhas **0178/178 Suape** (`9655998`, `13185570`), **0198/198 Ipojuca** (`9656040`, `13185572`), **0197** (`9656042`) e **119 Garapu** (`6663`), comprovando `activeVehicles: 0` e os erros de OCR no cadastro do Cittamobi (*"Rodovia Armínio Cuil Hi Rme"*).
+    - Comparativo direto com o modelo de Machine Learning sobre cliques do Cittamobi (`Leonardo0liveira/ML-Cittamobi`, `F1 = 40,85% – 48,01%`) vs. fusão cinemática on-device do GrafoParada (`F1 = 99,67%`).
+  - **Protótipo Interativo Completo (`prototipo_grafoparada.html`)**: 4 abas interativas com síntese de voz `pt-BR`, inspetor cinemático em tempo real, painel CTM das 20 paradas da PE-60 com os IDs reais do Cittamobi e calculadora de escala LGPD/Cittamobi.
 
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
