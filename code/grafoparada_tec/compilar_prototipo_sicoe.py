@@ -645,6 +645,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <button class="nav-btn" onclick="switchModule('mod-bench', this)">
         <span class="nav-key">F4</span> BENCHMARKS v1&rarr;v4 &amp; LGPD
       </button>
+      <button class="nav-btn" onclick="switchModule('mod-safety', this)">
+        <span class="nav-key">F5</span> SEGURANÇA &amp; COMPANHIA NA PARADA
+      </button>
     </nav>
 
     <div class="topbar-right">
@@ -764,19 +767,35 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             "Carregando radar geodésico de paradas próximas..."
           </div>
 
-          <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:10px;">
+          <!-- ANTI-THEFT SHIELD & COMPANION ALERT BANNER IN F1 -->
+          <div id="f1-safety-shield-banner" style="background:rgba(255, 59, 92, 0.10); border:1px solid var(--crimson); border-left:4px solid var(--crimson); padding:8px 10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-family:var(--font-mono); font-size:11px;">
+            <div>
+              <strong id="f1-shield-title" style="color:var(--crimson);">[ALERTA DE ROUBO · NÃO PEGUE O CELULAR NESTE LOCAL!]</strong>
+              <span id="f1-shield-desc" style="color:var(--text-0); margin-left:6px;">Parada com 19 relatos de assalto e apenas 1 pessoa aguardando. Mantenha o celular no bolso!</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button id="f1-btn-companion" class="btn btn-emerald" style="padding:4px 8px; font-size:10.5px;" onclick="jumpToCompanionStop()">
+                [IR P/ PARADA COM COMPANHIA (12 PESSOAS)]
+              </button>
+              <button class="btn btn-amber" style="padding:4px 8px; font-size:10.5px;" onclick="switchModule('mod-safety', document.querySelectorAll('.nav-btn')[4])">
+                [ABRIR CENTRAL DE SEGURANÇA F5]
+              </button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1.35fr 1fr; gap:10px;">
             <div>
               <div style="font-family:var(--font-mono); font-size:10.5px; color:var(--text-2); margin-bottom:4px;">
-                PARADAS OFICIAIS CTM MAIS PRÓXIMAS (7.238 PARADAS GTFS GRANDE RECIFE):
+                PARADAS OFICIAIS CTM MAIS PRÓXIMAS (DISTÂNCIA + PESSOAS ESPERANDO + ALERTA DE CELULAR):
               </div>
               <table class="tech-table">
                 <thead>
                   <tr>
                     <th>GTFS ID</th>
                     <th>Parada Reconhecida</th>
-                    <th>Distância</th>
-                    <th>Caminhada</th>
-                    <th>Status Geocerca</th>
+                    <th>Dist.</th>
+                    <th>Pessoas Ali</th>
+                    <th>Alerta de Segurança / Celular</th>
                   </tr>
                 </thead>
                 <tbody id="nearby-gtfs-tbody"></tbody>
@@ -1364,6 +1383,179 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
   </main>
 
+  <!-- ======================================================================= -->
+  <!-- MODULE 05: COMMUNITY SAFETY SHIELD ("DON'T TAKE PHONE OUT") & COMPANION -->
+  <!-- ======================================================================= -->
+  <main id="mod-safety" class="workspace-view">
+    <!-- Top Summary Ribbon for Safety & Presence -->
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:14px;">
+      <div class="panel" style="padding:10px 12px; border-left:3px solid var(--emerald);">
+        <div class="mono" style="font-size:10.5px; color:var(--text-2);">PASSAGEIROS AGUARDANDO AGORA (PE-60)</div>
+        <div class="mono" id="saf-kpi-waiting" style="font-size:20px; font-weight:700; color:var(--emerald); margin:3px 0;">123 PESSOAS</div>
+        <div class="mono" style="font-size:11px; color:var(--text-1);">Contagem anônima via geocerca 35m (Zero PII)</div>
+      </div>
+      <div class="panel" style="padding:10px 12px; border-left:3px solid var(--crimson);">
+        <div class="mono" style="font-size:10.5px; color:var(--text-2);">PARADAS COM BLOQUEIO "NÃO PEGUE O CELULAR"</div>
+        <div class="mono" id="saf-kpi-nophone" style="font-size:20px; font-weight:700; color:var(--crimson); margin:3px 0;">6 PARADAS CRÍTICAS</div>
+        <div class="mono" style="font-size:11px; color:var(--text-1);">Alerta sonoro automático no fone a 180m</div>
+      </div>
+      <div class="panel" style="padding:10px 12px; border-left:3px solid var(--amber);">
+        <div class="mono" style="font-size:10.5px; color:var(--text-2);">PARADAS SOLITÁRIAS (&le; 2 PESSOAS)</div>
+        <div class="mono" id="saf-kpi-lonely" style="font-size:20px; font-weight:700; color:var(--amber); margin:3px 0;">5 PARADAS DESERTAS</div>
+        <div class="mono" style="font-size:11px; color:var(--text-1);">Roteamento ativo p/ Parada Amiga com grupo</div>
+      </div>
+      <div class="panel" style="padding:10px 12px; border-left:3px solid var(--cyan);">
+        <div class="mono" style="font-size:10.5px; color:var(--text-2);">RELATOS COMUNITÁRIOS (ÚLTIMOS 30 DIAS)</div>
+        <div class="mono" id="saf-kpi-reports" style="font-size:20px; font-weight:700; color:var(--cyan); margin:3px 0;">129 RELATOS</div>
+        <div class="mono" style="font-size:11px; color:var(--text-1);">Cruzados com horário de pico e iluminação</div>
+      </div>
+    </div>
+
+    <div class="gis-grid">
+
+      <!-- Left Column: Interactive Report Form + Pocket Shield Simulator + Companion Finder -->
+      <div style="display:flex; flex-direction:column; gap:14px;">
+
+        <!-- Panel 1: Selected Stop Shield & Companion Status -->
+        <div class="panel">
+          <div class="panel-head">
+            <span id="saf-stop-title">ESCUDO DE PROTEÇÃO DA PARADA // NÓ #11 PE-60 km 17 (Trevo Ipojuca)</span>
+            <span id="saf-stop-badge" class="tag tag-crimson">PERIGO ELEVADO · NÃO PEGUE O CELULAR</span>
+          </div>
+          <div class="panel-body">
+
+            <!-- Big Warning Box: Do Not Take Phone Out -->
+            <div id="saf-phone-warning-box" style="background:rgba(255, 59, 92, 0.12); border:1px solid var(--crimson); padding:12px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span class="mono" id="saf-phone-headline" style="color:var(--crimson); font-weight:700; font-size:13px;">
+                  [!] AVISO DE SEGURANÇA: NÃO PEGUE O CELULAR NESTE LOCAL!
+                </span>
+                <span class="tag tag-crimson" id="saf-risk-score-tag">RISCO: 99/100</span>
+              </div>
+              <p id="saf-phone-explanation" style="color:var(--text-0); font-size:12px; margin-bottom:8px;">
+                A comunidade registrou <strong>19 ocorrências de roubo de celular</strong> (abordagem rápida em motocicleta) nesta parada. O GrafoParada ativou o <strong>Modo Escudo no Bolso</strong>: mantenha a tela apagada; você receberá os avisos de chegada da Linha 178 e de segurança diretamente no fone de ouvido.
+              </p>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-amber" onclick="speakSafetyShieldPrompt()">
+                  [TESTAR VOZ DE ALERTA NO FONE] "NÃO TIRE O CELULAR DO BOLSO"
+                </button>
+                <button class="btn" onclick="switchModule('mod-gis', document.querySelectorAll('.nav-btn')[0]); selectStopNode(activeStopSeq, true);">
+                  [VER ESTA PARADA NO MAPA REAL F1]
+                </button>
+              </div>
+            </div>
+
+            <!-- Live Companion Counter & Anti-Loneliness Recommendation -->
+            <div style="display:grid; grid-template-columns:1fr 1.15fr; gap:10px; margin-bottom:12px;">
+              <div style="background:var(--bg-0); border:1px solid var(--border-strong); padding:10px;">
+                <div class="mono" style="font-size:10.5px; color:var(--text-2);">QUANTOS USUÁRIOS ESTÃO ALI AGORA?</div>
+                <div style="display:flex; align-items:baseline; gap:8px; margin:6px 0;">
+                  <span class="mono" id="saf-waiting-count" style="font-size:26px; font-weight:700; color:var(--amber);">1 pessoa</span>
+                  <span class="tag tag-crimson" id="saf-alone-tag">ALERTA: PARADA SOLITÁRIA</span>
+                </div>
+                <div style="font-size:11.5px; color:var(--text-1); margin-bottom:8px;" id="saf-lighting-info">
+                  Iluminação: CRÍTICA (Trevo Escuro) · Foco Crítico de Roubo em Moto
+                </div>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn btn-emerald" style="padding:4px 8px; font-size:10.5px;" onclick="adjustStopPresence(1)">
+                    [+1 SIMULAR CHEGADA DE COMPANHEIRO]
+                  </button>
+                  <button class="btn" style="padding:4px 8px; font-size:10.5px;" onclick="adjustStopPresence(-1)">
+                    [-1 SAÍDA]
+                  </button>
+                </div>
+              </div>
+
+              <div style="background:var(--bg-0); border:1px solid var(--emerald); padding:10px;">
+                <div class="mono" style="font-size:10.5px; color:var(--emerald); font-weight:700;">
+                  PARA VOCÊ NÃO FICAR SOZINHO (PARADA AMIGA MAIS PRÓXIMA):
+                </div>
+                <div class="mono" id="saf-companion-name" style="font-size:13px; color:var(--text-0); font-weight:700; margin-top:4px;">
+                  Nó #12 // PE-60 km 18 (Acesso Camela / Posto 24h)
+                </div>
+                <div class="mono" id="saf-companion-metrics" style="font-size:11.5px; color:var(--emerald); margin:4px 0;">
+                  12 passageiros aguardando juntos · Iluminação BOA (Posto 24h)
+                </div>
+                <div style="font-size:11.5px; color:var(--text-1); margin-bottom:8px;" id="saf-companion-dist">
+                  Distância: 480m (~6 min de caminhada segura).
+                </div>
+                <button class="btn btn-emerald" style="width:100%; justify-content:center; padding:5px 8px; font-size:10.5px;" onclick="jumpToCompanionStop()">
+                  [MOVER MEU USUÁRIO P/ ESTA PARADA COM GRUPO NO MAPA]
+                </button>
+              </div>
+            </div>
+
+            <!-- Collaborative Incident Reporting Form -->
+            <div style="background:var(--bg-2); border:1px solid var(--border-strong); padding:10px;">
+              <div class="mono" style="font-size:11px; color:var(--cyan); font-weight:700; margin-bottom:6px;">
+                INFORMAR OCORRÊNCIA DE SEGURANÇA OU PRESENÇA NESTA PARADA (100% ANÔNIMO / ZERO-PII):
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:8px; margin-bottom:8px;">
+                <div>
+                  <label class="mono" style="font-size:10px; color:var(--text-2); display:block; margin-bottom:3px;">SELECIONE A PARADA DA PE-60:</label>
+                  <select id="saf-report-stop-select" class="mono" style="width:100%; background:var(--bg-0); color:var(--text-0); border:1px solid var(--border-strong); padding:6px; font-size:11px;" onchange="selectStopNode(parseInt(this.value, 10), false)"></select>
+                </div>
+                <div>
+                  <label class="mono" style="font-size:10px; color:var(--text-2); display:block; margin-bottom:3px;">OBSERVAÇÃO RÁPIDA (OPCIONAL):</label>
+                  <input id="saf-report-desc" type="text" placeholder="Ex: Assalto de moto às 05h40 / Refletor apagado / Estou esperando aqui..." style="width:100%; background:var(--bg-0); color:var(--text-0); border:1px solid var(--border-strong); padding:6px; font-family:var(--font-mono); font-size:11px;" />
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px;">
+                <button class="btn" style="background:var(--crimson-dim); border-color:var(--crimson); color:var(--crimson); justify-content:center;" onclick="submitSafetyReport('ROUBO_CELULAR')">
+                  [!] REPORTAR ROUBO / ASSALTO
+                </button>
+                <button class="btn btn-amber" style="justify-content:center;" onclick="submitSafetyReport('ILUMINACAO_PRECARIA')">
+                  [!] PONTO ESCURO / DESERTO
+                </button>
+                <button class="btn btn-cyan" style="justify-content:center;" onclick="submitSafetyReport('PARADA_SOLITARIA')">
+                  [!] ESTOU SOZINHO AQUI
+                </button>
+                <button class="btn btn-emerald" style="justify-content:center;" onclick="submitSafetyReport('LOCAL_SEGURO_GRUPO')">
+                  [+] CONFIRMAR GRUPO SEGURO
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Recent Community Safety Feed -->
+        <div class="panel">
+          <div class="panel-head">
+            <span>FEED EM TEMPO REAL DE ALERTAS COMUNITÁRIOS &amp; AÇÕES DO MODO ESCUDO</span>
+            <span class="tag tag-cyan">ATUALIZAÇÃO INSTANTÂNEA</span>
+          </div>
+          <div class="panel-body" id="saf-feed-container" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;"></div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Full 20-Stop PE-60 Safety & Collective Presence Matrix -->
+      <div class="panel">
+        <div class="panel-head">
+          <span>MAPA DE PRESENÇA COLETIVA &amp; RISCO DE ROUBO NAS 20 PARADAS DA PE-60 (CLIQUE PARA INSPECIONAR)</span>
+          <span class="tag tag-emerald">NINGUÉM ESPERA SOZINHO</span>
+        </div>
+        <div class="panel-body" style="max-height:660px; overflow-y:auto;">
+          <table class="tech-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Parada Oficial CTM (PE-60)</th>
+                <th>Usuários Ali Agora</th>
+                <th>Relatos Roubo (30d)</th>
+                <th>Iluminação / Entorno</th>
+                <th>Diretriz de Uso do Celular</th>
+              </tr>
+            </thead>
+            <tbody id="saf-corridor-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
   <script>
     // PACOTE REAL EMBUTIDO (GTFS shapes.txt + 20 stops + 534 Cittamobi stops + TMD windows)
     const TELEMETRIA = __TELEMETRIA_JSON__;
@@ -1390,6 +1582,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (e.key === "F2") { e.preventDefault(); switchModule("mod-imu", btns[1]); }
       if (e.key === "F3") { e.preventDefault(); switchModule("mod-citta", btns[2]); }
       if (e.key === "F4") { e.preventDefault(); switchModule("mod-bench", btns[3]); }
+      if (e.key === "F5") { e.preventDefault(); switchModule("mod-safety", btns[4]); }
     });
 
     setInterval(() => {
@@ -1417,6 +1610,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       drawPe60GisCanvas();
       pingLiveCittamobiStop();
       runLiveStgcnInference();
+      if (typeof renderSelectedStopSafetyPanel === "function") {
+        renderSelectedStopSafetyPanel(seq);
+      }
     }
 
     function toggleCittamobi534() {
@@ -2145,19 +2341,53 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           }
         });
 
-        // Populate Official GTFS Nearby Stops Table
+        // Update F1 Anti-Theft Shield & Companion Banner based on the closest stop
+        if (topStop) {
+          window.lastCompanionRecommendation = topStop.companion_stop_recommendation;
+          const banner = document.getElementById("f1-safety-shield-banner");
+          const sTitle = document.getElementById("f1-shield-title");
+          const sDesc = document.getElementById("f1-shield-desc");
+          const sBtnComp = document.getElementById("f1-btn-companion");
+          if (banner && sTitle && sDesc) {
+            if (topStop.keep_phone_in_pocket) {
+              banner.style.background = "rgba(255, 59, 92, 0.12)";
+              banner.style.borderColor = "var(--crimson)";
+              sTitle.style.color = "var(--crimson)";
+              sTitle.textContent = `[!] ALERTA DE ROUBO EM ${topStop.stop_name.toUpperCase()}: NÃO PEGUE O CELULAR!`;
+              const compTxt = topStop.companion_stop_recommendation
+                ? ` · Para não ficar sozinho (${topStop.active_waiting_users} pessoa aqui), a parada ${topStop.companion_stop_recommendation.name} a ${topStop.companion_stop_recommendation.distance_m}m tem ${topStop.companion_stop_recommendation.active_waiting_users} pessoas.`
+                : ``;
+              sDesc.textContent = `${topStop.robbery_reports_30d} relatos de assalto. Mantenha o celular no bolso com áudio ativo!${compTxt}`;
+              if (sBtnComp && topStop.companion_stop_recommendation) {
+                sBtnComp.style.display = "inline-flex";
+                sBtnComp.textContent = `[IR P/ PARADA COM COMPANHIA (${topStop.companion_stop_recommendation.active_waiting_users} PESSOAS A ${topStop.companion_stop_recommendation.distance_m}m)]`;
+              }
+            } else {
+              banner.style.background = "rgba(0, 214, 143, 0.10)";
+              banner.style.borderColor = "var(--emerald)";
+              sTitle.style.color = "var(--emerald)";
+              sTitle.textContent = `[PARADA COM COMPANHIA ATIVA]: ${topStop.stop_name}`;
+              sDesc.textContent = `${topStop.active_waiting_users} passageiros aguardando juntos agora (${topStop.robbery_reports_30d} relatos recentes).`;
+              if (sBtnComp) sBtnComp.style.display = "none";
+            }
+          }
+        }
+
+        // Populate Official GTFS Nearby Stops Table (with Active Users Count + Phone Shield Status)
         const gtfsTbody = document.getElementById("nearby-gtfs-tbody");
         gtfsTbody.innerHTML = (data.closest_gtfs_stops || []).map((st, idx) => {
-          const badge = st.inside_geofence_35m
-            ? `<span class="tag tag-emerald">NA PARADA (&le;35m)</span>`
-            : (st.inside_pocket_radar_150m ? `<span class="tag tag-cyan">PRÓXIMA (&le;150m)</span>` : `<span class="tag">A CAMINHO</span>`);
+          const paxCol = st.active_waiting_users <= 2 ? "var(--amber)" : "var(--emerald)";
+          const paxTxt = st.active_waiting_users === 1 ? "1 pessoa (Só)" : `${st.active_waiting_users} pessoas`;
+          const safetyBadge = st.keep_phone_in_pocket
+            ? `<span class="tag tag-crimson">NÃO PEGUE O CELULAR (${st.robbery_reports_30d} roubos)</span>`
+            : `<span class="tag tag-emerald">GRUPO SEGURO (${st.active_waiting_users} ali)</span>`;
           return `
             <tr class="${idx === 0 ? 'selected-row' : ''}" style="cursor:pointer;" onclick="leafletMap.setView([${st.lat}, ${st.lon}], 17);">
               <td class="mono"><strong>${st.stop_id}</strong></td>
               <td>${st.stop_name}</td>
-              <td class="mono" style="color:${st.inside_geofence_35m ? 'var(--emerald)' : 'var(--text-0)'}; font-weight:700;">${st.distance_m} m</td>
-              <td class="mono">~${st.walk_time_s}s a pé</td>
-              <td>${badge}</td>
+              <td class="mono" style="color:${st.inside_geofence_35m ? 'var(--emerald)' : 'var(--text-0)'}; font-weight:700;">${st.distance_m}m</td>
+              <td class="mono" style="color:${paxCol}; font-weight:700;">${paxTxt}</td>
+              <td>${safetyBadge}</td>
             </tr>
           `;
         }).join("");
@@ -2199,16 +2429,224 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }
     }
 
+    // =========================================================================
+    // MODULE 05: COMMUNITY SAFETY SHIELD ("NO PHONE") & COMPANION PRESENCE
+    // =========================================================================
+    let safetyCorridorData = null;
+    let lastSafetyShieldVoice = "Alerta de Segurança GrafoParada: Não tire o celular do bolso neste ponto.";
+
+    async function refreshSafetyCorridor() {
+      try {
+        const resp = await fetch("/api/live/safety-corridor");
+        safetyCorridorData = await resp.json();
+        renderSafetyCorridorUI();
+      } catch (err) {
+        console.warn("Safety corridor fallback:", err);
+      }
+    }
+
+    function renderSafetyCorridorUI() {
+      if (!safetyCorridorData) return;
+      const sum = safetyCorridorData.summary;
+      document.getElementById("saf-kpi-waiting").textContent = `${sum.total_active_waiting_users_pe60} PESSOAS`;
+      document.getElementById("saf-kpi-nophone").textContent = `${sum.high_risk_no_phone_stops} PARADAS CRÍTICAS`;
+      document.getElementById("saf-kpi-lonely").textContent = `${sum.lonely_stops_le_2_pax} PARADAS DESERTAS`;
+      document.getElementById("saf-kpi-reports").textContent = `${sum.total_robbery_reports_30d} RELATOS`;
+
+      // Populate stop selector in report form
+      const sel = document.getElementById("saf-report-stop-select");
+      if (sel && sel.options.length === 0) {
+        sel.innerHTML = safetyCorridorData.stops.map(s =>
+          `<option value="${s.seq}">#${String(s.seq).padStart(2, '0')} - ${s.name} [GTFS ${s.stop_id}]</option>`
+        ).join("");
+      }
+      if (sel) sel.value = String(activeStopSeq);
+
+      // Populate 20-stop Safety & Presence table
+      const tbody = document.getElementById("saf-corridor-tbody");
+      if (tbody) {
+        tbody.innerHTML = safetyCorridorData.stops.map(s => {
+          const isSel = s.seq === activeStopSeq;
+          const paxBadge = s.active_waiting_users <= 2
+            ? `<span class="tag tag-amber">${s.active_waiting_users} pessoa(s) · SÓ</span>`
+            : `<span class="tag tag-emerald">${s.active_waiting_users} pessoas · GRUPO</span>`;
+          const dirBadge = s.risk_level === "HIGH_RISK"
+            ? `<span class="tag tag-crimson">NÃO PEGUE O CELULAR!</span>`
+            : (s.risk_level === "MODERATE_RISK"
+                ? `<span class="tag tag-amber">USAR ÁUDIO NO BOLSO</span>`
+                : `<span class="tag tag-emerald">PONTO SEGURO C/ GRUPO</span>`);
+          return `
+            <tr class="${isSel ? 'selected-row' : ''}" style="cursor:pointer;" onclick="selectStopNode(${s.seq}, true)">
+              <td class="mono"><strong>#${String(s.seq).padStart(2, '0')}</strong></td>
+              <td>${s.name} <span class="mono" style="color:var(--text-2);">(${s.stop_id})</span></td>
+              <td class="mono">${paxBadge}</td>
+              <td class="mono" style="color:${s.robbery_reports_30d >= 10 ? 'var(--crimson)' : 'var(--text-0)'}; font-weight:700;">${s.robbery_reports_30d} relatos</td>
+              <td style="font-size:11px; color:var(--text-1);">${s.lighting_condition}</td>
+              <td>${dirBadge}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Populate live community feed
+      const feedBox = document.getElementById("saf-feed-container");
+      if (feedBox && safetyCorridorData.recent_feed) {
+        feedBox.innerHTML = safetyCorridorData.recent_feed.map(item => {
+          const col = item.category === "ROUBO_CELULAR" ? "var(--crimson)" : (item.category === "LOCAL_SEGURO_GRUPO" ? "var(--emerald)" : "var(--amber)");
+          return `
+            <div style="background:var(--bg-0); border:1px solid var(--border); border-left:3px solid ${col}; padding:8px 10px;">
+              <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10.5px; margin-bottom:3px;">
+                <strong style="color:${col};">[${item.category}] ${item.stop_name} (GTFS ${item.stop_id})</strong>
+                <span style="color:var(--text-2);">${item.timestamp}</span>
+              </div>
+              <div style="font-size:11.5px; color:var(--text-0); margin-bottom:3px;">${item.description}</div>
+              <div class="mono" style="font-size:10.5px; color:var(--cyan);">&rarr; Ação Automática: ${item.action_taken}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      renderSelectedStopSafetyPanel(activeStopSeq);
+    }
+
+    function renderSelectedStopSafetyPanel(seq) {
+      if (!safetyCorridorData || !safetyCorridorData.stops) return;
+      const prof = safetyCorridorData.stops.find(s => s.seq === seq) || safetyCorridorData.stops[10];
+      if (!prof) return;
+
+      const sel = document.getElementById("saf-report-stop-select");
+      if (sel) sel.value = String(prof.seq);
+
+      document.getElementById("saf-stop-title").textContent =
+        `ESCUDO DE PROTEÇÃO DA PARADA // NÓ #${String(prof.seq).padStart(2, '0')} ${prof.name} [GTFS ${prof.stop_id}]`;
+
+      const topBadge = document.getElementById("saf-stop-badge");
+      const warnBox = document.getElementById("saf-phone-warning-box");
+      const headline = document.getElementById("saf-phone-headline");
+      const expl = document.getElementById("saf-phone-explanation");
+      const scoreTag = document.getElementById("saf-risk-score-tag");
+
+      scoreTag.textContent = `RISCO: ${prof.risk_score_100}/100`;
+      lastSafetyShieldVoice = prof.shield_voice_prompt;
+
+      if (prof.keep_phone_in_pocket) {
+        topBadge.className = "tag tag-crimson";
+        topBadge.textContent = prof.risk_label;
+        warnBox.style.background = "rgba(255, 59, 92, 0.12)";
+        warnBox.style.borderColor = "var(--crimson)";
+        headline.style.color = "var(--crimson)";
+        headline.textContent = `[!] AVISO DE SEGURANÇA: NÃO PEGUE O CELULAR NESTE LOCAL! (${prof.robbery_reports_30d} RELATOS DE ROUBO)`;
+        expl.innerHTML =
+          `A comunidade registrou <strong>${prof.robbery_reports_30d} alertas de assalto/furto de celular</strong> e <strong>${prof.dark_spot_reports_30d} queixas de escuridão</strong> nesta parada (${prof.patrol_notes}). ` +
+          `O <strong>Modo Escudo no Bolso</strong> está ATIVO: não acenda a tela do celular na beira da pista; ouça a previsão e o alerta de chegada pelo fone.`;
+      } else {
+        topBadge.className = "tag tag-emerald";
+        topBadge.textContent = "PARADA SEGURA COM COMPANHIA";
+        warnBox.style.background = "rgba(0, 214, 143, 0.10)";
+        warnBox.style.borderColor = "var(--emerald)";
+        headline.style.color = "var(--emerald)";
+        headline.textContent = `[OK] PARADA ILUMINADA E COM GRUPO DE PASSAGEIROS (${prof.active_waiting_users} PESSOAS AGUARDANDO)`;
+        expl.innerHTML =
+          `Este ponto possui <strong>${prof.safe_confirmations_30d} confirmações de segurança</strong>, iluminação classificada como <strong>${prof.lighting_condition}</strong> (${prof.patrol_notes}) e grupo ativo aguardando o ônibus.`;
+      }
+
+      const waitCountEl = document.getElementById("saf-waiting-count");
+      const aloneTag = document.getElementById("saf-alone-tag");
+      waitCountEl.textContent = prof.active_waiting_users === 1 ? "1 pessoa" : `${prof.active_waiting_users} pessoas`;
+      if (prof.is_user_alone_risk) {
+        waitCountEl.style.color = "var(--amber)";
+        aloneTag.className = "tag tag-crimson";
+        aloneTag.textContent = "ALERTA: VOCÊ ESTÁ QUASE SOZINHO";
+      } else {
+        waitCountEl.style.color = "var(--emerald)";
+        aloneTag.className = "tag tag-emerald";
+        aloneTag.textContent = "COMPANHIA ATIVA NO PONTO";
+      }
+
+      document.getElementById("saf-lighting-info").textContent =
+        `Iluminação: ${prof.lighting_condition} · ${prof.patrol_notes} (Último relato: ${prof.last_report_time})`;
+
+      const comp = prof.companion_stop_recommendation;
+      if (comp) {
+        window.lastCompanionRecommendation = comp;
+        document.getElementById("saf-companion-name").textContent =
+          `Nó #${String(comp.seq).padStart(2, '0')} // ${comp.name} [GTFS ${comp.stop_id}]`;
+        document.getElementById("saf-companion-metrics").textContent =
+          `${comp.active_waiting_users} passageiros aguardando juntos · Iluminação ${comp.lighting_condition}`;
+        document.getElementById("saf-companion-dist").textContent =
+          `Distância: ${comp.distance_m}m (~${comp.walk_min} min de caminhada) · Apenas ${comp.robbery_reports_30d} relatos.`;
+      }
+    }
+
+    function speakSafetyShieldPrompt() {
+      if ("speechSynthesis" in window && lastSafetyShieldVoice) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(lastSafetyShieldVoice);
+        u.lang = "pt-BR";
+        u.rate = 1.03;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    async function submitSafetyReport(category) {
+      const st = TELEMETRIA.stops.find(s => s.seq === activeStopSeq) || TELEMETRIA.stops[10];
+      const descInput = document.getElementById("saf-report-desc");
+      const desc = descInput ? descInput.value : "";
+      try {
+        const url = `/api/live/safety-report?stop_id=${encodeURIComponent(st.stop_id)}&category=${encodeURIComponent(category)}&desc=${encodeURIComponent(desc)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (descInput) descInput.value = "";
+        safetyCorridorData = data.corridor_overview;
+        renderSafetyCorridorUI();
+        // Refresh user radar in F1 as well
+        setSimulatedUserLocation(userPos.lat, userPos.lon, userPos.label, false);
+        speakSafetyShieldPrompt();
+      } catch (err) {
+        console.warn("Report error:", err);
+      }
+    }
+
+    async function adjustStopPresence(delta) {
+      const st = TELEMETRIA.stops.find(s => s.seq === activeStopSeq) || TELEMETRIA.stops[10];
+      try {
+        const resp = await fetch(`/api/live/safety-presence?stop_id=${encodeURIComponent(st.stop_id)}&delta=${delta}`);
+        const data = await resp.json();
+        safetyCorridorData = data.corridor_overview;
+        renderSafetyCorridorUI();
+        setSimulatedUserLocation(userPos.lat, userPos.lon, userPos.label, false);
+      } catch (err) {
+        console.warn("Presence update error:", err);
+      }
+    }
+
+    function jumpToCompanionStop() {
+      const comp = window.lastCompanionRecommendation;
+      if (!comp) return;
+      const targetStop = TELEMETRIA.stops.find(s => s.seq === comp.seq || String(s.stop_id) === String(comp.stop_id));
+      if (targetStop) {
+        switchModule("mod-gis", document.querySelectorAll(".nav-btn")[0]);
+        selectStopNode(targetStop.seq, true);
+        setSimulatedUserLocation(
+          targetStop.lat + 0.00006,
+          targetStop.lon + 0.00006,
+          `Agrupado na Parada Segura #${targetStop.seq} (${comp.active_waiting_users} pessoas aguardando)`,
+          true
+        );
+      }
+    }
+
     // INITIALIZATION
     initQuickStopButtons();
     selectStopNode(11);
     selectImuScenario("ALIGHTING", document.querySelector(".sc-item"));
     populateCittamobiTables();
     updateCostSimulator(50000);
+    refreshSafetyCorridor();
     const params = new URLSearchParams(window.location.search);
     const modParam = params.get("mod");
     if (modParam && document.getElementById(modParam)) {
-      const idxMap = { "mod-gis": 0, "mod-imu": 1, "mod-citta": 2, "mod-bench": 3 };
+      const idxMap = { "mod-gis": 0, "mod-imu": 1, "mod-citta": 2, "mod-bench": 3, "mod-safety": 4 };
       switchModule(modParam, document.querySelectorAll(".nav-btn")[idxMap[modParam] || 0]);
     }
     requestAnimationFrame(() => {
