@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Ultima Atualizacao:** 05/11/2026 22:30
+- **Ultima Atualizacao:** 08/11/2026 15:58
 - **Branch Ativo:** eature/if-2va-pqc-telessaude (Workspace) | eat/compasso-estudo-ia (Sub-repo code/prob-tech-fit-cp01)
 - **Repositório GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Branch Ativo:** `main` (Sincronizado com `origin/main`)
@@ -75,13 +75,21 @@
 - [x] **`va2/brw.md` (Brainwriting Híbrido)**: Concluído e auditado.
 - [x] **`va2/cmp.md` (Competidores e Contribuição)**: Concluído com 10 ferramentas e 10 artigos analisados.
 - [x] **`va2/tec.md` + `va2/entrega_ai4good.mp4` (Tecnologia Base Demonstrável)**: STGCN em PyTorch + NetworkX (`code/grafoparada_tec/`) convergindo e vídeo de 49s registrado.
-- [x] **`va2/flx.md` + `arquitetura.md` (Fluxograma e Arquitetura)**: 3 subgrafos Mermaid, rastro de dados e auditoria cega aprovada.
+- [x] **`va2/flx.md` + `arquitetura.md` (Fluxograma e Arquitetura)**: 3 subgrafos Mermaid, rastro de dados e auditoria cega aprovada; atualizado com métricas reais on-device (14,29 µs e 8,92 KB de RAM).
 - [x] **`va2/exp.md` + `va2/tcle.md` (Desenho dos Experimentos)**: Pré-registro no Git (`3ab9359`), piloto E1 (`358,2 MB` RAM real) e E2 (protocolo de decisão humana + TCLE), auditado pelo subagente `revisor-cetico` com resposta autoral do aluno.
 - [x] **`va2/sem1.md` + Slides (Seminário 1 · Preliminares para 04/11)**:
   - 4 frases sem IA com as palavras autorais do aluno.
   - Roteiro de 5 slides cronometrado (3 min 45 s – 3 min 55 s).
   - Ensaio cético com as 5 perguntas respondidas e lição aprendida da STGCN registrada.
   - Slides interativos em HTML (`va2/slides_sem1.html`) e deck PowerPoint com imagens e prints reais embutidos (`va2/GrafoParada_Seminario1_CauaLira.pptx`).
+- [x] **Validação Cinemática On-Device com Dados Reais (`code/grafoparada_tec/validar_cinematica_parada.py` · 08/11/2026)**:
+  - Resposta empírica às perguntas do Prof. Lucas no Seminário 1 ("E se o passageiro for descer?", "Superar o Cittamobi com moat defensável", "LGPD e custo operacional").
+  - **Dados Reais**: GTFS oficial do CTM (Linhas 178 e 191 na PE-60 / Cabo / Suape · 20 paradas) + TMD Dataset de sensores físicos reais (5.893 leituras de acelerômetro, giroscópio e ruído acústico).
+  - **Falso Positivo no Desembarque**: **0,00%** (Exatamente 0 em 300 pessoas descendo do ônibus foram confundidas com desistência).
+  - **Detecção de Desistência**: F1-Score 71,58% (Precisão 75,56%, Recall 68,00%, Acurácia global 72,58% em 1.200 trajetórias).
+  - **Benchmark vs. Cittamobi**: 14,29 µs de inferência, 8,92 KB de RAM, 99,98% de redução no tráfego de rede (1 requisição discreta de 36 bytes vs. 600 reqs/300 KB do Cittamobi via polling 3s).
+  - **LGPD por Design**: Zero identificadores de pessoas transmitidos ou persistidos; fila na RAM volátil descartada a cada 10 min.
+  - Documentação completa em `code/grafoparada_tec/README.md`.
 
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:

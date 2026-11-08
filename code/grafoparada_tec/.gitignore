@@ -1,3 +1,5 @@
 .venv/
 __pycache__/
 *.pyc
+data/gtfs.zip
+data/gtfs_granderecife/
