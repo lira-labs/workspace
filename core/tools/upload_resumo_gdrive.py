@@ -63,6 +63,9 @@ HTML_CONTENT = """<!DOCTYPE html>
         <a href="https://projeto-ead-caua.vercel.app" target="_blank" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg badge-glow-cyan">
           <i class="fa-solid fa-globe"></i> Portal Oficial Vercel
         </a>
+        <a href="https://online.fliphtml5.com/caualira02/ebook-caua-2va-g2sX/" target="_blank" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg">
+          <i class="fa-solid fa-book-bookmark"></i> Abrir no FlipHTML5
+        </a>
         <a href="https://projeto-ead-caua.vercel.app/ebook-hq.html?v=14p" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg">
           <i class="fa-solid fa-book-open"></i> Ler Graphic Novel (14 Págs)
         </a>
