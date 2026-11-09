@@ -162,6 +162,11 @@
       - *Fluxo de Teste do Zero (Onboarding & Cadastro):* Tela de boas-vindas destacando os 3 diferenciais (Zero Ônibus Fantasma, Sentado Garantido e Modo Bolso), seguida do cadastro guiado com validação de CPF, seleção de Casa e Destino entre os 26 Terminais Integrados do SEI por município (além de Camela/PE-60) e escolha de linha. Opção de logout/reset disponível tanto no perfil quanto na barra desktop.
       - *Ônibus em Movimento Contínuo:* Adicionado marcador pulsante do ônibus da Linha 199 percorrendo a rota da PE-60 com telemetria simulada de 42 km/h.
 
+    - **Deploy em Produção na Vercel e Portal de Continuidade para Acesso Remoto (09/11/2026 · 01:03)**:
+      - *App em Produção:* Publicado na CDN global da Vercel em [https://grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app) com HTTP 200, HTTPS nativo e carregamento instantâneo.
+      - *Portal de Handoff & Conversa:* Criado portal dedicado em [https://grafoparadaweb.vercel.app/conversa.html](https://grafoparadaweb.vercel.app/conversa.html) contendo o histórico da sessão, comandos de Git para puxar na máquina do trabalho e prompt de continuidade.
+      - *Disparo de Notificação:* Criada e atualizada a Issue #1 no GitHub ([lira-labs/workspace/issues/1](https://github.com/lira-labs/workspace/issues/1)) que dispara notificação por e-mail com todos os links para a conta de Cauã Lira.
+
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
   - Adicionado `code/topicos_avancados_ia_cp03/CONTEXT.md` (Item 1).
