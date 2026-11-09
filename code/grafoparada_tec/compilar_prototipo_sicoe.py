@@ -600,8 +600,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div style="display:inline-block; padding:12px; background:#ffffff; border-radius:12px; border:1px solid var(--border); margin-bottom:14px;">
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&amp;data=https://icy-oranges-think.loca.lt" alt="QR Code GrafoParada Celular" style="display:block; width:220px; height:220px;" />
       </div>
-      <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:16px; word-break:break-all;">
+      <div style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px; word-break:break-all;">
         Link direto: <a href="https://icy-oranges-think.loca.lt" target="_blank" style="color:var(--brand-green); font-weight:700;">https://icy-oranges-think.loca.lt</a>
+      </div>
+      <div style="font-size:12px; text-align:left; background:var(--bg-subtle); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:16px; line-height:1.45; color:var(--text-secondary);">
+        💡 <strong>Dicas importantes ao abrir no celular:</strong><br>
+        1. Se o túnel de teste solicitar confirmação, digite o IP da sua rede: <strong style="color:var(--brand-green);">177.200.245.197</strong> e toque em <em>Continue</em>.<br>
+        2. Quando o navegador perguntar <em>"Deseja permitir que o site use sua localização?"</em>, toque em <strong>Permitir</strong> (ou <em>Durante o uso do app</em>).
       </div>
       <button class="btn btn-primary" style="width:100%; min-height:40px;" onclick="closeMobileModal()">
         Fechar Janela
@@ -1207,43 +1212,95 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     function useRealBrowserGps() {
       const btn = document.getElementById("btn-gps-real");
       const notice = document.getElementById("gps-accuracy-notice");
-      if (!navigator.geolocation) return;
-      if (btn) btn.textContent = "Localizando...";
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          const acc = Math.round(pos.coords.accuracy || 0);
+      if (!navigator.geolocation) {
+        if (notice) {
+          notice.style.display = "block";
+          notice.innerHTML = `⚠️ Seu navegador não suporta geolocalização. Clique em <strong>Camela (PE-60)</strong> para ver os horários!`;
+        }
+        return;
+      }
 
-          // Verifica se o roteador/provedor de internet sofreu o desvio clássico de IP para Japaratinga/Alagoas
-          if (lat < -8.65 || lat > -7.6 || lon < -35.5 || lon > -34.7) {
-            if (btn) btn.textContent = `📍 Camela (IP corrigido)`;
-            if (notice) {
-              notice.style.display = "block";
-              notice.innerHTML = `⚠️ <strong>Desvio de IP da Operadora corrigido:</strong> Seu provedor no Windows (DTEL Telecom, IP 177.200.245.197) localizou seu IP em <strong>Japaratinga/AL</strong> (Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}). Como você está em <strong>Camela (Ipojuca - PE)</strong>, reposicionamos você automaticamente para a sua parada real em Camela! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do seu PC</button>`;
-            }
-            setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
-            return;
-          }
+      // Verifica se está em contexto seguro (HTTPS ou localhost) exigido pelos navegadores para liberar o GPS
+      const isSecure = window.isSecureContext || location.hostname === "localhost" || location.hostname === "127.0.0.1";
+      if (!isSecure) {
+        if (notice) {
+          notice.style.display = "block";
+          notice.innerHTML = `
+            <div style="line-height:1.5;">
+              ⚠️ <strong>Bloqueio de Segurança do Navegador (Requer HTTPS):</strong><br>
+              Navegadores móveis bloqueiam o chip de satélite em endereços HTTP comuns (como <code>http://192.168...</code>).<br>
+              • <strong>Acesso Seguro:</strong> Use <a href="https://icy-oranges-think.loca.lt" target="_blank" style="color:var(--brand-green); font-weight:800; text-decoration:underline;">https://icy-oranges-think.loca.lt</a><br>
+              • <strong>Ou veja agora mesmo:</strong> Clique no botão verde <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:11.5px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela (PE-60)</button> para carregar Camela instantaneamente!
+            </div>
+          `;
+        }
+        return;
+      }
 
-          if (btn) btn.textContent = `📍 Meu GPS (±${acc}m)`;
-          if (notice) {
-            if (acc > 150) {
-              notice.style.display = "block";
-              notice.innerHTML = `<strong>Atenção sobre o GPS do PC:</strong> O navegador no Windows estimou sua posição pela rede Wi-Fi/provedor com margem de erro de <strong>±${acc} metros</strong>. Se este não for o seu endereço exato, clique no botão <strong>Camela</strong> ou <strong>digite sua rua acima</strong>! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do PC</button>`;
-            } else {
-              notice.style.display = "none";
-            }
-          }
-          setSimulatedUserLocation(lat, lon, "Localização via GPS", true, true);
-        },
-        () => {
-          if (btn) btn.textContent = "📍 Usar Meu GPS";
+      if (btn) btn.textContent = "Buscando satélites...";
+
+      function handleSuccess(pos) {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const acc = Math.round(pos.coords.accuracy || 0);
+
+        // Verifica se o roteador/provedor de internet sofreu o desvio clássico de IP para Japaratinga/Alagoas
+        if (lat < -8.65 || lat > -7.6 || lon < -35.5 || lon > -34.7) {
+          if (btn) btn.textContent = `📍 Camela (IP corrigido)`;
           if (notice) {
             notice.style.display = "block";
-            notice.innerHTML = `Permissão de GPS negada ou indisponível no navegador. Clique em <strong>Camela</strong> ou digite sua rua na caixa de busca! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do PC</button>`;
+            notice.innerHTML = `⚠️ <strong>Desvio de IP da Operadora corrigido:</strong> Seu provedor (DTEL Telecom, IP 177.200.245.197) localizou seu IP em <strong>Japaratinga/AL</strong> (Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}). Como você está em <strong>Camela (Ipojuca - PE)</strong>, reposicionamos você automaticamente para a sua parada real em Camela! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do seu PC</button>`;
           }
-        },
+          setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
+          return;
+        }
+
+        if (btn) btn.textContent = `📍 Meu GPS (±${acc}m)`;
+        if (notice) {
+          if (acc > 150) {
+            notice.style.display = "block";
+            notice.innerHTML = `<strong>Atenção sobre o GPS:</strong> Posição obtida com margem de <strong>±${acc} metros</strong>. Se você estiver num ponto diferente, clique em <strong>Camela (PE-60)</strong> ou busque sua rua acima!`;
+          } else {
+            notice.style.display = "none";
+          }
+        }
+        setSimulatedUserLocation(lat, lon, `Minha Posição GPS (±${acc}m)`, true, true);
+      }
+
+      function handleError(err) {
+        if (btn) btn.textContent = "📍 Usar Meu GPS";
+        if (!notice) return;
+        notice.style.display = "block";
+
+        if (err && err.code === 1) { // PERMISSION_DENIED
+          notice.innerHTML = `
+            <div style="line-height:1.5;">
+              ⚠️ <strong>Permissão de Localização Bloqueada no Navegador:</strong><br>
+              Para liberar o GPS:<br>
+              <strong>1.</strong> Toque no ícone de <strong>cadeado 🔒</strong> ou <strong>configurações do site 🎚️</strong> ao lado do endereço na barra do navegador.<br>
+              <strong>2.</strong> Em <strong>Permissões</strong> (ou Localização), altere para <strong>"Permitir"</strong> e recarregue.<br>
+              <strong>3.</strong> Certifique-se de que a <strong>Localização / GPS</strong> do aparelho está ligada.<br>
+              👉 <em>Ou veja agora sem permissão:</em> Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Usar Posição Camela (PE-60)</button>
+            </div>
+          `;
+        } else if (err && err.code === 3) { // TIMEOUT
+          if (btn) btn.textContent = "Tentando via rede...";
+          navigator.geolocation.getCurrentPosition(
+            handleSuccess,
+            (err2) => {
+              if (btn) btn.textContent = "📍 Usar Meu GPS";
+              notice.innerHTML = `⚠️ Sinal de satélite fraco no momento (ambiente interno). Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela (PE-60)</button> para carregar as paradas ao seu redor!`;
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+          );
+        } else {
+          notice.innerHTML = `⚠️ <strong>GPS indisponível:</strong> ${err && err.message ? err.message : 'Sinal não capturado'}. Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela (PE-60)</button> para ver as paradas da sua rua!`;
+        }
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        handleSuccess,
+        handleError,
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       );
     }
