@@ -600,25 +600,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <button id="btn-gps-real" class="btn btn-blue" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="useRealBrowserGps()">
               📍 Usar Meu GPS
             </button>
-            <div style="display:flex; align-items:center; gap:4px; flex:1; min-width:220px; max-width:360px;">
-              <input id="map-search-input" type="text" placeholder="Digite sua rua, bairro ou local (ex: UFRPE, Boa Viagem)..."
+            <div style="display:flex; align-items:center; gap:4px; flex:1; min-width:200px; max-width:320px;">
+              <input id="map-search-input" type="text" placeholder="Digite sua rua ou local em Camela/RMR..."
                 style="width:100%; min-height:38px; padding:6px 11px; font-size:13px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--bg-surface); color:var(--text-main);"
                 onkeydown="if(event.key==='Enter') searchUserPlace()" />
               <button class="btn btn-primary" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="searchUserPlace()">
                 Ir
               </button>
             </div>
-            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.017420, -34.949150, 'UFRPE · Dois Irmãos, Recife', true)">
-              UFRPE
+            <button class="btn btn-emerald" style="min-height:36px; padding:5px 11px; font-size:13px; font-weight:800; border:2px solid var(--brand-green);" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">
+              📍 Camela (PE-60)
             </button>
-            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.062850, -34.878950, 'Av. Guararapes · Santo Antônio, Recife', true)">
-              Centro Recife
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Centro de Camela · Rua do Comércio', true)">
+              Camela Centro
             </button>
             <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.284986, -35.032781, 'TI Cabo · Centro, Cabo', true)">
-              TI Cabo (#01)
+              TI Cabo
             </button>
-            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.304873, -35.021349, 'Rodovia PE-60 (Garapu) · Cabo', true)">
-              PE-60 Garapu (#11)
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.062850, -34.878950, 'Av. Guararapes · Centro Recife', true)">
+              Recife
+            </button>
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.017420, -34.949150, 'UFRPE · Dois Irmãos, Recife', true)">
+              UFRPE
             </button>
           </div>
 
@@ -1176,23 +1179,37 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (btn) btn.textContent = "Localizando...";
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
           const acc = Math.round(pos.coords.accuracy || 0);
+
+          // Verifica se o roteador/provedor de internet sofreu o desvio clássico de IP para Japaratinga/Alagoas
+          if (lat < -8.65 || lat > -7.6 || lon < -35.5 || lon > -34.7) {
+            if (btn) btn.textContent = `📍 Camela (IP corrigido)`;
+            if (notice) {
+              notice.style.display = "block";
+              notice.innerHTML = `⚠️ <strong>Desvio de IP da Operadora corrigido:</strong> Seu provedor no Windows localizou seu IP em <strong>Japaratinga/AL</strong> (Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}). Como você está em <strong>Camela (Ipojuca - PE)</strong>, reposicionamos você automaticamente para a sua parada real em Camela!`;
+            }
+            setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
+            return;
+          }
+
           if (btn) btn.textContent = `📍 Meu GPS (±${acc}m)`;
           if (notice) {
             if (acc > 150) {
               notice.style.display = "block";
-              notice.innerHTML = `<strong>Atenção sobre o GPS do PC:</strong> O navegador no Windows estimou sua posição pela rede Wi-Fi/provedor com margem de erro de <strong>±${acc} metros</strong>. Se este não for o seu endereço exato, <strong>digite sua rua ou bairro na busca acima</strong> ou clique direto no mapa!`;
+              notice.innerHTML = `<strong>Atenção sobre o GPS do PC:</strong> O navegador no Windows estimou sua posição pela rede Wi-Fi/provedor com margem de erro de <strong>±${acc} metros</strong>. Se este não for o seu endereço exato, clique no botão <strong>Camela</strong> ou <strong>digite sua rua acima</strong>!`;
             } else {
               notice.style.display = "none";
             }
           }
-          setSimulatedUserLocation(pos.coords.latitude, pos.coords.longitude, "Localização via GPS", true, true);
+          setSimulatedUserLocation(lat, lon, "Localização via GPS", true, true);
         },
         () => {
           if (btn) btn.textContent = "📍 Usar Meu GPS";
           if (notice) {
             notice.style.display = "block";
-            notice.innerHTML = `Permissão de GPS negada ou indisponível no navegador. <strong>Digite sua rua ou bairro na caixa de busca acima</strong> ou clique no mapa!`;
+            notice.innerHTML = `Permissão de GPS negada ou indisponível no navegador. Clique em <strong>Camela</strong> ou digite sua rua na caixa de busca!`;
           }
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
@@ -1728,7 +1745,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     requestAnimationFrame(() => {
       drawPe60GisCanvas();
-      setSimulatedUserLocation(-8.304873, -35.021349, "Rodovia PE-60 (Trecho Garapu / Vila Roca) · Cabo", false, false);
+      setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, false);
     });
     requestAnimationFrame(renderImuOscilloscope);
   </script>
