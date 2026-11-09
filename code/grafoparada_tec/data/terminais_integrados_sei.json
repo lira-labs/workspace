@@ -1,0 +1,381 @@
+[
+  {
+    "ti_id": "020000",
+    "ti_name": "TI Tancredo Neves",
+    "full_label": "🏛️ TI Tancredo Neves (Recife)",
+    "municipio": "Recife",
+    "bairro": "Imbiribeira",
+    "lat": -8.122014,
+    "lon": -34.912465,
+    "linhas_principais": [
+      "060",
+      "168",
+      "142",
+      "143"
+    ]
+  },
+  {
+    "ti_id": "020002",
+    "ti_name": "TI Cajueiro Seco",
+    "full_label": "🏛️ TI Cajueiro Seco (Jaboatão dos Guararapes)",
+    "municipio": "Jaboatão dos Guararapes",
+    "bairro": "Cajueiro Seco",
+    "lat": -8.167989,
+    "lon": -34.934534,
+    "linhas_principais": [
+      "026",
+      "206",
+      "216",
+      "140"
+    ]
+  },
+  {
+    "ti_id": "020536",
+    "ti_name": "TI Prazeres",
+    "full_label": "🏛️ TI Prazeres (Jaboatão dos Guararapes)",
+    "municipio": "Jaboatão dos Guararapes",
+    "bairro": "Prazeres",
+    "lat": -8.16142,
+    "lon": -34.926558,
+    "linhas_principais": [
+      "061",
+      "118",
+      "163"
+    ]
+  },
+  {
+    "ti_id": "020900",
+    "ti_name": "TI Aeroporto",
+    "full_label": "🏛️ TI Aeroporto (Recife)",
+    "municipio": "Recife",
+    "bairro": "Boa Viagem",
+    "lat": -8.134136,
+    "lon": -34.915124,
+    "linhas_principais": [
+      "026",
+      "023",
+      "024",
+      "115"
+    ]
+  },
+  {
+    "ti_id": "030000",
+    "ti_name": "TI Cabo",
+    "full_label": "🏛️ TI Cabo (Cabo de Santo Agostinho)",
+    "municipio": "Cabo de Santo Agostinho",
+    "bairro": "Centro",
+    "lat": -8.285065,
+    "lon": -35.032398,
+    "linhas_principais": [
+      "199",
+      "178",
+      "198",
+      "197",
+      "119"
+    ]
+  },
+  {
+    "ti_id": "040000",
+    "ti_name": "TI Barro",
+    "full_label": "🏛️ TI Barro (Recife)",
+    "municipio": "Recife",
+    "bairro": "Barro",
+    "lat": -8.088174,
+    "lon": -34.945858,
+    "linhas_principais": [
+      "202",
+      "207",
+      "128",
+      "216",
+      "860"
+    ]
+  },
+  {
+    "ti_id": "040135",
+    "ti_name": "TI Cavaleiro",
+    "full_label": "🏛️ TI Cavaleiro (Jaboatão dos Guararapes)",
+    "municipio": "Jaboatão dos Guararapes",
+    "bairro": "Cavaleiro",
+    "lat": -8.09452,
+    "lon": -34.972914,
+    "linhas_principais": [
+      "220",
+      "240",
+      "149"
+    ]
+  },
+  {
+    "ti_id": "040920",
+    "ti_name": "TI Santa Luzia",
+    "full_label": "🏛️ TI Santa Luzia (Recife)",
+    "municipio": "Recife",
+    "bairro": "Estância",
+    "lat": -8.084165,
+    "lon": -34.930092,
+    "linhas_principais": [
+      "102",
+      "106",
+      "107"
+    ]
+  },
+  {
+    "ti_id": "050000",
+    "ti_name": "TI Jaboatão",
+    "full_label": "🏛️ TI Jaboatão (Jaboatão dos Guararapes)",
+    "municipio": "Jaboatão dos Guararapes",
+    "bairro": "Centro",
+    "lat": -8.111632,
+    "lon": -35.014399,
+    "linhas_principais": [
+      "200",
+      "201",
+      "208",
+      "219"
+    ]
+  },
+  {
+    "ti_id": "070000",
+    "ti_name": "TI TIP",
+    "full_label": "🏛️ TI TIP (Recife)",
+    "municipio": "Recife",
+    "bairro": "Várzea / Curado",
+    "lat": -8.064289,
+    "lon": -34.982073,
+    "linhas_principais": [
+      "302",
+      "303",
+      "346",
+      "370"
+    ]
+  },
+  {
+    "ti_id": "080000",
+    "ti_name": "TI Caxangá",
+    "full_label": "🏛️ TI Caxangá (Recife)",
+    "municipio": "Recife",
+    "bairro": "Caxangá",
+    "lat": -8.031209,
+    "lon": -34.954938,
+    "linhas_principais": [
+      "2060",
+      "2450",
+      "2480"
+    ]
+  },
+  {
+    "ti_id": "080431",
+    "ti_name": "TI CDU",
+    "full_label": "🏛️ TI CDU (Recife)",
+    "municipio": "Recife",
+    "bairro": "Várzea / CDU",
+    "lat": -8.038834,
+    "lon": -34.942996,
+    "linhas_principais": [
+      "2040",
+      "2442",
+      "424"
+    ]
+  },
+  {
+    "ti_id": "090000",
+    "ti_name": "TI Camaragibe",
+    "full_label": "🏛️ TI Camaragibe (Camaragibe)",
+    "municipio": "Camaragibe",
+    "bairro": "Centro",
+    "lat": -8.02479,
+    "lon": -34.996064,
+    "linhas_principais": [
+      "2450",
+      "2480",
+      "2490"
+    ]
+  },
+  {
+    "ti_id": "090848",
+    "ti_name": "TI Cosme e Damião",
+    "full_label": "🏛️ TI Cosme e Damião (Camaragibe)",
+    "municipio": "Camaragibe",
+    "bairro": "Viana",
+    "lat": -8.036236,
+    "lon": -34.988186,
+    "linhas_principais": [
+      "2410",
+      "2459"
+    ]
+  },
+  {
+    "ti_id": "110000",
+    "ti_name": "TI Macaxeira",
+    "full_label": "🏛️ TI Macaxeira (Recife)",
+    "municipio": "Recife",
+    "bairro": "Macaxeira",
+    "lat": -8.008235,
+    "lon": -34.938328,
+    "linhas_principais": [
+      "901",
+      "902",
+      "207",
+      "601",
+      "604"
+    ]
+  },
+  {
+    "ti_id": "130000",
+    "ti_name": "TI Xambá",
+    "full_label": "🏛️ TI Xambá (Olinda)",
+    "municipio": "Olinda",
+    "bairro": "São Benedito",
+    "lat": -8.001197,
+    "lon": -34.892627,
+    "linhas_principais": [
+      "820",
+      "831",
+      "841",
+      "881"
+    ]
+  },
+  {
+    "ti_id": "150000",
+    "ti_name": "TI Igarassu",
+    "full_label": "🏛️ TI Igarassu (Igarassu)",
+    "municipio": "Igarassu",
+    "bairro": "Centro",
+    "lat": -7.832828,
+    "lon": -34.911922,
+    "linhas_principais": [
+      "1968",
+      "1969",
+      "1905"
+    ]
+  },
+  {
+    "ti_id": "150001",
+    "ti_name": "TI Pelópidas Silveira",
+    "full_label": "🏛️ TI Pelópidas Silveira (Paulista)",
+    "municipio": "Paulista",
+    "bairro": "Engenho Maranguape",
+    "lat": -7.94677,
+    "lon": -34.877856,
+    "linhas_principais": [
+      "1900",
+      "1909",
+      "1946",
+      "1977"
+    ]
+  },
+  {
+    "ti_id": "150002",
+    "ti_name": "TI PE-15",
+    "full_label": "🏛️ TI PE-15 (Olinda)",
+    "municipio": "Olinda",
+    "bairro": "Tabajara",
+    "lat": -7.982724,
+    "lon": -34.85632,
+    "linhas_principais": [
+      "914",
+      "883",
+      "885",
+      "1900"
+    ]
+  },
+  {
+    "ti_id": "160000",
+    "ti_name": "TI Rio Doce",
+    "full_label": "🏛️ TI Rio Doce (Olinda)",
+    "municipio": "Olinda",
+    "bairro": "Rio Doce",
+    "lat": -7.960721,
+    "lon": -34.851029,
+    "linhas_principais": [
+      "881",
+      "882",
+      "884",
+      "886"
+    ]
+  },
+  {
+    "ti_id": "180001",
+    "ti_name": "TI Recife",
+    "full_label": "🏛️ TI Recife (Recife)",
+    "municipio": "Recife",
+    "bairro": "São José / Santo Antônio",
+    "lat": -8.068453,
+    "lon": -34.884376,
+    "linhas_principais": [
+      "100",
+      "116",
+      "117"
+    ]
+  },
+  {
+    "ti_id": "180002",
+    "ti_name": "TI Joana Bezerra",
+    "full_label": "🏛️ TI Joana Bezerra (Recife)",
+    "municipio": "Recife",
+    "bairro": "Ilha Joana Bezerra",
+    "lat": -8.072129,
+    "lon": -34.895763,
+    "linhas_principais": [
+      "026",
+      "080",
+      "085",
+      "100",
+      "860"
+    ]
+  },
+  {
+    "ti_id": "180003",
+    "ti_name": "TI Afogados",
+    "full_label": "🏛️ TI Afogados (Recife)",
+    "municipio": "Recife",
+    "bairro": "Afogados",
+    "lat": -8.077302,
+    "lon": -34.906796,
+    "linhas_principais": [
+      "115",
+      "080",
+      "121"
+    ]
+  },
+  {
+    "ti_id": "180004",
+    "ti_name": "TI Largo da Paz",
+    "full_label": "🏛️ TI Largo da Paz (Recife)",
+    "municipio": "Recife",
+    "bairro": "Afogados",
+    "lat": -8.081244,
+    "lon": -34.905061,
+    "linhas_principais": [
+      "115",
+      "168"
+    ]
+  },
+  {
+    "ti_id": "190890",
+    "ti_name": "TI Abreu e Lima",
+    "full_label": "🏛️ TI Abreu e Lima (Abreu e Lima)",
+    "municipio": "Abreu e Lima",
+    "bairro": "Centro",
+    "lat": -7.921296,
+    "lon": -34.895289,
+    "linhas_principais": [
+      "1963",
+      "1964",
+      "1967"
+    ]
+  },
+  {
+    "ti_id": "080936",
+    "ti_name": "TI Getúlio Vargas",
+    "full_label": "🏛️ TI Getúlio Vargas (Recife)",
+    "municipio": "Recife",
+    "bairro": "Cordeiro",
+    "lat": -8.050186,
+    "lon": -34.922044,
+    "linhas_principais": [
+      "2421",
+      "2422",
+      "2431"
+    ]
+  }
+]

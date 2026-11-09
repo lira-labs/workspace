@@ -954,89 +954,530 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
           </div>
 
-          <di<div>
+                    <div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <label style="font-size:13px; font-weight:700;">Sua Parada Real ou Terminal Integrado (T.I.):</label>
-              <button type="button" class="btn btn-emerald" style="min-height:28px; padding:2px 8px; font-size:11px; font-weight:800; border:1px solid var(--brand-green);" onclick="autoDetectStopForSignup()">
-                📍 Usar Meu GPS Agora
+              <label style="font-size:13px; font-weight:700;">🏠 Sua Casa / Origem (Onde você mora):</label>
+              <button type="button" class="btn btn-emerald" style="min-height:28px; padding:2px 8px; font-size:11px; font-weight:800; border:1px solid var(--brand-green);" onclick="autoDetectHomeForSignup()">
+                📍 Meu GPS
               </button>
             </div>
-            <input id="signup-place-search" type="text" placeholder="🔍 Filtrar rua, código (ex: 030613, Rua do Comércio, Camela, TI Cabo)..." oninput="filterPlaceOptions(this.value)"
+            <input id="signup-home-search" type="text" placeholder="🔍 Filtrar terminal ou cidade (ex: Camela, TI Cabo, TI Joana)..." oninput="filterSelectOptions('signup-home', this.value)"
               style="width:100%; min-height:42px; padding:8px 12px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:6px;" />
-            <select id="signup-place" size="6" style="width:100%; max-height:140px; padding:6px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:14px;">
-  <optgroup label="📍 Abreu e Lima">
-    <option value="Ti Abreu E Lima" data-lat="-7.921296345462924" data-lon="-34.89528933864802">Ti Abreu E Lima</option>
+            <select id="signup-home" size="5" style="width:100%; max-height:130px; padding:6px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:14px;">
+  <optgroup label="⭐ Sua Residência / Região Sul (Linhas Diretas)">
+    <option value="Camela · Centro (Rua do Comércio / Linha 199)" data-lat="-8.514931" data-lon="-35.123469" selected>🏠 Camela · Centro (Rua do Comércio / Linha 199)</option>
+    <option value="Camela · Rodovia PE-60 (Trevo PE-051)" data-lat="-8.494915" data-lon="-35.092190">🏠 Camela · Rodovia PE-60 (Trevo PE-051)</option>
+    <option value="Ipojuca · Centro (Praça / UPA PE-60)" data-lat="-8.398512" data-lon="-35.064120">🏠 Ipojuca · Centro (Praça / UPA PE-60)</option>
   </optgroup>
-  <optgroup label="📍 Cabo de Santo Agostinho">
-    <option value="Ti Cabo" data-lat="-8.285064968083757" data-lon="-35.03239778768872">Ti Cabo</option>
+  <optgroup label="🏛️ Terminais Integrados do SEI (26 T.I.s do Grande Recife)">
+    <option value="TI Tancredo Neves (Recife)" data-lat="-8.122014" data-lon="-34.912465">🏛️ TI Tancredo Neves (Recife)</option>
+    <option value="TI Cajueiro Seco (Jaboatão dos Guararapes)" data-lat="-8.167989" data-lon="-34.934534">🏛️ TI Cajueiro Seco (Jaboatão dos Guararapes)</option>
+    <option value="TI Prazeres (Jaboatão dos Guararapes)" data-lat="-8.16142" data-lon="-34.926558">🏛️ TI Prazeres (Jaboatão dos Guararapes)</option>
+    <option value="TI Aeroporto (Recife)" data-lat="-8.134136" data-lon="-34.915124">🏛️ TI Aeroporto (Recife)</option>
+    <option value="TI Cabo (Cabo de Santo Agostinho)" data-lat="-8.285065" data-lon="-35.032398">🏛️ TI Cabo (Cabo de Santo Agostinho)</option>
+    <option value="TI Barro (Recife)" data-lat="-8.088174" data-lon="-34.945858">🏛️ TI Barro (Recife)</option>
+    <option value="TI Cavaleiro (Jaboatão dos Guararapes)" data-lat="-8.09452" data-lon="-34.972914">🏛️ TI Cavaleiro (Jaboatão dos Guararapes)</option>
+    <option value="TI Santa Luzia (Recife)" data-lat="-8.084165" data-lon="-34.930092">🏛️ TI Santa Luzia (Recife)</option>
+    <option value="TI Jaboatão (Jaboatão dos Guararapes)" data-lat="-8.111632" data-lon="-35.014399">🏛️ TI Jaboatão (Jaboatão dos Guararapes)</option>
+    <option value="TI TIP (Recife)" data-lat="-8.064289" data-lon="-34.982073">🏛️ TI TIP (Recife)</option>
+    <option value="TI Caxangá (Recife)" data-lat="-8.031209" data-lon="-34.954938">🏛️ TI Caxangá (Recife)</option>
+    <option value="TI CDU (Recife)" data-lat="-8.038834" data-lon="-34.942996">🏛️ TI CDU (Recife)</option>
+    <option value="TI Camaragibe (Camaragibe)" data-lat="-8.02479" data-lon="-34.996064">🏛️ TI Camaragibe (Camaragibe)</option>
+    <option value="TI Cosme e Damião (Camaragibe)" data-lat="-8.036236" data-lon="-34.988186">🏛️ TI Cosme e Damião (Camaragibe)</option>
+    <option value="TI Macaxeira (Recife)" data-lat="-8.008235" data-lon="-34.938328">🏛️ TI Macaxeira (Recife)</option>
+    <option value="TI Xambá (Olinda)" data-lat="-8.001197" data-lon="-34.892627">🏛️ TI Xambá (Olinda)</option>
+    <option value="TI Igarassu (Igarassu)" data-lat="-7.832828" data-lon="-34.911922">🏛️ TI Igarassu (Igarassu)</option>
+    <option value="TI Pelópidas Silveira (Paulista)" data-lat="-7.94677" data-lon="-34.877856">🏛️ TI Pelópidas Silveira (Paulista)</option>
+    <option value="TI PE-15 (Olinda)" data-lat="-7.982724" data-lon="-34.85632">🏛️ TI PE-15 (Olinda)</option>
+    <option value="TI Rio Doce (Olinda)" data-lat="-7.960721" data-lon="-34.851029">🏛️ TI Rio Doce (Olinda)</option>
+    <option value="TI Recife (Recife)" data-lat="-8.068453" data-lon="-34.884376">🏛️ TI Recife (Recife)</option>
+    <option value="TI Joana Bezerra (Recife)" data-lat="-8.072129" data-lon="-34.895763">🏛️ TI Joana Bezerra (Recife)</option>
+    <option value="TI Afogados (Recife)" data-lat="-8.077302" data-lon="-34.906796">🏛️ TI Afogados (Recife)</option>
+    <option value="TI Largo da Paz (Recife)" data-lat="-8.081244" data-lon="-34.905061">🏛️ TI Largo da Paz (Recife)</option>
+    <option value="TI Abreu e Lima (Abreu e Lima)" data-lat="-7.921296" data-lon="-34.895289">🏛️ TI Abreu e Lima (Abreu e Lima)</option>
+    <option value="TI Getúlio Vargas (Recife)" data-lat="-8.050186" data-lon="-34.922044">🏛️ TI Getúlio Vargas (Recife)</option>
   </optgroup>
-  <optgroup label="📍 Camaragibe">
-    <option value="Ti Camaragibe" data-lat="-8.02478969917935" data-lon="-34.99606368801693">Ti Camaragibe</option>
-    <option value="Ti Cosme E Damião" data-lat="-8.036236471550168" data-lon="-34.988185865632055">Ti Cosme E Damião</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">
+              💼 Seu Trabalho, Faculdade ou Terminal de Destino:
+            </label>
+            <input id="signup-work-search" type="text" placeholder="🔍 Filtrar destino (ex: TI Cabo, Suape, UFRPE, UFPE, Recife)..." oninput="filterSelectOptions('signup-work', this.value)"
+              style="width:100%; min-height:42px; padding:8px 12px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:6px;" />
+            <select id="signup-work" size="5" style="width:100%; max-height:130px; padding:6px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:14px;">
+  <optgroup label="💼 Principais Polos de Trabalho / Estudo / Conexão">
+    <option value="TI Cabo (Terminal Integrado do Cabo)" data-lat="-8.285065" data-lon="-35.032398" selected>💼 TI Cabo (Terminal Integrado · Conexão Metrô/RMR)</option>
+    <option value="Complexo Industrial e Portuário de Suape" data-lat="-8.396500" data-lon="-34.980500">💼 Complexo Industrial de Suape (Porto / Refinaria)</option>
+    <option value="UFRPE (Universidade Rural · Dois Irmãos)" data-lat="-8.016200" data-lon="-34.944800">💼 UFRPE (Universidade Rural · Dois Irmãos)</option>
+    <option value="UFPE (Campus Recife / TI CDU)" data-lat="-8.038834" data-lon="-34.942996">💼 UFPE (Campus Recife / TI CDU)</option>
+    <option value="Recife Centro (TI Joana Bezerra / TI Recife)" data-lat="-8.072129" data-lon="-34.895763">💼 Recife Centro (TI Joana Bezerra / TI Recife)</option>
+    <option value="TI Aeroporto (Boa Viagem / Polo Empresarial)" data-lat="-8.134136" data-lon="-34.915124">💼 TI Aeroporto (Boa Viagem / Polo Empresarial)</option>
   </optgroup>
-  <optgroup label="📍 Igarassu">
-    <option value="Terminal Da Linha 1969 Ti Igarassu / Itapissuma" data-lat="-7.771441667468382" data-lon="-34.90325833329781">Terminal Da Linha 1969 Ti Igarassu / Itapissuma</option>
-    <option value="Ti Igarassu" data-lat="-7.832827812755261" data-lon="-34.911922291263345">Ti Igarassu</option>
+  <optgroup label="🏛️ Todos os 26 Terminais Integrados (SEI)">
+    <option value="TI Tancredo Neves (Recife)" data-lat="-8.122014" data-lon="-34.912465">🏛️ TI Tancredo Neves (Recife)</option>
+    <option value="TI Cajueiro Seco (Jaboatão dos Guararapes)" data-lat="-8.167989" data-lon="-34.934534">🏛️ TI Cajueiro Seco (Jaboatão dos Guararapes)</option>
+    <option value="TI Prazeres (Jaboatão dos Guararapes)" data-lat="-8.16142" data-lon="-34.926558">🏛️ TI Prazeres (Jaboatão dos Guararapes)</option>
+    <option value="TI Aeroporto (Recife)" data-lat="-8.134136" data-lon="-34.915124">🏛️ TI Aeroporto (Recife)</option>
+    <option value="TI Cabo (Cabo de Santo Agostinho)" data-lat="-8.285065" data-lon="-35.032398">🏛️ TI Cabo (Cabo de Santo Agostinho)</option>
+    <option value="TI Barro (Recife)" data-lat="-8.088174" data-lon="-34.945858">🏛️ TI Barro (Recife)</option>
+    <option value="TI Cavaleiro (Jaboatão dos Guararapes)" data-lat="-8.09452" data-lon="-34.972914">🏛️ TI Cavaleiro (Jaboatão dos Guararapes)</option>
+    <option value="TI Santa Luzia (Recife)" data-lat="-8.084165" data-lon="-34.930092">🏛️ TI Santa Luzia (Recife)</option>
+    <option value="TI Jaboatão (Jaboatão dos Guararapes)" data-lat="-8.111632" data-lon="-35.014399">🏛️ TI Jaboatão (Jaboatão dos Guararapes)</option>
+    <option value="TI TIP (Recife)" data-lat="-8.064289" data-lon="-34.982073">🏛️ TI TIP (Recife)</option>
+    <option value="TI Caxangá (Recife)" data-lat="-8.031209" data-lon="-34.954938">🏛️ TI Caxangá (Recife)</option>
+    <option value="TI CDU (Recife)" data-lat="-8.038834" data-lon="-34.942996">🏛️ TI CDU (Recife)</option>
+    <option value="TI Camaragibe (Camaragibe)" data-lat="-8.02479" data-lon="-34.996064">🏛️ TI Camaragibe (Camaragibe)</option>
+    <option value="TI Cosme e Damião (Camaragibe)" data-lat="-8.036236" data-lon="-34.988186">🏛️ TI Cosme e Damião (Camaragibe)</option>
+    <option value="TI Macaxeira (Recife)" data-lat="-8.008235" data-lon="-34.938328">🏛️ TI Macaxeira (Recife)</option>
+    <option value="TI Xambá (Olinda)" data-lat="-8.001197" data-lon="-34.892627">🏛️ TI Xambá (Olinda)</option>
+    <option value="TI Igarassu (Igarassu)" data-lat="-7.832828" data-lon="-34.911922">🏛️ TI Igarassu (Igarassu)</option>
+    <option value="TI Pelópidas Silveira (Paulista)" data-lat="-7.94677" data-lon="-34.877856">🏛️ TI Pelópidas Silveira (Paulista)</option>
+    <option value="TI PE-15 (Olinda)" data-lat="-7.982724" data-lon="-34.85632">🏛️ TI PE-15 (Olinda)</option>
+    <option value="TI Rio Doce (Olinda)" data-lat="-7.960721" data-lon="-34.851029">🏛️ TI Rio Doce (Olinda)</option>
+    <option value="TI Recife (Recife)" data-lat="-8.068453" data-lon="-34.884376">🏛️ TI Recife (Recife)</option>
+    <option value="TI Joana Bezerra (Recife)" data-lat="-8.072129" data-lon="-34.895763">🏛️ TI Joana Bezerra (Recife)</option>
+    <option value="TI Afogados (Recife)" data-lat="-8.077302" data-lon="-34.906796">🏛️ TI Afogados (Recife)</option>
+    <option value="TI Largo da Paz (Recife)" data-lat="-8.081244" data-lon="-34.905061">🏛️ TI Largo da Paz (Recife)</option>
+    <option value="TI Abreu e Lima (Abreu e Lima)" data-lat="-7.921296" data-lon="-34.895289">🏛️ TI Abreu e Lima (Abreu e Lima)</option>
+    <option value="TI Getúlio Vargas (Recife)" data-lat="-8.050186" data-lon="-34.922044">🏛️ TI Getúlio Vargas (Recife)</option>
   </optgroup>
-  <optgroup label="📍 Ipojuca">
-    <option value="Ipojuca · Centro / Praça e UPA (PE-60)" data-lat="-8.398512" data-lon="-35.06412">Ipojuca · Centro / Praça e UPA (PE-60)</option>
-    <option value="Porto de Galinhas · Terminal de Ônibus" data-lat="-8.505432" data-lon="-35.004121">Porto de Galinhas · Terminal de Ônibus</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">
+              🚌 Linha de Ônibus Habitual (Linha 199 Camela / TI Cabo pré-selecionada):
+            </label>
+            <input id="signup-line-search" type="text" placeholder="🔍 Filtrar linha (ex: 199, 178, 202, 026, Macaxeira)..." oninput="filterSelectOptions('signup-line', this.value)"
+              style="width:100%; min-height:42px; padding:8px 12px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:6px;" />
+            <select id="signup-line" size="5" style="width:100%; max-height:130px; padding:6px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:18px;">
+  <optgroup label="⭐ Eixo Sul / Camela / Suape / Cabo (Linhas Principais)">
+    <option value="199" selected>🚌 Linha 199 · Camela / Ti Cabo</option>
+    <option value="178">🚌 Linha 178 · Porto De Suape / Ti Cabo</option>
+    <option value="191">🚌 Linha 191 · Recife / Porto De Galinhas (N. Sra. Do Ó)</option>
+    <option value="195">🚌 Linha 195 · Recife / Porto De Galinhas (Opcional)</option>
+    <option value="198">🚌 Linha 198 · Ipojuca / Ti Cabo</option>
+    <option value="001">🚌 Linha 001 · Ponte Dos Carvalhos / Prazeres (Barra De Jangada)</option>
+    <option value="034">🚌 Linha 034 · Curcurana / Ti Cajueiro Seco</option>
+    <option value="037">🚌 Linha 037 · Comportas / Ti Cajueiro Seco</option>
   </optgroup>
-  <optgroup label="📍 Ipojuca (Camela)">
-    <option value="Parada 030613 · Rua do Comércio / Terminal de Camela" data-lat="-8.514931" data-lon="-35.123469" selected>Parada 030613 · Rua do Comércio / Terminal de Camela</option>
-    <option value="Parada 030157 · Rodovia PE-60 (Trevo de Camela / PE-051)" data-lat="-8.494915" data-lon="-35.09219">Parada 030157 · Rodovia PE-60 (Trevo de Camela / PE-051)</option>
-    <option value="Parada 030260 · Av. Humberto Costa Soares, 3A (Camela)" data-lat="-8.511303" data-lon="-35.122192">Parada 030260 · Av. Humberto Costa Soares, 3A (Camela)</option>
-    <option value="Parada 030261 · Av. Humberto Costa Soares, 19 (Camela)" data-lat="-8.510972" data-lon="-35.119836">Parada 030261 · Av. Humberto Costa Soares, 19 (Camela)</option>
-    <option value="Parada 030614 · Rua Olímpio Luiz Soares c/ Rua do Brejo (Camela)" data-lat="-8.513175" data-lon="-35.122775">Parada 030614 · Rua Olímpio Luiz Soares c/ Rua do Brejo (Camela)</option>
-    <option value="Parada 030255 · Rodovia PE-051 (Entrada Leste de Camela)" data-lat="-8.510817" data-lon="-35.117231">Parada 030255 · Rodovia PE-051 (Entrada Leste de Camela)</option>
-    <option value="Parada 030155 · Rodovia PE-60 (Trevo Sul de Camela)" data-lat="-8.4965" data-lon="-35.0928">Parada 030155 · Rodovia PE-60 (Trevo Sul de Camela)</option>
-    <option value="Parada 030159 · Rodovia PE-60 (Engenho Macaco / Camela)" data-lat="-8.4694" data-lon="-35.094806">Parada 030159 · Rodovia PE-60 (Engenho Macaco / Camela)</option>
+  <optgroup label="🔄 Linhas Interterminais / Perimetrais (T.I. a T.I.)">
+    <option value="020">🚌 Linha 020 · Candeias / Ti Tancredo Neves</option>
+    <option value="023">🚌 Linha 023 · Ti Tancredo Neves / Ti Aeroporto</option>
+    <option value="024">🚌 Linha 024 · Ti Tancredo Neves (Circular Boa Viagem)</option>
+    <option value="026">🚌 Linha 026 · Ti Aeroporto / Ti Joana Bezerra</option>
+    <option value="030">🚌 Linha 030 · Ti Rio Doce / Barra De Jangada</option>
+    <option value="050">🚌 Linha 050 · Ti Pe-15 / Boa Viagem</option>
+    <option value="200">🚌 Linha 200 · Ti Jaboatão (Parador)</option>
+    <option value="202">🚌 Linha 202 · Ti Barro / Ti Macaxeira (Várzea)</option>
+    <option value="207">🚌 Linha 207 · Ti Barro / Ti Macaxeira (Br-101)</option>
+    <option value="2490">🚌 Linha 2490 · Ti Camaragibe / Ti Macaxeira</option>
+    <option value="860">🚌 Linha 860 · Ti Xambá (Príncipe)</option>
+    <option value="914">🚌 Linha 914 · Ti Pe-15 / Ti Afogados</option>
   </optgroup>
-  <optgroup label="📍 Jaboatão dos Guararapes">
-    <option value="Ponto De Retorno Muribeca/Ti Cajueiro Seco" data-lat="-8.149558336096304" data-lon="-34.97679999995839">Ponto De Retorno Muribeca/Ti Cajueiro Seco</option>
-    <option value="Terminal Da Linha 290 Bonança/Ti Jaboatão" data-lat="-8.106150000906043" data-lon="-35.19478888880074">Terminal Da Linha 290 Bonança/Ti Jaboatão</option>
-    <option value="Ti Cajueiro Seco" data-lat="-8.167989004420969" data-lon="-34.934533688542">Ti Cajueiro Seco</option>
-    <option value="Ti Cavaleiro" data-lat="-8.094519891011108" data-lon="-34.97291415128109">Ti Cavaleiro</option>
-    <option value="Ti Jaboatão" data-lat="-8.111632198453698" data-lon="-35.014398835403874">Ti Jaboatão</option>
-    <option value="Ti Prazeres" data-lat="-8.161419696372274" data-lon="-34.92655824202219">Ti Prazeres</option>
-  </optgroup>
-  <optgroup label="📍 Olinda">
-    <option value="Terminal Da Linha 895 Alto Do Sol Nascente/Ti Xamba" data-lat="-7.976716669262277" data-lon="-34.91052499996502">Terminal Da Linha 895 Alto Do Sol Nascente/Ti Xamba</option>
-    <option value="Ti Pe-15" data-lat="-7.982723500007164" data-lon="-34.856319955857714">Ti Pe-15</option>
-    <option value="Ti Rio Doce" data-lat="-7.9607209918352" data-lon="-34.85102855127083">Ti Rio Doce</option>
-    <option value="Ti Xambá" data-lat="-8.001196661427809" data-lon="-34.892626605900084">Ti Xambá</option>
-  </optgroup>
-  <optgroup label="📍 Paulista">
-    <option value="Ti Pelópidas" data-lat="-7.947072139974567" data-lon="-34.87797167910255">Ti Pelópidas</option>
-    <option value="Ti Pelópidas Silveira" data-lat="-7.946769515773473" data-lon="-34.877856200512845">Ti Pelópidas Silveira</option>
-    <option value="Ti Pelópidas- Desembarque 01" data-lat="-7.945576169910893" data-lon="-34.87759786383087">Ti Pelópidas- Desembarque 01</option>
-    <option value="Ti Pelópidas- Embarque 17" data-lat="-7.946586597184459" data-lon="-34.87784604226094">Ti Pelópidas- Embarque 17</option>
-  </optgroup>
-  <optgroup label="📍 Recife">
-    <option value="Terminal Da Linha 303 Ti Caxangá/Curado Ii (Br-232)" data-lat="-8.04768889155233" data-lon="-34.95956388884871">Terminal Da Linha 303 Ti Caxangá/Curado Ii (Br-232)</option>
-    <option value="Terminal De Linha 302" data-lat="-8.031608334216045" data-lon="-34.95833611106901">Terminal De Linha 302</option>
-    <option value="Terminal Nova Morada/Ti Caxangá" data-lat="-8.025455556436276" data-lon="-34.950294444403426">Terminal Nova Morada/Ti Caxangá</option>
-    <option value="Ti Aeroporto" data-lat="-8.134136062005572" data-lon="-34.91512430325258">Ti Aeroporto</option>
-    <option value="Ti Afogados" data-lat="-8.077302413073026" data-lon="-34.90679635435186">Ti Afogados</option>
-    <option value="Ti Barro" data-lat="-8.08817445055669" data-lon="-34.94585759758854">Ti Barro</option>
-    <option value="Ti Caxangá" data-lat="-8.031208942325296" data-lon="-34.954937843290075">Ti Caxangá</option>
-    <option value="Ti Cdu" data-lat="-8.03883429543645" data-lon="-34.94299630962573">Ti Cdu</option>
-    <option value="Ti Getulio Vargas" data-lat="-8.050618224769712" data-lon="-34.92200224898446">Ti Getulio Vargas</option>
-    <option value="Ti Getúlio Vargas" data-lat="-8.050186111999881" data-lon="-34.92204444440719">Ti Getúlio Vargas</option>
-    <option value="Ti Joana Bezarra" data-lat="-8.072163889784743" data-lon="-34.89523055552157">Ti Joana Bezarra</option>
-    <option value="Ti Joana Bezerra" data-lat="-8.072128730179074" data-lon="-34.89576292232596">Ti Joana Bezerra</option>
-    <option value="Ti Largo Da Paz" data-lat="-8.081244227400381" data-lon="-34.905061094793076">Ti Largo Da Paz</option>
-    <option value="Ti Macaxeira" data-lat="-8.008235080134988" data-lon="-34.93832783476195">Ti Macaxeira</option>
-    <option value="Ti Pe 15" data-lat="-7.983177157724002" data-lon="-34.85607007133678">Ti Pe 15</option>
-    <option value="Ti Recife" data-lat="-8.068453118313338" data-lon="-34.88437609302074">Ti Recife</option>
-    <option value="Ti Santa Luzia" data-lat="-8.084164824756378" data-lon="-34.93009157562516">Ti Santa Luzia</option>
-    <option value="Ti Tancredo Neves" data-lat="-8.122014463888496" data-lon="-34.91246455096088">Ti Tancredo Neves</option>
-  </optgroup>
-  <optgroup label="📍 Recife / Várzea (TIP)">
-    <option value="Ti Tip" data-lat="-8.064289307992048" data-lon="-34.98207327791133">Ti Tip</option>
-  </optgroup>
-  <optgroup label="📍 Suape / Ipojuca">
-    <option value="Complexo Industrial e Portuário de Suape" data-lat="-8.3941" data-lon="-34.9812">Complexo Industrial e Portuário de Suape</option>
+  <optgroup label="📋 Todas as 400 Linhas do Grande Recife (001 a 2490)">
+    <option value="199">🚌 Linha 199 · Camela / Ti Cabo</option>
+    <option value="001">🚌 Linha 001 · Ponte Dos Carvalhos / Prazeres (Barra De Jangada)</option>
+    <option value="010">🚌 Linha 010 · Abdo Cabus (Conde Boa Vista)</option>
+    <option value="011">🚌 Linha 011 · Piedade / Derby</option>
+    <option value="013">🚌 Linha 013 · Jardim Beira Rio (Pina)</option>
+    <option value="014">🚌 Linha 014 · Brasília (Cd. Boa Vista)</option>
+    <option value="018">🚌 Linha 018 · Brasília Teimosa</option>
+    <option value="020">🚌 Linha 020 · Candeias / Ti Tancredo Neves</option>
+    <option value="021">🚌 Linha 021 · Ti Joana Bezerra / Shopping Riomar</option>
+    <option value="023">🚌 Linha 023 · Ti Tancredo Neves / Ti Aeroporto</option>
+    <option value="024">🚌 Linha 024 · Ti Tancredo Neves (Circular Boa Viagem)</option>
+    <option value="026">🚌 Linha 026 · Ti Aeroporto / Ti Joana Bezerra</option>
+    <option value="030">🚌 Linha 030 · Ti Rio Doce / Barra De Jangada</option>
+    <option value="031">🚌 Linha 031 · Shopping Center (Ter. Res. Boa Viagem)</option>
+    <option value="032">🚌 Linha 032 · Setúbal (Conde Da Boa Vista)</option>
+    <option value="034">🚌 Linha 034 · Curcurana / Ti Cajueiro Seco</option>
+    <option value="036">🚌 Linha 036 · Aeroporto (Bacurau)</option>
+    <option value="037">🚌 Linha 037 · Comportas / Ti Cajueiro Seco</option>
+    <option value="038">🚌 Linha 038 · Residencial Boa Viagem (Bacurau)</option>
+    <option value="039">🚌 Linha 039 · Setúbal (Príncipe)</option>
+    <option value="041">🚌 Linha 041 · Setúbal (Opcional)</option>
+    <option value="043">🚌 Linha 043 · Aeroporto / Tacaruna (Derby)</option>
+    <option value="044">🚌 Linha 044 · Massangana (Boa Vista)</option>
+    <option value="049">🚌 Linha 049 · Ti Tip / Moreno (Br-232)</option>
+    <option value="050">🚌 Linha 050 · Ti Pe-15 / Boa Viagem</option>
+    <option value="061">🚌 Linha 061 · Piedade</option>
+    <option value="062">🚌 Linha 062 · Jardim Piedade</option>
+    <option value="063">🚌 Linha 063 · Jardim Piedade (Bacurau)</option>
+    <option value="064">🚌 Linha 064 · Piedade (Opcional)</option>
+    <option value="065">🚌 Linha 065 · Piedade / Ti Prazeres</option>
+    <option value="069">🚌 Linha 069 · Conj. Catamarã</option>
+    <option value="070">🚌 Linha 070 · Candeias / Shopping Riomar</option>
+    <option value="071">🚌 Linha 071 · Candeias</option>
+    <option value="072">🚌 Linha 072 · Candeias (Opcional)</option>
+    <option value="073">🚌 Linha 073 · Candeias (Bacurau)</option>
+    <option value="075">🚌 Linha 075 · Ti Prazeres / Curcurana</option>
+    <option value="080">🚌 Linha 080 · Ti Joana Bezerra / Boa Viagem</option>
+    <option value="101">🚌 Linha 101 · Ti Recife / Ti J. Bezerra (Boa Vista)</option>
+    <option value="102">🚌 Linha 102 · Ti Santa Luzia / Ibura</option>
+    <option value="103">🚌 Linha 103 · Ur-11 / Ti Barro</option>
+    <option value="104">🚌 Linha 104 · Ti J. Bezerra / Ti Recife (Imip)</option>
+    <option value="106">🚌 Linha 106 · Ti Santa Luzia / Parque Aeronáutica (Jiquiá)</option>
+    <option value="1062">🚌 Linha 1062 · Ti Abreu E Lima (Pcr) (Parador)</option>
+    <option value="107">🚌 Linha 107 · Ti Recife (Cabugá/Pcr)</option>
+    <option value="1076">🚌 Linha 1076 · Ti Pelópidas (Pcr) (Parador)</option>
+    <option value="108">🚌 Linha 108 · Ti Barro / Ceasa</option>
+    <option value="110">🚌 Linha 110 · Ibura / Ti Prazeres</option>
+    <option value="1100">🚌 Linha 1100 · Ti Pe-15 (Pcr) (Parador)</option>
+    <option value="115">🚌 Linha 115 · Ti Aeroporto / Ti Afogados</option>
+    <option value="116">🚌 Linha 116 · Ti Recife (Príncipe)</option>
+    <option value="117">🚌 Linha 117 · Ti Recife (Pcr/Cabugá)</option>
+    <option value="118">🚌 Linha 118 · Prazeres / Boa Viagem</option>
+    <option value="120">🚌 Linha 120 · Alto Dois Carneiros / Shopping Recife</option>
+    <option value="121">🚌 Linha 121 · Vila Da Sudene</option>
+    <option value="122">🚌 Linha 122 · Vila Do Ipsep</option>
+    <option value="125">🚌 Linha 125 · Córrego Da Gameleira (Vila Do Sesi) / Ti Tancredo Neves</option>
+    <option value="126">🚌 Linha 126 · Ti Tancredo Neves / Ur-03</option>
+    <option value="128">🚌 Linha 128 · Ti Barro / Ur-03 (Milagres)</option>
+    <option value="129">🚌 Linha 129 · Paiva / Ti Cabo</option>
+    <option value="131">🚌 Linha 131 · Ur-02 (Bacurau)</option>
+    <option value="132">🚌 Linha 132 · Ti Tancredo Neves / Ur-02 (Ibura)</option>
+    <option value="134">🚌 Linha 134 · Lagoa Encantada / Ti Tancredo Neves</option>
+    <option value="135">🚌 Linha 135 · Ur-10 / Ti Tancredo Neves</option>
+    <option value="136">🚌 Linha 136 · Ti Tancredo Neves / Ur-05</option>
+    <option value="138">🚌 Linha 138 · Ti Tancredo Neves / Zumbi Do Pacheco</option>
+    <option value="139">🚌 Linha 139 · Ti Cabo / Ti Cajueiro Seco</option>
+    <option value="140">🚌 Linha 140 · Ti Cajueiro Seco / Shopping Recife</option>
+    <option value="141">🚌 Linha 141 · Jardim Monte Verde / Ti Tancredo Neves</option>
+    <option value="142">🚌 Linha 142 · Ti Tancredo Neves / Alto Dois Carneiros</option>
+    <option value="143">🚌 Linha 143 · Ti Tancredo Neves / Ur-06</option>
+    <option value="144">🚌 Linha 144 · Ur-04 / Ti Tancredo Neves</option>
+    <option value="145">🚌 Linha 145 · Alto Dois Carneiros (Bacurau)</option>
+    <option value="146">🚌 Linha 146 · Ur-11 (Bacurau)</option>
+    <option value="149">🚌 Linha 149 · Ti Cavaleiro / Zumbi Do Pacheco</option>
+    <option value="151">🚌 Linha 151 · Jardim Jordão / Ti Aeroporto</option>
+    <option value="152">🚌 Linha 152 · Jordão Baixo / Ti Aeroporto</option>
+    <option value="153">🚌 Linha 153 · Jordão Alto / Ti Aeroporto</option>
+    <option value="154">🚌 Linha 154 · Jordão (Bacurau)</option>
+    <option value="155">🚌 Linha 155 · Jordão Baixo / Boa Viagem</option>
+    <option value="157">🚌 Linha 157 · Gaibu / Ti Cabo</option>
+    <option value="158">🚌 Linha 158 · Garapu / Ti Cabo</option>
+    <option value="159">🚌 Linha 159 · Charneca / Ti Cabo</option>
+    <option value="160">🚌 Linha 160 · Gaibu / Barra De Jangada - Via Paiva (Opcional)</option>
+    <option value="162">🚌 Linha 162 · Muribeca / Ti Cajueiro Seco</option>
+    <option value="163">🚌 Linha 163 · Ti Cajueiro Seco (Circular)</option>
+    <option value="164">🚌 Linha 164 · Marcos Freire / Ti Cajueiro Seco</option>
+    <option value="165">🚌 Linha 165 · Muribeca Dos Guararapes / Ti Cajueiro Seco</option>
+    <option value="166">🚌 Linha 166 · Ti Cajueiro Seco (Rua Do Sol)</option>
+    <option value="167">🚌 Linha 167 · Ti Tancredo Neves (Imip)</option>
+    <option value="168">🚌 Linha 168 · Ti Tancredo Neves (Cde. B. Vista)</option>
+    <option value="170">🚌 Linha 170 · Muribeca Dos Guararapes (Bacurau)</option>
+    <option value="171">🚌 Linha 171 · Lot. Integração / Ti Cajueiro Seco</option>
+    <option value="172">🚌 Linha 172 · Marcos Freire (Bacurau)</option>
+    <option value="178">🚌 Linha 178 · Porto De Suape / Ti Cabo</option>
+    <option value="181">🚌 Linha 181 · Cabo (Cohab) / Ti Cajueiro Seco</option>
+    <option value="183">🚌 Linha 183 · Pte. Dos Carvalhos / Ti Cajueiro Seco</option>
+    <option value="184">🚌 Linha 184 · Cabo (Bacurau)</option>
+    <option value="185">🚌 Linha 185 · Ti Cabo</option>
+    <option value="1903">🚌 Linha 1903 · Araçoiaba / Ti Igarassu</option>
+    <option value="1904">🚌 Linha 1904 · Ti Igarassu / Nova Cruz</option>
+    <option value="1905">🚌 Linha 1905 · Ti Abreu E Lima / Ti Igarassu</option>
+    <option value="1906">🚌 Linha 1906 · Ti Pelópidas / Ti Macaxeira</option>
+    <option value="1907">🚌 Linha 1907 · Paulista / Rio Doce</option>
+    <option value="1908">🚌 Linha 1908 · Ti Igarassu / Botafogo</option>
+    <option value="1909">🚌 Linha 1909 · Ti Pelópidas / Ti Joana Bezerra</option>
+    <option value="191">🚌 Linha 191 · Recife / Porto De Galinhas (N. Sra. Do Ó)</option>
+    <option value="1911">🚌 Linha 1911 · Ouro Preto (Cohab)</option>
+    <option value="1912">🚌 Linha 1912 · Caetés I / Ti Abreu E Lima</option>
+    <option value="1913">🚌 Linha 1913 · Ti Pe-15 / Ti Joana Bezerra</option>
+    <option value="1917">🚌 Linha 1917 · Caetés Ii / Ti Abreu E Lima</option>
+    <option value="1918">🚌 Linha 1918 · Ti Igarassu (Circular)</option>
+    <option value="1921">🚌 Linha 1921 · Ouro Preto / Ti Pe-15</option>
+    <option value="1922">🚌 Linha 1922 · Pau Amarelo / Ti Pelópidas</option>
+    <option value="1923">🚌 Linha 1923 · Cidade Tabajara / Ti Pe-15</option>
+    <option value="1926">🚌 Linha 1926 · Ouro Preto (Jatobá Ii)</option>
+    <option value="1927">🚌 Linha 1927 · Ouro Preto (Bacurau)</option>
+    <option value="1928">🚌 Linha 1928 · Maranguape Ii (Bacurau)</option>
+    <option value="1929">🚌 Linha 1929 · Alameda Paulista / Ti Rio Doce (Jaguarana)</option>
+    <option value="1931">🚌 Linha 1931 · Jardim Paulista Baixo / Ti Pelópidas</option>
+    <option value="1932">🚌 Linha 1932 · Jardim Paulista Alto / Ti Pelópidas</option>
+    <option value="1933">🚌 Linha 1933 · Ti Pe-15 / Ti Abreu E Lima</option>
+    <option value="1934">🚌 Linha 1934 · Arthur Lundgren I / Ti Pelópidas</option>
+    <option value="1935">🚌 Linha 1935 · Paratibe / Ti Pelópidas</option>
+    <option value="1936">🚌 Linha 1936 · Mirueira (Bacurau)</option>
+    <option value="1937">🚌 Linha 1937 · Ti Abreu E Lima / Nova Aurora</option>
+    <option value="1940">🚌 Linha 1940 · Ti Pe-15 (Circular)</option>
+    <option value="1941">🚌 Linha 1941 · Arthur Lundgren Ii / Ti Pelópidas</option>
+    <option value="1943">🚌 Linha 1943 · Mirueira / Ti Pelópidas</option>
+    <option value="1944">🚌 Linha 1944 · Ti Pelópidas / Maria Farinha (Lot. Conceição)</option>
+    <option value="1945">🚌 Linha 1945 · Jaguarana (Alameda) / Ti Pelópidas</option>
+    <option value="1946">🚌 Linha 1946 · Ti Igarassu (Br-101)</option>
+    <option value="1948">🚌 Linha 1948 · Ti Abreu E Lima / Ti Pelópidas (Circular)</option>
+    <option value="195">🚌 Linha 195 · Recife / Porto De Galinhas (Opcional)</option>
+    <option value="1950">🚌 Linha 1950 · Engenho Maranguape / Varadouro</option>
+    <option value="1952">🚌 Linha 1952 · Ti Pelópidas / Ti Rio Doce</option>
+    <option value="1953">🚌 Linha 1953 · Maranguape Ii / Ti Pelópidas</option>
+    <option value="1955">🚌 Linha 1955 · Ti Pelópidas / Cj. Praia Do Janga (Eng. Maranguape)</option>
+    <option value="1956">🚌 Linha 1956 · Igarassu (Bacurau)</option>
+    <option value="1957">🚌 Linha 1957 · Caetés I (Bacurau)</option>
+    <option value="1958">🚌 Linha 1958 · Costa Azul / Ti Pelópidas</option>
+    <option value="196">🚌 Linha 196 · Ti Cabo / P. De Galinhas (N. Sra. Do Ó)</option>
+    <option value="1960">🚌 Linha 1960 · Ti Rio Doce / Maria Farinha (Casa Caiada)</option>
+    <option value="1963">🚌 Linha 1963 · Ti Pe-15 / Ti Igarassu (Sítio Histórico)</option>
+    <option value="1964">🚌 Linha 1964 · Ti Igarassu / Ti Macaxeira</option>
+    <option value="1966">🚌 Linha 1966 · Ti Rio Doce / Ti Pe-15 (Fragoso)</option>
+    <option value="1967">🚌 Linha 1967 · Ti Igarassu (Sítio Histórico)</option>
+    <option value="1968">🚌 Linha 1968 · Ilha De Itamaracá / Ti Igarassu</option>
+    <option value="1969">🚌 Linha 1969 · Itapissuma / Ti Igarassu</option>
+    <option value="1971">🚌 Linha 1971 · Amparo</option>
+    <option value="1973">🚌 Linha 1973 · Casa Caiada (Conde Boa Vista)</option>
+    <option value="1974">🚌 Linha 1974 · Jardim Atlântico</option>
+    <option value="1975">🚌 Linha 1975 · Amparo (Bacurau)</option>
+    <option value="1977">🚌 Linha 1977 · Ti Pelópidas (Conde Boa Vista)</option>
+    <option value="1978">🚌 Linha 1978 · Loteamento Conceição / Ti Rio Doce (Pe-22)</option>
+    <option value="198">🚌 Linha 198 · Ipojuca / Ti Cabo</option>
+    <option value="1980">🚌 Linha 1980 · Igarassu / Cidade Tabajara</option>
+    <option value="1981">🚌 Linha 1981 · Ti Rio Doce / Ti Joana Bezerra</option>
+    <option value="1982">🚌 Linha 1982 · Conjunto Beira Mar / Derby</option>
+    <option value="1983">🚌 Linha 1983 · Ti Rio Doce (Princesa Isabel)</option>
+    <option value="1984">🚌 Linha 1984 · Lot. Bonfim / Ti Abreu E Lima</option>
+    <option value="1985">🚌 Linha 1985 · Rio Doce (Bacurau)</option>
+    <option value="1986">🚌 Linha 1986 · Ti Pe-15 / Ti Rio Doce</option>
+    <option value="1987">🚌 Linha 1987 · Ti Rio Doce (Príncipe / Conde Boa Vista)</option>
+    <option value="1988">🚌 Linha 1988 · Desterro / Ti Abreu E Lima</option>
+    <option value="1989">🚌 Linha 1989 · Lot. Planalto / Ti Abreu E Lima</option>
+    <option value="1992">🚌 Linha 1992 · Pau Amarelo</option>
+    <option value="1993">🚌 Linha 1993 · Conjunto Praia Do Janga</option>
+    <option value="1994">🚌 Linha 1994 · Conjunto Beira Mar</option>
+    <option value="1995">🚌 Linha 1995 · Pau Amarelo (Bacurau)</option>
+    <option value="1996">🚌 Linha 1996 · Arthur Lundgren Ii / Rio Doce (Paratibe)</option>
+    <option value="1998">🚌 Linha 1998 · Caetés Iii / Ti Abreu E Lima</option>
+    <option value="200">🚌 Linha 200 · Ti Jaboatão (Parador)</option>
+    <option value="201">🚌 Linha 201 · Moreno / Ti Jaboatão</option>
+    <option value="202">🚌 Linha 202 · Ti Barro / Ti Macaxeira (Várzea)</option>
+    <option value="203">🚌 Linha 203 · Ti Barro / Zumbi Do Pacheco (Lot.)</option>
+    <option value="2040">🚌 Linha 2040 · Cdu / Boa Viagem / Caxangá</option>
+    <option value="2043">🚌 Linha 2043 · Ti Cdu / Ti Joana Bezerra (Parador)</option>
+    <option value="205">🚌 Linha 205 · Ti Barro / Ur-05 (Br-101)</option>
+    <option value="206">🚌 Linha 206 · Ti Barro / Ti Prazeres (Jordão)</option>
+    <option value="2060">🚌 Linha 2060 · Ti Tancredo Neves / Ti Macaxeira</option>
+    <option value="207">🚌 Linha 207 · Ti Barro / Ti Macaxeira (Br-101)</option>
+    <option value="208">🚌 Linha 208 · Nossa Senhora Da Conceição / Ti Jaboatão</option>
+    <option value="209">🚌 Linha 209 · Ti Barro / Coqueiral</option>
+    <option value="211">🚌 Linha 211 · Vila Tamandaré</option>
+    <option value="212">🚌 Linha 212 · Jardim São Paulo</option>
+    <option value="216">🚌 Linha 216 · Ti Barro / Ti Cajueiro Seco</option>
+    <option value="219">🚌 Linha 219 · Ti Tip / Ti Jaboatão (Sancho)</option>
+    <option value="220">🚌 Linha 220 · Ti Jaboatão / Ti Cavaleiro</option>
+    <option value="221">🚌 Linha 221 · Vila Cardeal E Silva</option>
+    <option value="222">🚌 Linha 222 · Jardim Uchôa</option>
+    <option value="229">🚌 Linha 229 · Marcos Freire (Opcional)</option>
+    <option value="232">🚌 Linha 232 · Cavaleiro</option>
+    <option value="233">🚌 Linha 233 · Cavaleiro (Bacurau)</option>
+    <option value="238">🚌 Linha 238 · Ti Jaboatão / Ti Barro</option>
+    <option value="240">🚌 Linha 240 · Cavaleiro / Ceasa</option>
+    <option value="2402">🚌 Linha 2402 · Parque Capibaribe / Caxangá</option>
+    <option value="2410">🚌 Linha 2410 · Parque Capibaribe / Ti Tip</option>
+    <option value="2416">🚌 Linha 2416 · Roda De Fogo / Ti Getúlio Vargas</option>
+    <option value="2417">🚌 Linha 2417 · Nova Morada / Ti Caxangá</option>
+    <option value="2419">🚌 Linha 2419 · Matriz Da Luz / Ti Camaragibe</option>
+    <option value="242">🚌 Linha 242 · Pacheco (Floresta)</option>
+    <option value="2420">🚌 Linha 2420 · Muribara / Ti Camaragibe</option>
+    <option value="2421">🚌 Linha 2421 · Torrões / Ti Getúlio Vargas</option>
+    <option value="2423">🚌 Linha 2423 · Engenho Do Meio / Ti Cdu</option>
+    <option value="2427">🚌 Linha 2427 · Monsenhor Fabrício (Bacurau)</option>
+    <option value="2429">🚌 Linha 2429 · Ti Getúlio Vargas / Ti Cdu</option>
+    <option value="243">🚌 Linha 243 · Vila Dois Carneiros</option>
+    <option value="2431">🚌 Linha 2431 · Ti Cdu / Ti Caxangá (Ufpe)</option>
+    <option value="2433">🚌 Linha 2433 · Brasilit / Ti Cdu</option>
+    <option value="2434">🚌 Linha 2434 · Ti Getúlio Vargas / Tamarineira</option>
+    <option value="2437">🚌 Linha 2437 · Ti Caxangá (Conde Boa Vista)</option>
+    <option value="244">🚌 Linha 244 · Alto Do Vento / Ti Cavaleiro</option>
+    <option value="2441">🚌 Linha 2441 · Ti Cdu (Conde Boa Vista)</option>
+    <option value="2442">🚌 Linha 2442 · Jd. Primavera (V. Pedreiras) / Ti Cdu</option>
+    <option value="2444">🚌 Linha 2444 · Ti Getúlio Vargas (Conde Da Boa Vista)</option>
+    <option value="2445">🚌 Linha 2445 · Tabatinga / Ti Caxangá</option>
+    <option value="2446">🚌 Linha 2446 · Ur-07 (Várzea) / Ti Cdu</option>
+    <option value="2448">🚌 Linha 2448 · Alto Santo Antônio / Ti Camaragibe</option>
+    <option value="245">🚌 Linha 245 · Dois Carneiros / Ti Cavaleiro</option>
+    <option value="2450">🚌 Linha 2450 · Ti Camaragibe (Conde Boa Vista)</option>
+    <option value="2456">🚌 Linha 2456 · Viana / Ti Camaragibe</option>
+    <option value="2457">🚌 Linha 2457 · São Lourenço (Bacurau)</option>
+    <option value="2459">🚌 Linha 2459 · Ti Cosme E Damião / Ti Caxangá</option>
+    <option value="2462">🚌 Linha 2462 · Lot. Santos Cosme Damião (Bacurau)</option>
+    <option value="2463">🚌 Linha 2463 · Araçoiaba / Ti Camaragibe</option>
+    <option value="2464">🚌 Linha 2464 · Jardim Teresópolis / Ti Caxangá</option>
+    <option value="2466">🚌 Linha 2466 · Vera Cruz / Ti Camaragibe</option>
+    <option value="2467">🚌 Linha 2467 · Chã De Cruz / Ti Camaragibe</option>
+    <option value="2470">🚌 Linha 2470 · Circular Vila Da Fábrica/Santana (Via Bairro Dos Estados)</option>
+    <option value="2473">🚌 Linha 2473 · João Paulo Ii / Ti Camaragibe</option>
+    <option value="2475">🚌 Linha 2475 · Timbi / Ti Camaragibe</option>
+    <option value="2476">🚌 Linha 2476 · Santa Mônica / Ti Camaragibe</option>
+    <option value="2477">🚌 Linha 2477 · Santa Terezinha / Ti Camaragibe</option>
+    <option value="2478">🚌 Linha 2478 · Santana / Ti Camaragibe</option>
+    <option value="2481">🚌 Linha 2481 · Ti Camaragibe / Ti Tip</option>
+    <option value="2483">🚌 Linha 2483 · Lot. S. João E S. Paulo / Ti Camaragibe</option>
+    <option value="2486">🚌 Linha 2486 · Penedo / Ti Camaragibe</option>
+    <option value="2487">🚌 Linha 2487 · Várzea Fria / Ti Camaragibe</option>
+    <option value="2488">🚌 Linha 2488 · Vila Da Fábrica / Ti Caxangá</option>
+    <option value="2490">🚌 Linha 2490 · Ti Camaragibe / Ti Macaxeira</option>
+    <option value="2493">🚌 Linha 2493 · Tiúma / Ti Camaragibe</option>
+    <option value="250">🚌 Linha 250 · Ti Jaboatão / Santo Aleixo (Luz)</option>
+    <option value="2501">🚌 Linha 2501 · Circular Peroba / Oitenta / Borralho</option>
+    <option value="2502">🚌 Linha 2502 · Circular Santa Mônica / Maranguape (V. Beira Rio)</option>
+    <option value="2503">🚌 Linha 2503 · Circular Quadra 30 (V. Celeiro)</option>
+    <option value="2504">🚌 Linha 2504 · Circular Vale Das Pedreiras (Shopping)</option>
+    <option value="2505">🚌 Linha 2505 · Circular Tabatinga / São Jorge (Via Fábrica)</option>
+    <option value="251">🚌 Linha 251 · Ti Jaboatão / Santo Aleixo (Rios)</option>
+    <option value="252">🚌 Linha 252 · Vila Rica / Ti Jaboatão</option>
+    <option value="254">🚌 Linha 254 · Jaboatão (Bacurau)</option>
+    <option value="255">🚌 Linha 255 · Quitandinha / Ti Cavaleiro</option>
+    <option value="256">🚌 Linha 256 · Ti Cavaleiro / Lot. Nova Esperança</option>
+    <option value="258">🚌 Linha 258 · Moreno (Bacurau)</option>
+    <option value="261">🚌 Linha 261 · Ti Jaboatão / Vila Piedade</option>
+    <option value="262">🚌 Linha 262 · Ti Jaboatão / Malvinas</option>
+    <option value="272">🚌 Linha 272 · Colônia / Ti Jaboatão</option>
+    <option value="274">🚌 Linha 274 · Ti Jaboatão / Lote 56</option>
+    <option value="290">🚌 Linha 290 · Ti Jaboatão / Bonança</option>
+    <option value="291">🚌 Linha 291 · Ti Jaboatão / Moreno (Recife Outlet)</option>
+    <option value="2920">🚌 Linha 2920 · Ti Rio Doce / Ti Cdu</option>
+    <option value="2930">🚌 Linha 2930 · Ti Rio Doce / Dois Irmãos</option>
+    <option value="302">🚌 Linha 302 · Caxangá / Ti Tip</option>
+    <option value="303">🚌 Linha 303 · Caxangá / Curado Ii (Br-232)</option>
+    <option value="311">🚌 Linha 311 · Bongi (Afogados)</option>
+    <option value="312">🚌 Linha 312 · Mustardinha</option>
+    <option value="313">🚌 Linha 313 · San Martin (A. De Carvalho)</option>
+    <option value="314">🚌 Linha 314 · Mangueira</option>
+    <option value="315">🚌 Linha 315 · Bongi</option>
+    <option value="320">🚌 Linha 320 · Curado I / Ti Santa Luzia</option>
+    <option value="321">🚌 Linha 321 · Jardim São Paulo (A. Carvalho)</option>
+    <option value="322">🚌 Linha 322 · Jardim São Paulo (Bacurau)</option>
+    <option value="324">🚌 Linha 324 · Jardim São Paulo (Piracicaba)</option>
+    <option value="330">🚌 Linha 330 · Casa Amarela / Cdu (Av. Caxangá)</option>
+    <option value="331">🚌 Linha 331 · Totó (Jardim Planalto)</option>
+    <option value="332">🚌 Linha 332 · Totó (Abdias De Carvalho)</option>
+    <option value="333">🚌 Linha 333 · Totó (Bacurau)</option>
+    <option value="341">🚌 Linha 341 · Curado I</option>
+    <option value="342">🚌 Linha 342 · Curados (Opcional)</option>
+    <option value="346">🚌 Linha 346 · Ti Tip (Conde Boa Vista)</option>
+    <option value="347">🚌 Linha 347 · Ti Tip / Joana Bezerra</option>
+    <option value="348">🚌 Linha 348 · Ti Tip / Curado V</option>
+    <option value="351">🚌 Linha 351 · Ti Tip / Curado Ii</option>
+    <option value="352">🚌 Linha 352 · Curado Ii (Bacurau)</option>
+    <option value="360">🚌 Linha 360 · Totó / Boa Viagem</option>
+    <option value="361">🚌 Linha 361 · Ti Tip / Curado Iv (Rua 14)</option>
+    <option value="362">🚌 Linha 362 · Curado Iv (Bacurau)</option>
+    <option value="363">🚌 Linha 363 · Ti Tip / Curado Iv (Av. 01)</option>
+    <option value="370">🚌 Linha 370 · Ti Tip / Ti Aeroporto</option>
+    <option value="411">🚌 Linha 411 · Plaza Shopping (Conde Da Boa Vista)</option>
+    <option value="412">🚌 Linha 412 · Ti Santa Luzia / Ti Getúlio Vargas</option>
+    <option value="4123">🚌 Linha 4123 · Três Carneiros Baixo (Cais De Santa Rita)</option>
+    <option value="4133">🚌 Linha 4133 · Três Carneiros (Cais De Santa Rita)</option>
+    <option value="4137">🚌 Linha 4137 · Ur-11 (Cais De Santa Rita)</option>
+    <option value="414">🚌 Linha 414 · Torre</option>
+    <option value="418">🚌 Linha 418 · Tiúma / Camaragibe</option>
+    <option value="424">🚌 Linha 424 · Cdu / Largo Da Paz (Via Torrões/San Martin)</option>
+    <option value="440">🚌 Linha 440 · Cdu / Caxangá / Boa Viagem</option>
+    <option value="510">🚌 Linha 510 · Nova Descoberta / Derby</option>
+    <option value="511">🚌 Linha 511 · Ti Cdu / Casa Amarela / Alto Do Mandu</option>
+    <option value="513">🚌 Linha 513 · Córrego Da Areia</option>
+    <option value="514">🚌 Linha 514 · Nova Descoberta (Cór. Do Joaquim)</option>
+    <option value="515">🚌 Linha 515 · Nova Descoberta (Bacurau)</option>
+    <option value="516">🚌 Linha 516 · Casa Amarela / Torre / Cde. Boa Vista</option>
+    <option value="517">🚌 Linha 517 · Córrego Do Inácio</option>
+    <option value="520">🚌 Linha 520 · Ti Macaxeira / Parnamirim</option>
+    <option value="521">🚌 Linha 521 · Alto Santa Isabel (Cde. Boa Vista)</option>
+    <option value="522">🚌 Linha 522 · Dois Irmãos (Rui Barbosa E Príncipe)</option>
+    <option value="523">🚌 Linha 523 · Dois Irmãos (Bacurau)</option>
+    <option value="524">🚌 Linha 524 · Sítio Dos Pintos (Dois Irmãos)</option>
+    <option value="532">🚌 Linha 532 · Dois Irmãos / Casa Amarela (Cruz Cabugá)</option>
+    <option value="533">🚌 Linha 533 · Casa Amarela (Bacurau)</option>
+    <option value="601">🚌 Linha 601 · Ti Macaxeira / P.R. Bola Na Rede</option>
+    <option value="604">🚌 Linha 604 · Ti Macaxeira / Alto Do Burity</option>
+    <option value="611">🚌 Linha 611 · Alto José Do Pinho (Cais De Santa Rita)</option>
+    <option value="612">🚌 Linha 612 · Morro Da Conceição (Cruz Cabugá)</option>
+    <option value="613">🚌 Linha 613 · Morro Da Conceição (Bacurau)</option>
+    <option value="621">🚌 Linha 621 · Alto Treze De Maio (Príncipe)</option>
+    <option value="622">🚌 Linha 622 · Vasco Da Gama (Cruz Cabugá)</option>
+    <option value="623">🚌 Linha 623 · Vasco Da Gama (João De Barros)</option>
+    <option value="624">🚌 Linha 624 · Brejo (Cde. Boa Vista)</option>
+    <option value="626">🚌 Linha 626 · Brejo (Bacurau)</option>
+    <option value="630">🚌 Linha 630 · Vasco Da Gama / Derby</option>
+    <option value="631">🚌 Linha 631 · Nova Descoberta (Cabugá)</option>
+    <option value="632">🚌 Linha 632 · Alto Do Refúgio (Cabugá)</option>
+    <option value="640">🚌 Linha 640 · Guabiraba / Derby (Joana Bezerra)</option>
+    <option value="641">🚌 Linha 641 · Ti Macaxeira / Encruzilhada</option>
+    <option value="642">🚌 Linha 642 · Guabiraba (Córrego Do Jenipapo)</option>
+    <option value="643">🚌 Linha 643 · Córrego Do Jenipapo (Bacurau)</option>
+    <option value="644">🚌 Linha 644 · Largo Do Maracanã (Conde Da Boa Vista)</option>
+    <option value="645">🚌 Linha 645 · Ti Macaxeira (Av. Norte)</option>
+    <option value="650">🚌 Linha 650 · Ti Macaxeira / Ti Xambá</option>
+    <option value="680">🚌 Linha 680 · Vasco Da Gama / Afogados</option>
+    <option value="700">🚌 Linha 700 · Beberibe / Afogados</option>
+    <option value="710">🚌 Linha 710 · Beberibe / Derby (Joana Bezerra)</option>
+    <option value="711">🚌 Linha 711 · Alto Do Pascoal</option>
+    <option value="712">🚌 Linha 712 · Alto Santa Terezinha</option>
+    <option value="713">🚌 Linha 713 · Bomba Do Hemetério</option>
+    <option value="714">🚌 Linha 714 · Alto José Bonifácio (Av. Norte)</option>
+    <option value="715">🚌 Linha 715 · Alto Santa Terezinha (Bacurau)</option>
+    <option value="717">🚌 Linha 717 · José Amarino Dos Reis</option>
+    <option value="718">🚌 Linha 718 · Córrego Do Euclides / Derby</option>
+    <option value="721">🚌 Linha 721 · Água Fria (Circular)</option>
+    <option value="722">🚌 Linha 722 · Campina Do Barreto</option>
+    <option value="723">🚌 Linha 723 · Cajueiro</option>
+    <option value="724">🚌 Linha 724 · Chão De Estrelas</option>
+    <option value="741">🚌 Linha 741 · Dois Unidos</option>
+    <option value="742">🚌 Linha 742 · Linha Do Tiro</option>
+    <option value="743">🚌 Linha 743 · Alto José Bonifácio (J. Barros)</option>
+    <option value="744">🚌 Linha 744 · Dois Unidos (Bacurau)</option>
+    <option value="745">🚌 Linha 745 · Alto José Bonifácio (Bacurau)</option>
+    <option value="746">🚌 Linha 746 · Alto Do Capitão</option>
+    <option value="760">🚌 Linha 760 · Dois Unidos / Derby</option>
+    <option value="780">🚌 Linha 780 · Alto Santa Terezinha / Derby</option>
+    <option value="800">🚌 Linha 800 · Dois Unidos / Afogados</option>
+    <option value="810">🚌 Linha 810 · Ti Xambá / Encruzilhada</option>
+    <option value="820">🚌 Linha 820 · Ti Xambá (Cabugá)</option>
+    <option value="821">🚌 Linha 821 · Jardim Brasil I (Est. De Belém)</option>
+    <option value="822">🚌 Linha 822 · Jardim Brasil I (Cruz Cabugá)</option>
+    <option value="823">🚌 Linha 823 · Jardim Brasil Ii (Est. De Belém)</option>
+    <option value="824">🚌 Linha 824 · Jardim Brasil Ii (Cruz Cabugá)</option>
+    <option value="825">🚌 Linha 825 · Jardim Brasil / Ti Joana Bezerra</option>
+    <option value="827">🚌 Linha 827 · Jardim Brasil (Bacurau)</option>
+    <option value="831">🚌 Linha 831 · Aguazinha / Ti Xambá</option>
+    <option value="841">🚌 Linha 841 · Nova Olinda / Ti Xambá</option>
+    <option value="842">🚌 Linha 842 · Águas Compridas / Ti Xambá</option>
+    <option value="843">🚌 Linha 843 · Alto Da Bondade / Ti Xambá</option>
+    <option value="844">🚌 Linha 844 · Santa Casa / Ti Xambá</option>
+    <option value="846">🚌 Linha 846 · Águas Compridas (Bacurau)</option>
+    <option value="847">🚌 Linha 847 · Alto Nova Olinda / Ti Xambá</option>
+    <option value="852">🚌 Linha 852 · Caixa D'Água / Ti Xambá</option>
+    <option value="858">🚌 Linha 858 · Ti Joana Bezerra / Ti Afogados / Ti Barro</option>
+    <option value="860">🚌 Linha 860 · Ti Xambá (Príncipe)</option>
+    <option value="861">🚌 Linha 861 · Ti Joana Bezerra / Ti Xambá</option>
+    <option value="870">🚌 Linha 870 · Ti Xambá / Ti Largo Da Paz</option>
+    <option value="881">🚌 Linha 881 · Ti Xambá / Rio Doce (Av. Getúlio Vargas)</option>
+    <option value="882">🚌 Linha 882 · Ti Xambá / Rio Doce (Carlos De Lima Cavalcanti)</option>
+    <option value="883">🚌 Linha 883 · Ti Pe-15 / Ti Xambá</option>
+    <option value="884">🚌 Linha 884 · Jardim Brasil / Rio Doce</option>
+    <option value="885">🚌 Linha 885 · Sítio Novo / Rio Doce</option>
+    <option value="886">🚌 Linha 886 · Ouro Preto / Rio Doce</option>
+    <option value="892">🚌 Linha 892 · Alto Do Cajueiro / Ti Xambá</option>
+    <option value="893">🚌 Linha 893 · Ti Pe-15 / Alto Da Conquista</option>
+    <option value="894">🚌 Linha 894 · Ti Xambá / Córrego Do Abacaxi</option>
+    <option value="895">🚌 Linha 895 · Alto Sol Nascente / Ti Xambá</option>
+    <option value="901">🚌 Linha 901 · Ti Abreu E Lima / Ti Macaxeira</option>
+    <option value="910">🚌 Linha 910 · Piedade / Ti Rio Doce</option>
+    <option value="9104">🚌 Linha 9104 · Casseterita / Casa Amarela / Jaqueira</option>
+    <option value="9105">🚌 Linha 9105 · Córrego Do Boleiro / Casa Amarela / Jaqueira</option>
+    <option value="9108">🚌 Linha 9108 · Dois Unidos / Torre</option>
+    <option value="9110">🚌 Linha 9110 · Campo Grande / Afogados</option>
+    <option value="9112">🚌 Linha 9112 · Casa Amarela / Bomba Do Hemetério / Shopping Tacaruna</option>
+    <option value="914">🚌 Linha 914 · Ti Pe-15 / Ti Afogados</option>
+    <option value="916">🚌 Linha 916 · Ouro Preto / Joana Bezerra</option>
+    <option value="9205">🚌 Linha 9205 · Jardim Uchôa / Boa Viagem</option>
+    <option value="9301">🚌 Linha 9301 · San Martin / Lagoa Do Araçá / Boa Viagem</option>
+    <option value="Centro 1">🚌 Linha Centro 1 · Recife - Camaragibe</option>
+    <option value="Centro 2">🚌 Linha Centro 2 · Recife - Jaboatão</option>
+    <option value="Sul">🚌 Linha Sul · Recife - Cajueiro Seco</option>
+    <option value="VLT Cabo">🚌 Linha VLT Cabo · Cabo de Santo Agostinho - Cajueiro Seco</option>
+    <option value="VLT Curado">🚌 Linha VLT Curado · Curado - Cajueiro Seco</option>
   </optgroup>
             </select>
           </div>
@@ -1765,6 +2206,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div class="sheet-handle-bar mobile-only" onclick="toggleMobileSheet()">
           <div class="sheet-handle-pill"></div>
           <span class="sheet-handle-hint" id="sheet-handle-text">▲ Puxe para ver paradas e rotas</span>
+        </div>
+
+        <!-- 1-TAP TRAVEL SHORTCUTS: VOU PRA CASA / VOU PRO TRABALHO / ESTOU PERDIDO -->
+        <div style="display:flex; gap:8px; margin:4px 0 10px 0;">
+          <button id="btn-quick-home" class="btn btn-emerald" style="flex:1; min-height:44px; padding:6px 8px; font-size:12px; font-weight:800; border:2px solid var(--brand-green); display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06);" onclick="quickRouteAction('home')">
+            <span style="font-size:16px;">🏠</span>
+            <span style="line-height:1.2; text-align:left;">Vou pra Casa<br><small style="font-size:10px; font-weight:700; opacity:0.9;" id="badge-home-name">Camela</small></span>
+          </button>
+          <button id="btn-quick-work" class="btn" style="flex:1; min-height:44px; padding:6px 8px; font-size:12px; font-weight:800; border:1.5px solid var(--border-strong); display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,0.06);" onclick="quickRouteAction('work')">
+            <span style="font-size:16px;">💼</span>
+            <span style="line-height:1.2; text-align:left;">Vou pro Destino<br><small style="font-size:10px; font-weight:700; color:var(--text-secondary);" id="badge-work-name">TI Cabo</small></span>
+          </button>
+          <button id="btn-quick-lost" class="btn btn-crimson" style="min-height:44px; padding:6px 10px; font-size:11.5px; font-weight:800; border:1.5px solid var(--danger-red); display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 2px 6px rgba(0,0,0,0.06);" onclick="openLostHelpModal()" title="Ajuda para quem está perdido ou pela 1ª vez">
+            <span style="font-size:15px;">🧭</span>
+            <span style="line-height:1.15; text-align:left;">Estou<br>Perdido!</span>
+          </button>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;">
           <div>
@@ -2575,6 +3032,127 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     let currentImuKey = "ALIGHTING";
     let oscTick = 0;
     let currentAudioPlayer = null;
+
+        // =========================================================================
+    // 1-TAP TRAVEL SHORTCUTS & LOST PERSON WAYFINDING SYSTEM
+    // =========================================================================
+    function filterSelectOptions(selectId, query) {
+      const sel = document.getElementById(selectId);
+      if (!sel) return;
+      const q = query.toLowerCase().trim();
+      Array.from(sel.options).forEach(opt => {
+        const txt = (opt.textContent || opt.value).toLowerCase();
+        opt.style.display = txt.includes(q) ? "" : "none";
+      });
+      const firstVis = Array.from(sel.options).find(o => o.style.display !== "none");
+      if (firstVis) sel.value = firstVis.value;
+    }
+
+    function autoDetectHomeForSignup() {
+      if (!navigator.geolocation) {
+        alert("GPS não suportado neste aparelho.");
+        return;
+      }
+      const btn = event.target;
+      const oldTxt = btn.textContent;
+      btn.textContent = "Buscando...";
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          btn.textContent = "Detectado!";
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          try {
+            const resp = await fetch(`/api/live/nearby-stops?lat=${lat}&lon=${lon}&k=1`);
+            const data = await resp.json();
+            if (data.closest_gtfs_stops && data.closest_gtfs_stops.length > 0) {
+              const best = data.closest_gtfs_stops[0];
+              const sel = document.getElementById("signup-home");
+              if (sel) {
+                let opt = new Option(`📍 ${best.stop_name} (a ${best.distance_m}m)`, best.stop_name);
+                opt.setAttribute("data-lat", best.lat);
+                opt.setAttribute("data-lon", best.lon);
+                sel.add(opt, 0);
+                sel.selectedIndex = 0;
+              }
+              alert(`📍 Parada real detectada: ${best.stop_name} (a ${best.distance_m} metros de você)!`);
+            }
+          } catch (e) { console.warn(e); }
+          setTimeout(() => btn.textContent = oldTxt, 2500);
+        },
+        () => {
+          btn.textContent = oldTxt;
+          alert("Não foi possível acessar o GPS. Selecione sua residência na lista abaixo.");
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+
+    function quickRouteAction(dest) {
+      const isHome = dest === "home";
+      let user = {};
+      try {
+        user = JSON.parse(localStorage.getItem("grafoparada_user_data") || "{}");
+      } catch (e) {}
+
+      const homeName = user.home || "Camela · Centro (Linha 199)";
+      const workName = user.work || "TI Cabo (Terminal Integrado)";
+      const targetName = isHome ? homeName : workName;
+      const shortName = targetName.split("·")[0].replace("🏠", "").replace("💼", "").replace("🏛️", "").trim();
+
+      // Ativa rota
+      switchActiveRoute("199");
+
+      const firstBusEta = 4;
+      const totalTripMin = isHome ? 38 : 32;
+      const platform = isHome ? "Plataforma 04" : "Terminal Camela";
+
+      // Atualiza interface
+      const header = document.getElementById("insp-stop-header");
+      if (header) header.textContent = isHome ? `Rota para Casa · ${shortName}` : `Rota para Destino · ${shortName}`;
+
+      const etaBig = document.getElementById("insp-stgcn-big");
+      if (etaBig) etaBig.textContent = `${firstBusEta} min`;
+
+      const etaLabel = document.querySelector(".eta-stat-label");
+      if (etaLabel) etaLabel.textContent = `1º Ônibus (${platform})`;
+
+      const usersWaiting = document.getElementById("insp-users-waiting");
+      if (usersWaiting) usersWaiting.textContent = `${totalTripMin} min`;
+
+      const usersLabel = document.querySelector(".eta-stat-box:nth-child(2) .eta-stat-label");
+      if (usersLabel) usersLabel.textContent = "Tempo Total de Viagem";
+
+      const voiceMsg = isHome
+        ? `Traçando rota para sua Casa em Camela. Primeiro ônibus da Linha 199 chega em 4 minutos na Plataforma 04. Viagem estimada em 38 minutos com assento garantido.`
+        : `Traçando rota para seu destino no TI Cabo. Primeiro ônibus da Linha 199 passando em 4 minutos. Tempo total previsto de 32 minutos.`;
+
+      playNaturalVoice(voiceMsg, null);
+
+      if (leafletMap && TELEMETRIA.polyline && TELEMETRIA.polyline.length > 0) {
+        leafletMap.fitBounds(TELEMETRIA.polyline, { padding: [36, 36] });
+      }
+    }
+
+    function openLostHelpModal() {
+      const m = document.getElementById("lost-help-modal");
+      if (m) m.style.display = "flex";
+      playLostGuidanceVoice();
+    }
+
+    function closeLostHelpModal() {
+      const m = document.getElementById("lost-help-modal");
+      if (m) m.style.display = "none";
+    }
+
+    function playLostGuidanceVoice() {
+      let user = {};
+      try {
+        user = JSON.parse(localStorage.getItem("grafoparada_user_data") || "{}");
+      } catch (e) {}
+      const firstName = (user.name || "passageiro").split(" ")[0];
+      const voiceMsg = `Fique calmo, ${firstName}! Deixe o celular guardado no bolso. Você está no Terminal Integrado do Cabo, dentro da área iluminada. Para ir para casa em Camela, caminhe tranquilamente até a Plataforma 04 e aguarde a Linha 199. O primeiro ônibus chega em 4 minutos com 14 assentos livres. Fique perto dos outros passageiros. Eu te aviso no fone assim que o ônibus encostar.`;
+      playNaturalVoice(voiceMsg, document.getElementById("btn-voice-lost-modal"));
+    }
 
     // =========================================================================
     // HUMAN NEURAL VOICE SYNTHESIS (`edge-tts` pt-BR-FranciscaNeural / Antonio / Thalita)
@@ -3553,7 +4131,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         name: name || "Cauã Cunha",
         cpf: "084.721.904-12",
         phone: "(81) 98888-7766",
-        place: place || "Parada 030613 · Terminal de Camela (Rua do Comércio / Praça)",
+        home: "Camela · Centro (Rua do Comércio / Linha 199)",
+        homeLat: -8.514931,
+        homeLon: -35.123469,
+        work: "TI Cabo (Terminal Integrado do Cabo)",
+        workLat: -8.285065,
+        workLon: -35.032398,
+        place: place || "Camela · Centro (Rua do Comércio / Linha 199)",
         lat: -8.514931,
         lon: -35.123469,
         line: "199",
@@ -3566,19 +4150,36 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const name = document.getElementById("signup-name").value.trim() || "Cauã Cunha";
       const cpf = document.getElementById("signup-cpf") ? document.getElementById("signup-cpf").value.trim() : "084.721.904-12";
       const phone = document.getElementById("signup-phone").value.trim() || "(81) 98888-7766";
-      const placeSel = document.getElementById("signup-place");
-      const place = placeSel ? placeSel.value : "Parada 030613 · Terminal de Camela";
-      let lat = -8.514931, lon = -35.123469;
-      if (placeSel && placeSel.selectedIndex >= 0) {
-        const opt = placeSel.options[placeSel.selectedIndex];
-        if (opt.hasAttribute("data-lat")) lat = parseFloat(opt.getAttribute("data-lat"));
-        if (opt.hasAttribute("data-lon")) lon = parseFloat(opt.getAttribute("data-lon"));
+
+      const homeSel = document.getElementById("signup-home");
+      const home = homeSel ? homeSel.value : "Camela · Centro (Linha 199)";
+      let homeLat = -8.514931, homeLon = -35.123469;
+      if (homeSel && homeSel.selectedIndex >= 0) {
+        const opt = homeSel.options[homeSel.selectedIndex];
+        if (opt.hasAttribute("data-lat")) homeLat = parseFloat(opt.getAttribute("data-lat"));
+        if (opt.hasAttribute("data-lon")) homeLon = parseFloat(opt.getAttribute("data-lon"));
       }
+
+      const workSel = document.getElementById("signup-work");
+      const work = workSel ? workSel.value : "TI Cabo (Terminal Integrado do Cabo)";
+      let workLat = -8.285065, workLon = -35.032398;
+      if (workSel && workSel.selectedIndex >= 0) {
+        const opt = workSel.options[workSel.selectedIndex];
+        if (opt.hasAttribute("data-lat")) workLat = parseFloat(opt.getAttribute("data-lat"));
+        if (opt.hasAttribute("data-lon")) workLon = parseFloat(opt.getAttribute("data-lon"));
+      }
+
       const lineSel = document.getElementById("signup-line");
       const line = lineSel ? lineSel.value : "199";
       const voice = document.getElementById("pref-voice-select").value;
 
-      const userData = { name, cpf, phone, place, line, voice, lat, lon };
+      const userData = {
+        name, cpf, phone,
+        home, homeLat, homeLon,
+        work, workLat, workLon,
+        place: home, lat: homeLat, lon: homeLon,
+        line, voice
+      };
       saveAndEnterApp(userData);
     }
 
@@ -3635,18 +4236,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (headerName) headerName.textContent = userData.name.split(" ")[0];
 
       const pName = document.getElementById("prof-modal-name");
+      const pCpf = document.getElementById("prof-modal-cpf");
       const pPhone = document.getElementById("prof-modal-phone");
       const pPlace = document.getElementById("prof-modal-place");
       const pLine = document.getElementById("prof-modal-line");
       const pVoice = document.getElementById("prof-modal-voice");
 
       if (pName) pName.textContent = userData.name;
-      const pCpf = document.getElementById("prof-modal-cpf");
       if (pCpf && userData.cpf) pCpf.textContent = userData.cpf;
       if (pPhone) pPhone.textContent = userData.phone;
-      if (pPlace) pPlace.textContent = userData.place;
-      if (pLine) pLine.textContent = `Linha ${userData.line}`;
-      if (pVoice) pVoice.textContent = userData.voice.includes("Francisca") ? "Francisca" : (userData.voice.includes("Antonio") ? "Antônio" : "Thalita");
+      if (pPlace) pPlace.textContent = userData.home || userData.place || "Camela (Centro)";
+      if (pLine) pLine.textContent = `Linha ${userData.line || '199'}`;
+      if (pVoice && userData.voice) pVoice.textContent = userData.voice.includes("Francisca") ? "Francisca" : (userData.voice.includes("Antonio") ? "Antônio" : "Thalita");
+
+      // Atualiza badges dos botões 1-toque
+      const bHome = document.getElementById("badge-home-name");
+      if (bHome && userData.home) bHome.textContent = userData.home.split("·")[0].replace("🏠", "").trim();
+      const bWork = document.getElementById("badge-work-name");
+      if (bWork && userData.work) bWork.textContent = userData.work.split("·")[0].replace("💼", "").replace("🏛️", "").trim();
 
       const voiceSel = document.getElementById("neural-voice-select");
       if (voiceSel && userData.voice) voiceSel.value = userData.voice;
@@ -3940,6 +4547,82 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     });
     requestAnimationFrame(renderImuOscilloscope);
   </script>
+  <!-- MODAL: GUIA ACOLHEDOR PARA PESSOAS PERDIDAS OU PELA 1ª VEZ NO LOCAL -->
+  <div id="lost-help-modal" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--bg-surface); border:2px solid var(--brand-green); border-radius:18px; max-width:440px; width:100%; max-height:92vh; overflow-y:auto; padding:20px; box-shadow:0 12px 32px rgba(0,0,0,0.25);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:26px;">🧭</span>
+          <div>
+            <h3 style="font-size:17px; font-weight:800; margin:0; color:var(--brand-green);">Você está seguro · Guia Amigo</h3>
+            <span style="font-size:11.5px; color:var(--text-secondary);">Orientação passo a passo para quem está perdido</span>
+          </div>
+        </div>
+        <button class="btn" style="min-height:30px; padding:2px 8px; font-size:13px; font-weight:800; border-radius:999px;" onclick="closeLostHelpModal()">✕</button>
+      </div>
+
+      <!-- ALERTA DE SEGURANÇA E TRANQUILIDADE -->
+      <div style="background:var(--brand-green-bg); border:1.5px solid var(--brand-green-border); border-radius:12px; padding:10px 14px; margin-bottom:14px; font-size:12.5px; line-height:1.45; color:var(--brand-green);">
+        <strong>💚 Fique tranquilo:</strong> Deixe o celular no bolso com a tela apagada para não chamar atenção. Siga os 3 passos abaixo ou toque no botão de áudio para ouvir no fone.
+      </div>
+
+      <!-- 3 PASSOS SIMPLIFICADOS (ZERO JARGÃO) -->
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <!-- PASSO 1 -->
+        <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:12px; padding:12px;">
+          <div style="font-size:11.5px; font-weight:800; color:var(--user-blue); text-transform:uppercase; margin-bottom:3px;">
+            1️⃣ Onde você está agora:
+          </div>
+          <div style="font-size:14px; font-weight:800;" id="lost-step1-place">
+            🏛️ Terminal Integrado do Cabo (Área Interna)
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+            Ponto de referência: Área coberta das plataformas, próximo à fiscalização do Grande Recife (CTM).
+          </div>
+        </div>
+
+        <!-- PASSO 2 -->
+        <div style="background:var(--bg-subtle); border:1.5px solid var(--brand-green); border-radius:12px; padding:12px;">
+          <div style="font-size:11.5px; font-weight:800; color:var(--brand-green); text-transform:uppercase; margin-bottom:3px;">
+            2️⃣ Para onde caminhar (Sem erro):
+          </div>
+          <div style="font-size:14px; font-weight:800;" id="lost-step2-dest">
+            🚶 Caminhe até a Plataforma 04 (Linha 199 · Camela)
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+            Procure o ônibus azul e branco da empresa São Judas Tadeu (SJT). NÃO precisa sair para a rua.
+          </div>
+        </div>
+
+        <!-- PASSO 3 -->
+        <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:12px; padding:12px;">
+          <div style="font-size:11.5px; font-weight:800; color:var(--brand-green); text-transform:uppercase; margin-bottom:3px;">
+            3️⃣ Primeiro ônibus & Horário:
+          </div>
+          <div style="font-size:14px; font-weight:800;" id="lost-step3-bus">
+            🚌 Chega em 4 minutos (às 06:14) · Sentado Garantido
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
+            Sinal satélite GPS ativo: veículo transmitindo na rodovia sem risco de ônibus fantasma.
+          </div>
+        </div>
+      </div>
+
+      <!-- DICA DE SEGURANÇA LOCAL -->
+      <div style="background:var(--danger-red-bg); border:1px solid var(--danger-red-border); border-radius:12px; padding:10px 14px; margin-bottom:16px; font-size:12px; line-height:1.4; color:var(--danger-red);">
+        🛡️ <strong>Regra de Ouro da RMR:</strong> Espere sempre na plataforma iluminada junto aos outros passageiros. Nunca espere sozinho nas saídas ou calçadas externas escuras.
+      </div>
+
+      <!-- BOTÃO DE ÁUDIO NO FONE -->
+      <button id="btn-voice-lost-modal" class="btn btn-emerald" style="width:100%; min-height:46px; font-size:13.5px; font-weight:800; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="playLostGuidanceVoice()">
+        <span>🎧</span> Ouvir Instruções Calmas no Fone de Ouvido
+      </button>
+
+      <button class="btn" style="width:100%; min-height:40px; font-size:13px; font-weight:700;" onclick="closeLostHelpModal()">
+        👍 Entendi, já estou na plataforma certa
+      </button>
+    </div>
+  </div>
 </body>
 </html>
 """
