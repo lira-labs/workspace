@@ -20,6 +20,14 @@
   - `feature/*`: Novas funcionalidades, seções de texto ou experimentos específicos.
 - **ARMAZENAMENTO PESADO NO GOOGLE DRIVE (5 TB)**: Datasets volumosos, vídeos, checkpoints e pesos de modelos de IA (`.pt`, `.ckpt`, `.safetensors`, `.onnx`) NUNCA são commitados no Git nem consom o SSD local. Ficam sempre em `G:\Meu Drive\IA_Projetos\` (`datasets/`, `checkpoints/`, `outputs/`), compartilhados instantaneamente entre o Notebook e o Desktop.
 - **LIMPEZA E HIGIENE**: Arquivos de build (LaTeX `.aux`, `.log`, caches Python `__pycache__`) nunca são commitados.
+- **DIRETRIZ DE SEQUENTIAL ART & HQ/EBOOK (ANTI-AI-SLOP)**:
+  - *As 3 Camadas Indissociáveis*:
+    1. **Narrativa**: O que está acontecendo? (enredo, personagens, conflito pedagógico e desfecho).
+    2. **Sequência**: Por que este quadro vem depois do anterior? (relação causa-efeito, ritmo e a sarjeta/calha como conexão mental do leitor).
+    3. **Linguagem Visual**: Como a imagem, enquadramento cinematográfico, balão e sarjeta guiam o leitor?
+  - *A Pergunta Mestre do Pipeline*: O agente NUNCA começa perguntando 'Que imagem vou gerar?', mas sim: **'Que parte da história este quadro precisa contar, e qual é a melhor forma visual de mostrar isso?'**
+  - *Gramática Autêntica de HQ*: Sarjetas nítidas, Recordatórios canônicos (tempo/espaço/narrador), Balões semânticos (fala comum, pensamento-nuvem com esferas, glitch/elétrico para robô sem filtro, socrático acolhedor) e Onomatopeias integradas (SFX).
+  - *Simbiose HQ + eBook*: A ação sequencial dos quadrinhos integra-se organicamente aos encartes didáticos (Caderno de Campo de Cauã, Relatório de Auditoria Pedagógica da UFRPE, Terminal CRT de Código e Manual de Prompts Copiáveis).
 <!-- norms:end -->
 
 ---
