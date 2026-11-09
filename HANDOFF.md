@@ -174,6 +174,11 @@
       - *Portal de Handoff & Conversa:* Criado portal dedicado em [https://grafoparadaweb.vercel.app/conversa.html](https://grafoparadaweb.vercel.app/conversa.html) contendo o histórico da sessão, comandos de Git para puxar na máquina do trabalho e prompt de continuidade.
       - *Disparo de Notificação:* Criada e atualizada a Issue #1 no GitHub ([lira-labs/workspace/issues/1](https://github.com/lira-labs/workspace/issues/1)) que dispara notificação por e-mail com todos os links para a conta de Cauã Lira.
 
+    - **Ativação do Antigravity Remote Control Daemon (09/11/2026 · 01:21)**:
+      - *Daemon em Execução:* Registrado e ativo como serviço em segundo plano no Windows (\AntigravityCliDaemon\, status \Em execução\).
+      - *Nome da Instância:* \Desktop-Caua\.
+      - *Acesso Remoto via Navegador:* Disponível diretamente em [https://antigravity.google.com](https://antigravity.google.com). O usuário pode acessar e controlar as sessões do agente a partir de qualquer navegador no computador do trabalho ou celular mantendo o PC de casa ligado (plano de energia configurado para nunca suspender).
+
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
   - Adicionado `code/topicos_avancados_ia_cp03/CONTEXT.md` (Item 1).
