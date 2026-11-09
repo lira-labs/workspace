@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 08/11/2026 23:17
+- **Última Atualização:** 08/11/2026 23:42
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -64,6 +64,11 @@
   - Branch atualizada e sincronizada com o GitHub (feature/if-2va-pqc-telessaude).
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
+- [x] **Graphic Novel 100% Quadrinho Puro + Divisão Editorial Concluída**:
+  - *Separação Canônica:* Eliminação total de tabelas, blocos de código e cards densos de dentro da HQ. A imersão sequencial é 100% preservada em todas as 12 páginas, inspirada na estrutura de quadrinhos clássicos (como Superman 001 - 1939).
+  - *Aprofundamento Técnico no Infográfico:* Toda a densidade acadêmica (dados PISA 2025 da OCDE, Rubrica Analítica de 4 critérios, terminal CPython/Heap do Caso #03, Matriz Comparativa +22,2% e Prompts Copiáveis) fica centralizada no Infográfico Editorial (infografico.html e infografico-anatomia-tutor-ia.pdf).
+  - *Narrativa Sequencial 100% Fluida nas 12 Páginas da HQ:* Da madrugada com a cola do robô -> a ilusão do domínio -> o apagão na prova -> o diagnóstico de Bruner/Vygotsky -> o Scanner 4D -> o escudo de escopo -> o alarme vermelho do Caso #03 -> a cirurgia neural no prompt -> o momento Eureka com as caixas de memória -> o impacto no polo -> a prova final gabaritada com 10 -> e o epílogo da autonomia.
+  - *PDFs e Deploy:* ebook-caua-2va.pdf (12 páginas A4 exatas, 9.82 MB) e infografico-anatomia-tutor-ia.pdf (1 página contínua, 1.68 MB) em produção na Vercel (HTTP 200).
 - [x] **Consistência Total de Personagens (Character & Costume Continuity) 100% Resolvida**:
   - *Causa Raiz Sanada:* A versão anterior mesclava ilustrações legadas (onde Clara usava moletom amarelo e fones de ouvido sem óculos) com ilustrações novas.
   - *Ancoragem Visual Rígida (ImagePaths):* Todas as artes foram regeneradas com condicionamento visual sobre a referência canônica p1_cover_clean.jpg.
