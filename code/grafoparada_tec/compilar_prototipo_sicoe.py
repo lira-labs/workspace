@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,22 +23,32 @@ with open(data_dir / "gtfs_full_catalog.json", "r", encoding="utf-8") as f:
 
 routes = catalog["routes"]
 
-# Build options for Home (SEI terminals + Camela)
+# Group terminals by municipality for easy navigation
+terminals_by_mun = {}
+for t in sei_terminals:
+    mun = t.get("municipio", "Grande Recife")
+    if mun not in terminals_by_mun:
+        terminals_by_mun[mun] = []
+    terminals_by_mun[mun].append(t)
+
+# Build options for Home (SEI terminals + Camela + Ipojuca)
 home_opts = []
-home_opts.append('<optgroup label="⭐ Sua Residência (Região Sul)">')
+home_opts.append('<optgroup label="⭐ Sua Residência (Região Sul · PE-60)">')
 home_opts.append('  <option value="Camela · Centro (Rua do Comércio / Linha 199)" data-lat="-8.514931" data-lon="-35.123469" selected>🏠 Camela · Centro (Rua do Comércio / Linha 199)</option>')
 home_opts.append('  <option value="Camela · Rodovia PE-60 (Trevo PE-051)" data-lat="-8.494915" data-lon="-35.092190">🏠 Camela · Rodovia PE-60 (Trevo PE-051)</option>')
 home_opts.append('  <option value="Ipojuca · Centro (Praça / UPA PE-60)" data-lat="-8.398512" data-lon="-35.064120">🏠 Ipojuca · Centro (Praça / UPA PE-60)</option>')
 home_opts.append('</optgroup>')
-home_opts.append('<optgroup label="🏛️ Terminais Integrados do SEI (Grande Recife)">')
-for t in sei_terminals:
-    home_opts.append(f'  <option value="{t["ti_name"]} ({t["municipio"]})" data-lat="{t["lat"]}" data-lon="{t["lon"]}">🏛️ {t["ti_name"]} ({t["municipio"]})</option>')
-home_opts.append('</optgroup>')
+
+for mun, t_list in terminals_by_mun.items():
+    home_opts.append(f'<optgroup label="🏛️ Terminais Integrados do SEI · {mun}">')
+    for t in t_list:
+        home_opts.append(f'  <option value="{t["ti_name"]} ({mun})" data-lat="{t["lat"]}" data-lon="{t["lon"]}">🏛️ {t["ti_name"]} ({t.get("bairro", mun)})</option>')
+    home_opts.append('</optgroup>')
 home_opts_html = "\n".join(home_opts)
 
 # Build options for Work (SEI terminals + Suape + Universities)
 work_opts = []
-work_opts.append('<optgroup label="💼 Principais Destinos de Trabalho / Estudo">')
+work_opts.append('<optgroup label="💼 Principais Polos de Trabalho / Estudo">')
 work_opts.append('  <option value="TI Cabo (Terminal Integrado do Cabo)" data-lat="-8.285065" data-lon="-35.032398" selected>💼 TI Cabo (Terminal Integrado · Conexão Metrô/RMR)</option>')
 work_opts.append('  <option value="Complexo Industrial e Portuário de Suape" data-lat="-8.396500" data-lon="-34.980500">💼 Complexo Industrial de Suape (Porto / Refinaria)</option>')
 work_opts.append('  <option value="UFRPE (Universidade Rural · Dois Irmãos)" data-lat="-8.016200" data-lon="-34.944800">💼 UFRPE (Universidade Rural · Dois Irmãos)</option>')
@@ -45,10 +56,12 @@ work_opts.append('  <option value="UFPE (Campus Recife / TI CDU)" data-lat="-8.0
 work_opts.append('  <option value="Recife Centro (TI Joana Bezerra / TI Recife)" data-lat="-8.072129" data-lon="-34.895763">💼 Recife Centro (TI Joana Bezerra / TI Recife)</option>')
 work_opts.append('  <option value="TI Aeroporto (Boa Viagem / Polo Empresarial)" data-lat="-8.134136" data-lon="-34.915124">💼 TI Aeroporto (Boa Viagem / Polo Empresarial)</option>')
 work_opts.append('</optgroup>')
-work_opts.append('<optgroup label="🏛️ Todos os 26 Terminais Integrados (SEI)">')
-for t in sei_terminals:
-    work_opts.append(f'  <option value="{t["ti_name"]} ({t["municipio"]})" data-lat="{t["lat"]}" data-lon="{t["lon"]}">🏛️ {t["ti_name"]} ({t["municipio"]})</option>')
-work_opts.append('</optgroup>')
+
+for mun, t_list in terminals_by_mun.items():
+    work_opts.append(f'<optgroup label="🏛️ Terminais Integrados · {mun}">')
+    for t in t_list:
+        work_opts.append(f'  <option value="{t["ti_name"]} ({mun})" data-lat="{t["lat"]}" data-lon="{t["lon"]}">🏛️ {t["ti_name"]} ({t.get("bairro", mun)})</option>')
+    work_opts.append('</optgroup>')
 work_opts_html = "\n".join(work_opts)
 
 # Build options for Routes (199 first, then priority, then all)
@@ -63,20 +76,13 @@ for r in pe60_r:
     sel = ' selected' if r["code"] == "199" else ''
     route_opts.append(f'  <option value="{r["code"]}"{sel}>🚌 Linha {r["label"]}</option>')
 route_opts.append('</optgroup>')
-route_opts.append('<optgroup label="📋 Todas as Linhas do Grande Recife">')
-for r in other_r[:60]: # Top 60 most relevant lines
+route_opts.append('<optgroup label="📋 Todas as Linhas do Grande Recife (SEI / CTM)">')
+for r in other_r[:80]:
     route_opts.append(f'  <option value="{r["code"]}">🚌 Linha {r["label"]}</option>')
 route_opts.append('</optgroup>')
 route_opts_html = "\n".join(route_opts)
 
-# Stringify datasets for injection
-t199_json = json.dumps(t199, ensure_ascii=False)
-t178_json = json.dumps(t178, ensure_ascii=False)
-sei_json = json.dumps(sei_terminals, ensure_ascii=False)
-
-print("Options and JSON prepared successfully!")
-
-html_template = f"""<!DOCTYPE html>
+template = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -89,7 +95,7 @@ html_template = f"""<!DOCTYPE html>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    :root {{
+    :root {
       --brand-green: #059669;
       --brand-green-dark: #047857;
       --brand-green-bg: #ecfdf5;
@@ -109,107 +115,236 @@ html_template = f"""<!DOCTYPE html>
       --text-secondary: #475569;
       --text-muted: #94a3b8;
       --border-color: #e2e8f0;
-      --shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.12);
+      --shadow-sheet: 0 -10px 30px rgba(0, 0, 0, 0.12);
       --shadow-floating: 0 4px 20px rgba(0, 0, 0, 0.14);
-    }}
+    }
 
-    * {{
+    * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
-    }}
+    }
 
-    html, body {{
+    body {
       width: 100vw;
       height: 100dvh;
       overflow: hidden;
-      position: fixed;
-      inset: 0;
       background: #0f172a;
+      background-image: radial-gradient(circle at 50% 10%, #1e293b 0%, #0b0f19 100%);
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       color: var(--text-main);
-      font-size: 15px;
-    }}
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-    /* FULLSCREEN MAP */
-    #mobile-map {{
-      width: 100vw;
-      height: 100dvh;
+    /* DESKTOP TOP BAR (OUTSIDE PHONE) */
+    .desktop-outer-bar {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+      padding: 10px 20px;
+      margin-bottom: 12px;
+      justify-content: space-between;
+      align-items: center;
+      color: #e2e8f0;
+      font-size: 13.5px;
+      z-index: 1000;
+    }
+
+    .desktop-outer-bar .badge-title {
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .desktop-outer-bar .btn-desktop-action {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .desktop-outer-bar .btn-desktop-action:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* PHONE FRAME CONTAINER */
+    .phone-simulator-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #f8fafc;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* DESKTOP MEDIA QUERY: ELEGANT SMARTPHONE FRAME */
+    @media (min-width: 601px) {
+      .desktop-outer-bar {
+        display: flex;
+      }
+      .phone-simulator-frame {
+        width: 412px;
+        height: min(870px, 92vh);
+        border-radius: 46px;
+        border: 8px solid #1e293b;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.1);
+      }
+      .phone-notch-island {
+        display: flex;
+      }
+      .phone-home-indicator {
+        display: block;
+      }
+    }
+
+    /* FULLSCREEN TOGGLE ON DESKTOP */
+    body.is-fullscreen .phone-simulator-frame {
+      width: 100vw !important;
+      height: 100dvh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    body.is-fullscreen .desktop-outer-bar {
+      display: none !important;
+    }
+
+    /* DYNAMIC ISLAND NOTCH ON DESKTOP */
+    .phone-notch-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 24px;
+      background: #000000;
+      border-radius: 999px;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+    .phone-notch-cam {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #111827;
+      border: 1px solid #1f2937;
+    }
+
+    /* HOME INDICATOR AT BOTTOM OF PHONE FRAME */
+    .phone-home-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 4.5px;
+      background: #0f172a;
+      border-radius: 999px;
+      z-index: 2000;
+      display: none;
+      pointer-events: none;
+    }
+
+    /* FULLSCREEN LEAFLET MAP INSIDE PHONE FRAME */
+    #mobile-map {
+      width: 100%;
+      height: 100%;
       position: absolute;
       inset: 0;
       z-index: 1;
-    }}
+      background: #e2e8f0; /* Map neutral gray, never black */
+    }
 
     /* FLOATING TOP BAR (SLEEK PILL) */
-    .top-floating-bar {{
+    .top-floating-bar {
       position: absolute;
-      top: 14px;
+      top: 42px;
       left: 14px;
       right: 14px;
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       pointer-events: none;
-    }}
+    }
 
-    .top-pill {{
+    .top-pill {
       pointer-events: auto;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(12px);
       border: 1.5px solid var(--border-color);
       border-radius: 999px;
-      padding: 8px 14px;
+      padding: 7px 12px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       box-shadow: var(--shadow-floating);
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-main);
       cursor: pointer;
-    }}
+      user-select: none;
+    }
 
-    .status-badge-pill {{
+    .status-badge-pill {
       pointer-events: auto;
       background: var(--brand-green-bg);
       border: 1.5px solid var(--brand-green-border);
       color: var(--brand-green-dark);
       border-radius: 999px;
       padding: 7px 12px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 800;
       display: flex;
       align-items: center;
       gap: 6px;
       box-shadow: var(--shadow-floating);
-    }}
+      cursor: pointer;
+    }
 
-    .pulse-dot {{
+    .pulse-dot {
       width: 8px;
       height: 8px;
       background: var(--brand-green);
       border-radius: 50%;
       box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7);
       animation: pulseGreen 2s infinite;
-    }}
+    }
 
-    @keyframes pulseGreen {{
-      0% {{ box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); }}
-      70% {{ box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }}
-      100% {{ box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }}
-    }}
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(5, 150, 105, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+    }
 
-    /* FLOATING CIRCULAR GPS TARGET BUTTON (FAB) */
-    .fab-gps {{
+    /* FLOATING ACTION BUTTON (GPS RECENTER) */
+    .fab-gps {
       position: absolute;
-      bottom: 245px;
-      right: 16px;
+      bottom: 240px;
+      right: 14px;
       z-index: 999;
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: var(--bg-surface);
       border: 2px solid var(--border-color);
@@ -220,69 +355,69 @@ html_template = f"""<!DOCTYPE html>
       cursor: pointer;
       color: var(--blue-accent);
       transition: transform 0.15s ease, background 0.2s ease;
-    }}
-    .fab-gps:active {{
+    }
+    .fab-gps:active {
       transform: scale(0.92);
       background: var(--blue-bg);
-    }}
+    }
 
     /* BOTTOM SHEET (MOBILE-FIRST RIDE-HAILING CARD) */
-    .mobile-bottom-sheet {{
+    .mobile-bottom-sheet {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
       z-index: 1000;
       background: var(--bg-surface);
-      border-radius: 26px 26px 0 0;
+      border-radius: 24px 24px 0 0;
       box-shadow: var(--shadow-sheet);
       border-top: 1px solid var(--border-color);
       transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      max-height: 230px;
+      max-height: 232px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-    }}
+    }
 
-    .mobile-bottom-sheet.expanded {{
-      max-height: calc(100dvh - 75px);
-    }}
+    .mobile-bottom-sheet.expanded {
+      max-height: calc(100% - 75px);
+    }
 
-    .sheet-handle-zone {{
+    .sheet-handle-zone {
       padding: 10px 0 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: pointer;
-    }}
+    }
 
-    .sheet-handle-pill {{
-      width: 42px;
+    .sheet-handle-pill {
+      width: 40px;
       height: 4.5px;
       background: #cbd5e1;
       border-radius: 999px;
-    }}
+    }
 
-    .sheet-body {{
-      padding: 6px 18px 24px;
+    .sheet-body {
+      padding: 6px 16px 24px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       flex: 1;
-    }}
+    }
 
     /* 1-TAP TRAVEL CARDS */
-    .travel-cards-row {{
+    .travel-cards-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin: 10px 0 10px;
-    }}
+    }
 
-    .travel-card {{
+    .travel-card {
       background: var(--bg-page);
       border: 2px solid var(--border-color);
       border-radius: 16px;
-      padding: 12px 14px;
+      padding: 12px 12px;
       text-align: left;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -290,39 +425,39 @@ html_template = f"""<!DOCTYPE html>
       flex-direction: column;
       justify-content: space-between;
       min-height: 72px;
-    }}
+    }
 
-    .travel-card:active {{
+    .travel-card:active {
       transform: scale(0.97);
-    }}
+    }
 
-    .travel-card.active-home {{
+    .travel-card.active-home {
       background: var(--brand-green-bg);
       border-color: var(--brand-green);
-    }}
+    }
 
-    .travel-card.active-work {{
+    .travel-card.active-work {
       background: var(--blue-bg);
       border-color: var(--blue-accent);
-    }}
+    }
 
-    .travel-card-title {{
+    .travel-card-title {
       font-size: 13px;
       font-weight: 800;
       display: flex;
       align-items: center;
       gap: 6px;
-    }}
+    }
 
-    .travel-card-subtitle {{
+    .travel-card-subtitle {
       font-size: 11.5px;
       font-weight: 600;
       color: var(--text-secondary);
       margin-top: 3px;
-    }}
+    }
 
     /* EMERGENCY HELPER CARD */
-    .lost-help-card {{
+    .lost-help-card {
       background: var(--danger-bg);
       border: 1.5px solid var(--danger-border);
       border-radius: 14px;
@@ -333,22 +468,22 @@ html_template = f"""<!DOCTYPE html>
       gap: 10px;
       cursor: pointer;
       margin-bottom: 8px;
-    }}
+    }
 
-    .lost-help-card:active {{
+    .lost-help-card:active {
       transform: scale(0.98);
-    }}
+    }
 
     /* ACTIVE ROUTE / BIG NUMBER VIEW */
-    .active-trip-view {{
+    .active-trip-view {
       display: none;
-    }}
+    }
 
-    .active-trip-view.visible {{
+    .active-trip-view.visible {
       display: block;
-    }}
+    }
 
-    .hero-eta-box {{
+    .hero-eta-box {
       background: var(--bg-page);
       border: 2px solid var(--border-color);
       border-radius: 18px;
@@ -358,25 +493,25 @@ html_template = f"""<!DOCTYPE html>
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-    }}
+    }
 
-    .hero-eta-big {{
-      font-family: 'JetBrains Mono', monospace;
+    .hero-eta-big {
+      font-family: JetBrains Mono, monospace;
       font-size: 42px;
       font-weight: 800;
       line-height: 1;
       color: var(--brand-green-dark);
       letter-spacing: -0.03em;
-    }}
+    }
 
-    .hero-btn-pocket {{
+    .hero-btn-pocket {
       width: 100%;
       min-height: 52px;
       background: var(--brand-green);
       color: #ffffff;
       border: none;
       border-radius: 16px;
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -386,16 +521,16 @@ html_template = f"""<!DOCTYPE html>
       box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
       transition: all 0.15s ease;
       margin-bottom: 10px;
-    }}
+    }
 
-    .hero-btn-pocket:active {{
+    .hero-btn-pocket:active {
       transform: scale(0.98);
       background: var(--brand-green-dark);
-    }}
+    }
 
     /* OLED BLACK SCREEN SHIELD */
-    #pocket-shield-screen {{
-      position: fixed;
+    #pocket-shield-screen {
+      position: absolute;
       inset: 0;
       z-index: 99999;
       background: #000000;
@@ -407,72 +542,73 @@ html_template = f"""<!DOCTYPE html>
       text-align: center;
       padding: 24px;
       cursor: pointer;
-    }}
+    }
 
     /* MODAL BASE */
-    .modal-overlay {{
-      position: fixed;
+    .modal-overlay {
+      position: absolute;
       inset: 0;
       z-index: 10000;
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(15, 23, 42, 0.7);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
       padding: 16px;
-    }}
+    }
 
-    .modal-card {{
+    .modal-card {
       background: var(--bg-surface);
       border-radius: 22px;
       width: 100%;
-      max-width: 440px;
-      max-height: 90vh;
+      max-width: 380px;
+      max-height: 90%;
       overflow-y: auto;
-      padding: 22px;
+      padding: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       border: 1px solid var(--border-color);
-    }}
+    }
 
-    /* FORM ELEMENTS (NO TINY SELECTS) */
-    .field-group {{
-      margin-bottom: 14px;
-    }}
+    /* FORM ELEMENTS */
+    .field-group {
+      margin-bottom: 12px;
+      text-align: left;
+    }
 
-    .field-label {{
+    .field-label {
       display: block;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       color: var(--text-main);
-    }}
+    }
 
-    .field-input, .field-select {{
+    .field-input, .field-select {
       width: 100%;
-      min-height: 50px;
-      padding: 10px 14px;
-      font-size: 15px;
+      min-height: 46px;
+      padding: 10px 12px;
+      font-size: 14px;
       border: 1.5px solid var(--border-color);
-      border-radius: 14px;
+      border-radius: 12px;
       background: var(--bg-surface);
       color: var(--text-main);
       font-family: inherit;
-    }}
+    }
 
-    .field-input:focus, .field-select:focus {{
+    .field-input:focus, .field-select:focus {
       border-color: var(--brand-green);
       outline: none;
       box-shadow: 0 0 0 3px var(--brand-green-bg);
-    }}
+    }
 
-    .btn-primary {{
+    .btn-primary {
       width: 100%;
-      min-height: 52px;
+      min-height: 48px;
       background: var(--brand-green);
       color: #ffffff;
       border: none;
       border-radius: 14px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
@@ -480,26 +616,26 @@ html_template = f"""<!DOCTYPE html>
       justify-content: center;
       gap: 8px;
       box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
-    }}
+    }
 
-    .btn-secondary {{
+    .btn-secondary {
       width: 100%;
-      min-height: 44px;
+      min-height: 42px;
       background: transparent;
       color: var(--text-secondary);
       border: 1.5px solid var(--border-color);
       border-radius: 14px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       cursor: pointer;
       margin-top: 8px;
-    }}
+    }
 
     /* STOP NODE ON MAP */
-    .stop-marker-pill {{
+    .stop-marker-pill {
       background: var(--brand-green);
       color: #ffffff;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: JetBrains Mono, monospace;
       font-size: 11px;
       font-weight: 800;
       padding: 3px 6px;
@@ -510,279 +646,350 @@ html_template = f"""<!DOCTYPE html>
       display: flex;
       align-items: center;
       justify-content: center;
-    }}
-    .stop-marker-pill.selected {{
+    }
+    .stop-marker-pill.selected {
       background: var(--danger-red);
       transform: scale(1.15);
-    }}
+    }
+
+    /* MOVING BUS MARKER */
+    .bus-marker-pulse {
+      background: #0284c7;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. FULLSCREEN LEAFLET MAP -->
-  <div id="mobile-map"></div>
-
-  <!-- 2. MINIMALIST FLOATING TOP BAR -->
-  <div class="top-floating-bar">
-    <div class="top-pill" onclick="openProfileModal()">
-      <span style="font-size:16px;">👤</span>
-      <span id="top-user-name">Cauã</span>
+  <!-- DESKTOP TOP BAR (OUTSIDE SMARTPHONE FRAME) -->
+  <div class="desktop-outer-bar">
+    <div class="badge-title">
+      <span>📱</span>
+      <span>Simulador Mobile · GrafoParada Grande Recife</span>
+      <span style="font-size:11px; background:rgba(5,150,105,0.25); color:#34d399; padding:2px 8px; border-radius:999px; border:1px solid rgba(5,150,105,0.4);">SEI Integrado</span>
     </div>
-
-    <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
-      <div class="pulse-dot"></div>
-      <span>199 · Camela / Cabo</span>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-desktop-action" onclick="logoutAndRestart()">
+        <span>🔄</span> Testar do Zero (Novo Cadastro)
+      </button>
+      <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()">
+        <span>⛶</span> Alternar Tela
+      </button>
     </div>
   </div>
 
-  <!-- 3. FLOATING ACTION BUTTON (GPS RECENTER) -->
-  <button class="fab-gps" onclick="recenterGpsTarget()" title="Localizar meu GPS">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="9"></circle>
-      <line x1="12" y1="1" x2="12" y2="4"></line>
-      <line x1="12" y1="20" x2="12" y2="23"></line>
-      <line x1="1" y1="12" x2="4" y2="12"></line>
-      <line x1="20" y1="12" x2="23" y2="12"></line>
-      <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
-    </svg>
-  </button>
-
-  <!-- 4. BOTTOM SHEET (RIDE-HAILING / TRANSIT EXPERIENCE) -->
-  <div class="mobile-bottom-sheet" id="main-bottom-sheet">
-    <div class="sheet-handle-zone" onclick="toggleSheetExpansion()">
-      <div class="sheet-handle-pill"></div>
+  <!-- SMARTPHONE SHELL FRAME -->
+  <div class="phone-simulator-frame">
+    <!-- HARDWARE NOTCH ISLAND -->
+    <div class="phone-notch-island">
+      <div class="phone-notch-cam"></div>
     </div>
 
-    <div class="sheet-body">
-      <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
-      <div id="view-sheet-resting">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual</span>
-          <button style="border:none; background:none; color:var(--blue-accent); font-weight:700; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Paradas ▲</button>
-        </div>
-        <div style="font-size:16px; font-weight:800; margin-bottom:10px; color:var(--text-main);" id="current-stop-name">
-          Parada 030613 · Terminal de Camela
+    <!-- 1. FULLSCREEN LEAFLET MAP -->
+    <div id="mobile-map"></div>
+
+    <!-- 2. MINIMALIST FLOATING TOP BAR -->
+    <div class="top-floating-bar">
+      <div class="top-pill" onclick="openProfileModal()">
+        <span style="font-size:15px;">👤</span>
+        <span id="top-user-name">Cauã</span>
+      </div>
+
+      <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
+        <div class="pulse-dot"></div>
+        <span id="top-line-label">199 · Camela / Cabo</span>
+      </div>
+    </div>
+
+    <!-- 3. FLOATING ACTION BUTTON (GPS RECENTER) -->
+    <button class="fab-gps" onclick="recenterGpsTarget()" title="Localizar meu GPS">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"></circle>
+        <line x1="12" y1="1" x2="12" y2="4"></line>
+        <line x1="12" y1="20" x2="12" y2="23"></line>
+        <line x1="1" y1="12" x2="4" y2="12"></line>
+        <line x1="20" y1="12" x2="23" y2="12"></line>
+        <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+      </svg>
+    </button>
+
+    <!-- 4. BOTTOM SHEET (RIDE-HAILING / TRANSIT EXPERIENCE) -->
+    <div class="mobile-bottom-sheet" id="main-bottom-sheet">
+      <div class="sheet-handle-zone" onclick="toggleSheetExpansion()">
+        <div class="sheet-handle-pill"></div>
+      </div>
+
+      <div class="sheet-body">
+        <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
+        <div id="view-sheet-resting">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual</span>
+            <button style="border:none; background:none; color:var(--blue-accent); font-weight:700; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Paradas ▲</button>
+          </div>
+          <div style="font-size:15.5px; font-weight:800; margin-bottom:10px; color:var(--text-main);" id="current-stop-name">
+            Parada 030613 · Terminal de Camela
+          </div>
+
+          <!-- 2 GIANT 1-TAP CARDS -->
+          <div class="travel-cards-row">
+            <button class="travel-card active-home" onclick="triggerTripAction('home')">
+              <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
+              <div class="travel-card-subtitle" id="home-card-sub">Camela · 4 min</div>
+            </button>
+
+            <button class="travel-card active-work" onclick="triggerTripAction('work')">
+              <div class="travel-card-title"><span>💼</span> Vou pro Destino</div>
+              <div class="travel-card-subtitle" id="work-card-sub">TI Cabo · 32 min</div>
+            </button>
+          </div>
+
+          <!-- LOST PERSON ASSISTANCE BUTTON -->
+          <div class="lost-help-card" onclick="openLostHelpModal()">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:20px;">🧭</span>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:var(--danger-red);">Primeira vez aqui ou perdido?</div>
+                <div style="font-size:11px; color:var(--text-secondary);">Guia anti-pânico de plataforma e segurança</div>
+              </div>
+            </div>
+            <span style="font-size:14px; font-weight:800; color:var(--danger-red);">➔</span>
+          </div>
         </div>
 
-        <!-- 2 GIANT 1-TAP CARDS -->
-        <div class="travel-cards-row">
-          <button class="travel-card active-home" onclick="triggerTripAction('home')">
-            <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
-            <div class="travel-card-subtitle" id="home-card-sub">Camela · 4 min</div>
-          </button>
+        <!-- STATE B: ACTIVE ROUTE / BUS WAITING VIEW -->
+        <div id="view-sheet-active" class="active-trip-view">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="font-size:13px; font-weight:800; color:var(--brand-green-dark);" id="active-trip-header">
+              🚌 Linha 199 · Camela / TI Cabo
+            </div>
+            <button style="border:none; background:none; color:var(--text-muted); font-size:12.5px; font-weight:700; cursor:pointer;" onclick="closeActiveTripView()">✕ Voltar</button>
+          </div>
 
-          <button class="travel-card active-work" onclick="triggerTripAction('work')">
-            <div class="travel-card-title"><span>💼</span> Vou pro Destino</div>
-            <div class="travel-card-subtitle" id="work-card-sub">TI Cabo · 32 min</div>
-          </button>
-        </div>
-
-        <!-- LOST PERSON ASSISTANCE BUTTON -->
-        <div class="lost-help-card" onclick="openLostHelpModal()">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:20px;">🧭</span>
+          <!-- HERO ETA CARD -->
+          <div class="hero-eta-box">
             <div>
-              <div style="font-size:12.5px; font-weight:800; color:var(--danger-red);">Primeira vez aqui ou perdido?</div>
-              <div style="font-size:11px; color:var(--text-secondary);">Guia anti-pânico de plataforma e segurança</div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Primeiro Ônibus</div>
+              <div class="hero-eta-big"><span id="live-eta-num">4</span> <span style="font-size:20px; font-weight:700;">min</span></div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 04</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Viagem Total</div>
+              <div style="font-size:23px; font-weight:800; color:var(--text-main);" id="live-total-trip">38 min</div>
+              <span style="font-size:10.5px; font-weight:700; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:2px 8px; border-radius:999px;">Assento Livre</span>
             </div>
           </div>
-          <span style="font-size:14px; font-weight:800; color:var(--danger-red);">➔</span>
+
+          <!-- TRUST BADGES -->
+          <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
+            <div style="font-size:11.5px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <span>🛰️</span> GPS Satélite Ativo · 42 km/h na PE-60 (Zero Ônibus Fantasma)
+            </div>
+            <div style="font-size:11.5px; background:var(--blue-bg); color:var(--blue-accent); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <span>💺</span> 14 assentos livres · Embarque Sentado Garantido
+            </div>
+          </div>
+
+          <!-- HERO ACTION: POCKET MODE AUDIO -->
+          <button class="hero-btn-pocket" onclick="activatePocketShield()">
+            <span>🎧</span> ATIVAR MODO CELULAR NO BOLSO
+          </button>
+        </div>
+
+        <!-- STOPS LIST ACCORDION (VISIBLE WHEN EXPANDED) -->
+        <div id="sheet-stops-list" style="margin-top:14px; border-top:1px solid var(--border-color); padding-top:14px;">
+          <div style="font-size:12.5px; font-weight:800; margin-bottom:10px; color:var(--text-secondary); text-transform:uppercase;">
+            Paradas Físicas do Trajeto (<span id="stops-count-label">43</span>):
+          </div>
+          <div id="stops-container" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
       </div>
+    </div>
 
-      <!-- STATE B: ACTIVE ROUTE / BUS WAITING VIEW -->
-      <div id="view-sheet-active" class="active-trip-view">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <div style="font-size:13.5px; font-weight:800; color:var(--brand-green-dark);" id="active-trip-header">
-            🚌 Linha 199 · Camela / TI Cabo
+    <!-- 5. OLED BLACK SCREEN POCKET SHIELD (ANTI-THEFT) -->
+    <div id="pocket-shield-screen" onclick="deactivatePocketShield()">
+      <div style="font-size:48px; margin-bottom:14px;">🛡️</div>
+      <h2 style="font-size:21px; font-weight:800; margin-bottom:8px;">Modo Seguro Ativo</h2>
+      <p style="font-size:13.5px; color:#94a3b8; max-width:260px; line-height:1.45; margin-bottom:24px;">
+        Celular no bolso com a tela escura. Avisaremos pelo fone quando seu ônibus estiver chegando.
+      </p>
+      <div style="font-size:11.5px; color:#64748b; border:1px solid #334155; padding:8px 16px; border-radius:999px;">
+        Toque na tela para voltar
+      </div>
+    </div>
+
+    <!-- 6. MODAL: "ESTOU PERDIDO / PRIMEIRA VEZ AQUI" -->
+    <div id="modal-lost" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid var(--brand-green);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:26px;">🧭</span>
+            <div>
+              <h3 style="font-size:17px; font-weight:800; color:var(--brand-green-dark); margin:0;">Você está seguro</h3>
+              <span style="font-size:11.5px; color:var(--text-secondary);">Guia anti-pânico de orientação no terminal</span>
+            </div>
           </div>
-          <button style="border:none; background:none; color:var(--text-muted); font-size:13px; font-weight:700; cursor:pointer;" onclick="closeActiveTripView()">✕ Voltar</button>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeLostModal()">✕</button>
         </div>
 
-        <!-- HERO ETA CARD -->
-        <div class="hero-eta-box">
-          <div>
-            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Primeiro Ônibus</div>
-            <div class="hero-eta-big"><span id="live-eta-num">4</span> <span style="font-size:20px; font-weight:700;">min</span></div>
-            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 04</div>
+        <div style="background:var(--brand-green-bg); border:1px solid var(--brand-green-border); border-radius:14px; padding:11px; font-size:12.5px; color:var(--brand-green-dark); line-height:1.45; margin-bottom:14px;">
+          <strong>💚 Fique calmo:</strong> Deixe o celular guardado para não chamar atenção. Siga os 3 passos abaixo:
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:11px;">
+            <div style="font-size:11px; font-weight:800; color:var(--blue-accent); text-transform:uppercase;">1️⃣ Onde você está agora:</div>
+            <div style="font-size:13.5px; font-weight:800; margin-top:2px;" id="lost-step-loc">🏛️ Terminal Integrado do Cabo (Área Interna)</div>
+            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Área coberta iluminada, próximo à cabine de fiscalização do CTM.</div>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Viagem Total</div>
-            <div style="font-size:24px; font-weight:800; color:var(--text-main);" id="live-total-trip">38 min</div>
-            <span style="font-size:11px; font-weight:700; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:2px 8px; border-radius:999px;">Assento Livre</span>
+
+          <div style="background:var(--bg-page); border:1.5px solid var(--brand-green); border-radius:14px; padding:11px;">
+            <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">2️⃣ Para onde caminhar:</div>
+            <div style="font-size:13.5px; font-weight:800; margin-top:2px;" id="lost-step-plat">🚶 Vá até a Plataforma 04 (Linha 199 Camela)</div>
+            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Ônibus da São Judas Tadeu (SJT). Não precisa sair para a rodovia externa.</div>
+          </div>
+
+          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:11px;">
+            <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">3️⃣ Primeiro ônibus & Horário:</div>
+            <div style="font-size:13.5px; font-weight:800; margin-top:2px;" id="lost-step-bus">🚌 Chega em 4 minutos (às 06:14)</div>
+            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">14 assentos livres · Embarque sentado garantido.</div>
           </div>
         </div>
 
-        <!-- TRUST BADGES -->
-        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
-          <div style="font-size:12px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 12px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-            <span>🛰️</span> GPS Satélite Ativo · 42 km/h na PE-60 (Zero Ônibus Fantasma)
+        <button class="btn-primary" onclick="playLostVoiceAudio()" style="margin-bottom:8px;">
+          <span>🎧</span> Ouvir Instruções no Fone
+        </button>
+
+        <button class="btn-secondary" onclick="closeLostModal()">
+          👍 Entendido, já estou na plataforma
+        </button>
+      </div>
+    </div>
+
+    <!-- 7. MODAL: PROFILE & LOGOUT -->
+    <div id="modal-profile" class="modal-overlay">
+      <div class="modal-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h3 style="font-size:17px; font-weight:800;">👤 Minha Conta</h3>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeProfileModal()">✕</button>
+        </div>
+
+        <div style="background:var(--bg-page); border-radius:14px; padding:12px; margin-bottom:14px; font-size:13px; line-height:1.6;">
+          <div><strong>Nome:</strong> <span id="prof-name">Cauã Cunha</span></div>
+          <div><strong>CPF:</strong> <span id="prof-cpf">084.721.904-12</span></div>
+          <div><strong>Celular:</strong> <span id="prof-phone">(81) 98888-7766</span></div>
+          <div><strong>Casa:</strong> <span id="prof-home">Camela (Rua do Comércio)</span></div>
+          <div><strong>Destino:</strong> <span id="prof-work">TI Cabo</span></div>
+          <div><strong>Linha:</strong> <span id="prof-line">199 · Camela / TI Cabo</span></div>
+        </div>
+
+        <button class="btn-primary" onclick="testNeuralVoice()" style="margin-bottom:8px;">
+          <span>🔊</span> Testar Voz Humana no Fone
+        </button>
+
+        <button class="btn-secondary" style="color:var(--danger-red); border-color:var(--danger-border);" onclick="logoutAndRestart()">
+          🚪 Sair da Conta / Reiniciar Teste do Zero
+        </button>
+      </div>
+    </div>
+
+    <!-- 8. ONBOARDING & CADASTRO MODAL -->
+    <div id="modal-onboarding" class="modal-overlay" style="background:#0f172a; z-index:99999;">
+      <!-- STEP 1: SPLASH SCREEN -->
+      <div id="onboarding-step-splash" class="modal-card" style="max-width:360px; padding:24px; text-align:center;">
+        <div style="font-size:42px; margin-bottom:10px;">🚌</div>
+        <h2 style="font-size:22px; font-weight:800; margin-bottom:4px; letter-spacing:-0.02em;">GrafoParada</h2>
+        <div style="font-size:12px; font-weight:700; color:var(--brand-green); margin-bottom:14px;">Grande Recife · Inteligência Artificial CTM</div>
+
+        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-bottom:18px;">
+          Chega de esperar ônibus fantasma. Previsão real de chegada, assento livre garantido e proteção no bolso.
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:8px; text-align:left; margin-bottom:20px; font-size:12px;">
+          <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
+            <span>🛰️</span> <strong>Zero Ônibus Fantasma:</strong> Telemetria e ST-GCN real.
           </div>
-          <div style="font-size:12px; background:var(--blue-bg); color:var(--blue-accent); padding:6px 12px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-            <span>💺</span> 14 assentos livres · Embarque Sentado Garantido
+          <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
+            <span>💺</span> <strong>Sentado Garantido:</strong> Lotação antes de embarcar.
+          </div>
+          <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
+            <span>🛡️</span> <strong>Modo Bolso:</strong> Não tire o celular na parada.
           </div>
         </div>
 
-        <!-- HERO ACTION: POCKET MODE AUDIO -->
-        <button class="hero-btn-pocket" onclick="activatePocketShield()">
-          <span>🎧</span> ATIVAR MODO CELULAR NO BOLSO
+        <button class="btn-primary" onclick="showOnboardingRegistration()" style="margin-bottom:8px;">
+          🚀 Criar Minha Conta (Primeiro Acesso)
+        </button>
+
+        <button class="btn-secondary" onclick="enterAsQuickGuest()">
+          ⚡ Entrar Rápido (Demonstração Cauã)
         </button>
       </div>
 
-      <!-- STOPS LIST ACCORDION (VISIBLE WHEN EXPANDED) -->
-      <div id="sheet-stops-list" style="margin-top:14px; border-top:1px solid var(--border-color); padding-top:14px;">
-        <div style="font-size:13px; font-weight:800; margin-bottom:10px; color:var(--text-secondary); text-transform:uppercase;">
-          Paradas Físicas do Trajeto (<span id="stops-count-label">43</span>):
+      <!-- STEP 2: CADASTRO COMPLETO DO PASSAGEIRO -->
+      <div id="onboarding-step-form" class="modal-card" style="max-width:370px; padding:20px; display:none;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <button style="border:none; background:none; font-size:18px; cursor:pointer;" onclick="showOnboardingSplash()">←</button>
+          <h3 style="font-size:17px; font-weight:800;">Cadastro do Passageiro</h3>
         </div>
-        <div id="stops-container" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 5. OLED BLACK SCREEN POCKET SHIELD (ANTI-THEFT) -->
-  <div id="pocket-shield-screen" onclick="deactivatePocketShield()">
-    <div style="font-size:52px; margin-bottom:16px;">🛡️</div>
-    <h2 style="font-size:22px; font-weight:800; margin-bottom:8px;">Modo Seguro Ativo</h2>
-    <p style="font-size:14px; color:#94a3b8; max-width:280px; line-height:1.45; margin-bottom:24px;">
-      Celular no bolso com a tela escura. Avisaremos pelo fone quando seu ônibus estiver chegando.
-    </p>
-    <div style="font-size:12px; color:#64748b; border:1px solid #334155; padding:8px 16px; border-radius:999px;">
-      Toque em qualquer lugar da tela para acordar
-    </div>
-  </div>
-
-  <!-- 6. MODAL: "ESTOU PERDIDO / PRIMEIRA VEZ AQUI" -->
-  <div id="modal-lost" class="modal-overlay">
-    <div class="modal-card" style="border:2px solid var(--brand-green);">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:28px;">🧭</span>
-          <div>
-            <h3 style="font-size:18px; font-weight:800; color:var(--brand-green-dark); margin:0;">Você está seguro</h3>
-            <span style="font-size:12px; color:var(--text-secondary);">Guia anti-pânico de orientação no terminal</span>
+        <form onsubmit="handleOnboardingSubmit(event)">
+          <div class="field-group">
+            <label class="field-label">Nome Completo:</label>
+            <input type="text" id="inp-name" class="field-input" placeholder="Seu nome" value="Cauã Cunha" required />
           </div>
-        </div>
-        <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeLostModal()">✕</button>
+
+          <div class="field-group">
+            <label class="field-label">CPF (Validação CTM / VEM):</label>
+            <input type="tel" inputmode="numeric" id="inp-cpf" class="field-input" maxlength="14" oninput="formatCpf(this)" value="084.721.904-12" required />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">🏠 Onde você mora (Casa / Partida Habitual):</label>
+            <select id="inp-home" class="field-select">
+__HOME_OPTIONS__
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">💼 Destino Habitual (Trabalho / Estudo):</label>
+            <select id="inp-work" class="field-select">
+__WORK_OPTIONS__
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">🚌 Linha Habitual de Ônibus:</label>
+            <select id="inp-line" class="field-select">
+__ROUTE_OPTIONS__
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary" style="margin-top:10px;">
+            Finalizar Cadastro e Entrar no App ➔
+          </button>
+        </form>
       </div>
-
-      <div style="background:var(--brand-green-bg); border:1px solid var(--brand-green-border); border-radius:14px; padding:12px; font-size:13px; color:var(--brand-green-dark); line-height:1.45; margin-bottom:14px;">
-        <strong>💚 Fique calmo:</strong> Deixe o celular guardado para não chamar atenção. Siga os 3 passos abaixo:
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
-        <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:12px;">
-          <div style="font-size:11px; font-weight:800; color:var(--blue-accent); text-transform:uppercase;">1️⃣ Onde você está agora:</div>
-          <div style="font-size:14px; font-weight:800; margin-top:2px;">🏛️ Terminal Integrado do Cabo (Área Interna)</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Área coberta iluminada, próximo à cabine de fiscalização do CTM.</div>
-        </div>
-
-        <div style="background:var(--bg-page); border:1.5px solid var(--brand-green); border-radius:14px; padding:12px;">
-          <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">2️⃣ Para onde caminhar:</div>
-          <div style="font-size:14px; font-weight:800; margin-top:2px;">🚶 Vá até a Plataforma 04 (Linha 199 Camela)</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Ônibus azul e branco da empresa São Judas Tadeu (SJT). Não saia para a rua externa.</div>
-        </div>
-
-        <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:12px;">
-          <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">3️⃣ Primeiro ônibus & Horário:</div>
-          <div style="font-size:14px; font-weight:800; margin-top:2px;">🚌 Chega em 4 minutos (às 06:14)</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">14 assentos livres · Embarque sentado garantido.</div>
-        </div>
-      </div>
-
-      <button class="btn-primary" onclick="playLostVoiceAudio()" style="margin-bottom:8px;">
-        <span>🎧</span> Ouvir Instruções Calmas no Fone
-      </button>
-
-      <button class="btn-secondary" onclick="closeLostModal()">
-        👍 Entendido, já estou na plataforma
-      </button>
     </div>
-  </div>
 
-  <!-- 7. MODAL: PROFILE & LOGOUT -->
-  <div id="modal-profile" class="modal-overlay">
-    <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 style="font-size:18px; font-weight:800;">👤 Minha Conta</h3>
-        <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeProfileModal()">✕</button>
-      </div>
-
-      <div style="background:var(--bg-page); border-radius:14px; padding:14px; margin-bottom:16px; font-size:13.5px; line-height:1.6;">
-        <div><strong>Nome:</strong> <span id="prof-name">Cauã Cunha</span></div>
-        <div><strong>CPF:</strong> <span id="prof-cpf">084.721.904-12</span></div>
-        <div><strong>Celular:</strong> <span id="prof-phone">(81) 98888-7766</span></div>
-        <div><strong>Casa:</strong> <span id="prof-home">Camela (Rua do Comércio)</span></div>
-        <div><strong>Destino:</strong> <span id="prof-work">TI Cabo</span></div>
-        <div><strong>Linha:</strong> <span id="prof-line">199 · Camela / TI Cabo</span></div>
-      </div>
-
-      <button class="btn-primary" onclick="testNeuralVoice()" style="margin-bottom:8px;">
-        <span>🔊</span> Testar Voz Humana no Fone
-      </button>
-
-      <button class="btn-secondary" style="color:var(--danger-red); border-color:var(--danger-border);" onclick="logoutAndRestart()">
-        🚪 Sair da Conta / Reiniciar do Zero
-      </button>
-    </div>
-  </div>
-
-  <!-- 8. FULLSCREEN ONBOARDING MODAL (1 CLEAN SCREEN) -->
-  <div id="modal-onboarding" class="modal-overlay" style="background:#0f172a; z-index:99999;">
-    <div class="modal-card" style="max-width:400px; padding:24px;">
-      <div style="text-align:center; margin-bottom:18px;">
-        <span style="font-size:36px;">🚌</span>
-        <h2 style="font-size:22px; font-weight:800; margin-top:6px;">GrafoParada</h2>
-        <p style="font-size:13px; color:var(--text-secondary);">Seu copiloto de ônibus no Grande Recife</p>
-      </div>
-
-      <form onsubmit="handleOnboardingSubmit(event)">
-        <div class="field-group">
-          <label class="field-label">Seu Nome:</label>
-          <input type="text" id="inp-name" class="field-input" value="Cauã Cunha" required />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">CPF (Validação VEM / CTM):</label>
-          <input type="tel" inputmode="numeric" id="inp-cpf" class="field-input" maxlength="14" oninput="formatCpf(this)" value="084.721.904-12" required />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">🏠 Onde você mora (Casa):</label>
-          <select id="inp-home" class="field-select">
-{home_opts_html}
-          </select>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">💼 Destino Habitual (Trabalho / Estudo):</label>
-          <select id="inp-work" class="field-select">
-{work_opts_html}
-          </select>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">🚌 Linha de Ônibus Habitual:</label>
-          <select id="inp-line" class="field-select">
-{route_opts_html}
-          </select>
-        </div>
-
-        <button type="submit" class="btn-primary" style="margin-top:10px;">
-          Começar a Usar Agora ➔
-        </button>
-
-        <button type="button" class="btn-secondary" onclick="enterAsQuickGuest()">
-          ⚡ Entrar Rápido com 1 Toque
-        </button>
-      </form>
-    </div>
+    <!-- HOME INDICATOR -->
+    <div class="phone-home-indicator"></div>
   </div>
 
   <script>
     // DATASETS
-    const TELEMETRIA_199 = {t199_json};
-    const TELEMETRIA_178 = {t178_json};
-    const SEI_TERMINALS = {sei_json};
+    const TELEMETRIA_199 = __TELEMETRIA_199__;
+    const TELEMETRIA_178 = __TELEMETRIA_178__;
+    const SEI_TERMINALS = __SEI_TERMINALS__;
 
     let activeRouteCode = "199";
     let TELEMETRIA = TELEMETRIA_199;
@@ -791,117 +998,168 @@ html_template = f"""<!DOCTYPE html>
     let leafletMap = null;
     let routePolylineLayer = null;
     let stopsMarkersLayer = null;
+    let busMarker = null;
     let userMarker = null;
     let currentAudioPlayer = null;
+    let busAnimIndex = 0;
 
-    // INIT APP
-    window.addEventListener("DOMContentLoaded", () => {{
+    // INIT APP ON LOAD
+    window.addEventListener("DOMContentLoaded", function() {
       initMap();
       checkAuthStatus();
-    }});
+      startBusAnimation();
+    });
 
-    function checkAuthStatus() {{{{
+    function checkAuthStatus() {
       const isLogged = localStorage.getItem("grafoparada_logged");
-      if (isLogged === "true") {{{{
+      if (isLogged === "true") {
         loadUserData();
-      }}}} else {{{{
+        document.getElementById("modal-onboarding").style.display = "none";
+      } else {
         document.getElementById("modal-onboarding").style.display = "flex";
-      }}}}
-    }}}}
+        showOnboardingSplash();
+      }
+    }
 
-    function initMap() {{{{
-      leafletMap = L.map("mobile-map", {{{{
-        center: [-8.514931, -35.123469],
-        zoom: 14,
-        zoomControl: false,
-        attributionControl: false
-      }}}});
+    function showOnboardingSplash() {
+      document.getElementById("onboarding-step-splash").style.display = "block";
+      document.getElementById("onboarding-step-form").style.display = "none";
+    }
 
-      L.tileLayer("https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png", {{{{
-        maxZoom: 19
-      }}}}).addTo(leafletMap);
+    function showOnboardingRegistration() {
+      document.getElementById("onboarding-step-splash").style.display = "none";
+      document.getElementById("onboarding-step-form").style.display = "block";
+    }
 
-      routePolylineLayer = L.layerGroup().addTo(leafletMap);
-      stopsMarkersLayer = L.layerGroup().addTo(leafletMap);
+    function initMap() {
+      try {
+        leafletMap = L.map("mobile-map", {
+          center: [-8.514931, -35.123469],
+          zoom: 14,
+          zoomControl: false,
+          attributionControl: false
+        });
 
-      drawRoute(TELEMETRIA);
-      selectStop(1, false);
-    }}}}
+        // Universal OpenStreetMap tiles
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19
+        }).addTo(leafletMap);
 
-    function drawRoute(telemetria) {{{{
+        routePolylineLayer = L.layerGroup().addTo(leafletMap);
+        stopsMarkersLayer = L.layerGroup().addTo(leafletMap);
+
+        drawRoute(TELEMETRIA);
+        selectStop(1, false);
+
+        // Multiple size updates to ensure map renders smoothly inside the phone frame
+        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 150);
+        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 500);
+      } catch (err) {
+        console.error("Leaflet map init error:", err);
+      }
+    }
+
+    function drawRoute(telemetria) {
+      if (!leafletMap) return;
       routePolylineLayer.clearLayers();
       stopsMarkersLayer.clearLayers();
 
-      if (telemetria.polyline && telemetria.polyline.length > 1) {{{{
-        L.polyline(telemetria.polyline, {{{{ color: "#0284c7", weight: 8, opacity: 0.2 }}}}).addTo(routePolylineLayer);
-        L.polyline(telemetria.polyline, {{{{ color: "#0284c7", weight: 4.5, opacity: 0.95 }}}}).addTo(routePolylineLayer);
-      }}}}
+      if (telemetria.polyline && telemetria.polyline.length > 1) {
+        // Road shadow line
+        L.polyline(telemetria.polyline, { color: "#0284c7", weight: 8, opacity: 0.25 }).addTo(routePolylineLayer);
+        // Vibrant transit line
+        L.polyline(telemetria.polyline, { color: "#0284c7", weight: 4.5, opacity: 0.95 }).addTo(routePolylineLayer);
+      }
 
-      telemetria.stops.forEach((st) => {{{{
+      telemetria.stops.forEach(function(st) {
         const isSel = st.seq === activeStopSeq;
-        const icon = L.divIcon({{{{
+        const icon = L.divIcon({
           className: "",
-          html: `<div class="stop-marker-pill ${{isSel ? 'selected' : ''}}">#${{String(st.seq).padStart(2, '0')}}</div>`,
+          html: '<div class="stop-marker-pill ' + (isSel ? 'selected' : '') + '">#' + String(st.seq).padStart(2, '0') + '</div>',
           iconSize: [32, 22],
           iconAnchor: [16, 11]
-        }}}});
+        });
 
-        const m = L.marker([st.lat, st.lon], {{{{ icon }}}});
-        m.on("click", () => selectStop(st.seq, true));
+        const m = L.marker([st.lat, st.lon], { icon: icon });
+        m.on("click", function() { selectStop(st.seq, true); });
         stopsMarkersLayer.addLayer(m);
-      }}}});
+      });
 
       renderStopsAccordion(telemetria);
-    }}}}
+    }
 
-    function selectStop(seq, pan = true) {{{{
+    function selectStop(seq, pan) {
       activeStopSeq = seq;
-      const st = TELEMETRIA.stops.find(s => s.seq === seq) || TELEMETRIA.stops[0];
+      const st = TELEMETRIA.stops.find(function(s) { return s.seq === seq; }) || TELEMETRIA.stops[0];
 
       // Update current stop name
       const nameEl = document.getElementById("current-stop-name");
-      if (nameEl) nameEl.textContent = `Parada #${{String(st.seq).padStart(2, '0')}} · ${{st.name}}`;
+      if (nameEl) nameEl.textContent = "Parada #" + String(st.seq).padStart(2, '0') + " · " + st.name;
 
       // Update ETA
       const etaNum = document.getElementById("live-eta-num");
       if (etaNum) etaNum.textContent = st.stgcn_horizon_min[1].toFixed(0);
 
-      // Re-render markers with selection
-      drawRoute(TELEMETRIA);
+      if (pan && leafletMap) {
+        leafletMap.panTo([st.lat, st.lon], { animate: true, duration: 0.4 });
+      }
+    }
 
-      if (pan && leafletMap) {{{{
-        leafletMap.panTo([st.lat, st.lon], {{{{ animate: true, duration: 0.4 }}}});
-      }}}}
-    }}}}
-
-    function renderStopsAccordion(telemetria) {{{{
+    function renderStopsAccordion(telemetria) {
       const container = document.getElementById("stops-container");
       const labelCount = document.getElementById("stops-count-label");
       if (labelCount) labelCount.textContent = telemetria.stops.length;
       if (!container) return;
 
-      container.innerHTML = telemetria.stops.map(st => `
-        <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="selectStop(${{st.seq}}, true)">
-          <div>
-            <div style="font-size:13px; font-weight:800;">#${{String(st.seq).padStart(2, '0')}} · ${{st.name}}</div>
-            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">${{st.crowd_status || 'Sentado Garantido'}}</div>
-          </div>
-          <div style="font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:800; color:var(--brand-green-dark);">${{st.stgcn_horizon_min[1].toFixed(0)}} min</div>
-        </div>
-      `).join("");
-    }}}}
+      let html = "";
+      telemetria.stops.forEach(function(st) {
+        html += '<div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="selectStop(' + st.seq + ', true)">' +
+          '<div>' +
+            '<div style="font-size:13px; font-weight:800;">#' + String(st.seq).padStart(2, '0') + ' · ' + st.name + '</div>' +
+            '<div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">' + (st.crowd_status || 'Sentado Garantido') + '</div>' +
+          '</div>' +
+          '<div style="font-family:JetBrains Mono,monospace; font-size:15px; font-weight:800; color:var(--brand-green-dark);">' + st.stgcn_horizon_min[1].toFixed(0) + ' min</div>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    // SIMULATED MOVING REAL-TIME BUS
+    function startBusAnimation() {
+      if (!TELEMETRIA || !TELEMETRIA.polyline || TELEMETRIA.polyline.length === 0) return;
+      setInterval(function() {
+        if (!leafletMap) return;
+        busAnimIndex = (busAnimIndex + 2) % TELEMETRIA.polyline.length;
+        const pt = TELEMETRIA.polyline[busAnimIndex];
+        if (!pt) return;
+
+        const busHtml = '<div class="bus-marker-pulse">🚌 199 · 42 km/h</div>';
+        const busIcon = L.divIcon({
+          className: "",
+          html: busHtml,
+          iconSize: [110, 26],
+          iconAnchor: [55, 13]
+        });
+
+        if (!busMarker) {
+          busMarker = L.marker([pt[0], pt[1]], { icon: busIcon, zIndexOffset: 1000 }).addTo(leafletMap);
+        } else {
+          busMarker.setLatLng([pt[0], pt[1]]);
+        }
+      }, 3000);
+    }
 
     // TRIP ACTIONS (1-TAP)
-    function triggerTripAction(target) {{{{
+    function triggerTripAction(target) {
       const isHome = target === "home";
       const u = getUserData();
 
       // Ensure Linha 199 is active
-      if (activeRouteCode !== "199") {{{{
+      if (activeRouteCode !== "199") {
         activeRouteCode = "199";
         TELEMETRIA = TELEMETRIA_199;
         drawRoute(TELEMETRIA);
-      }}}}
+      }
 
       // Show Active Trip View
       document.getElementById("view-sheet-resting").style.display = "none";
@@ -922,88 +1180,89 @@ html_template = f"""<!DOCTYPE html>
       if (etaSub) etaSub.textContent = isHome ? "Encosta às 06:14 · Plataforma 04" : "Encosta às 06:14 · Terminal Camela";
 
       const voiceMsg = isHome
-        ? `Traçando rota para sua Casa em Camela. Primeiro ônibus da Linha 199 chegando em 4 minutos na Plataforma 04. Viagem estimada em 38 minutos com assento garantido.`
-        : `Traçando rota para seu destino no TI Cabo. Primeiro ônibus da Linha 199 passando em 4 minutos. Tempo previsto de 32 minutos.`;
+        ? "Traçando rota para sua Casa em Camela. Primeiro ônibus da Linha 199 chegando em 4 minutos na Plataforma 04. Viagem estimada em 38 minutos com assento garantido."
+        : "Traçando rota para seu destino no TI Cabo. Primeiro ônibus da Linha 199 passando em 4 minutos. Tempo previsto de 32 minutos.";
 
       playNaturalVoice(voiceMsg);
 
-      if (leafletMap && TELEMETRIA.polyline) {{{{
-        leafletMap.fitBounds(TELEMETRIA.polyline, {{{{ padding: [40, 40] }}}});
-      }}}}
-    }}}}
+      if (leafletMap && TELEMETRIA.polyline) {
+        leafletMap.fitBounds(TELEMETRIA.polyline, { padding: [40, 40] });
+      }
+    }
 
-    function closeActiveTripView() {{{{
+    function closeActiveTripView() {
       document.getElementById("view-sheet-active").classList.remove("visible");
       document.getElementById("view-sheet-resting").style.display = "block";
       const sheet = document.getElementById("main-bottom-sheet");
-      sheet.style.maxHeight = "230px";
-    }}}}
+      sheet.style.maxHeight = "232px";
+    }
 
-    function toggleSheetExpansion() {{{{
+    function toggleSheetExpansion() {
       const sheet = document.getElementById("main-bottom-sheet");
       sheet.classList.toggle("expanded");
-    }}}}
+    }
 
     // POCKET SHIELD
-    function activatePocketShield() {{{{
+    function activatePocketShield() {
       document.getElementById("pocket-shield-screen").style.display = "flex";
       playNaturalVoice("GrafoParada ativo no bolso. Celular seguro. Avisaremos você no fone quando o ônibus encostar.");
-    }}}}
+    }
 
-    function deactivatePocketShield() {{{{
+    function deactivatePocketShield() {
       document.getElementById("pocket-shield-screen").style.display = "none";
-    }}}}
+    }
 
     // MODALS
-    function openLostHelpModal() {{{{
+    function openLostHelpModal() {
       document.getElementById("modal-lost").style.display = "flex";
       playLostVoiceAudio();
-    }}}}
+    }
 
-    function closeLostModal() {{{{
+    function closeLostModal() {
       document.getElementById("modal-lost").style.display = "none";
-    }}}}
+    }
 
-    function playLostVoiceAudio() {{{{
+    function playLostVoiceAudio() {
       const u = getUserData();
       const name = (u.name || "passageiro").split(" ")[0];
-      const msg = `Fique calmo, ${{name}}! Deixe o celular guardado no bolso. Você está no Terminal Integrado do Cabo, dentro da área iluminada. Para ir para casa em Camela, basta caminhar até a Plataforma 04 e aguardar a Linha 199. O primeiro ônibus chega em 4 minutos com 14 assentos livres. Fique perto dos outros passageiros. Eu te aviso no fone assim que o ônibus encostar.`;
+      const msg = "Fique calmo, " + name + "! Deixe o celular guardado no bolso. Você está no Terminal Integrado do Cabo, dentro da área iluminada. Para ir para casa em Camela, basta caminhar até a Plataforma 04 e aguardar a Linha 199. O primeiro ônibus chega em 4 minutos com 14 assentos livres. Fique perto dos outros passageiros. Eu te aviso no fone assim que o ônibus encostar.";
       playNaturalVoice(msg);
-    }}}}
+    }
 
-    function openProfileModal() {{{{
+    function openProfileModal() {
       const u = getUserData();
       document.getElementById("prof-name").textContent = u.name || "Cauã Cunha";
       document.getElementById("prof-cpf").textContent = u.cpf || "084.721.904-12";
       document.getElementById("prof-phone").textContent = u.phone || "(81) 98888-7766";
       document.getElementById("prof-home").textContent = (u.home || "Camela").split("·")[0];
       document.getElementById("prof-work").textContent = (u.work || "TI Cabo").split("·")[0];
+      document.getElementById("prof-line").textContent = u.line || "199 · Camela / TI Cabo";
       document.getElementById("modal-profile").style.display = "flex";
-    }}}}
+    }
 
-    function closeProfileModal() {{{{
+    function closeProfileModal() {
       document.getElementById("modal-profile").style.display = "none";
-    }}}}
+    }
 
-    function testNeuralVoice() {{{{
+    function testNeuralVoice() {
       playNaturalVoice("Olá, Cauã! A voz neural do GrafoParada está funcionando perfeitamente em português do Brasil.");
-    }}}}
+    }
 
     // ONBOARDING & STORAGE
-    function formatCpf(input) {{{{
+    function formatCpf(input) {
       let v = input.value.replace(/[^0-9]/g, "");
       if (v.length > 11) v = v.substring(0, 11);
-      if (v.length > 9) {{{{
-        v = v.replace(/^([0-9]{{3}})([0-9]{{3}})([0-9]{{3}})([0-9]{{1,2}})$/, "$1.$2.$3-$4");
-      }}}} else if (v.length > 6) {{{{
-        v = v.replace(/^([0-9]{{3}})([0-9]{{3}})([0-9]{{1,3}})$/, "$1.$2.$3");
-      }}}} else if (v.length > 3) {{{{
-        v = v.replace(/^([0-9]{{3}})([0-9]{{1,3}})$/, "$1.$2");
-      }}}}
+      if (v.length > 9) {
+        v = v.replace(/^([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{1,2})$/, "$1.$2.$3-$4");
+      } else if (v.length > 6) {
+        v = v.replace(/^([0-9]{3})([0-9]{3})([0-9]{1,3})$/, "$1.$2.$3");
+      } else if (v.length > 3) {
+        v = v.replace(/^([0-9]{3})([0-9]{1,3})$/, "$1.$2");
+      }
       input.value = v;
-    }}}}
+    }
 
-    function handleOnboardingSubmit(e) {{{{
+    function handleOnboardingSubmit(e) {
       e.preventDefault();
       const name = document.getElementById("inp-name").value.trim() || "Cauã Cunha";
       const cpf = document.getElementById("inp-cpf").value.trim() || "084.721.904-12";
@@ -1011,111 +1270,160 @@ html_template = f"""<!DOCTYPE html>
       const work = document.getElementById("inp-work").value;
       const line = document.getElementById("inp-line").value;
 
-      const userData = {{{{ name, cpf, phone: "(81) 98888-7766", home, work, line }}}};
+      const userData = { name: name, cpf: cpf, phone: "(81) 98888-7766", home: home, work: work, line: line };
       saveUserData(userData);
-    }}}}
+    }
 
-    function enterAsQuickGuest() {{{{
-      const userData = {{{{
+    function enterAsQuickGuest() {
+      const userData = {
         name: "Cauã Cunha",
         cpf: "084.721.904-12",
         phone: "(81) 98888-7766",
         home: "Camela · Centro (Rua do Comércio / Linha 199)",
         work: "TI Cabo (Terminal Integrado do Cabo)",
         line: "199"
-      }}}};
+      };
       saveUserData(userData);
-    }}}}
+    }
 
-    function saveUserData(userData) {{{{
+    function saveUserData(userData) {
       localStorage.setItem("grafoparada_logged", "true");
       localStorage.setItem("grafoparada_user_data", JSON.stringify(userData));
       document.getElementById("modal-onboarding").style.display = "none";
       loadUserData();
-      playNaturalVoice(`Olá, ${{userData.name.split(' ')[0]}}! Bem-vindo ao GrafoParada. Monitorando a Linha 199 em Camela com proteção inteligente.`);
-    }}}}
+      playNaturalVoice("Olá, " + userData.name.split(' ')[0] + "! Bem-vindo ao GrafoParada. Monitorando a Linha 199 em Camela com proteção inteligente.");
+      if (leafletMap) {
+        setTimeout(function() { leafletMap.invalidateSize(); }, 200);
+      }
+    }
 
-    function loadUserData() {{{{
+    function loadUserData() {
       const u = getUserData();
       const topName = document.getElementById("top-user-name");
       if (topName) topName.textContent = (u.name || "Cauã").split(" ")[0];
 
       const homeSub = document.getElementById("home-card-sub");
-      if (homeSub) homeSub.textContent = `${{(u.home || 'Camela').split('·')[0].replace('🏠','').trim()}} · 4 min`;
+      if (homeSub) homeSub.textContent = (u.home || 'Camela').split('·')[0].replace('🏠','').trim() + " · 4 min";
 
       const workSub = document.getElementById("work-card-sub");
-      if (workSub) workSub.textContent = `${{(u.work || 'TI Cabo').split('·')[0].replace('💼','').replace('🏛️','').trim()}} · 32 min`;
-    }}}}
+      if (workSub) workSub.textContent = (u.work || 'TI Cabo').split('·')[0].replace('💼','').replace('🏛️','').trim() + " · 32 min";
 
-    function getUserData() {{{{
-      try {{{{
-        return JSON.parse(localStorage.getItem("grafoparada_user_data") || "{{}}");
-      }}}} catch (e) {{{{
-        return {{{{}}}};
-      }}}}
-    }}}}
+      const lineBadge = document.getElementById("top-line-label");
+      if (lineBadge && u.line) {
+        lineBadge.textContent = u.line === "199" ? "199 · Camela / Cabo" : "Linha " + u.line;
+      }
+    }
 
-    function logoutAndRestart() {{{{
+    function getUserData() {
+      try {
+        return JSON.parse(localStorage.getItem("grafoparada_user_data") || "{}");
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function logoutAndRestart() {
       localStorage.removeItem("grafoparada_logged");
       localStorage.removeItem("grafoparada_user_data");
       closeProfileModal();
       document.getElementById("modal-onboarding").style.display = "flex";
-    }}}}
+      showOnboardingSplash();
+    }
+
+    function toggleFullscreenDesktop() {
+      document.body.classList.toggle("is-fullscreen");
+      setTimeout(function() {
+        if (leafletMap) leafletMap.invalidateSize();
+      }, 300);
+    }
+
+    function switchLineQuick() {
+      if (activeRouteCode === "199") {
+        activeRouteCode = "178";
+        TELEMETRIA = TELEMETRIA_178;
+        document.getElementById("top-line-label").textContent = "178 · Suape / Cabo";
+        drawRoute(TELEMETRIA);
+        selectStop(1, true);
+        playNaturalVoice("Linha 178 Suape alternada.");
+      } else {
+        activeRouteCode = "199";
+        TELEMETRIA = TELEMETRIA_199;
+        document.getElementById("top-line-label").textContent = "199 · Camela / Cabo";
+        drawRoute(TELEMETRIA);
+        selectStop(1, true);
+        playNaturalVoice("Linha 199 Camela Cabo alternada.");
+      }
+    }
 
     // RECENTER GPS TARGET
-    function recenterGpsTarget() {{{{
-      if (!navigator.geolocation) {{{{
+    function recenterGpsTarget() {
+      if (!navigator.geolocation) {
         selectStop(1, true);
         return;
-      }}}}
+      }
       navigator.geolocation.getCurrentPosition(
-        (pos) => {{{{
+        function(pos) {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
-          if (leafletMap) {{{{
-            leafletMap.flyTo([lat, lon], 16, {{{{ animate: true }}}});
+          if (leafletMap) {
+            leafletMap.flyTo([lat, lon], 16, { animate: true });
             if (userMarker) leafletMap.removeLayer(userMarker);
-            userMarker = L.circleMarker([lat, lon], {{{{
+            userMarker = L.circleMarker([lat, lon], {
               radius: 9,
               fillColor: "#0284c7",
               color: "#ffffff",
               weight: 3,
               opacity: 1,
               fillOpacity: 1
-            }}}}).addTo(leafletMap);
-          }}}}
-        }}}},
-        () => {{{{
+            }).addTo(leafletMap);
+          }
+        },
+        function() {
           selectStop(1, true);
-        }}}},
-        {{{{ enableHighAccuracy: true, timeout: 8000 }}}}
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
       );
-    }}}}
+    }
 
     // NEURAL TTS
-    async function playNaturalVoice(text) {{{{
+    function playNaturalVoice(text) {
       if (!text) return;
-      try {{{{
-        if (currentAudioPlayer) {{{{
+      try {
+        if (currentAudioPlayer) {
           currentAudioPlayer.pause();
           currentAudioPlayer = null;
-        }}}}
-        const url = `/api/live/tts?voice=pt-BR-FranciscaNeural&text=${{{{encodeURIComponent(text)}}}}`;
+        }
+        const url = "/api/live/tts?voice=pt-BR-FranciscaNeural&text=" + encodeURIComponent(text);
         const audio = new Audio(url);
         currentAudioPlayer = audio;
-        audio.play().catch(e => console.warn(e));
-      }}}} catch (e) {{{{
+        audio.play().catch(function(e) {
+          // Fallback to browser SpeechSynthesis if backend audio is blocked or offline
+          if ('speechSynthesis' in window) {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'pt-BR';
+            utter.rate = 1.05;
+            window.speechSynthesis.speak(utter);
+          }
+        });
+      } catch (e) {
         console.warn(e);
-      }}}}
-    }}}}
+      }
+    }
   </script>
 </body>
 </html>
 """
 
+# Inject data cleanly
+final_html = template.replace("__HOME_OPTIONS__", home_opts_html)
+final_html = final_html.replace("__WORK_OPTIONS__", work_opts_html)
+final_html = final_html.replace("__ROUTE_OPTIONS__", route_opts_html)
+final_html = final_html.replace("__TELEMETRIA_199__", json.dumps(t199, ensure_ascii=False))
+final_html = final_html.replace("__TELEMETRIA_178__", json.dumps(t178, ensure_ascii=False))
+final_html = final_html.replace("__SEI_TERMINALS__", json.dumps(sei_terminals, ensure_ascii=False))
+
 out_html = base_dir / "prototipo_grafoparada.html"
 with open(out_html, "w", encoding="utf-8") as f:
-    f.write(html_template)
+    f.write(final_html)
 
-print(f"[OK] NOVO prototipo_grafoparada.html gerado com sucesso!")
-print(f"Tamanho do arquivo limpo: {out_html.stat().st_size:,} bytes")
+print(f"[OK] prototipo_grafoparada.html compilado com sucesso ({out_html.stat().st_size:,} bytes)!")

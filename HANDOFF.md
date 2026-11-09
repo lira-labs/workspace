@@ -156,6 +156,14 @@
       - *Troca Dinâmica de Linha no App:* Botão `🔄 Trocar Linha` na gaveta inferior permite ao passageiro alternar para qualquer uma das 400 linhas da RMR com atualização automática da predição e aviso por voz.
       - *Navegador de T.I.s no Mapa:* Botão flutuante `🏛️ T.I.s` no mapa permite teletransportar e inspecionar instantaneamente qualquer Terminal Integrado da Região Metropolitana.
 
+    - **Correção Crítica de Sintaxe JS, Renderização Imediata do Mapa e Simulador Mobile no Desktop (09/11/2026 · 00:26)**:
+      - *Diagnóstico da Tela Escura Resolvido:* Identificado erro de sintaxe JavaScript (\SyntaxError: Unexpected identifier 'JetBrains'\) gerado por aspas simples não escapadas na renderização do acordeão de paradas. Como o erro ocorria no parse do script, o Leaflet nunca chegava a executar \initMap()\, deixando o container com a cor de fundo padrão e desativando todos os eventos de clique.
+      - *Validação de Sintaxe:* Código JavaScript validado com 100% de conformidade no Node.js (@% VALID JAVASCRIPT!\).
+      - *Simulador de Celular no Desktop (UX Mobile-First):* Em telas largas de PC/laptop (> 600px), a interface agora renderiza dentro de uma elegante moldura de smartphone centralizada (Dynamic Island, notch de câmera, cantos arredondados e barra de navegação), eliminando o aspecto de 'site desktop esticado'. No smartphone real (<= 600px), a moldura se dissolve e assume 100vw x 100dvh nativo.
+      - *Barra de Controle no Desktop:* Adicionados botões superiores para '🔄 Testar do Zero (Novo Cadastro)' e '⛶ Alternar Tela Cheia / Moldura Celular'.
+      - *Fluxo de Teste do Zero (Onboarding & Cadastro):* Tela de boas-vindas destacando os 3 diferenciais (Zero Ônibus Fantasma, Sentado Garantido e Modo Bolso), seguida do cadastro guiado com validação de CPF, seleção de Casa e Destino entre os 26 Terminais Integrados do SEI por município (além de Camela/PE-60) e escolha de linha. Opção de logout/reset disponível tanto no perfil quanto na barra desktop.
+      - *Ônibus em Movimento Contínuo:* Adicionado marcador pulsante do ônibus da Linha 199 percorrendo a rota da PE-60 com telemetria simulada de 42 km/h.
+
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
   - Adicionado `code/topicos_avancados_ia_cp03/CONTEXT.md` (Item 1).
