@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 08/11/2026 23:06
+- **Última Atualização:** 08/11/2026 23:17
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -137,6 +137,11 @@
       - *Gaveta Deslizante (Bottom Sheet):* Padrão nativo de transporte. Em modo compacto (peek), exibe parada atual, contagem regressiva da Linha 178 e botão de fone no bolso; ao puxar pra cima, expande suavemente exibindo paradas próximas e rotas seguras; ao tocar no mapa, recolhe automaticamente.
       - *Barra de Navegação Inferior:* 3 abas acessíveis pelo polegar (Mapa & Ônibus, Segurança & Fone, IA da Frota).
       - *Fluxo Completo de Onboarding & Autenticação:* Tela de boas-vindas com pilares da tecnologia, cadastro guiado em 2 etapas (dados, linha de ônibus habitual e parada de Camela/Ipojuca), configuração da voz neural (`Francisca / Antônio`), login com PIN e botão de logout/reset para recomeçar o teste do zero.
+    - **Integração Completa de Todas as 400 Linhas CTM e 44 Terminais Integrados (T.I.) da RMR (08/11/2026 · 23:16)**:
+      - *Eliminação Total de Dados Fixos:* Superada a limitação de paradas/linhas mockadas. Extraídas do GTFS oficial do Grande Recife (`routes.txt` e `stops.txt`) todas as **400 linhas ativas** (de `001` a `2490`) e os **44 Terminais Integrados e Polos** cobrindo os 14 municípios metropolitanos (Recife, Olinda, Jaboatão, Cabo, Ipojuca/Camela, Paulista, Abreu e Lima, Igarassu, Camaragibe, São Lourenço da Mata).
+      - *Busca e Filtro em Tempo Real:* No cadastro e no app, caixas de busca com autocomplete filtram qualquer linha ou T.I. instantaneamente à medida que o usuário digita.
+      - *Troca Dinâmica de Linha no App:* Botão `🔄 Trocar Linha` na gaveta inferior permite ao passageiro alternar para qualquer uma das 400 linhas da RMR com atualização automática da predição e aviso por voz.
+      - *Navegador de T.I.s no Mapa:* Botão flutuante `🏛️ T.I.s` no mapa permite teletransportar e inspecionar instantaneamente qualquer Terminal Integrado da Região Metropolitana.
 
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
