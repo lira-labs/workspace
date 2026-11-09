@@ -19,10 +19,15 @@
 ## ✅ O que foi Concluído nesta Sessão
 
 ### 000. Tecnologias na Educação · Grupo Zeta (Compasso Educacional)
-- [x] **Auto-Tracking Silencioso e Autônomo (Psicologia Comportamental BJ Fogg $B=MAP$ & Nudge)**:
-  - *Problema Resolvido:* O estudante abandona ferramentas de estudo quando precisa ligar timers manuais, preencher formulários ou lembrar de ativar o app toda vez.
-  - *Implementação:* Seletor e setting persistente de `auto_tracking`. Ao detectar estudo ativo sustentado (>15s em janelas categorizadas como `focus` ou `study`), inicia silenciosamente o bloco `⚡ Auto-Foco`. Se detectar 5 minutos de ociosidade contínua, encerra o bloco e salva as métricas no SQLite.
-  - *Toggle na UI:* Adicionado no rodapé da interface (`web/index.html` e `web/app.js`), integrado à API `/api/auto_tracking`.
+- [x] **Ciclo 100% Autônomo sem Marcação Manual (Zero Fricção Total · BJ Fogg & Stanford)**:
+  - *Filosofia Central:* O aluno NUNCA precisa marcar nada, escolher presets em dropdown ou clicar em iniciar. O Compasso opera como um copiloto autônomo e silencioso no Windows.
+  - *Dedução Automática de Modo e Proteção Dinâmica:*
+    - Ao abrir videoaulas (`YouTube`, `Classroom`, `Moodle` com aula/cálculo): detecta `🎓 Assistir Aula`, permite YouTube e bloqueia redes sociais (TikTok, Instagram, Twitter, Twitch, WhatsApp).
+    - Ao abrir IDEs/editores (`VS Code`, `PyCharm`, `Overleaf`, `LaTeX`): detecta `✍️ Produção & Código` e bloqueia YouTube e redes sociais.
+    - Ao abrir artigos científicos/PDFs (`Acrobat`, `Sumatra`, `Scielo`, `Arxiv`): detecta `📖 Leitura & Pesquisa` e protege o foco.
+  - *Transição Fluida:* Se o estudante termina de ver a videoaula e abre o VS Code para codificar, o Compasso atualiza o modo da sessão e a política da extensão em tempo real após 30s estáveis.
+  - *Pausa e Retomada Automática:* Se o aluno abrir jogos ou redes sociais por mais de 25s, a sessão pausa silenciosamente para não inflar métricas fakes; ao fechar a distração e voltar ao estudo, despausa sozinho.
+  - *Conclusão por Ausência:* 5 minutos sem teclado/mouse (aluno saiu da mesa) encerram a sessão automaticamente e salvam o bloco no SQLite.
 - [x] **Correção do CLI / Launcher Windows (`iniciar.ps1` — "Run Failed")**:
   - *Diagnóstico do Erro:* O launcher original buscava apenas `py.exe` ou caminhos fechados de cache. Em sistemas com Python instalado via `uv`, Microsoft Store ou instalador padrão no PATH (`python.exe` / `python3.exe`), o script falhava com exit code 1 ("Run Failed").
   - *Solução:* Adicionada checagem dinâmica via `Get-Command` com fallbacks para `python.exe`, `py.exe` e `python3.exe`. Testado e validado com sucesso.
@@ -47,7 +52,7 @@
   - Adição do botão e modal **'💡 Empacou no conteúdo? Destravar com Copiloto IA'** na tela principal de Foco (quebra em 3 passos, método Feynman e micro-pausa restaurativa).
   - Adição do modal de celebração com micro-avaliação metacognitiva (1 a 5 estrelas) ao concluir o bloco.
   - Tratamento amigável para câmera opcional ('Modo Janelas Ativo · Câmera Opcional').
-  - Suíte completa de **24 testes unitários Python** e testes de visão/política em Node **100% aprovados**.
+  - Suíte completa de **26 testes unitários Python** e testes de visão/política em Node **100% aprovados**.
   - Branch sincronizada e publicada no GitHub: https://github.com/grupo-zeta/prob-tech-fit-cp01/tree/feat/compasso-estudo-ia.
 
 ### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica · Profa. Jeisa)
