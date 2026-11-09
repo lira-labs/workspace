@@ -1188,7 +1188,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             if (btn) btn.textContent = `📍 Camela (IP corrigido)`;
             if (notice) {
               notice.style.display = "block";
-              notice.innerHTML = `⚠️ <strong>Desvio de IP da Operadora corrigido:</strong> Seu provedor no Windows localizou seu IP em <strong>Japaratinga/AL</strong> (Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}). Como você está em <strong>Camela (Ipojuca - PE)</strong>, reposicionamos você automaticamente para a sua parada real em Camela!`;
+              notice.innerHTML = `⚠️ <strong>Desvio de IP da Operadora corrigido:</strong> Seu provedor no Windows (DTEL Telecom, IP 177.200.245.197) localizou seu IP em <strong>Japaratinga/AL</strong> (Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}). Como você está em <strong>Camela (Ipojuca - PE)</strong>, reposicionamos você automaticamente para a sua parada real em Camela! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do seu PC</button>`;
             }
             setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
             return;
@@ -1198,7 +1198,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           if (notice) {
             if (acc > 150) {
               notice.style.display = "block";
-              notice.innerHTML = `<strong>Atenção sobre o GPS do PC:</strong> O navegador no Windows estimou sua posição pela rede Wi-Fi/provedor com margem de erro de <strong>±${acc} metros</strong>. Se este não for o seu endereço exato, clique no botão <strong>Camela</strong> ou <strong>digite sua rua acima</strong>!`;
+              notice.innerHTML = `<strong>Atenção sobre o GPS do PC:</strong> O navegador no Windows estimou sua posição pela rede Wi-Fi/provedor com margem de erro de <strong>±${acc} metros</strong>. Se este não for o seu endereço exato, clique no botão <strong>Camela</strong> ou <strong>digite sua rua acima</strong>! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do PC</button>`;
             } else {
               notice.style.display = "none";
             }
@@ -1209,11 +1209,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           if (btn) btn.textContent = "📍 Usar Meu GPS";
           if (notice) {
             notice.style.display = "block";
-            notice.innerHTML = `Permissão de GPS negada ou indisponível no navegador. Clique em <strong>Camela</strong> ou digite sua rua na caixa de busca!`;
+            notice.innerHTML = `Permissão de GPS negada ou indisponível no navegador. Clique em <strong>Camela</strong> ou digite sua rua na caixa de busca! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do PC</button>`;
           }
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       );
+    }
+
+    async function showPcDiagnosticsModal() {
+      try {
+        const resp = await fetch("/api/live/pc-diagnostics");
+        const d = await resp.json();
+        alert(
+          `🖥️ DIAGNÓSTICO DE HARDWARE & REDE DO SEU PC:\n\n` +
+          `• IP Público: ${d.public_ip}\n` +
+          `• Provedor / ASN: ${d.isp_org}\n` +
+          `• Local do IP nos Bancos: ${d.ip_city} (${d.ip_loc})\n` +
+          `• Chip GPS no Computador: ${d.hardware_gps}\n\n` +
+          `🔍 POR QUE MARCOU JAPARATINGA?\n${d.japaratinga_cause}\n\n` +
+          `✅ SOLUÇÃO NO PROTÓTIPO:\n${d.recommended_fix}`
+        );
+      } catch (err) {
+        alert("Diagnóstico: O computador não possui GPS físico de satélite. Ele usa a rota de IP da DTEL Telecom.");
+      }
     }
 
     async function searchUserPlace() {

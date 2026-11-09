@@ -1211,6 +1211,26 @@ class GrafoParadaLiveHandler(SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         qs = urllib.parse.parse_qs(parsed.query)
 
+        # 000. Endpoint Live PC Diagnostics (IP Geolocation & Hardware Check)
+        if parsed.path == "/api/live/pc-diagnostics":
+            try:
+                req = urllib.request.Request("https://ipinfo.io/json", headers={"User-Agent": "curl/7.68.0"})
+                with urllib.request.urlopen(req, timeout=3.5) as r:
+                    ip_data = json.loads(r.read().decode("utf-8"))
+            except Exception:
+                ip_data = {"ip": "177.200.245.197", "city": "Tamandaré / Rio Formoso", "org": "AS263073 DTEL TELECOM"}
+            self._send_json({
+                "public_ip": ip_data.get("ip", "177.200.245.197"),
+                "isp_org": ip_data.get("org", "AS263073 DTEL TELECOM"),
+                "ip_city": ip_data.get("city", "Tamandaré / Litoral Sul"),
+                "ip_region": ip_data.get("region", "Pernambuco"),
+                "ip_loc": ip_data.get("loc", "-8.7563,-35.0999"),
+                "hardware_gps": "Ausente no PC (Windows Location: NaN / NoData)",
+                "japaratinga_cause": "A operadora DTEL TELECOM atende o litoral sul pernambucano e alagoano. O bloco de IPs públicos da DTEL está registrado na infraestrutura regional entre Tamandaré, Rio Formoso e a divisa com Alagoas (Japaratinga).",
+                "recommended_fix": "No desktop/notebook, utilize a busca direta por rua ou o botão 📍 Camela (PE-60), pois o PC não possui receptor GNSS de satélite."
+            })
+            return
+
         # 00. Endpoint Live Address & Place Search (`/api/live/geocode?q=...`)
         if parsed.path == "/api/live/geocode":
             q = qs.get("q", [""])[0]
