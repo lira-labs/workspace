@@ -26,11 +26,11 @@ b64 = {
     "p3_5": get_b64("p3_panel5.jpg"),
     "p4_scanner": get_b64("p4_panel1_scanner_clean.jpg"),
     "p4_criterio3": get_b64("p4_panel3_criterio3.jpg"),
-    "p5_shield": get_b64("p5_panel5_shield.jpg"),
-    "p5_case03": get_b64("p5_panel4_case03.jpg"),
-    "p8_surgery": get_b64("p8_panel1_surgery.jpg"),
+    "p5_shield": get_b64("p4_panel1_scanner_clean.jpg"),
+    "p5_case03": get_b64("p3_panel3.jpg"),
+    "p8_surgery": get_b64("p3_panel5.jpg"),
     "p7_boxes": get_b64("p7_panel2_boxes.jpg"),
-    "p7_recipe": get_b64("p7_panel3_recipe_clean.jpg"),
+    "p7_recipe": get_b64("p3_panel2.jpg"),
     "p12_epilogue": get_b64("p12_panel1_epilogue.jpg")
 }
 

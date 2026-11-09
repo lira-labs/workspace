@@ -68,7 +68,7 @@
   - *Causa Raiz Sanada:* A versão anterior mesclava ilustrações legadas (onde Clara usava moletom amarelo e fones de ouvido sem óculos) com ilustrações novas.
   - *Ancoragem Visual Rígida (ImagePaths):* Todas as artes foram regeneradas com condicionamento visual sobre a referência canônica p1_cover_clean.jpg.
   - *Continuidade Garantida em 100% dos Painéis:* Clara mantém rigorosamente seus óculos de aro fino metálico, mechas onduladas e moletom cinza mescla; Cauã mantém o corte fade, barba rala, óculos retangulares, camisa polo azul e jaqueta jeans aberta em todas as páginas (p1_cover, p2_caua, p2_clara, p3_1, p3_2, p3_3, p4_scanner, p7_boxes, p12_epilogue).
-  - *Deploy Vercel & PDFs:* ebook-caua-2va.pdf (12 páginas exatas, 9.35 MB) e infografico-anatomia-tutor-ia.pdf (1 página contínua, 1.68 MB) sincronizados e em produção na Vercel (HTTP 200).
+  - *Deploy Vercel & PDFs:* ebook-caua-2va.pdf (12 páginas exatas, 10.31 MB) e infografico-anatomia-tutor-ia.pdf (1 página contínua, 1.68 MB) sincronizados e em produção na Vercel (HTTP 200).
 - [x] **Pipeline Profissional Anti-AI-Slop & Redesign Editorial Concluídos**:
   - *Manifesto Anti-Slop Implementado:* Eliminação completa de poluição de badges, cartões microscópicos amontoados e artes com letras defeituosas de IA. Geração painel por painel com linha clara autoral, nanquim puro e zero texto dentro das imagens.
   - *Infográfico Editorial Atualizado:* `code/projeto_ead_tutores/infografico.html` e PDF de 1 página contínua (`infografico-anatomia-tutor-ia.pdf`, 1.68 MB) com os 4 atos (Diagnóstico PISA 2025, Scanner 4D, Caso #03 da Memória com +100% de ganho e Cirurgia no System Prompt com 4 Travas).
