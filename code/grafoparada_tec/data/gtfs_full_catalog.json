@@ -1,0 +1,2360 @@
+{
+  "total_routes": 400,
+  "total_terminals": 44,
+  "routes": [
+    {
+      "code": "001",
+      "label": "001 · Ponte Dos Carvalhos / Prazeres (Barra De Jangada)",
+      "agency": "CTC"
+    },
+    {
+      "code": "010",
+      "label": "010 · Abdo Cabus (Conde Boa Vista)",
+      "agency": "BOA"
+    },
+    {
+      "code": "011",
+      "label": "011 · Piedade / Derby",
+      "agency": "BOA"
+    },
+    {
+      "code": "013",
+      "label": "013 · Jardim Beira Rio (Pina)",
+      "agency": "BOA"
+    },
+    {
+      "code": "014",
+      "label": "014 · Brasília (Cd. Boa Vista)",
+      "agency": "BOA"
+    },
+    {
+      "code": "018",
+      "label": "018 · Brasília Teimosa",
+      "agency": "BOA"
+    },
+    {
+      "code": "020",
+      "label": "020 · Candeias / Ti Tancredo Neves",
+      "agency": "BOA"
+    },
+    {
+      "code": "021",
+      "label": "021 · Ti Joana Bezerra / Shopping Riomar",
+      "agency": "BOA"
+    },
+    {
+      "code": "023",
+      "label": "023 · Ti Tancredo Neves / Ti Aeroporto",
+      "agency": "BOA"
+    },
+    {
+      "code": "024",
+      "label": "024 · Ti Tancredo Neves (Circular Boa Viagem)",
+      "agency": "BOA"
+    },
+    {
+      "code": "026",
+      "label": "026 · Ti Aeroporto / Ti Joana Bezerra",
+      "agency": "BOA"
+    },
+    {
+      "code": "030",
+      "label": "030 · Ti Rio Doce / Barra De Jangada",
+      "agency": "BOA"
+    },
+    {
+      "code": "031",
+      "label": "031 · Shopping Center (Ter. Res. Boa Viagem)",
+      "agency": "BOA"
+    },
+    {
+      "code": "032",
+      "label": "032 · Setúbal (Conde Da Boa Vista)",
+      "agency": "BOA"
+    },
+    {
+      "code": "034",
+      "label": "034 · Curcurana / Ti Cajueiro Seco",
+      "agency": "SJT"
+    },
+    {
+      "code": "036",
+      "label": "036 · Aeroporto (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "037",
+      "label": "037 · Comportas / Ti Cajueiro Seco",
+      "agency": "SJT"
+    },
+    {
+      "code": "038",
+      "label": "038 · Residencial Boa Viagem (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "039",
+      "label": "039 · Setúbal (Príncipe)",
+      "agency": "BOA"
+    },
+    {
+      "code": "041",
+      "label": "041 · Setúbal (Opcional)",
+      "agency": "BOA"
+    },
+    {
+      "code": "043",
+      "label": "043 · Aeroporto / Tacaruna (Derby)",
+      "agency": "BOA"
+    },
+    {
+      "code": "044",
+      "label": "044 · Massangana (Boa Vista)",
+      "agency": "BOA"
+    },
+    {
+      "code": "049",
+      "label": "049 · Ti Tip / Moreno (Br-232)",
+      "agency": "BOA"
+    },
+    {
+      "code": "050",
+      "label": "050 · Ti Pe-15 / Boa Viagem",
+      "agency": "BOA"
+    },
+    {
+      "code": "061",
+      "label": "061 · Piedade",
+      "agency": "BOA"
+    },
+    {
+      "code": "062",
+      "label": "062 · Jardim Piedade",
+      "agency": "BOA"
+    },
+    {
+      "code": "063",
+      "label": "063 · Jardim Piedade (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "064",
+      "label": "064 · Piedade (Opcional)",
+      "agency": "BOA"
+    },
+    {
+      "code": "065",
+      "label": "065 · Piedade / Ti Prazeres",
+      "agency": "BOA"
+    },
+    {
+      "code": "069",
+      "label": "069 · Conj. Catamarã",
+      "agency": "BOA"
+    },
+    {
+      "code": "070",
+      "label": "070 · Candeias / Shopping Riomar",
+      "agency": "BOA"
+    },
+    {
+      "code": "071",
+      "label": "071 · Candeias",
+      "agency": "BOA"
+    },
+    {
+      "code": "072",
+      "label": "072 · Candeias (Opcional)",
+      "agency": "BOA"
+    },
+    {
+      "code": "073",
+      "label": "073 · Candeias (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "075",
+      "label": "075 · Ti Prazeres / Curcurana",
+      "agency": "BOA"
+    },
+    {
+      "code": "080",
+      "label": "080 · Ti Joana Bezerra / Boa Viagem",
+      "agency": "BOA"
+    },
+    {
+      "code": "101",
+      "label": "101 · Ti Recife / Ti J. Bezerra (Boa Vista)",
+      "agency": "EME"
+    },
+    {
+      "code": "102",
+      "label": "102 · Ti Santa Luzia / Ibura",
+      "agency": "EME"
+    },
+    {
+      "code": "103",
+      "label": "103 · Ur-11 / Ti Barro",
+      "agency": "EME"
+    },
+    {
+      "code": "104",
+      "label": "104 · Ti J. Bezerra / Ti Recife (Imip)",
+      "agency": "EME"
+    },
+    {
+      "code": "106",
+      "label": "106 · Ti Santa Luzia / Parque Aeronáutica (Jiquiá)",
+      "agency": "EME"
+    },
+    {
+      "code": "1062",
+      "label": "1062 · Ti Abreu E Lima (Pcr) (Parador)",
+      "agency": "CNO"
+    },
+    {
+      "code": "107",
+      "label": "107 · Ti Recife (Cabugá/Pcr)",
+      "agency": "EME"
+    },
+    {
+      "code": "1076",
+      "label": "1076 · Ti Pelópidas (Pcr) (Parador)",
+      "agency": "CNO"
+    },
+    {
+      "code": "108",
+      "label": "108 · Ti Barro / Ceasa",
+      "agency": "EME"
+    },
+    {
+      "code": "110",
+      "label": "110 · Ibura / Ti Prazeres",
+      "agency": "EME"
+    },
+    {
+      "code": "1100",
+      "label": "1100 · Ti Pe-15 (Pcr) (Parador)",
+      "agency": "CNO"
+    },
+    {
+      "code": "115",
+      "label": "115 · Ti Aeroporto / Ti Afogados",
+      "agency": "EME"
+    },
+    {
+      "code": "116",
+      "label": "116 · Ti Recife (Príncipe)",
+      "agency": "EME"
+    },
+    {
+      "code": "117",
+      "label": "117 · Ti Recife (Pcr/Cabugá)",
+      "agency": "EME"
+    },
+    {
+      "code": "118",
+      "label": "118 · Prazeres / Boa Viagem",
+      "agency": "BOA"
+    },
+    {
+      "code": "120",
+      "label": "120 · Alto Dois Carneiros / Shopping Recife",
+      "agency": "BOA"
+    },
+    {
+      "code": "121",
+      "label": "121 · Vila Da Sudene",
+      "agency": "BOA"
+    },
+    {
+      "code": "122",
+      "label": "122 · Vila Do Ipsep",
+      "agency": "BOA"
+    },
+    {
+      "code": "125",
+      "label": "125 · Córrego Da Gameleira (Vila Do Sesi) / Ti Tancredo Neves",
+      "agency": "BOA"
+    },
+    {
+      "code": "126",
+      "label": "126 · Ti Tancredo Neves / Ur-03",
+      "agency": "EME"
+    },
+    {
+      "code": "128",
+      "label": "128 · Ti Barro / Ur-03 (Milagres)",
+      "agency": "EME"
+    },
+    {
+      "code": "129",
+      "label": "129 · Paiva / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "131",
+      "label": "131 · Ur-02 (Bacurau)",
+      "agency": "EME"
+    },
+    {
+      "code": "132",
+      "label": "132 · Ti Tancredo Neves / Ur-02 (Ibura)",
+      "agency": "EME"
+    },
+    {
+      "code": "134",
+      "label": "134 · Lagoa Encantada / Ti Tancredo Neves",
+      "agency": "EME"
+    },
+    {
+      "code": "135",
+      "label": "135 · Ur-10 / Ti Tancredo Neves",
+      "agency": "EME"
+    },
+    {
+      "code": "136",
+      "label": "136 · Ti Tancredo Neves / Ur-05",
+      "agency": "EME"
+    },
+    {
+      "code": "138",
+      "label": "138 · Ti Tancredo Neves / Zumbi Do Pacheco",
+      "agency": "EME"
+    },
+    {
+      "code": "139",
+      "label": "139 · Ti Cabo / Ti Cajueiro Seco",
+      "agency": "SJT"
+    },
+    {
+      "code": "140",
+      "label": "140 · Ti Cajueiro Seco / Shopping Recife",
+      "agency": "SJT"
+    },
+    {
+      "code": "141",
+      "label": "141 · Jardim Monte Verde / Ti Tancredo Neves",
+      "agency": "EME"
+    },
+    {
+      "code": "142",
+      "label": "142 · Ti Tancredo Neves / Alto Dois Carneiros",
+      "agency": "EME"
+    },
+    {
+      "code": "143",
+      "label": "143 · Ti Tancredo Neves / Ur-06",
+      "agency": "EME"
+    },
+    {
+      "code": "144",
+      "label": "144 · Ur-04 / Ti Tancredo Neves",
+      "agency": "EME"
+    },
+    {
+      "code": "145",
+      "label": "145 · Alto Dois Carneiros (Bacurau)",
+      "agency": "EME"
+    },
+    {
+      "code": "146",
+      "label": "146 · Ur-11 (Bacurau)",
+      "agency": "EME"
+    },
+    {
+      "code": "149",
+      "label": "149 · Ti Cavaleiro / Zumbi Do Pacheco",
+      "agency": "EME"
+    },
+    {
+      "code": "151",
+      "label": "151 · Jardim Jordão / Ti Aeroporto",
+      "agency": "BOA"
+    },
+    {
+      "code": "152",
+      "label": "152 · Jordão Baixo / Ti Aeroporto",
+      "agency": "BOA"
+    },
+    {
+      "code": "153",
+      "label": "153 · Jordão Alto / Ti Aeroporto",
+      "agency": "BOA"
+    },
+    {
+      "code": "154",
+      "label": "154 · Jordão (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "155",
+      "label": "155 · Jordão Baixo / Boa Viagem",
+      "agency": "BOA"
+    },
+    {
+      "code": "157",
+      "label": "157 · Gaibu / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "158",
+      "label": "158 · Garapu / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "159",
+      "label": "159 · Charneca / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "160",
+      "label": "160 · Gaibu / Barra De Jangada - Via Paiva (Opcional)",
+      "agency": "SJT"
+    },
+    {
+      "code": "162",
+      "label": "162 · Muribeca / Ti Cajueiro Seco",
+      "agency": "BOA"
+    },
+    {
+      "code": "163",
+      "label": "163 · Ti Cajueiro Seco (Circular)",
+      "agency": "BOA"
+    },
+    {
+      "code": "164",
+      "label": "164 · Marcos Freire / Ti Cajueiro Seco",
+      "agency": "BOA"
+    },
+    {
+      "code": "165",
+      "label": "165 · Muribeca Dos Guararapes / Ti Cajueiro Seco",
+      "agency": "BOA"
+    },
+    {
+      "code": "166",
+      "label": "166 · Ti Cajueiro Seco (Rua Do Sol)",
+      "agency": "BOA"
+    },
+    {
+      "code": "167",
+      "label": "167 · Ti Tancredo Neves (Imip)",
+      "agency": "EME"
+    },
+    {
+      "code": "168",
+      "label": "168 · Ti Tancredo Neves (Cde. B. Vista)",
+      "agency": "EME"
+    },
+    {
+      "code": "170",
+      "label": "170 · Muribeca Dos Guararapes (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "171",
+      "label": "171 · Lot. Integração / Ti Cajueiro Seco",
+      "agency": "BOA"
+    },
+    {
+      "code": "172",
+      "label": "172 · Marcos Freire (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "178",
+      "label": "178 · Porto De Suape / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "181",
+      "label": "181 · Cabo (Cohab) / Ti Cajueiro Seco",
+      "agency": "SJT"
+    },
+    {
+      "code": "183",
+      "label": "183 · Pte. Dos Carvalhos / Ti Cajueiro Seco",
+      "agency": "SJT"
+    },
+    {
+      "code": "184",
+      "label": "184 · Cabo (Bacurau)",
+      "agency": "SJT"
+    },
+    {
+      "code": "185",
+      "label": "185 · Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "1903",
+      "label": "1903 · Araçoiaba / Ti Igarassu",
+      "agency": "CNO"
+    },
+    {
+      "code": "1904",
+      "label": "1904 · Ti Igarassu / Nova Cruz",
+      "agency": "CNO"
+    },
+    {
+      "code": "1905",
+      "label": "1905 · Ti Abreu E Lima / Ti Igarassu",
+      "agency": "CNO"
+    },
+    {
+      "code": "1906",
+      "label": "1906 · Ti Pelópidas / Ti Macaxeira",
+      "agency": "CNO"
+    },
+    {
+      "code": "1907",
+      "label": "1907 · Paulista / Rio Doce",
+      "agency": "CNO"
+    },
+    {
+      "code": "1908",
+      "label": "1908 · Ti Igarassu / Botafogo",
+      "agency": "CNO"
+    },
+    {
+      "code": "1909",
+      "label": "1909 · Ti Pelópidas / Ti Joana Bezerra",
+      "agency": "CNO"
+    },
+    {
+      "code": "191",
+      "label": "191 · Recife / Porto De Galinhas (N. Sra. Do Ó)",
+      "agency": "SJT"
+    },
+    {
+      "code": "1911",
+      "label": "1911 · Ouro Preto (Cohab)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1912",
+      "label": "1912 · Caetés I / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "1913",
+      "label": "1913 · Ti Pe-15 / Ti Joana Bezerra",
+      "agency": "CNO"
+    },
+    {
+      "code": "1917",
+      "label": "1917 · Caetés Ii / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "1918",
+      "label": "1918 · Ti Igarassu (Circular)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1921",
+      "label": "1921 · Ouro Preto / Ti Pe-15",
+      "agency": "CNO"
+    },
+    {
+      "code": "1922",
+      "label": "1922 · Pau Amarelo / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1923",
+      "label": "1923 · Cidade Tabajara / Ti Pe-15",
+      "agency": "CNO"
+    },
+    {
+      "code": "1926",
+      "label": "1926 · Ouro Preto (Jatobá Ii)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1927",
+      "label": "1927 · Ouro Preto (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1928",
+      "label": "1928 · Maranguape Ii (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1929",
+      "label": "1929 · Alameda Paulista / Ti Rio Doce (Jaguarana)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1931",
+      "label": "1931 · Jardim Paulista Baixo / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1932",
+      "label": "1932 · Jardim Paulista Alto / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1933",
+      "label": "1933 · Ti Pe-15 / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "1934",
+      "label": "1934 · Arthur Lundgren I / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1935",
+      "label": "1935 · Paratibe / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1936",
+      "label": "1936 · Mirueira (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1937",
+      "label": "1937 · Ti Abreu E Lima / Nova Aurora",
+      "agency": "CNO"
+    },
+    {
+      "code": "1940",
+      "label": "1940 · Ti Pe-15 (Circular)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1941",
+      "label": "1941 · Arthur Lundgren Ii / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1943",
+      "label": "1943 · Mirueira / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1944",
+      "label": "1944 · Ti Pelópidas / Maria Farinha (Lot. Conceição)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1945",
+      "label": "1945 · Jaguarana (Alameda) / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1946",
+      "label": "1946 · Ti Igarassu (Br-101)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1948",
+      "label": "1948 · Ti Abreu E Lima / Ti Pelópidas (Circular)",
+      "agency": "CNO"
+    },
+    {
+      "code": "195",
+      "label": "195 · Recife / Porto De Galinhas (Opcional)",
+      "agency": "SJT"
+    },
+    {
+      "code": "1950",
+      "label": "1950 · Engenho Maranguape / Varadouro",
+      "agency": "CNO"
+    },
+    {
+      "code": "1952",
+      "label": "1952 · Ti Pelópidas / Ti Rio Doce",
+      "agency": "CNO"
+    },
+    {
+      "code": "1953",
+      "label": "1953 · Maranguape Ii / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "1955",
+      "label": "1955 · Ti Pelópidas / Cj. Praia Do Janga (Eng. Maranguape)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1956",
+      "label": "1956 · Igarassu (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1957",
+      "label": "1957 · Caetés I (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1958",
+      "label": "1958 · Costa Azul / Ti Pelópidas",
+      "agency": "CNO"
+    },
+    {
+      "code": "196",
+      "label": "196 · Ti Cabo / P. De Galinhas (N. Sra. Do Ó)",
+      "agency": "SJT"
+    },
+    {
+      "code": "1960",
+      "label": "1960 · Ti Rio Doce / Maria Farinha (Casa Caiada)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1963",
+      "label": "1963 · Ti Pe-15 / Ti Igarassu (Sítio Histórico)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1964",
+      "label": "1964 · Ti Igarassu / Ti Macaxeira",
+      "agency": "CNO"
+    },
+    {
+      "code": "1966",
+      "label": "1966 · Ti Rio Doce / Ti Pe-15 (Fragoso)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1967",
+      "label": "1967 · Ti Igarassu (Sítio Histórico)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1968",
+      "label": "1968 · Ilha De Itamaracá / Ti Igarassu",
+      "agency": "CNO"
+    },
+    {
+      "code": "1969",
+      "label": "1969 · Itapissuma / Ti Igarassu",
+      "agency": "CNO"
+    },
+    {
+      "code": "1971",
+      "label": "1971 · Amparo",
+      "agency": "CNO"
+    },
+    {
+      "code": "1973",
+      "label": "1973 · Casa Caiada (Conde Boa Vista)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1974",
+      "label": "1974 · Jardim Atlântico",
+      "agency": "CNO"
+    },
+    {
+      "code": "1975",
+      "label": "1975 · Amparo (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1977",
+      "label": "1977 · Ti Pelópidas (Conde Boa Vista)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1978",
+      "label": "1978 · Loteamento Conceição / Ti Rio Doce (Pe-22)",
+      "agency": "CNO"
+    },
+    {
+      "code": "198",
+      "label": "198 · Ipojuca / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "1980",
+      "label": "1980 · Igarassu / Cidade Tabajara",
+      "agency": "CNO"
+    },
+    {
+      "code": "1981",
+      "label": "1981 · Ti Rio Doce / Ti Joana Bezerra",
+      "agency": "CNO"
+    },
+    {
+      "code": "1982",
+      "label": "1982 · Conjunto Beira Mar / Derby",
+      "agency": "CNO"
+    },
+    {
+      "code": "1983",
+      "label": "1983 · Ti Rio Doce (Princesa Isabel)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1984",
+      "label": "1984 · Lot. Bonfim / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "1985",
+      "label": "1985 · Rio Doce (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1986",
+      "label": "1986 · Ti Pe-15 / Ti Rio Doce",
+      "agency": "CNO"
+    },
+    {
+      "code": "1987",
+      "label": "1987 · Ti Rio Doce (Príncipe / Conde Boa Vista)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1988",
+      "label": "1988 · Desterro / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "1989",
+      "label": "1989 · Lot. Planalto / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "199",
+      "label": "199 · Camela / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
+      "code": "1992",
+      "label": "1992 · Pau Amarelo",
+      "agency": "CNO"
+    },
+    {
+      "code": "1993",
+      "label": "1993 · Conjunto Praia Do Janga",
+      "agency": "CNO"
+    },
+    {
+      "code": "1994",
+      "label": "1994 · Conjunto Beira Mar",
+      "agency": "CNO"
+    },
+    {
+      "code": "1995",
+      "label": "1995 · Pau Amarelo (Bacurau)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1996",
+      "label": "1996 · Arthur Lundgren Ii / Rio Doce (Paratibe)",
+      "agency": "CNO"
+    },
+    {
+      "code": "1998",
+      "label": "1998 · Caetés Iii / Ti Abreu E Lima",
+      "agency": "CNO"
+    },
+    {
+      "code": "200",
+      "label": "200 · Ti Jaboatão (Parador)",
+      "agency": "EME"
+    },
+    {
+      "code": "201",
+      "label": "201 · Moreno / Ti Jaboatão",
+      "agency": "BOA"
+    },
+    {
+      "code": "202",
+      "label": "202 · Ti Barro / Ti Macaxeira (Várzea)",
+      "agency": "EME"
+    },
+    {
+      "code": "203",
+      "label": "203 · Ti Barro / Zumbi Do Pacheco (Lot.)",
+      "agency": "EME"
+    },
+    {
+      "code": "2040",
+      "label": "2040 · Cdu / Boa Viagem / Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2043",
+      "label": "2043 · Ti Cdu / Ti Joana Bezerra (Parador)",
+      "agency": "MOB"
+    },
+    {
+      "code": "205",
+      "label": "205 · Ti Barro / Ur-05 (Br-101)",
+      "agency": "EME"
+    },
+    {
+      "code": "206",
+      "label": "206 · Ti Barro / Ti Prazeres (Jordão)",
+      "agency": "BOA"
+    },
+    {
+      "code": "2060",
+      "label": "2060 · Ti Tancredo Neves / Ti Macaxeira",
+      "agency": "MOB"
+    },
+    {
+      "code": "207",
+      "label": "207 · Ti Barro / Ti Macaxeira (Br-101)",
+      "agency": "EME"
+    },
+    {
+      "code": "208",
+      "label": "208 · Nossa Senhora Da Conceição / Ti Jaboatão",
+      "agency": "BOA"
+    },
+    {
+      "code": "209",
+      "label": "209 · Ti Barro / Coqueiral",
+      "agency": "EME"
+    },
+    {
+      "code": "211",
+      "label": "211 · Vila Tamandaré",
+      "agency": "EME"
+    },
+    {
+      "code": "212",
+      "label": "212 · Jardim São Paulo",
+      "agency": "EME"
+    },
+    {
+      "code": "216",
+      "label": "216 · Ti Barro / Ti Cajueiro Seco",
+      "agency": "EME"
+    },
+    {
+      "code": "219",
+      "label": "219 · Ti Tip / Ti Jaboatão (Sancho)",
+      "agency": "BOA"
+    },
+    {
+      "code": "220",
+      "label": "220 · Ti Jaboatão / Ti Cavaleiro",
+      "agency": "EME"
+    },
+    {
+      "code": "221",
+      "label": "221 · Vila Cardeal E Silva",
+      "agency": "EME"
+    },
+    {
+      "code": "222",
+      "label": "222 · Jardim Uchôa",
+      "agency": "EME"
+    },
+    {
+      "code": "229",
+      "label": "229 · Marcos Freire (Opcional)",
+      "agency": "BOA"
+    },
+    {
+      "code": "232",
+      "label": "232 · Cavaleiro",
+      "agency": "EME"
+    },
+    {
+      "code": "233",
+      "label": "233 · Cavaleiro (Bacurau)",
+      "agency": "EME"
+    },
+    {
+      "code": "238",
+      "label": "238 · Ti Jaboatão / Ti Barro",
+      "agency": "EME"
+    },
+    {
+      "code": "240",
+      "label": "240 · Cavaleiro / Ceasa",
+      "agency": "VML"
+    },
+    {
+      "code": "2402",
+      "label": "2402 · Parque Capibaribe / Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2410",
+      "label": "2410 · Parque Capibaribe / Ti Tip",
+      "agency": "MOB"
+    },
+    {
+      "code": "2416",
+      "label": "2416 · Roda De Fogo / Ti Getúlio Vargas",
+      "agency": "MOB"
+    },
+    {
+      "code": "2417",
+      "label": "2417 · Nova Morada / Ti Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2419",
+      "label": "2419 · Matriz Da Luz / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "242",
+      "label": "242 · Pacheco (Floresta)",
+      "agency": "EME"
+    },
+    {
+      "code": "2420",
+      "label": "2420 · Muribara / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2421",
+      "label": "2421 · Torrões / Ti Getúlio Vargas",
+      "agency": "MOB"
+    },
+    {
+      "code": "2423",
+      "label": "2423 · Engenho Do Meio / Ti Cdu",
+      "agency": "MOB"
+    },
+    {
+      "code": "2427",
+      "label": "2427 · Monsenhor Fabrício (Bacurau)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2429",
+      "label": "2429 · Ti Getúlio Vargas / Ti Cdu",
+      "agency": "MOB"
+    },
+    {
+      "code": "243",
+      "label": "243 · Vila Dois Carneiros",
+      "agency": "EME"
+    },
+    {
+      "code": "2431",
+      "label": "2431 · Ti Cdu / Ti Caxangá (Ufpe)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2433",
+      "label": "2433 · Brasilit / Ti Cdu",
+      "agency": "MOB"
+    },
+    {
+      "code": "2434",
+      "label": "2434 · Ti Getúlio Vargas / Tamarineira",
+      "agency": "MOB"
+    },
+    {
+      "code": "2437",
+      "label": "2437 · Ti Caxangá (Conde Boa Vista)",
+      "agency": "MOB"
+    },
+    {
+      "code": "244",
+      "label": "244 · Alto Do Vento / Ti Cavaleiro",
+      "agency": "EME"
+    },
+    {
+      "code": "2441",
+      "label": "2441 · Ti Cdu (Conde Boa Vista)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2442",
+      "label": "2442 · Jd. Primavera (V. Pedreiras) / Ti Cdu",
+      "agency": "MOB"
+    },
+    {
+      "code": "2444",
+      "label": "2444 · Ti Getúlio Vargas (Conde Da Boa Vista)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2445",
+      "label": "2445 · Tabatinga / Ti Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2446",
+      "label": "2446 · Ur-07 (Várzea) / Ti Cdu",
+      "agency": "MOB"
+    },
+    {
+      "code": "2448",
+      "label": "2448 · Alto Santo Antônio / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "245",
+      "label": "245 · Dois Carneiros / Ti Cavaleiro",
+      "agency": "EME"
+    },
+    {
+      "code": "2450",
+      "label": "2450 · Ti Camaragibe (Conde Boa Vista)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2456",
+      "label": "2456 · Viana / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2457",
+      "label": "2457 · São Lourenço (Bacurau)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2459",
+      "label": "2459 · Ti Cosme E Damião / Ti Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2462",
+      "label": "2462 · Lot. Santos Cosme Damião (Bacurau)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2463",
+      "label": "2463 · Araçoiaba / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2464",
+      "label": "2464 · Jardim Teresópolis / Ti Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2466",
+      "label": "2466 · Vera Cruz / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2467",
+      "label": "2467 · Chã De Cruz / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2470",
+      "label": "2470 · Circular Vila Da Fábrica/Santana (Via Bairro Dos Estados)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2473",
+      "label": "2473 · João Paulo Ii / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2475",
+      "label": "2475 · Timbi / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2476",
+      "label": "2476 · Santa Mônica / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2477",
+      "label": "2477 · Santa Terezinha / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2478",
+      "label": "2478 · Santana / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2481",
+      "label": "2481 · Ti Camaragibe / Ti Tip",
+      "agency": "MOB"
+    },
+    {
+      "code": "2483",
+      "label": "2483 · Lot. S. João E S. Paulo / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2486",
+      "label": "2486 · Penedo / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2487",
+      "label": "2487 · Várzea Fria / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "2488",
+      "label": "2488 · Vila Da Fábrica / Ti Caxangá",
+      "agency": "MOB"
+    },
+    {
+      "code": "2490",
+      "label": "2490 · Ti Camaragibe / Ti Macaxeira",
+      "agency": "MOB"
+    },
+    {
+      "code": "2493",
+      "label": "2493 · Tiúma / Ti Camaragibe",
+      "agency": "MOB"
+    },
+    {
+      "code": "250",
+      "label": "250 · Ti Jaboatão / Santo Aleixo (Luz)",
+      "agency": "EME"
+    },
+    {
+      "code": "2501",
+      "label": "2501 · Circular Peroba / Oitenta / Borralho",
+      "agency": "MOB"
+    },
+    {
+      "code": "2502",
+      "label": "2502 · Circular Santa Mônica / Maranguape (V. Beira Rio)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2503",
+      "label": "2503 · Circular Quadra 30 (V. Celeiro)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2504",
+      "label": "2504 · Circular Vale Das Pedreiras (Shopping)",
+      "agency": "MOB"
+    },
+    {
+      "code": "2505",
+      "label": "2505 · Circular Tabatinga / São Jorge (Via Fábrica)",
+      "agency": "MOB"
+    },
+    {
+      "code": "251",
+      "label": "251 · Ti Jaboatão / Santo Aleixo (Rios)",
+      "agency": "EME"
+    },
+    {
+      "code": "252",
+      "label": "252 · Vila Rica / Ti Jaboatão",
+      "agency": "EME"
+    },
+    {
+      "code": "254",
+      "label": "254 · Jaboatão (Bacurau)",
+      "agency": "EME"
+    },
+    {
+      "code": "255",
+      "label": "255 · Quitandinha / Ti Cavaleiro",
+      "agency": "EME"
+    },
+    {
+      "code": "256",
+      "label": "256 · Ti Cavaleiro / Lot. Nova Esperança",
+      "agency": "EME"
+    },
+    {
+      "code": "258",
+      "label": "258 · Moreno (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "261",
+      "label": "261 · Ti Jaboatão / Vila Piedade",
+      "agency": "EME"
+    },
+    {
+      "code": "262",
+      "label": "262 · Ti Jaboatão / Malvinas",
+      "agency": "EME"
+    },
+    {
+      "code": "272",
+      "label": "272 · Colônia / Ti Jaboatão",
+      "agency": "EME"
+    },
+    {
+      "code": "274",
+      "label": "274 · Ti Jaboatão / Lote 56",
+      "agency": "EME"
+    },
+    {
+      "code": "290",
+      "label": "290 · Ti Jaboatão / Bonança",
+      "agency": "BOA"
+    },
+    {
+      "code": "291",
+      "label": "291 · Ti Jaboatão / Moreno (Recife Outlet)",
+      "agency": "BOA"
+    },
+    {
+      "code": "2920",
+      "label": "2920 · Ti Rio Doce / Ti Cdu",
+      "agency": "MOB"
+    },
+    {
+      "code": "2930",
+      "label": "2930 · Ti Rio Doce / Dois Irmãos",
+      "agency": "MOB"
+    },
+    {
+      "code": "302",
+      "label": "302 · Caxangá / Ti Tip",
+      "agency": "VML"
+    },
+    {
+      "code": "303",
+      "label": "303 · Caxangá / Curado Ii (Br-232)",
+      "agency": "VML"
+    },
+    {
+      "code": "311",
+      "label": "311 · Bongi (Afogados)",
+      "agency": "EME"
+    },
+    {
+      "code": "312",
+      "label": "312 · Mustardinha",
+      "agency": "EME"
+    },
+    {
+      "code": "313",
+      "label": "313 · San Martin (A. De Carvalho)",
+      "agency": "EME"
+    },
+    {
+      "code": "314",
+      "label": "314 · Mangueira",
+      "agency": "EME"
+    },
+    {
+      "code": "315",
+      "label": "315 · Bongi",
+      "agency": "EME"
+    },
+    {
+      "code": "320",
+      "label": "320 · Curado I / Ti Santa Luzia",
+      "agency": "VML"
+    },
+    {
+      "code": "321",
+      "label": "321 · Jardim São Paulo (A. Carvalho)",
+      "agency": "EME"
+    },
+    {
+      "code": "322",
+      "label": "322 · Jardim São Paulo (Bacurau)",
+      "agency": "EME"
+    },
+    {
+      "code": "324",
+      "label": "324 · Jardim São Paulo (Piracicaba)",
+      "agency": "EME"
+    },
+    {
+      "code": "330",
+      "label": "330 · Casa Amarela / Cdu (Av. Caxangá)",
+      "agency": "CSR"
+    },
+    {
+      "code": "331",
+      "label": "331 · Totó (Jardim Planalto)",
+      "agency": "BOA"
+    },
+    {
+      "code": "332",
+      "label": "332 · Totó (Abdias De Carvalho)",
+      "agency": "BOA"
+    },
+    {
+      "code": "333",
+      "label": "333 · Totó (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "341",
+      "label": "341 · Curado I",
+      "agency": "BOA"
+    },
+    {
+      "code": "342",
+      "label": "342 · Curados (Opcional)",
+      "agency": "BOA"
+    },
+    {
+      "code": "346",
+      "label": "346 · Ti Tip (Conde Boa Vista)",
+      "agency": "BOA"
+    },
+    {
+      "code": "347",
+      "label": "347 · Ti Tip / Joana Bezerra",
+      "agency": "BOA"
+    },
+    {
+      "code": "348",
+      "label": "348 · Ti Tip / Curado V",
+      "agency": "BOA"
+    },
+    {
+      "code": "351",
+      "label": "351 · Ti Tip / Curado Ii",
+      "agency": "BOA"
+    },
+    {
+      "code": "352",
+      "label": "352 · Curado Ii (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "360",
+      "label": "360 · Totó / Boa Viagem",
+      "agency": "BOA"
+    },
+    {
+      "code": "361",
+      "label": "361 · Ti Tip / Curado Iv (Rua 14)",
+      "agency": "BOA"
+    },
+    {
+      "code": "362",
+      "label": "362 · Curado Iv (Bacurau)",
+      "agency": "BOA"
+    },
+    {
+      "code": "363",
+      "label": "363 · Ti Tip / Curado Iv (Av. 01)",
+      "agency": "BOA"
+    },
+    {
+      "code": "370",
+      "label": "370 · Ti Tip / Ti Aeroporto",
+      "agency": "BOA"
+    },
+    {
+      "code": "411",
+      "label": "411 · Plaza Shopping (Conde Da Boa Vista)",
+      "agency": "GLO"
+    },
+    {
+      "code": "412",
+      "label": "412 · Ti Santa Luzia / Ti Getúlio Vargas",
+      "agency": "EME"
+    },
+    {
+      "code": "4123",
+      "label": "4123 · Três Carneiros Baixo (Cais De Santa Rita)",
+      "agency": "EME"
+    },
+    {
+      "code": "4133",
+      "label": "4133 · Três Carneiros (Cais De Santa Rita)",
+      "agency": "EME"
+    },
+    {
+      "code": "4137",
+      "label": "4137 · Ur-11 (Cais De Santa Rita)",
+      "agency": "EME"
+    },
+    {
+      "code": "414",
+      "label": "414 · Torre",
+      "agency": "CSR"
+    },
+    {
+      "code": "418",
+      "label": "418 · Tiúma / Camaragibe",
+      "agency": "CTC"
+    },
+    {
+      "code": "424",
+      "label": "424 · Cdu / Largo Da Paz (Via Torrões/San Martin)",
+      "agency": "EME"
+    },
+    {
+      "code": "440",
+      "label": "440 · Cdu / Caxangá / Boa Viagem",
+      "agency": "BOA"
+    },
+    {
+      "code": "510",
+      "label": "510 · Nova Descoberta / Derby",
+      "agency": "CSR"
+    },
+    {
+      "code": "511",
+      "label": "511 · Ti Cdu / Casa Amarela / Alto Do Mandu",
+      "agency": "CSR"
+    },
+    {
+      "code": "513",
+      "label": "513 · Córrego Da Areia",
+      "agency": "CSR"
+    },
+    {
+      "code": "514",
+      "label": "514 · Nova Descoberta (Cór. Do Joaquim)",
+      "agency": "CSR"
+    },
+    {
+      "code": "515",
+      "label": "515 · Nova Descoberta (Bacurau)",
+      "agency": "CSR"
+    },
+    {
+      "code": "516",
+      "label": "516 · Casa Amarela / Torre / Cde. Boa Vista",
+      "agency": "CSR"
+    },
+    {
+      "code": "517",
+      "label": "517 · Córrego Do Inácio",
+      "agency": "CSR"
+    },
+    {
+      "code": "520",
+      "label": "520 · Ti Macaxeira / Parnamirim",
+      "agency": "CSR"
+    },
+    {
+      "code": "521",
+      "label": "521 · Alto Santa Isabel (Cde. Boa Vista)",
+      "agency": "CSR"
+    },
+    {
+      "code": "522",
+      "label": "522 · Dois Irmãos (Rui Barbosa E Príncipe)",
+      "agency": "CSR"
+    },
+    {
+      "code": "523",
+      "label": "523 · Dois Irmãos (Bacurau)",
+      "agency": "CSR"
+    },
+    {
+      "code": "524",
+      "label": "524 · Sítio Dos Pintos (Dois Irmãos)",
+      "agency": "CSR"
+    },
+    {
+      "code": "532",
+      "label": "532 · Dois Irmãos / Casa Amarela (Cruz Cabugá)",
+      "agency": "CSR"
+    },
+    {
+      "code": "533",
+      "label": "533 · Casa Amarela (Bacurau)",
+      "agency": "CSR"
+    },
+    {
+      "code": "601",
+      "label": "601 · Ti Macaxeira / P.R. Bola Na Rede",
+      "agency": "CSR"
+    },
+    {
+      "code": "604",
+      "label": "604 · Ti Macaxeira / Alto Do Burity",
+      "agency": "CSR"
+    },
+    {
+      "code": "611",
+      "label": "611 · Alto José Do Pinho (Cais De Santa Rita)",
+      "agency": "GLO"
+    },
+    {
+      "code": "612",
+      "label": "612 · Morro Da Conceição (Cruz Cabugá)",
+      "agency": "GLO"
+    },
+    {
+      "code": "613",
+      "label": "613 · Morro Da Conceição (Bacurau)",
+      "agency": "GLO"
+    },
+    {
+      "code": "621",
+      "label": "621 · Alto Treze De Maio (Príncipe)",
+      "agency": "CSR"
+    },
+    {
+      "code": "622",
+      "label": "622 · Vasco Da Gama (Cruz Cabugá)",
+      "agency": "GLO"
+    },
+    {
+      "code": "623",
+      "label": "623 · Vasco Da Gama (João De Barros)",
+      "agency": "GLO"
+    },
+    {
+      "code": "624",
+      "label": "624 · Brejo (Cde. Boa Vista)",
+      "agency": "CSR"
+    },
+    {
+      "code": "626",
+      "label": "626 · Brejo (Bacurau)",
+      "agency": "CSR"
+    },
+    {
+      "code": "630",
+      "label": "630 · Vasco Da Gama / Derby",
+      "agency": "CSR"
+    },
+    {
+      "code": "631",
+      "label": "631 · Nova Descoberta (Cabugá)",
+      "agency": "CSR"
+    },
+    {
+      "code": "632",
+      "label": "632 · Alto Do Refúgio (Cabugá)",
+      "agency": "CSR"
+    },
+    {
+      "code": "640",
+      "label": "640 · Guabiraba / Derby (Joana Bezerra)",
+      "agency": "GLO"
+    },
+    {
+      "code": "641",
+      "label": "641 · Ti Macaxeira / Encruzilhada",
+      "agency": "CSR"
+    },
+    {
+      "code": "642",
+      "label": "642 · Guabiraba (Córrego Do Jenipapo)",
+      "agency": "GLO"
+    },
+    {
+      "code": "643",
+      "label": "643 · Córrego Do Jenipapo (Bacurau)",
+      "agency": "GLO"
+    },
+    {
+      "code": "644",
+      "label": "644 · Largo Do Maracanã (Conde Da Boa Vista)",
+      "agency": "GLO"
+    },
+    {
+      "code": "645",
+      "label": "645 · Ti Macaxeira (Av. Norte)",
+      "agency": "CSR"
+    },
+    {
+      "code": "650",
+      "label": "650 · Ti Macaxeira / Ti Xambá",
+      "agency": "GLO"
+    },
+    {
+      "code": "680",
+      "label": "680 · Vasco Da Gama / Afogados",
+      "agency": "CSR"
+    },
+    {
+      "code": "700",
+      "label": "700 · Beberibe / Afogados",
+      "agency": "CAX"
+    },
+    {
+      "code": "710",
+      "label": "710 · Beberibe / Derby (Joana Bezerra)",
+      "agency": "GLO"
+    },
+    {
+      "code": "711",
+      "label": "711 · Alto Do Pascoal",
+      "agency": "CAX"
+    },
+    {
+      "code": "712",
+      "label": "712 · Alto Santa Terezinha",
+      "agency": "CAX"
+    },
+    {
+      "code": "713",
+      "label": "713 · Bomba Do Hemetério",
+      "agency": "CAX"
+    },
+    {
+      "code": "714",
+      "label": "714 · Alto José Bonifácio (Av. Norte)",
+      "agency": "CAX"
+    },
+    {
+      "code": "715",
+      "label": "715 · Alto Santa Terezinha (Bacurau)",
+      "agency": "CAX"
+    },
+    {
+      "code": "717",
+      "label": "717 · José Amarino Dos Reis",
+      "agency": "CAX"
+    },
+    {
+      "code": "718",
+      "label": "718 · Córrego Do Euclides / Derby",
+      "agency": "CSR"
+    },
+    {
+      "code": "721",
+      "label": "721 · Água Fria (Circular)",
+      "agency": "CAX"
+    },
+    {
+      "code": "722",
+      "label": "722 · Campina Do Barreto",
+      "agency": "CAX"
+    },
+    {
+      "code": "723",
+      "label": "723 · Cajueiro",
+      "agency": "CAX"
+    },
+    {
+      "code": "724",
+      "label": "724 · Chão De Estrelas",
+      "agency": "CAX"
+    },
+    {
+      "code": "741",
+      "label": "741 · Dois Unidos",
+      "agency": "CAX"
+    },
+    {
+      "code": "742",
+      "label": "742 · Linha Do Tiro",
+      "agency": "CAX"
+    },
+    {
+      "code": "743",
+      "label": "743 · Alto José Bonifácio (J. Barros)",
+      "agency": "CAX"
+    },
+    {
+      "code": "744",
+      "label": "744 · Dois Unidos (Bacurau)",
+      "agency": "CAX"
+    },
+    {
+      "code": "745",
+      "label": "745 · Alto José Bonifácio (Bacurau)",
+      "agency": "CAX"
+    },
+    {
+      "code": "746",
+      "label": "746 · Alto Do Capitão",
+      "agency": "CAX"
+    },
+    {
+      "code": "760",
+      "label": "760 · Dois Unidos / Derby",
+      "agency": "CAX"
+    },
+    {
+      "code": "780",
+      "label": "780 · Alto Santa Terezinha / Derby",
+      "agency": "CAX"
+    },
+    {
+      "code": "800",
+      "label": "800 · Dois Unidos / Afogados",
+      "agency": "CAX"
+    },
+    {
+      "code": "810",
+      "label": "810 · Ti Xambá / Encruzilhada",
+      "agency": "CAX"
+    },
+    {
+      "code": "820",
+      "label": "820 · Ti Xambá (Cabugá)",
+      "agency": "CAX"
+    },
+    {
+      "code": "821",
+      "label": "821 · Jardim Brasil I (Est. De Belém)",
+      "agency": "CAX"
+    },
+    {
+      "code": "822",
+      "label": "822 · Jardim Brasil I (Cruz Cabugá)",
+      "agency": "CAX"
+    },
+    {
+      "code": "823",
+      "label": "823 · Jardim Brasil Ii (Est. De Belém)",
+      "agency": "CAX"
+    },
+    {
+      "code": "824",
+      "label": "824 · Jardim Brasil Ii (Cruz Cabugá)",
+      "agency": "CAX"
+    },
+    {
+      "code": "825",
+      "label": "825 · Jardim Brasil / Ti Joana Bezerra",
+      "agency": "CAX"
+    },
+    {
+      "code": "827",
+      "label": "827 · Jardim Brasil (Bacurau)",
+      "agency": "CAX"
+    },
+    {
+      "code": "831",
+      "label": "831 · Aguazinha / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "841",
+      "label": "841 · Nova Olinda / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "842",
+      "label": "842 · Águas Compridas / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "843",
+      "label": "843 · Alto Da Bondade / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "844",
+      "label": "844 · Santa Casa / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "846",
+      "label": "846 · Águas Compridas (Bacurau)",
+      "agency": "CAX"
+    },
+    {
+      "code": "847",
+      "label": "847 · Alto Nova Olinda / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "852",
+      "label": "852 · Caixa D'Água / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "858",
+      "label": "858 · Ti Joana Bezerra / Ti Afogados / Ti Barro",
+      "agency": "CAX"
+    },
+    {
+      "code": "860",
+      "label": "860 · Ti Xambá (Príncipe)",
+      "agency": "CAX"
+    },
+    {
+      "code": "861",
+      "label": "861 · Ti Joana Bezerra / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "870",
+      "label": "870 · Ti Xambá / Ti Largo Da Paz",
+      "agency": "CAX"
+    },
+    {
+      "code": "881",
+      "label": "881 · Ti Xambá / Rio Doce (Av. Getúlio Vargas)",
+      "agency": "CAX"
+    },
+    {
+      "code": "882",
+      "label": "882 · Ti Xambá / Rio Doce (Carlos De Lima Cavalcanti)",
+      "agency": "CAX"
+    },
+    {
+      "code": "883",
+      "label": "883 · Ti Pe-15 / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "884",
+      "label": "884 · Jardim Brasil / Rio Doce",
+      "agency": "CAX"
+    },
+    {
+      "code": "885",
+      "label": "885 · Sítio Novo / Rio Doce",
+      "agency": "CAX"
+    },
+    {
+      "code": "886",
+      "label": "886 · Ouro Preto / Rio Doce",
+      "agency": "CAX"
+    },
+    {
+      "code": "892",
+      "label": "892 · Alto Do Cajueiro / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "893",
+      "label": "893 · Ti Pe-15 / Alto Da Conquista",
+      "agency": "CAX"
+    },
+    {
+      "code": "894",
+      "label": "894 · Ti Xambá / Córrego Do Abacaxi",
+      "agency": "CAX"
+    },
+    {
+      "code": "895",
+      "label": "895 · Alto Sol Nascente / Ti Xambá",
+      "agency": "CAX"
+    },
+    {
+      "code": "901",
+      "label": "901 · Ti Abreu E Lima / Ti Macaxeira",
+      "agency": "CSR"
+    },
+    {
+      "code": "910",
+      "label": "910 · Piedade / Ti Rio Doce",
+      "agency": "BOA"
+    },
+    {
+      "code": "9104",
+      "label": "9104 · Casseterita / Casa Amarela / Jaqueira",
+      "agency": "CTC"
+    },
+    {
+      "code": "9105",
+      "label": "9105 · Córrego Do Boleiro / Casa Amarela / Jaqueira",
+      "agency": "CTC"
+    },
+    {
+      "code": "9108",
+      "label": "9108 · Dois Unidos / Torre",
+      "agency": "CTC"
+    },
+    {
+      "code": "9110",
+      "label": "9110 · Campo Grande / Afogados",
+      "agency": "CTC"
+    },
+    {
+      "code": "9112",
+      "label": "9112 · Casa Amarela / Bomba Do Hemetério / Shopping Tacaruna",
+      "agency": "CTC"
+    },
+    {
+      "code": "914",
+      "label": "914 · Ti Pe-15 / Ti Afogados",
+      "agency": "CAX"
+    },
+    {
+      "code": "916",
+      "label": "916 · Ouro Preto / Joana Bezerra",
+      "agency": "CAX"
+    },
+    {
+      "code": "9205",
+      "label": "9205 · Jardim Uchôa / Boa Viagem",
+      "agency": "CTC"
+    },
+    {
+      "code": "9301",
+      "label": "9301 · San Martin / Lagoa Do Araçá / Boa Viagem",
+      "agency": "CTC"
+    },
+    {
+      "code": "Centro 1",
+      "label": "Centro 1 · Recife - Camaragibe",
+      "agency": "metrorec"
+    },
+    {
+      "code": "Centro 2",
+      "label": "Centro 2 · Recife - Jaboatão",
+      "agency": "metrorec"
+    },
+    {
+      "code": "Sul",
+      "label": "Sul · Recife - Cajueiro Seco",
+      "agency": "metrorec"
+    },
+    {
+      "code": "VLT Cabo",
+      "label": "VLT Cabo · Cabo de Santo Agostinho - Cajueiro Seco",
+      "agency": "metrorec"
+    },
+    {
+      "code": "VLT Curado",
+      "label": "VLT Curado · Curado - Cajueiro Seco",
+      "agency": "metrorec"
+    }
+  ],
+  "terminals": [
+    {
+      "id": "190890",
+      "name": "Ti Abreu E Lima",
+      "full_name": "Ti Abreu E Lima - 190890",
+      "lat": -7.921296345462924,
+      "lon": -34.89528933864802,
+      "region": "Abreu e Lima"
+    },
+    {
+      "id": "030000",
+      "name": "Ti Cabo",
+      "full_name": "Ti Cabo - 030000",
+      "lat": -8.285064968083757,
+      "lon": -35.03239778768872,
+      "region": "Cabo de Santo Agostinho"
+    },
+    {
+      "id": "090000",
+      "name": "Ti Camaragibe",
+      "full_name": "Ti Camaragibe - 090000",
+      "lat": -8.02478969917935,
+      "lon": -34.99606368801693,
+      "region": "Camaragibe"
+    },
+    {
+      "id": "090848",
+      "name": "Ti Cosme E Damião",
+      "full_name": "Ti Cosme E Damião - 090848",
+      "lat": -8.036236471550168,
+      "lon": -34.988185865632055,
+      "region": "Camaragibe"
+    },
+    {
+      "id": "150323",
+      "name": "Terminal Da Linha 1969 Ti Igarassu / Itapissuma",
+      "full_name": "Terminal Da Linha 1969 Ti Igarassu / Itapissuma - 150323",
+      "lat": -7.771441667468382,
+      "lon": -34.90325833329781,
+      "region": "Igarassu"
+    },
+    {
+      "id": "150000",
+      "name": "Ti Igarassu",
+      "full_name": "Ti Igarassu - 150000",
+      "lat": -7.832827812755261,
+      "lon": -34.911922291263345,
+      "region": "Igarassu"
+    },
+    {
+      "id": "IPOJUCA_CENTRO",
+      "name": "Ipojuca · Centro / Praça e UPA (PE-60)",
+      "full_name": "Rodovia PE-60 (Centro / Trevo de Ipojuca) · Ipojuca - PE",
+      "lat": -8.398512,
+      "lon": -35.06412,
+      "region": "Ipojuca"
+    },
+    {
+      "id": "PORTO_GALINHAS",
+      "name": "Porto de Galinhas · Terminal de Ônibus",
+      "full_name": "Terminal de Porto de Galinhas · Ipojuca - PE",
+      "lat": -8.505432,
+      "lon": -35.004121,
+      "region": "Ipojuca"
+    },
+    {
+      "id": "CAMELA_CENTRO",
+      "name": "Camela · Centro (Rua do Comércio / Terminal)",
+      "full_name": "Rua do Comércio / Terminal de Camela · Ipojuca - PE",
+      "lat": -8.514931,
+      "lon": -35.123469,
+      "region": "Ipojuca (Camela)"
+    },
+    {
+      "id": "CAMELA_TREVO",
+      "name": "Camela · Trevo da Rodovia PE-60 (Ipojuca)",
+      "full_name": "Rodovia PE-60 (Entrada / Trevo de Camela) · Ipojuca - PE",
+      "lat": -8.494915,
+      "lon": -35.09219,
+      "region": "Ipojuca (Camela)"
+    },
+    {
+      "id": "020471",
+      "name": "Ponto De Retorno Muribeca/Ti Cajueiro Seco",
+      "full_name": "Ponto De Retorno Muribeca/Ti Cajueiro Seco - 020471",
+      "lat": -8.149558336096304,
+      "lon": -34.97679999995839,
+      "region": "Jaboatão dos Guararapes"
+    },
+    {
+      "id": "050490",
+      "name": "Terminal Da Linha 290 Bonança/Ti Jaboatão",
+      "full_name": "Terminal Da Linha 290 Bonança/Ti Jaboatão - 050490",
+      "lat": -8.106150000906043,
+      "lon": -35.19478888880074,
+      "region": "Jaboatão dos Guararapes"
+    },
+    {
+      "id": "020002",
+      "name": "Ti Cajueiro Seco",
+      "full_name": "Ti Cajueiro Seco - 020002",
+      "lat": -8.167989004420969,
+      "lon": -34.934533688542,
+      "region": "Jaboatão dos Guararapes"
+    },
+    {
+      "id": "040135",
+      "name": "Ti Cavaleiro",
+      "full_name": "Ti Cavaleiro - 040135",
+      "lat": -8.094519891011108,
+      "lon": -34.97291415128109,
+      "region": "Jaboatão dos Guararapes"
+    },
+    {
+      "id": "050000",
+      "name": "Ti Jaboatão",
+      "full_name": "Ti Jaboatão - 050000",
+      "lat": -8.111632198453698,
+      "lon": -35.014398835403874,
+      "region": "Jaboatão dos Guararapes"
+    },
+    {
+      "id": "020536",
+      "name": "Ti Prazeres",
+      "full_name": "Ti Prazeres - 020536",
+      "lat": -8.161419696372274,
+      "lon": -34.92655824202219,
+      "region": "Jaboatão dos Guararapes"
+    },
+    {
+      "id": "130380",
+      "name": "Terminal Da Linha 895 Alto Do Sol Nascente/Ti Xamba",
+      "full_name": "Terminal Da Linha 895 Alto Do Sol Nascente/Ti Xamba - 130380",
+      "lat": -7.976716669262277,
+      "lon": -34.91052499996502,
+      "region": "Olinda"
+    },
+    {
+      "id": "150002",
+      "name": "Ti Pe-15",
+      "full_name": "Ti Pe-15 - 150002",
+      "lat": -7.982723500007164,
+      "lon": -34.856319955857714,
+      "region": "Olinda"
+    },
+    {
+      "id": "160000",
+      "name": "Ti Rio Doce",
+      "full_name": "Ti Rio Doce - 160000",
+      "lat": -7.9607209918352,
+      "lon": -34.85102855127083,
+      "region": "Olinda"
+    },
+    {
+      "id": "130000",
+      "name": "Ti Xambá",
+      "full_name": "Ti Xambá - 130000",
+      "lat": -8.001196661427809,
+      "lon": -34.892626605900084,
+      "region": "Olinda"
+    },
+    {
+      "id": "150936",
+      "name": "Ti Pelópidas",
+      "full_name": "Ti Pelópidas - Embarque 01- 150936",
+      "lat": -7.947072139974567,
+      "lon": -34.87797167910255,
+      "region": "Paulista"
+    },
+    {
+      "id": "150001",
+      "name": "Ti Pelópidas Silveira",
+      "full_name": "Ti Pelópidas Silveira - 150001",
+      "lat": -7.946769515773473,
+      "lon": -34.877856200512845,
+      "region": "Paulista"
+    },
+    {
+      "id": "150957",
+      "name": "Ti Pelópidas- Desembarque 01",
+      "full_name": "Ti Pelópidas- Desembarque 01 - 150957",
+      "lat": -7.945576169910893,
+      "lon": -34.87759786383087,
+      "region": "Paulista"
+    },
+    {
+      "id": "150952",
+      "name": "Ti Pelópidas- Embarque 17",
+      "full_name": "Ti Pelópidas- Embarque 17 - 150952",
+      "lat": -7.946586597184459,
+      "lon": -34.87784604226094,
+      "region": "Paulista"
+    },
+    {
+      "id": "080254",
+      "name": "Terminal Da Linha 303 Ti Caxangá/Curado Ii (Br-232)",
+      "full_name": "Terminal Da Linha 303 Ti Caxangá/Curado Ii (Br-232) - 080254",
+      "lat": -8.04768889155233,
+      "lon": -34.95956388884871,
+      "region": "Recife"
+    },
+    {
+      "id": "090276",
+      "name": "Terminal De Linha 302",
+      "full_name": "Terminal De Linha 302 - Caxangá / Ti Tip - 090276",
+      "lat": -8.031608334216045,
+      "lon": -34.95833611106901,
+      "region": "Recife"
+    },
+    {
+      "id": "080331",
+      "name": "Terminal Nova Morada/Ti Caxangá",
+      "full_name": "Terminal Nova Morada/Ti Caxangá - 080331",
+      "lat": -8.025455556436276,
+      "lon": -34.950294444403426,
+      "region": "Recife"
+    },
+    {
+      "id": "020900",
+      "name": "Ti Aeroporto",
+      "full_name": "Ti Aeroporto - 020900",
+      "lat": -8.134136062005572,
+      "lon": -34.91512430325258,
+      "region": "Recife"
+    },
+    {
+      "id": "180003",
+      "name": "Ti Afogados",
+      "full_name": "Ti Afogados - 180003",
+      "lat": -8.077302413073026,
+      "lon": -34.90679635435186,
+      "region": "Recife"
+    },
+    {
+      "id": "040000",
+      "name": "Ti Barro",
+      "full_name": "Ti Barro - 040000",
+      "lat": -8.08817445055669,
+      "lon": -34.94585759758854,
+      "region": "Recife"
+    },
+    {
+      "id": "080000",
+      "name": "Ti Caxangá",
+      "full_name": "Ti Caxangá - 080000",
+      "lat": -8.031208942325296,
+      "lon": -34.954937843290075,
+      "region": "Recife"
+    },
+    {
+      "id": "080431",
+      "name": "Ti Cdu",
+      "full_name": "Ti Cdu - 080431",
+      "lat": -8.03883429543645,
+      "lon": -34.94299630962573,
+      "region": "Recife"
+    },
+    {
+      "id": "080012",
+      "name": "Ti Getulio Vargas",
+      "full_name": "Ti Getulio Vargas - 080012",
+      "lat": -8.050618224769712,
+      "lon": -34.92200224898446,
+      "region": "Recife"
+    },
+    {
+      "id": "080936",
+      "name": "Ti Getúlio Vargas",
+      "full_name": "Ti Getúlio Vargas - Embarque 01 - 080936",
+      "lat": -8.050186111999881,
+      "lon": -34.92204444440719,
+      "region": "Recife"
+    },
+    {
+      "id": "180915",
+      "name": "Ti Joana Bezarra",
+      "full_name": "Ti Joana Bezarra - Embarque 05 - 180915",
+      "lat": -8.072163889784743,
+      "lon": -34.89523055552157,
+      "region": "Recife"
+    },
+    {
+      "id": "180002",
+      "name": "Ti Joana Bezerra",
+      "full_name": "Ti Joana Bezerra - 180002",
+      "lat": -8.072128730179074,
+      "lon": -34.89576292232596,
+      "region": "Recife"
+    },
+    {
+      "id": "180004",
+      "name": "Ti Largo Da Paz",
+      "full_name": "Ti Largo Da Paz - 180004",
+      "lat": -8.081244227400381,
+      "lon": -34.905061094793076,
+      "region": "Recife"
+    },
+    {
+      "id": "110000",
+      "name": "Ti Macaxeira",
+      "full_name": "Ti Macaxeira - 110000",
+      "lat": -8.008235080134988,
+      "lon": -34.93832783476195,
+      "region": "Recife"
+    },
+    {
+      "id": "150901",
+      "name": "Ti Pe 15",
+      "full_name": "Ti Pe 15 - Embarque 01 A - 150901",
+      "lat": -7.983177157724002,
+      "lon": -34.85607007133678,
+      "region": "Recife"
+    },
+    {
+      "id": "180001",
+      "name": "Ti Recife",
+      "full_name": "Ti Recife - 180001",
+      "lat": -8.068453118313338,
+      "lon": -34.88437609302074,
+      "region": "Recife"
+    },
+    {
+      "id": "040920",
+      "name": "Ti Santa Luzia",
+      "full_name": "Ti Santa Luzia - 040920",
+      "lat": -8.084164824756378,
+      "lon": -34.93009157562516,
+      "region": "Recife"
+    },
+    {
+      "id": "020000",
+      "name": "Ti Tancredo Neves",
+      "full_name": "Ti Tancredo Neves - 020000",
+      "lat": -8.122014463888496,
+      "lon": -34.91246455096088,
+      "region": "Recife"
+    },
+    {
+      "id": "070000",
+      "name": "Ti Tip",
+      "full_name": "Ti Tip - 070000",
+      "lat": -8.064289307992048,
+      "lon": -34.98207327791133,
+      "region": "Recife / Várzea (TIP)"
+    },
+    {
+      "id": "SUAPE_PORTO",
+      "name": "Complexo Industrial e Portuário de Suape",
+      "full_name": "Porto de Suape · Rodovia PE-60 / TSuape · Ipojuca",
+      "lat": -8.3941,
+      "lon": -34.9812,
+      "region": "Suape / Ipojuca"
+    }
+  ]
+}
