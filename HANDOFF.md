@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 09/11/2026 01:15
+- **Última Atualização:** 09/11/2026 01:40
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -64,7 +64,7 @@
   - Branch atualizada e sincronizada com o GitHub (feature/if-2va-pqc-telessaude).
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
-- [x] **Graphic Novel Edição Especial #01 (22 Páginas A4 Exatas) + Caderno do Professor e do Pesquisador**:
+- [x] **Graphic Novel Edição Especial #01 (14 Páginas A4 Enxutas · Anti-AI-Slop) + Caderno do Professor e do Pesquisador**:
   - *Revisão de Conteúdo e Teoria Epistemológica:*
     - **Metáfora dos Post-its em Python (Cap. 07):** Substituição completa da errônea "caixa" por "post-its colados em objetos na memória". Variáveis como referências/etiquetas de memória; analogia da cesta de feira no laço `for` ("passa item por item sem tirar nenhum dela") e acumulador `total` transferido para a questão da média da prova.
     - **Atribuições Teóricas Corrigidas:** Andaime/Scaffolding atribuído canonicamente a Wood, Bruner e Ross (1976); ZDP a Vygotsky (1978); Transposição Didática (Chevallard) devidamente distinguida de adaptação ao nível do aluno; citação balanceada de Bloom (1984) com limites reconhecidos; e exemplo parcialmente resolvido embasado na Carga Cognitiva de Sweller (1988).
@@ -96,7 +96,7 @@
     - Todas as artes do gibi contam com ilustrações exclusivas e coerentes com a legenda, balões com no máximo 25 palavras e cauda direcionada, onomatopeias em português (ZUUM, BIP, ZAP, CLAC-CLAC, TCHAN, PLIM) e eliminação de espaços vazios.
   - *Exportação e Deploy em Produção:*
     - `code/projeto_ead_tutores/ebook-hq.html` (16.75 MB, leitor interativo modo página vs rolo webtoon com atalhos de teclado).
-    - `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` e `ebook-caua-2va.pdf` (16.05 MB, cravado em **exatamente 22 páginas A4** compiladas via Microsoft Edge headless).
+    - `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` e `ebook-caua-2va.pdf` (16.05 MB, cravado em **exatamente 14 páginas A4** (10.05 MB) compiladas via Microsoft Edge headless).
     - Deploy em produção na Vercel ativo com HTTP 200: [https://projeto-ead-caua.vercel.app](https://projeto-ead-caua.vercel.app).
 
 ### 1. Entregas da VA2 (100% Concluídas, Auditadas e Públicas no GitHub)
