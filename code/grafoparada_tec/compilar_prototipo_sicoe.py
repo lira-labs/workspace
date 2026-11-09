@@ -596,18 +596,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <!-- LEFT: CLEAN INTERACTIVE MAP -->
       <div class="map-card">
         <div class="map-bar-top">
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button id="btn-gps-real" class="btn btn-blue" style="min-height:38px; padding:6px 13px; font-size:13px;" onclick="useRealBrowserGps()">
-              Usar Meu GPS Agora
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:1;">
+            <button id="btn-gps-real" class="btn btn-blue" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="useRealBrowserGps()">
+              📍 Usar Meu GPS
             </button>
-            <button class="btn" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="setSimulatedUserLocation(-8.304950, -35.021420, 'Trevo de Ipojuca (Parada #11)', true)">
-              Trevo Ipojuca (#11)
+            <div style="display:flex; align-items:center; gap:4px; flex:1; min-width:220px; max-width:360px;">
+              <input id="map-search-input" type="text" placeholder="Digite sua rua, bairro ou local (ex: UFRPE, Boa Viagem)..."
+                style="width:100%; min-height:38px; padding:6px 11px; font-size:13px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--bg-surface); color:var(--text-main);"
+                onkeydown="if(event.key==='Enter') searchUserPlace()" />
+              <button class="btn btn-primary" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="searchUserPlace()">
+                Ir
+              </button>
+            </div>
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.017420, -34.949150, 'UFRPE · Dois Irmãos, Recife', true)">
+              UFRPE
             </button>
-            <button class="btn" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="setSimulatedUserLocation(-8.285150, -35.032290, 'Terminal do Cabo (Parada #01)', true)">
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.062850, -34.878950, 'Av. Guararapes · Santo Antônio, Recife', true)">
+              Centro Recife
+            </button>
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.284986, -35.032781, 'TI Cabo · Centro, Cabo', true)">
               TI Cabo (#01)
             </button>
-            <button class="btn" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="setSimulatedUserLocation(-8.062850, -34.878950, 'Centro do Recife', true)">
-              Centro do Recife
+            <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.304873, -35.021349, 'Rodovia PE-60 (Garapu) · Cabo', true)">
+              PE-60 Garapu (#11)
             </button>
           </div>
 
@@ -617,6 +628,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <button id="btn-tile-dark" class="btn" style="min-height:36px; padding:5px 11px; font-size:12.5px;" onclick="setBaseTile('dark')">Noturno</button>
           </div>
         </div>
+        <div id="gps-accuracy-notice" style="display:none; padding:8px 16px; background:var(--warn-amber-bg); border-bottom:1px solid var(--warn-amber-border); font-size:13px; color:var(--text-main);"></div>
 
         <div class="map-canvas-holder">
           <div id="pe60-leaflet-map" role="region" aria-label="Mapa interativo"></div>
@@ -1104,7 +1116,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       });
     }
 
-    function selectStopNode(seq, panMap = true) {
+    function selectStopNode(seq, panMap = true, syncUserPin = true) {
       activeStopSeq = seq;
       document.querySelectorAll("#quick-stop-selector .btn").forEach(b => b.classList.remove("active"));
       const qbtn = document.getElementById(`qbtn-${seq}`);
@@ -1143,6 +1155,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (typeof renderSelectedStopSafetyPanel === "function") {
         renderSelectedStopSafetyPanel(seq);
       }
+      if (syncUserPin) {
+        setSimulatedUserLocation(st.lat, st.lon, st.name, false, false);
+      }
     }
 
     function triggerGtfsPatch() {
@@ -1152,22 +1167,59 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
 
     // =========================================================================
-    // LIVE USER LOCATION & NEARBY STOPS
+    // LIVE USER LOCATION, ADDRESS SEARCH & NEARBY STOPS
     // =========================================================================
     function useRealBrowserGps() {
       const btn = document.getElementById("btn-gps-real");
+      const notice = document.getElementById("gps-accuracy-notice");
       if (!navigator.geolocation) return;
       if (btn) btn.textContent = "Localizando...";
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          if (btn) btn.textContent = "Meu GPS Ativo";
-          setSimulatedUserLocation(pos.coords.latitude, pos.coords.longitude, "Sua Localização GPS", true);
+          const acc = Math.round(pos.coords.accuracy || 0);
+          if (btn) btn.textContent = `📍 Meu GPS (±${acc}m)`;
+          if (notice) {
+            if (acc > 150) {
+              notice.style.display = "block";
+              notice.innerHTML = `<strong>Atenção sobre o GPS do PC:</strong> O navegador no Windows estimou sua posição pela rede Wi-Fi/provedor com margem de erro de <strong>±${acc} metros</strong>. Se este não for o seu endereço exato, <strong>digite sua rua ou bairro na busca acima</strong> ou clique direto no mapa!`;
+            } else {
+              notice.style.display = "none";
+            }
+          }
+          setSimulatedUserLocation(pos.coords.latitude, pos.coords.longitude, "Localização via GPS", true, true);
         },
         () => {
-          if (btn) btn.textContent = "Usar Meu GPS Agora";
+          if (btn) btn.textContent = "📍 Usar Meu GPS";
+          if (notice) {
+            notice.style.display = "block";
+            notice.innerHTML = `Permissão de GPS negada ou indisponível no navegador. <strong>Digite sua rua ou bairro na caixa de busca acima</strong> ou clique no mapa!`;
+          }
         },
-        { enableHighAccuracy: true, timeout: 8000 }
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       );
+    }
+
+    async function searchUserPlace() {
+      const inp = document.getElementById("map-search-input");
+      const notice = document.getElementById("gps-accuracy-notice");
+      if (!inp || !inp.value.trim()) return;
+      const q = inp.value.trim();
+      inp.disabled = true;
+      try {
+        const resp = await fetch(`/api/live/geocode?q=${encodeURIComponent(q)}`);
+        const data = await resp.json();
+        inp.disabled = false;
+        if (data.results && data.results.length > 0) {
+          const best = data.results[0];
+          if (notice) notice.style.display = "none";
+          setSimulatedUserLocation(best.lat, best.lon, best.label, true, true);
+        } else if (notice) {
+          notice.style.display = "block";
+          notice.innerHTML = `Não encontramos "${q}". Tente digitar o nome da rua ou bairro com a cidade (ex: <em>Boa Viagem, Recife</em> ou <em>Centro, Cabo</em>).`;
+        }
+      } catch (err) {
+        inp.disabled = false;
+      }
     }
 
     function speakNearestStopVoice() {
@@ -1175,15 +1227,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       playNaturalVoice(lastPocketVoicePrompt, btn);
     }
 
-    async function setSimulatedUserLocation(lat, lon, label, flyTo = true) {
+    async function setSimulatedUserLocation(lat, lon, label, flyTo = true, syncCorridorNode = true) {
       userPos = { lat, lon, label };
       initRealLeafletMap();
 
       const coordBadge = document.getElementById("user-loc-coords-badge");
-      if (coordBadge) coordBadge.textContent = label;
+      if (coordBadge) coordBadge.textContent = `Localizando endereço exato...`;
 
       if (flyTo && leafletMap) {
-        leafletMap.setView([lat, lon], Math.max(leafletMap.getZoom(), 15), { animate: true });
+        leafletMap.setView([lat, lon], Math.max(leafletMap.getZoom(), 16), { animate: true });
       }
 
       userRadarLayerGroup.clearLayers();
@@ -1200,20 +1252,66 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       userMarker.bindTooltip(`Você: ${label}`, { permanent: true, direction: "top", offset: [0, -14], className: "sicoe-tooltip" });
       userMarker.on("dragend", (ev) => {
         const p = ev.target.getLatLng();
-        setSimulatedUserLocation(p.lat, p.lng, "Posição ajustada no mapa", false);
+        setSimulatedUserLocation(p.lat, p.lng, "Posição ajustada no mapa", false, true);
       });
 
       try {
-        const resp = await fetch(`/api/live/nearby-stops?lat=${lat}&lon=${lon}&k=3`);
+        const resp = await fetch(`/api/live/nearby-stops?lat=${lat}&lon=${lon}&k=4`);
         const data = await resp.json();
         lastPocketVoicePrompt = data.pocket_voice_prompt;
+
+        const realAddr = (data.user_location && data.user_location.address) ? data.user_location.address : label;
+        userPos.label = realAddr;
+        if (coordBadge) {
+          coordBadge.textContent = `Você está em: ${realAddr}`;
+        }
+        if (userMarker) {
+          userMarker.setTooltipContent(`Você está em: ${realAddr}`);
+        }
 
         const topStop = data.closest_gtfs_stops && data.closest_gtfs_stops[0];
         if (topStop) {
           document.getElementById("user-geofence-badge").textContent = `A ${topStop.distance_m}m da parada`;
-          if (topStop.is_pe60_corridor && topStop.pe60_seq && topStop.distance_m <= 120.0) {
-            if (activeStopSeq !== topStop.pe60_seq) selectStopNode(topStop.pe60_seq, false);
+
+          if (topStop.is_pe60_corridor && topStop.pe60_seq && topStop.distance_m <= 250.0) {
+            if (syncCorridorNode && activeStopSeq !== topStop.pe60_seq) {
+              selectStopNode(topStop.pe60_seq, false, false);
+            }
+            document.getElementById("insp-stop-header").textContent = `Parada #${String(topStop.pe60_seq).padStart(2, '0')} · ${topStop.stop_name}`;
+          } else {
+            // Usuário está em qualquer outro bairro/cidade do Grande Recife: atualiza todo o cartão direito para a parada real dele!
+            document.querySelectorAll("#quick-stop-selector .btn").forEach(b => b.classList.remove("active"));
+            document.getElementById("insp-stop-header").textContent = topStop.stop_name;
+            const estMin = topStop.pe60_stgcn_t30 || 14;
+            document.getElementById("insp-stgcn-big").textContent = `${Number(estMin).toFixed(0)} min`;
+            document.getElementById("insp-stgcn-big").style.color = estMin > 30 ? "var(--danger-red)" : "var(--brand-green)";
+            document.getElementById("insp-abn").textContent = topStop.pe60_abn_10m > 0
+              ? `${topStop.pe60_abn_10m} desistências recentes`
+              : `Fluxo urbano regular na via`;
+            const tag = document.getElementById("insp-stop-tag");
+            tag.className = topStop.keep_phone_in_pocket ? "tag tag-amber" : "tag tag-emerald";
+            tag.textContent = topStop.keep_phone_in_pocket ? "Modo Bolso Ativo" : "Parada Movimentada";
           }
+
+          // Desenha também no mapa os marcadores das paradas locais quando estiver fora do corredor PE-60
+          (data.closest_gtfs_stops || []).slice(0, 4).forEach((st, idx) => {
+            if (!st.is_pe60_corridor) {
+              const col = st.keep_phone_in_pocket ? "#d97706" : "#0a6b46";
+              const localIcon = L.divIcon({
+                className: "",
+                html: `<div class="stop-map-pill ${idx === 0 ? 'selected' : ''}" style="background:${col}; font-size:11px; padding:2px 6px;">#${st.stop_id}</div>`,
+                iconSize: [54, 22],
+                iconAnchor: [27, 11]
+              });
+              const m = L.marker([st.lat, st.lon], { icon: localIcon }).addTo(userRadarLayerGroup);
+              m.bindTooltip(`${st.stop_name} (${st.active_waiting_users} pessoas aguardando)`, {
+                direction: "top",
+                offset: [0, -12],
+                className: "sicoe-tooltip"
+              });
+              m.on("click", () => setSimulatedUserLocation(st.lat, st.lon, st.stop_name, true, false));
+            }
+          });
 
           // Update Big People Counter & Safety Banner on Tab 1
           const paxCountEl = document.getElementById("f1-people-count-big");
@@ -1240,10 +1338,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               banner.style.borderLeft = "5px solid var(--danger-red)";
               sTitle.style.color = "var(--danger-red)";
               sTitle.textContent = `Não pegue o celular neste local! (${topStop.robbery_reports_30d} relatos de assalto)`;
-              sDesc.textContent = `Mantenha o celular no bolso. O GrafoParada fala com você pelo fone de ouvido.`;
+              sDesc.textContent = `Guarde o celular no bolso em ${topStop.stop_name}. O GrafoParada fala com você pelo fone de ouvido.`;
               if (sBtnComp && topStop.companion_stop_recommendation) {
                 sBtnComp.style.display = "inline-flex";
-                sBtnComp.textContent = `Não Fique Sozinho: Ir para Parada com ${topStop.companion_stop_recommendation.active_waiting_users} Pessoas (a ${topStop.companion_stop_recommendation.distance_m}m)`;
+                sBtnComp.textContent = `Não Fique Sozinho: Ir para ${topStop.companion_stop_recommendation.name.split(' (Parada')[0]} com ${topStop.companion_stop_recommendation.active_waiting_users} Pessoas (a ${topStop.companion_stop_recommendation.distance_m}m)`;
+              } else if (sBtnComp) {
+                sBtnComp.style.display = "none";
               }
             } else {
               banner.style.background = "var(--brand-green-bg)";
@@ -1251,7 +1351,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               banner.style.borderLeft = "5px solid var(--brand-green)";
               sTitle.style.color = "var(--brand-green)";
               sTitle.textContent = `Parada iluminada e segura com grupo`;
-              sDesc.textContent = `Tem ${topStop.active_waiting_users} passageiros aguardando juntos neste ponto agora.`;
+              sDesc.textContent = `Tem ${topStop.active_waiting_users} passageiros aguardando juntos em ${topStop.stop_name}.`;
               if (sBtnComp) sBtnComp.style.display = "none";
             }
           }
@@ -1273,10 +1373,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             ? `<span class="tag tag-crimson">Guarde o celular</span>`
             : `<span class="tag tag-emerald">${st.active_waiting_users} pessoas ali</span>`;
           return `
-            <div class="nearby-stop-row ${idx === 0 ? 'selected-row' : ''}" onclick="leafletMap.setView([${st.lat}, ${st.lon}], 17);">
+            <div class="nearby-stop-row ${idx === 0 ? 'selected-row' : ''}" onclick="setSimulatedUserLocation(${st.lat}, ${st.lon}, '${st.stop_name.replace(/'/g, "\\'")}', true, true);">
               <div>
                 <div style="font-weight:800; font-size:14px;">${st.stop_name}</div>
-                <div style="font-size:12.5px; color:var(--text-muted);">A ${st.distance_m} metros · ${st.active_waiting_users} esperando agora</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">A ${st.distance_m} metros de você · ${st.active_waiting_users} esperando agora</div>
               </div>
               ${badge}
             </div>
@@ -1443,14 +1543,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     function jumpToCompanionStop() {
       const comp = window.lastCompanionRecommendation;
       if (!comp) return;
+      switchModule("mod-gis", document.querySelectorAll(".tab-btn")[0]);
       const targetStop = TELEMETRIA.stops.find(s => s.seq === comp.seq || String(s.stop_id) === String(comp.stop_id));
       if (targetStop) {
-        switchModule("mod-gis", document.querySelectorAll(".tab-btn")[0]);
-        selectStopNode(targetStop.seq, true);
+        selectStopNode(targetStop.seq, true, true);
+      } else if (comp.lat && comp.lon) {
         setSimulatedUserLocation(
-          targetStop.lat + 0.00006,
-          targetStop.lon + 0.00006,
-          `Junto ao grupo na Parada #${targetStop.seq} (${comp.active_waiting_users} pessoas)`,
+          comp.lat,
+          comp.lon,
+          comp.name || `Parada #${comp.stop_id}`,
+          true,
           true
         );
       }
@@ -1620,13 +1722,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     // INITIALIZATION
     initQuickStopButtons();
-    selectStopNode(11, false);
+    selectStopNode(11, false, false);
     populateCittamobiTables();
     refreshSafetyCorridor();
 
     requestAnimationFrame(() => {
       drawPe60GisCanvas();
-      setSimulatedUserLocation(-8.304950, -35.021420, "Trevo de Ipojuca (Parada #11)", false);
+      setSimulatedUserLocation(-8.304873, -35.021349, "Rodovia PE-60 (Trecho Garapu / Vila Roca) · Cabo", false, false);
     });
     requestAnimationFrame(renderImuOscilloscope);
   </script>

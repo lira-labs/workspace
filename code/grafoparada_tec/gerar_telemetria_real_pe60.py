@@ -134,6 +134,29 @@ def main():
     ]
     catraca_boardings = [42, 19, 14, 11, 8, 3, 0, 0, 0, 0, 0, 1, 4, 6, 2, 12, 18, 22, 1, 2]
 
+    nomes_reais_corredor = {
+        1: "TI Cabo (Plataforma 05) · Centro, Cabo",
+        2: "Terminal Integrado do Cabo (Saída Sul)",
+        3: "Av. Hist. Pereira da Costa, 300 · Centro, Cabo",
+        4: "Av. Pres. Getúlio Vargas, 689 · Centro, Cabo",
+        5: "Av. Pres. Getúlio Vargas, 1032 · Centro, Cabo",
+        6: "Rua Antônio Custódio de Lima, 149 · Santo Inácio",
+        7: "Rodovia PE-60, 330 · Santo Inácio, Cabo",
+        8: "Paralela Rodovia PE-60, 1600 · Santo Inácio",
+        9: "Paralela Rodovia PE-60, 1846 · Cohab, Cabo",
+        10: "Rodovia PE-60, 1439 (Acesso Garapu) · Cabo",
+        11: "Rodovia PE-60 (Trecho Garapu / Vila Roca) · Cabo",
+        12: "Rodovia PE-60 (Entrada Rua 18 · Garapu) · Cabo",
+        13: "Rodovia PE-60, 7700 (Engenho Massangana) · Cabo",
+        14: "Rodovia PE-60, 7745 (Acesso Massangana) · Cabo",
+        15: "Rodovia PE-60 (Trevo PE-028 / Gaibu) · Cabo",
+        16: "Rodovia PE-028 (Saída Trevo PE-60) · Cabo",
+        17: "Rodovia PE-028 (Acesso Suape / Gaibu) · Cabo",
+        18: "Rodovia PE-009, 51 (Complexo Suape) · Cabo",
+        19: "Rodovia PE-037 (Zona Industrial Suape) · Cabo",
+        20: "Ponto de Retorno Porto de Suape (PE-038) · Ipojuca",
+    }
+
     enriched_stops = []
     for idx, p in enumerate(paradas_20):
         seq = p["seq"]
@@ -143,7 +166,7 @@ def main():
         enriched_stops.append({
             "seq": seq,
             "stop_id": p["stop_id"],
-            "name": p["stop_name"].split(" [")[0],
+            "name": nomes_reais_corredor.get(seq, p["stop_name"].split(" [")[0]),
             "lat": round(float(p["lat"]), 6),
             "lon": round(float(p["lon"]), 6),
             "scheduled_time": p["scheduled_time"],
