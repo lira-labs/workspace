@@ -843,6 +843,238 @@
 <body>
 
   <!-- ======================================================================= -->
+  <!-- FULLSCREEN USER AUTH & ONBOARDING EXPERIENCE (DO ZERO AO USO)          -->
+  <!-- ======================================================================= -->
+  <div id="auth-onboarding-screen" style="display:flex; position:fixed; inset:0; z-index:99999; background:var(--bg-page); overflow-y:auto; -webkit-overflow-scrolling:touch;">
+    <div style="max-width:480px; width:100%; margin:auto; padding:24px 20px; min-height:100%; display:flex; flex-direction:column; justify-content:center;">
+
+      <!-- STEP 1: WELCOME SPLASH SCREEN -->
+      <div id="auth-step-welcome" style="display:block;">
+        <div style="text-align:center; margin-bottom:24px;">
+          <div style="display:inline-flex; align-items:center; gap:8px; background:var(--brand-green-bg); border:2px solid var(--brand-green); padding:8px 18px; border-radius:999px; margin-bottom:14px;">
+            <span style="font-size:20px;">🚌🛡️</span>
+            <span style="font-weight:800; font-size:15px; color:var(--brand-green);">GrafoParada · Grande Recife</span>
+          </div>
+          <h1 style="font-size:26px; font-weight:800; line-height:1.2; letter-spacing:-0.03em; margin-bottom:10px;">
+            O ônibus no Grande Recife que você espera sem medo de assalto.
+          </h1>
+          <p style="font-size:14px; color:var(--text-secondary); line-height:1.5;">
+            Primeira tecnologia com Companhia na Parada, Modo Celular no Bolso com voz natural e Remanejamento de frotas vazias na Rodovia PE-60.
+          </p>
+        </div>
+
+        <!-- 3 Feature Pillars -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+          <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:14px; padding:14px; display:flex; gap:12px; align-items:center; box-shadow:var(--shadow-sm);">
+            <div style="font-size:26px; background:var(--brand-green-bg); padding:10px; border-radius:12px;">🛡️</div>
+            <div>
+              <div style="font-weight:800; font-size:14px;">Companhia Coletiva na Parada</div>
+              <div style="font-size:12.5px; color:var(--text-secondary);">Veja quantas pessoas estão esperando antes de sair de casa para nunca ficar só.</div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:14px; padding:14px; display:flex; gap:12px; align-items:center; box-shadow:var(--shadow-sm);">
+            <div style="font-size:26px; background:var(--warn-amber-bg); padding:10px; border-radius:12px;">🎧</div>
+            <div>
+              <div style="font-weight:800; font-size:14px;">Modo Celular no Bolso</div>
+              <div style="font-size:12.5px; color:var(--text-secondary);">A IA avisa com voz humana no seu fone de ouvido. Você não tira o celular da bolsa.</div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:14px; padding:14px; display:flex; gap:12px; align-items:center; box-shadow:var(--shadow-sm);">
+            <div style="font-size:26px; background:var(--user-blue-bg); padding:10px; border-radius:12px;">🚌</div>
+            <div>
+              <div style="font-weight:800; font-size:14px;">Frota Inteligente na PE-60</div>
+              <div style="font-size:12.5px; color:var(--text-secondary);">Ônibus ociosos de Suape são remanejados automaticamente para cobrir lotações.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; min-height:52px; font-size:16px; font-weight:800; border-radius:14px; margin-bottom:10px;" onclick="goToAuthStep('signup')">
+          🚀 Criar Minha Conta de Passageiro
+        </button>
+        <button class="btn" style="width:100%; min-height:46px; font-size:14px; font-weight:700; border-radius:14px;" onclick="goToAuthStep('login')">
+          Já Tenho Conta · Entrar
+        </button>
+
+        <div style="text-align:center; margin-top:16px;">
+          <a href="javascript:void(0)" onclick="quickTestUser('Cauã Cunha', 'Camela (PE-60)')" style="font-size:13px; color:var(--brand-green); font-weight:800; text-decoration:underline;">
+            ⚡ Teste Rápido de 1 Toque: Entrar como Cauã em Camela
+          </a>
+        </div>
+      </div>
+
+      <!-- STEP 2: CADASTRO RÁPIDO -->
+      <div id="auth-step-signup" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <span class="tag tag-emerald" style="margin-bottom:8px;">Etapa 1 de 2 · Seus Dados</span>
+          <h2 style="font-size:22px; font-weight:800; margin-top:4px;">Crie sua conta de passageiro</h2>
+          <p style="font-size:13.5px; color:var(--text-secondary);">Leva menos de 1 minuto para proteger sua rotina de ônibus.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Seu Nome Completo:</label>
+            <input id="signup-name" type="text" placeholder="Ex: Cauã Cunha" value="Cauã Cunha"
+              style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
+          </div>
+
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Celular / WhatsApp:</label>
+            <input id="signup-phone" type="tel" placeholder="(81) 98888-0000" value="(81) 98888-7766"
+              style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
+          </div>
+
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Sua Parada / Bairro Habitual:</label>
+            <select id="signup-place" style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);">
+              <option value="Camela (PE-60)" selected>📍 Camela · Rodovia PE-60 (Trevo de Camela)</option>
+              <option value="Camela Centro">📍 Camela · Centro (Rua do Comércio)</option>
+              <option value="Ipojuca Centro">📍 Ipojuca · Centro / UPA</option>
+              <option value="TI Cabo">📍 Cabo de Santo Agostinho · TI Cabo</option>
+              <option value="Suape">📍 Porto de Suape · Complexo Industrial</option>
+              <option value="Recife">📍 Recife · Centro / Av. Guararapes</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Linha que você mais pega:</label>
+            <select id="signup-line" style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);">
+              <option value="178" selected>🚌 Linha 178 · Dantas Barreto / Porto de Suape</option>
+              <option value="198">🚌 Linha 198 · Ipojuca / TIP (Via PE-60)</option>
+              <option value="197">🚌 Linha 197 · Cabo / Ipojuca</option>
+              <option value="119">🚌 Linha 119 · Circular Garapu</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; min-height:50px; font-size:15.5px; font-weight:800; border-radius:14px; margin-bottom:10px;" onclick="goToAuthStep('preferences')">
+          Avançar: Configurar Proteção no Fone →
+        </button>
+        <button class="btn" style="width:100%; min-height:42px; font-size:13.5px; border-radius:14px;" onclick="goToAuthStep('welcome')">
+          ← Voltar
+        </button>
+      </div>
+
+      <!-- STEP 3: PREFERÊNCIAS DE SEGURANÇA & FONE -->
+      <div id="auth-step-preferences" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <span class="tag tag-amber" style="margin-bottom:8px;">Etapa 2 de 2 · Modo Fone no Bolso</span>
+          <h2 style="font-size:22px; font-weight:800; margin-top:4px;">Como o GrafoParada deve te proteger?</h2>
+          <p style="font-size:13.5px; color:var(--text-secondary);">A inteligência artificial avisa você sem que você precise tirar o celular da bolsa ou bolso na pista.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+          <div style="background:var(--bg-surface); border:2px solid var(--brand-green); border-radius:14px; padding:16px;">
+            <div style="font-weight:800; font-size:15px; margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+              <span>🎧 Voz Humana Natural no Fone</span>
+              <span class="tag tag-emerald" style="font-size:11px;">Recomendado</span>
+            </div>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">
+              O app sussurra discretamente no seu fone quando o ônibus estiver chegando na curva da PE-60.
+            </p>
+
+            <div style="margin-bottom:10px;">
+              <label style="display:block; font-size:12.5px; font-weight:700; margin-bottom:4px;">Escolha a voz do seu assistente:</label>
+              <select id="pref-voice-select" style="width:100%; min-height:44px; padding:8px 12px; font-size:13.5px; border:1px solid var(--border-strong); border-radius:10px; background:var(--bg-subtle); color:var(--text-main); font-weight:700;">
+                <option value="pt-BR-FranciscaNeural" selected>Francisca (Feminina Natural · PE-60)</option>
+                <option value="pt-BR-AntonioNeural">Antônio (Masculino Natural)</option>
+                <option value="pt-BR-ThalitaMultilingualNeural">Thalita (Jovem Expressiva)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-amber" style="width:100%; min-height:38px; font-size:13px; font-weight:800;" onclick="testPrefVoice()">
+              ▶️ Testar Voz no Fone Agora
+            </button>
+          </div>
+
+          <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:14px; padding:14px;">
+            <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer;">
+              <input type="checkbox" id="pref-opt-presence" checked style="width:20px; height:20px; margin-top:2px; accent-color:var(--brand-green);" />
+              <div style="font-size:13px; line-height:1.45; color:var(--text-secondary);">
+                <strong>Proteção Coletiva (Companhia Anônima):</strong> Contar minha presença anonimamente na parada para que outras pessoas saibam que há grupo seguro no ponto. Seus dados nunca são vendidos (100% LGPD).
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <button class="btn btn-emerald" style="width:100%; min-height:52px; font-size:16px; font-weight:800; border-radius:14px; border:2px solid var(--brand-green); margin-bottom:10px;" onclick="completeRegistration()">
+          ✅ Concluir Cadastro &amp; Abrir Meu Mapa
+        </button>
+        <button class="btn" style="width:100%; min-height:42px; font-size:13.5px; border-radius:14px;" onclick="goToAuthStep('signup')">
+          ← Voltar para Dados
+        </button>
+      </div>
+
+      <!-- STEP 4: LOGIN RÁPIDO -->
+      <div id="auth-step-login" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <h2 style="font-size:22px; font-weight:800; margin-top:4px;">Entrar na sua conta</h2>
+          <p style="font-size:13.5px; color:var(--text-secondary);">Acesse com seu celular ou nome cadastrado:</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Celular ou Nome:</label>
+            <input id="login-phone" type="text" placeholder="Ex: Cauã Cunha ou (81) 98888-7766" value="Cauã Cunha"
+              style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
+          </div>
+
+          <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">PIN de Acesso:</label>
+            <input id="login-pin" type="password" value="1234"
+              style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; min-height:50px; font-size:15.5px; font-weight:800; border-radius:14px; margin-bottom:10px;" onclick="doLogin()">
+          Entrar no GrafoParada
+        </button>
+        <button class="btn" style="width:100%; min-height:42px; font-size:13.5px; border-radius:14px;" onclick="goToAuthStep('welcome')">
+          ← Voltar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DE PERFIL DO USUÁRIO & REINICIAR TESTE -->
+  <div id="user-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:99999; justify-content:center; align-items:center; padding:16px;">
+    <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-lg); max-width:440px; width:100%; padding:24px; box-shadow:0 12px 32px rgba(0,0,0,0.35);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:20px; font-weight:800;">👤 Meu Perfil de Passageiro</h3>
+        <span class="tag tag-emerald">Ativo</span>
+      </div>
+
+      <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px; line-height:1.5;">
+        <div><strong>Nome:</strong> <span id="prof-modal-name">Cauã Cunha</span></div>
+        <div><strong>Telefone:</strong> <span id="prof-modal-phone">(81) 98888-7766</span></div>
+        <div><strong>Parada Principal:</strong> <span id="prof-modal-place">Camela (PE-60)</span></div>
+        <div><strong>Linha Favorita:</strong> <span id="prof-modal-line">Linha 178</span></div>
+        <div><strong>Voz Selecionada:</strong> <span id="prof-modal-voice">Francisca</span></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+        <div style="background:var(--brand-green-bg); border:1px solid var(--brand-green-border); border-radius:10px; padding:10px; text-align:center;">
+          <div style="font-size:22px; font-weight:800; color:var(--brand-green);">14</div>
+          <div style="font-size:11.5px; color:var(--brand-green); font-weight:700;">Viagens Seguras</div>
+        </div>
+        <div style="background:var(--warn-amber-bg); border:1px solid var(--warn-amber-border); border-radius:10px; padding:10px; text-align:center;">
+          <div style="font-size:22px; font-weight:800; color:var(--warn-amber);">0</div>
+          <div style="font-size:11.5px; color:var(--warn-amber); font-weight:700;">Assaltos (No Bolso)</div>
+        </div>
+      </div>
+
+      <button class="btn btn-danger" style="width:100%; min-height:46px; font-size:14px; font-weight:800; border-radius:12px; margin-bottom:10px;" onclick="logoutAndResetTest()">
+        🚪 Sair da Conta / Recomeçar Teste do Zero
+      </button>
+      <button class="btn" style="width:100%; min-height:40px; font-size:13px; border-radius:12px;" onclick="closeUserProfileModal()">
+        Fechar
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
   <!-- CLEAN MINIMAL HEADER (3 TABS + HUMAN NEURAL VOICE SELECTOR)             -->
   <!-- ======================================================================= -->
   <header class="app-header">
@@ -880,6 +1112,9 @@
       </div>
       <button id="theme-toggle-btn" class="btn" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="toggleTheme()">
         Modo Noturno
+      </button>
+      <button id="btn-user-profile" class="btn btn-emerald" style="min-height:36px; padding:4px 10px; font-size:12.5px; font-weight:800; border:2px solid var(--brand-green);" onclick="openUserProfileModal()">
+        👤 <span id="header-user-name">Minha Conta</span>
       </button>
     </div>
   </header>
@@ -2229,7 +2464,142 @@ ${d.recommended_fix}`
       requestAnimationFrame(renderImuOscilloscope);
     }
 
+    // =========================================================================
+    // USER AUTH, ONBOARDING & PROFILE FLOW (TESTE DO ZERO)
+    // =========================================================================
+    function initAuthFlow() {
+      const isLogged = localStorage.getItem("grafoparada_user_logged");
+      const authScreen = document.getElementById("auth-onboarding-screen");
+      if (!isLogged || isLogged !== "true") {
+        if (authScreen) authScreen.style.display = "flex";
+        goToAuthStep("welcome");
+      } else {
+        if (authScreen) authScreen.style.display = "none";
+        try {
+          const raw = localStorage.getItem("grafoparada_user_data");
+          if (raw) {
+            const data = JSON.parse(raw);
+            applyUserData(data);
+          }
+        } catch (e) {
+          console.warn("User data parse err:", e);
+        }
+      }
+    }
+
+    function goToAuthStep(stepName) {
+      document.getElementById("auth-step-welcome").style.display = stepName === "welcome" ? "block" : "none";
+      document.getElementById("auth-step-signup").style.display = stepName === "signup" ? "block" : "none";
+      document.getElementById("auth-step-preferences").style.display = stepName === "preferences" ? "block" : "none";
+      document.getElementById("auth-step-login").style.display = stepName === "login" ? "block" : "none";
+      const scr = document.getElementById("auth-onboarding-screen");
+      if (scr) scr.scrollTop = 0;
+    }
+
+    function quickTestUser(name, place) {
+      const userData = {
+        name: name || "Cauã Cunha",
+        phone: "(81) 98888-7766",
+        place: place || "Camela (PE-60)",
+        line: "178",
+        voice: "pt-BR-FranciscaNeural"
+      };
+      saveAndEnterApp(userData);
+    }
+
+    function completeRegistration() {
+      const name = document.getElementById("signup-name").value.trim() || "Cauã Cunha";
+      const phone = document.getElementById("signup-phone").value.trim() || "(81) 98888-7766";
+      const place = document.getElementById("signup-place").value;
+      const line = document.getElementById("signup-line").value;
+      const voice = document.getElementById("pref-voice-select").value;
+
+      const userData = { name, phone, place, line, voice };
+      saveAndEnterApp(userData);
+    }
+
+    function doLogin() {
+      const phoneOrName = document.getElementById("login-phone").value.trim() || "Cauã Cunha";
+      const userData = {
+        name: phoneOrName,
+        phone: "(81) 98888-7766",
+        place: "Camela (PE-60)",
+        line: "178",
+        voice: "pt-BR-FranciscaNeural"
+      };
+      saveAndEnterApp(userData);
+    }
+
+    function saveAndEnterApp(userData) {
+      localStorage.setItem("grafoparada_user_logged", "true");
+      localStorage.setItem("grafoparada_user_data", JSON.stringify(userData));
+      applyUserData(userData);
+
+      const authScreen = document.getElementById("auth-onboarding-screen");
+      if (authScreen) authScreen.style.display = "none";
+
+      // Welcome voice message
+      const voiceText = `Olá, ${userData.name.split(' ')[0]}! Bem-vindo ao GrafoParada. Sua parada de Camela está monitorada pela Inteligência Artificial.`;
+      setTimeout(() => playNaturalVoice(voiceText, null), 800);
+
+      // Posiciona o usuário na parada cadastrada
+      if (userData.place.includes("Camela")) {
+        setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
+      } else if (userData.place.includes("Cabo")) {
+        setSimulatedUserLocation(-8.284986, -35.032781, "TI Cabo · Centro, Cabo", true, true);
+      } else if (userData.place.includes("Suape")) {
+        setSimulatedUserLocation(-8.394100, -34.981200, "Porto de Suape · Ipojuca", true, true);
+      }
+    }
+
+    function applyUserData(userData) {
+      if (!userData) return;
+      const headerName = document.getElementById("header-user-name");
+      if (headerName) headerName.textContent = userData.name.split(" ")[0];
+
+      const pName = document.getElementById("prof-modal-name");
+      const pPhone = document.getElementById("prof-modal-phone");
+      const pPlace = document.getElementById("prof-modal-place");
+      const pLine = document.getElementById("prof-modal-line");
+      const pVoice = document.getElementById("prof-modal-voice");
+
+      if (pName) pName.textContent = userData.name;
+      if (pPhone) pPhone.textContent = userData.phone;
+      if (pPlace) pPlace.textContent = userData.place;
+      if (pLine) pLine.textContent = `Linha ${userData.line}`;
+      if (pVoice) pVoice.textContent = userData.voice.includes("Francisca") ? "Francisca" : (userData.voice.includes("Antonio") ? "Antônio" : "Thalita");
+
+      const voiceSel = document.getElementById("neural-voice-select");
+      if (voiceSel && userData.voice) voiceSel.value = userData.voice;
+    }
+
+    function openUserProfileModal() {
+      const m = document.getElementById("user-profile-modal");
+      if (m) m.style.display = "flex";
+    }
+
+    function closeUserProfileModal() {
+      const m = document.getElementById("user-profile-modal");
+      if (m) m.style.display = "none";
+    }
+
+    function logoutAndResetTest() {
+      if (confirm("Deseja sair da conta e reiniciar o teste do zero (boas-vindas, cadastro e telas)?")) {
+        localStorage.removeItem("grafoparada_user_logged");
+        localStorage.removeItem("grafoparada_user_data");
+        closeUserProfileModal();
+        initAuthFlow();
+      }
+    }
+
+    function testPrefVoice() {
+      const sel = document.getElementById("pref-voice-select");
+      const v = sel ? sel.value : "pt-BR-FranciscaNeural";
+      playNaturalVoice("Oi! Esta é a voz que vai te avisar discretamente no fone quando o ônibus estiver chegando na PE-60.", null);
+    }
+
     // INITIALIZATION
+    initAuthFlow();
     initQuickStopButtons();
     selectStopNode(11, false, false);
     populateCittamobiTables();
