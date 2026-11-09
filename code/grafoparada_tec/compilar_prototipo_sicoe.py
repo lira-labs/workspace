@@ -539,9 +539,321 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       background: var(--brand-green-bg);
     }
 
+    .mobile-only {
+      display: none !important;
+    }
+    .desktop-only {
+      display: flex !important;
+    }
+
     @media (max-width: 1180px) {
       .map-first-layout, .split-2 {
         grid-template-columns: 1fr;
+      }
+    }
+
+    /* =========================================================================
+       NATIVE MOBILE TRANSIT APP EXPERIENCE (@media max-width: 860px)
+       Like Google Maps, Uber, Moovit, Citymapper
+       ========================================================================= */
+    @media (max-width: 860px) {
+      .mobile-only {
+        display: flex !important;
+      }
+      .desktop-only {
+        display: none !important;
+      }
+
+      body {
+        overflow: hidden !important;
+        height: 100dvh !important;
+        width: 100vw !important;
+        position: fixed !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Native Compact App Header (52px) */
+      .app-header {
+        height: 52px !important;
+        padding: 0 12px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-bottom: 1px solid var(--border) !important;
+        background: var(--bg-surface) !important;
+        z-index: 10000 !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+      }
+      .app-header .brand-subtitle,
+      .app-header .main-tabs,
+      .app-header .header-actions .btn-emerald {
+        display: none !important;
+      }
+      .brand-title {
+        font-size: 13.5px !important;
+        font-weight: 800 !important;
+      }
+      .brand-badge {
+        font-size: 11.5px !important;
+        padding: 4px 8px !important;
+      }
+      .voice-selector-wrap {
+        padding: 3px 6px !important;
+        font-size: 11px !important;
+      }
+      #theme-toggle-btn {
+        min-height: 32px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+      }
+
+      /* Views fit screen exactly between header (52px) and bottom nav (60px) */
+      .workspace-view {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        height: calc(100dvh - 52px - 60px) !important;
+        overflow: hidden !important;
+        position: relative !important;
+      }
+
+      #mod-safety.workspace-view,
+      #mod-tech.workspace-view {
+        overflow-y: auto !important;
+        padding: 14px 14px 75px !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      /* TAB 1: Immersive Screen-Filling Map */
+      .map-first-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+
+      .map-card {
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: absolute !important;
+        inset: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .map-canvas-holder {
+        flex: 1 !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: relative !important;
+      }
+
+      #pe60-leaflet-map {
+        height: 100% !important;
+        width: 100% !important;
+      }
+
+      .map-legend-pill {
+        top: 60px !important;
+        bottom: auto !important;
+        left: 10px !important;
+        font-size: 10.5px !important;
+        padding: 4px 10px !important;
+        gap: 8px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15) !important;
+        z-index: 450 !important;
+      }
+      [data-theme="dark"] .map-legend-pill {
+        background: rgba(22, 27, 34, 0.92) !important;
+      }
+
+      /* Floating Overlay on Top of Map */
+      .mobile-map-floating-bar {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        z-index: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
+
+      .mobile-search-pill {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: var(--bg-surface) !important;
+        border: 1.5px solid var(--border-strong) !important;
+        border-radius: 999px !important;
+        padding: 7px 13px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+      }
+      .mobile-search-pill input {
+        border: none !important;
+        background: transparent !important;
+        outline: none !important;
+        width: 100% !important;
+        font-size: 13.5px !important;
+        color: var(--text-main) !important;
+        font-family: inherit !important;
+      }
+
+      .mobile-quick-chip {
+        background: var(--brand-green-bg) !important;
+        border: 2px solid var(--brand-green) !important;
+        color: var(--brand-green) !important;
+        font-weight: 800 !important;
+        font-size: 13px !important;
+        padding: 7px 13px !important;
+        border-radius: 999px !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+      }
+
+      /* Floating Action Button (FAB) for GPS recentering */
+      .mobile-fab-gps {
+        position: absolute !important;
+        bottom: 215px !important;
+        right: 14px !important;
+        z-index: 550 !important;
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        background: var(--bg-surface) !important;
+        border: 1.5px solid var(--border-strong) !important;
+        color: var(--user-blue) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.28) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: transform 0.15s ease !important;
+      }
+      .mobile-fab-gps:active {
+        transform: scale(0.9) !important;
+      }
+
+      /* Mobile Bottom Sheet (Draggable / Collapsible) */
+      .companion-sheet {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 700 !important;
+        background: var(--bg-surface) !important;
+        border-radius: 22px 22px 0 0 !important;
+        border: 1px solid var(--border) !important;
+        border-bottom: none !important;
+        box-shadow: 0 -8px 30px rgba(0,0,0,0.28) !important;
+        padding: 6px 16px 16px !important;
+        transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        max-height: 200px !important;
+        overflow: hidden !important;
+      }
+
+      .companion-sheet.sheet-expanded {
+        max-height: calc(100dvh - 110px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      .sheet-handle-bar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 4px 0 8px !important;
+        cursor: pointer !important;
+        touch-action: pan-y !important;
+      }
+
+      .sheet-handle-pill {
+        width: 44px !important;
+        height: 4.5px !important;
+        background: var(--border-strong) !important;
+        border-radius: 999px !important;
+      }
+
+      .sheet-handle-hint {
+        font-size: 10.5px !important;
+        font-weight: 700 !important;
+        color: var(--text-muted) !important;
+        margin-top: 3px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+      }
+
+      .eta-hero-box {
+        margin: 8px 0 10px !important;
+        gap: 8px !important;
+      }
+      .eta-stat {
+        padding: 8px 12px !important;
+      }
+      .eta-stat-val {
+        font-size: 21px !important;
+      }
+
+      /* Native Bottom Navigation Bar */
+      .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 60px !important;
+        background: var(--bg-surface) !important;
+        border-top: 1px solid var(--border) !important;
+        z-index: 9999 !important;
+        box-shadow: 0 -2px 14px rgba(0,0,0,0.08) !important;
+      }
+
+      .mob-nav-item {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--text-muted) !important;
+        cursor: pointer !important;
+        padding: 4px 0 !important;
+        transition: color 0.15s ease !important;
+      }
+
+      .mob-nav-item.active {
+        color: var(--brand-green) !important;
+        font-weight: 800 !important;
+      }
+
+      .mob-nav-icon {
+        font-size: 20px !important;
+        line-height: 1 !important;
+      }
+
+      .mob-nav-label {
+        font-size: 10.5px !important;
+        letter-spacing: -0.01em !important;
+      }
+
+      /* Tab 2 & 3 responsive adjustments */
+      .split-2 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
       }
     }
   </style>
@@ -622,7 +934,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       <!-- LEFT: CLEAN INTERACTIVE MAP -->
       <div class="map-card">
-        <div class="map-bar-top">
+        <div class="map-bar-top desktop-only">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:1;">
             <button id="btn-gps-real" class="btn btn-blue" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="useRealBrowserGps()">
               📍 Usar Meu GPS
@@ -661,6 +973,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <div id="gps-accuracy-notice" style="display:none; padding:8px 16px; background:var(--warn-amber-bg); border-bottom:1px solid var(--warn-amber-border); font-size:13px; color:var(--text-main);"></div>
 
         <div class="map-canvas-holder">
+          <!-- FLOATING TOP BAR ON MOBILE -->
+          <div class="mobile-map-floating-bar mobile-only">
+            <div class="mobile-search-pill">
+              <span style="font-size:14px;">🔍</span>
+              <input type="text" id="mobile-search-input" placeholder="Buscar parada ou rua..." onkeydown="if(event.key==='Enter') searchUserPlaceMobile()" />
+            </div>
+            <button class="mobile-quick-chip" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela</button>
+          </div>
+
+          <!-- FLOATING GPS TARGET BUTTON (FAB) -->
+          <button class="mobile-fab-gps mobile-only" onclick="useRealBrowserGps()" title="Centralizar no meu GPS">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <line x1="12" y1="1" x2="12" y2="4"></line>
+              <line x1="12" y1="20" x2="12" y2="23"></line>
+              <line x1="1" y1="12" x2="4" y2="12"></line>
+              <line x1="20" y1="12" x2="23" y2="12"></line>
+              <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+            </svg>
+          </button>
+
           <div id="pe60-leaflet-map" role="region" aria-label="Mapa interativo"></div>
 
           <div class="map-legend-pill">
@@ -671,14 +1004,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           </div>
         </div>
 
-        <div class="map-bar-bottom">
+        <div class="map-bar-bottom desktop-only">
           <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">Paradas da Linha 178 (PE-60):</span>
           <div id="quick-stop-selector" style="display:flex; gap:4px; flex-wrap:wrap;"></div>
         </div>
       </div>
 
-      <!-- RIGHT: SINGLE FOCUSED COMPANION CARD (GLANCEABLE & HUMAN) -->
-      <div class="card">
+      <!-- RIGHT: SINGLE FOCUSED COMPANION CARD (BOTTOM SHEET ON MOBILE) -->
+      <div class="card companion-sheet" id="companion-bottom-sheet">
+        <!-- DRAG HANDLE FOR MOBILE BOTTOM SHEET -->
+        <div class="sheet-handle-bar mobile-only" onclick="toggleMobileSheet()">
+          <div class="sheet-handle-pill"></div>
+          <span class="sheet-handle-hint" id="sheet-handle-text">▲ Puxe para ver paradas e rotas</span>
+        </div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;">
           <div>
             <span style="font-size:12.5px; font-weight:700; color:var(--user-blue); text-transform:uppercase;" id="user-loc-coords-badge">
@@ -965,6 +1303,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
   </main>
 
+  <!-- NATIVE MOBILE BOTTOM NAVIGATION BAR -->
+  <nav class="mobile-bottom-nav mobile-only" aria-label="Navegação Móvel">
+    <button class="mob-nav-item active" onclick="switchModule('mod-gis', this)">
+      <span class="mob-nav-icon">🗺️</span>
+      <span class="mob-nav-label">Mapa & Ônibus</span>
+    </button>
+    <button class="mob-nav-item" onclick="switchModule('mod-safety', this)">
+      <span class="mob-nav-icon">🛡️</span>
+      <span class="mob-nav-label">Segurança</span>
+    </button>
+    <button class="mob-nav-item" onclick="switchModule('mod-tech', this)">
+      <span class="mob-nav-icon">⚡</span>
+      <span class="mob-nav-label">IA da Frota</span>
+    </button>
+  </nav>
+
   <script>
     const TELEMETRIA = __TELEMETRIA_JSON__;
 
@@ -1044,12 +1398,46 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       setBaseTile(next === "dark" ? "dark" : "osm");
     }
 
+    function toggleMobileSheet() {
+      const sheet = document.getElementById("companion-bottom-sheet");
+      const hint = document.getElementById("sheet-handle-text");
+      if (!sheet) return;
+      sheet.classList.toggle("sheet-expanded");
+      if (sheet.classList.contains("sheet-expanded")) {
+        if (hint) hint.textContent = "▼ Toque para recolher";
+      } else {
+        if (hint) hint.textContent = "▲ Puxe para ver paradas e rotas";
+      }
+    }
+
+    function searchUserPlaceMobile() {
+      const inp = document.getElementById("mobile-search-input");
+      if (!inp || !inp.value.trim()) return;
+      const deskInp = document.getElementById("map-search-input");
+      if (deskInp) deskInp.value = inp.value;
+      searchUserPlace();
+    }
+
     function switchModule(modId, btnEl) {
       document.querySelectorAll(".workspace-view").forEach(v => v.classList.remove("active"));
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.getElementById(modId).classList.add("active");
-      if (btnEl) btnEl.classList.add("active");
-      if (modId === "mod-gis") requestAnimationFrame(drawPe60GisCanvas);
+      document.querySelectorAll(".mob-nav-item").forEach(b => b.classList.remove("active"));
+      const targetView = document.getElementById(modId);
+      if (targetView) targetView.classList.add("active");
+
+      // Synchronize desktop top tabs and mobile bottom nav
+      const modIndex = modId === "mod-gis" ? 0 : (modId === "mod-safety" ? 1 : 2);
+      const topTabs = document.querySelectorAll(".tab-btn");
+      if (topTabs[modIndex]) topTabs[modIndex].classList.add("active");
+      const mobTabs = document.querySelectorAll(".mob-nav-item");
+      if (mobTabs[modIndex]) mobTabs[modIndex].classList.add("active");
+
+      if (modId === "mod-gis") {
+        if (leafletMap) {
+          setTimeout(() => leafletMap.invalidateSize(), 150);
+        }
+        requestAnimationFrame(drawPe60GisCanvas);
+      }
     }
 
     // =========================================================================
@@ -1111,6 +1499,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       }
 
       leafletMap.on("click", (ev) => {
+        const sheet = document.getElementById("companion-bottom-sheet");
+        if (sheet && sheet.classList.contains("sheet-expanded")) {
+          toggleMobileSheet();
+        }
         setSimulatedUserLocation(ev.latlng.lat, ev.latlng.lng, "Posição escolhida no mapa", false);
       });
 

@@ -521,9 +521,321 @@
       background: var(--brand-green-bg);
     }
 
+    .mobile-only {
+      display: none !important;
+    }
+    .desktop-only {
+      display: flex !important;
+    }
+
     @media (max-width: 1180px) {
       .map-first-layout, .split-2 {
         grid-template-columns: 1fr;
+      }
+    }
+
+    /* =========================================================================
+       NATIVE MOBILE TRANSIT APP EXPERIENCE (@media max-width: 860px)
+       Like Google Maps, Uber, Moovit, Citymapper
+       ========================================================================= */
+    @media (max-width: 860px) {
+      .mobile-only {
+        display: flex !important;
+      }
+      .desktop-only {
+        display: none !important;
+      }
+
+      body {
+        overflow: hidden !important;
+        height: 100dvh !important;
+        width: 100vw !important;
+        position: fixed !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Native Compact App Header (52px) */
+      .app-header {
+        height: 52px !important;
+        padding: 0 12px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-bottom: 1px solid var(--border) !important;
+        background: var(--bg-surface) !important;
+        z-index: 10000 !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+      }
+      .app-header .brand-subtitle,
+      .app-header .main-tabs,
+      .app-header .header-actions .btn-emerald {
+        display: none !important;
+      }
+      .brand-title {
+        font-size: 13.5px !important;
+        font-weight: 800 !important;
+      }
+      .brand-badge {
+        font-size: 11.5px !important;
+        padding: 4px 8px !important;
+      }
+      .voice-selector-wrap {
+        padding: 3px 6px !important;
+        font-size: 11px !important;
+      }
+      #theme-toggle-btn {
+        min-height: 32px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+      }
+
+      /* Views fit screen exactly between header (52px) and bottom nav (60px) */
+      .workspace-view {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        height: calc(100dvh - 52px - 60px) !important;
+        overflow: hidden !important;
+        position: relative !important;
+      }
+
+      #mod-safety.workspace-view,
+      #mod-tech.workspace-view {
+        overflow-y: auto !important;
+        padding: 14px 14px 75px !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      /* TAB 1: Immersive Screen-Filling Map */
+      .map-first-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+
+      .map-card {
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: absolute !important;
+        inset: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .map-canvas-holder {
+        flex: 1 !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: relative !important;
+      }
+
+      #pe60-leaflet-map {
+        height: 100% !important;
+        width: 100% !important;
+      }
+
+      .map-legend-pill {
+        top: 60px !important;
+        bottom: auto !important;
+        left: 10px !important;
+        font-size: 10.5px !important;
+        padding: 4px 10px !important;
+        gap: 8px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15) !important;
+        z-index: 450 !important;
+      }
+      [data-theme="dark"] .map-legend-pill {
+        background: rgba(22, 27, 34, 0.92) !important;
+      }
+
+      /* Floating Overlay on Top of Map */
+      .mobile-map-floating-bar {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        z-index: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
+
+      .mobile-search-pill {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        background: var(--bg-surface) !important;
+        border: 1.5px solid var(--border-strong) !important;
+        border-radius: 999px !important;
+        padding: 7px 13px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+      }
+      .mobile-search-pill input {
+        border: none !important;
+        background: transparent !important;
+        outline: none !important;
+        width: 100% !important;
+        font-size: 13.5px !important;
+        color: var(--text-main) !important;
+        font-family: inherit !important;
+      }
+
+      .mobile-quick-chip {
+        background: var(--brand-green-bg) !important;
+        border: 2px solid var(--brand-green) !important;
+        color: var(--brand-green) !important;
+        font-weight: 800 !important;
+        font-size: 13px !important;
+        padding: 7px 13px !important;
+        border-radius: 999px !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+      }
+
+      /* Floating Action Button (FAB) for GPS recentering */
+      .mobile-fab-gps {
+        position: absolute !important;
+        bottom: 215px !important;
+        right: 14px !important;
+        z-index: 550 !important;
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        background: var(--bg-surface) !important;
+        border: 1.5px solid var(--border-strong) !important;
+        color: var(--user-blue) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.28) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: transform 0.15s ease !important;
+      }
+      .mobile-fab-gps:active {
+        transform: scale(0.9) !important;
+      }
+
+      /* Mobile Bottom Sheet (Draggable / Collapsible) */
+      .companion-sheet {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 700 !important;
+        background: var(--bg-surface) !important;
+        border-radius: 22px 22px 0 0 !important;
+        border: 1px solid var(--border) !important;
+        border-bottom: none !important;
+        box-shadow: 0 -8px 30px rgba(0,0,0,0.28) !important;
+        padding: 6px 16px 16px !important;
+        transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        max-height: 200px !important;
+        overflow: hidden !important;
+      }
+
+      .companion-sheet.sheet-expanded {
+        max-height: calc(100dvh - 110px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      .sheet-handle-bar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 4px 0 8px !important;
+        cursor: pointer !important;
+        touch-action: pan-y !important;
+      }
+
+      .sheet-handle-pill {
+        width: 44px !important;
+        height: 4.5px !important;
+        background: var(--border-strong) !important;
+        border-radius: 999px !important;
+      }
+
+      .sheet-handle-hint {
+        font-size: 10.5px !important;
+        font-weight: 700 !important;
+        color: var(--text-muted) !important;
+        margin-top: 3px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+      }
+
+      .eta-hero-box {
+        margin: 8px 0 10px !important;
+        gap: 8px !important;
+      }
+      .eta-stat {
+        padding: 8px 12px !important;
+      }
+      .eta-stat-val {
+        font-size: 21px !important;
+      }
+
+      /* Native Bottom Navigation Bar */
+      .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 60px !important;
+        background: var(--bg-surface) !important;
+        border-top: 1px solid var(--border) !important;
+        z-index: 9999 !important;
+        box-shadow: 0 -2px 14px rgba(0,0,0,0.08) !important;
+      }
+
+      .mob-nav-item {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--text-muted) !important;
+        cursor: pointer !important;
+        padding: 4px 0 !important;
+        transition: color 0.15s ease !important;
+      }
+
+      .mob-nav-item.active {
+        color: var(--brand-green) !important;
+        font-weight: 800 !important;
+      }
+
+      .mob-nav-icon {
+        font-size: 20px !important;
+        line-height: 1 !important;
+      }
+
+      .mob-nav-label {
+        font-size: 10.5px !important;
+        letter-spacing: -0.01em !important;
+      }
+
+      /* Tab 2 & 3 responsive adjustments */
+      .split-2 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
       }
     }
   </style>
@@ -604,7 +916,7 @@
 
       <!-- LEFT: CLEAN INTERACTIVE MAP -->
       <div class="map-card">
-        <div class="map-bar-top">
+        <div class="map-bar-top desktop-only">
           <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; flex:1;">
             <button id="btn-gps-real" class="btn btn-blue" style="min-height:38px; padding:6px 12px; font-size:13px;" onclick="useRealBrowserGps()">
               📍 Usar Meu GPS
@@ -643,6 +955,27 @@
         <div id="gps-accuracy-notice" style="display:none; padding:8px 16px; background:var(--warn-amber-bg); border-bottom:1px solid var(--warn-amber-border); font-size:13px; color:var(--text-main);"></div>
 
         <div class="map-canvas-holder">
+          <!-- FLOATING TOP BAR ON MOBILE -->
+          <div class="mobile-map-floating-bar mobile-only">
+            <div class="mobile-search-pill">
+              <span style="font-size:14px;">🔍</span>
+              <input type="text" id="mobile-search-input" placeholder="Buscar parada ou rua..." onkeydown="if(event.key==='Enter') searchUserPlaceMobile()" />
+            </div>
+            <button class="mobile-quick-chip" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela</button>
+          </div>
+
+          <!-- FLOATING GPS TARGET BUTTON (FAB) -->
+          <button class="mobile-fab-gps mobile-only" onclick="useRealBrowserGps()" title="Centralizar no meu GPS">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <line x1="12" y1="1" x2="12" y2="4"></line>
+              <line x1="12" y1="20" x2="12" y2="23"></line>
+              <line x1="1" y1="12" x2="4" y2="12"></line>
+              <line x1="20" y1="12" x2="23" y2="12"></line>
+              <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+            </svg>
+          </button>
+
           <div id="pe60-leaflet-map" role="region" aria-label="Mapa interativo"></div>
 
           <div class="map-legend-pill">
@@ -653,14 +986,19 @@
           </div>
         </div>
 
-        <div class="map-bar-bottom">
+        <div class="map-bar-bottom desktop-only">
           <span style="font-size:13px; font-weight:700; color:var(--text-secondary);">Paradas da Linha 178 (PE-60):</span>
           <div id="quick-stop-selector" style="display:flex; gap:4px; flex-wrap:wrap;"></div>
         </div>
       </div>
 
-      <!-- RIGHT: SINGLE FOCUSED COMPANION CARD (GLANCEABLE & HUMAN) -->
-      <div class="card">
+      <!-- RIGHT: SINGLE FOCUSED COMPANION CARD (BOTTOM SHEET ON MOBILE) -->
+      <div class="card companion-sheet" id="companion-bottom-sheet">
+        <!-- DRAG HANDLE FOR MOBILE BOTTOM SHEET -->
+        <div class="sheet-handle-bar mobile-only" onclick="toggleMobileSheet()">
+          <div class="sheet-handle-pill"></div>
+          <span class="sheet-handle-hint" id="sheet-handle-text">▲ Puxe para ver paradas e rotas</span>
+        </div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;">
           <div>
             <span style="font-size:12.5px; font-weight:700; color:var(--user-blue); text-transform:uppercase;" id="user-loc-coords-badge">
@@ -947,6 +1285,22 @@
     </div>
   </main>
 
+  <!-- NATIVE MOBILE BOTTOM NAVIGATION BAR -->
+  <nav class="mobile-bottom-nav mobile-only" aria-label="Navegação Móvel">
+    <button class="mob-nav-item active" onclick="switchModule('mod-gis', this)">
+      <span class="mob-nav-icon">🗺️</span>
+      <span class="mob-nav-label">Mapa & Ônibus</span>
+    </button>
+    <button class="mob-nav-item" onclick="switchModule('mod-safety', this)">
+      <span class="mob-nav-icon">🛡️</span>
+      <span class="mob-nav-label">Segurança</span>
+    </button>
+    <button class="mob-nav-item" onclick="switchModule('mod-tech', this)">
+      <span class="mob-nav-icon">⚡</span>
+      <span class="mob-nav-label">IA da Frota</span>
+    </button>
+  </nav>
+
   <script>
     const TELEMETRIA = {"corridor_id": "CTM-PE60-L178-L191", "shape_id": "178-389-2", "polyline": [[-8.394059, -34.972756], [-8.394013, -34.973531], [-8.394066, -34.974261], [-8.39475, -34.977455], [-8.395397, -34.980491], [-8.3958, -34.98153], [-8.396456, -34.984585], [-8.396944, -34.986806], [-8.397018, -34.987804], [-8.397243, -34.989008], [-8.397592, -34.990595], [-8.397807, -34.991605], [-8.39791, -34.99217], [-8.398014, -34.992994], [-8.398064, -34.994264], [-8.397997, -34.995312], [-8.397738, -34.996889], [-8.39735, -34.99909], [-8.39701, -35.00105], [-8.396807, -35.001973], [-8.396668, -35.002614], [-8.39651, -35.00323], [-8.39637, -35.00379], [-8.39624, -35.00441], [-8.39611, -35.005], [-8.39601, -35.00559], [-8.39598, -35.00589], [-8.396, -35.00614], [-8.395977, -35.006742], [-8.395781, -35.007763], [-8.3953, -35.01042], [-8.39522, -35.010596], [-8.395114, -35.010776], [-8.395026, -35.010886], [-8.394926, -35.010981], [-8.39478, -35.01114], [-8.39475, -35.01116], [-8.394643, -35.011214], [-8.39432, -35.011262], [-8.394122, -35.011266], [-8.392618, -35.011091], [-8.389951, -35.010736], [-8.388887, -35.010504], [-8.388416, -35.010357], [-8.385545, -35.009249], [-8.383033, -35.008258], [-8.382107, -35.007892], [-8.381654, -35.007741], [-8.381265, -35.007632], [-8.380548, -35.007484], [-8.379786, -35.007474], [-8.37896, -35.00754], [-8.372253, -35.00817], [-8.371054, -35.008196], [-8.369982, -35.008136], [-8.367323, -35.007789], [-8.364516, -35.007438], [-8.36313, -35.007419], [-8.362253, -35.007358], [-8.36085, -35.006946], [-8.357454, -35.005892], [-8.355649, -35.005257], [-8.355172, -35.00509], [-8.35427, -35.00488], [-8.351877, -35.004737], [-8.349335, -35.004638], [-8.34807, -35.00462], [-8.346911, -35.004538], [-8.346224, -35.004483], [-8.345664, -35.004384], [-8.344638, -35.004019], [-8.343796, -35.00345], [-8.343229, -35.002817], [-8.34198, -35.001325], [-8.341313, -35.000708], [-8.340646, -35.000284], [-8.339776, -34.999916], [-8.338455, -34.999813], [-8.334543, -34.999839], [-8.32931, -34.999849], [-8.327447, -34.999859], [-8.32688, -34.999697], [-8.325494, -34.999194], [-8.325065, -34.999116], [-8.323318, -34.999072], [-8.321615, -34.999071], [-8.318823, -34.999048], [-8.318523, -34.998988], [-8.316775, -34.998927], [-8.316504, -34.998832], [-8.315966, -34.998495], [-8.315855, -34.998455], [-8.315543, -34.998203], [-8.315396, -34.998053], [-8.315257, -34.997889], [-8.315152, -34.997698], [-8.315048, -34.997464], [-8.314904, -34.996854], [-8.315001, -34.996628], [-8.315056, -34.996398], [-8.315069, -34.996288], [-8.315053, -34.996245], [-8.314998, -34.996229], [-8.314927, -34.996247], [-8.314776, -34.996328], [-8.314863, -34.996815], [-8.314864, -34.996818], [-8.315025, -34.997474], [-8.315129, -34.997714], [-8.315233, -34.997911], [-8.315525, -34.998236], [-8.316167, -34.998717], [-8.316986, -34.999279], [-8.3176, -34.999691], [-8.317805, -34.999828], [-8.318591, -35.000312], [-8.319133, -35.000736], [-8.319352, -35.000989], [-8.319504, -35.001319], [-8.319598, -35.001784], [-8.319786, -35.002795], [-8.319861, -35.003233], [-8.320132, -35.004827], [-8.320602, -35.007417], [-8.320765, -35.008239], [-8.321017, -35.0095], [-8.321072, -35.010007], [-8.321015, -35.010174], [-8.320915, -35.010383], [-8.320531, -35.010759], [-8.3202, -35.01109], [-8.320073, -35.011217], [-8.31835, -35.01294], [-8.31781, -35.01345], [-8.3176, -35.0136], [-8.31737, -35.01373], [-8.31714, -35.01383], [-8.316877, -35.013931], [-8.316453, -35.014014], [-8.31598, -35.01405], [-8.31552, -35.01407], [-8.31499, -35.01412], [-8.31476, -35.014151], [-8.31447, -35.01419], [-8.31422, -35.01426], [-8.31397, -35.01436], [-8.31363, -35.01455], [-8.31336, -35.01473], [-8.31276, -35.01533], [-8.312, -35.016219], [-8.311464, -35.016739], [-8.311431, -35.016772], [-8.311409, -35.016793], [-8.311359, -35.016851], [-8.31132, -35.016896], [-8.311272, -35.016952], [-8.311073, -35.017181], [-8.310895, -35.01738], [-8.310424, -35.01782], [-8.309738, -35.018268], [-8.309134, -35.018587], [-8.308892, -35.018715], [-8.308256, -35.019027], [-8.307832, -35.019238], [-8.307123, -35.019658], [-8.306022, -35.020335], [-8.305014, -35.020947], [-8.30458, -35.02123], [-8.302804, -35.022388], [-8.30123, -35.023422], [-8.301199, -35.023443], [-8.300555, -35.023828], [-8.300004, -35.024174], [-8.299286, -35.024491], [-8.298704, -35.024683], [-8.297812, -35.024945], [-8.296235, -35.025408], [-8.295185, -35.025685], [-8.29503, -35.0257], [-8.294821, -35.025714], [-8.294155, -35.025863], [-8.292293, -35.026401], [-8.29043, -35.026916], [-8.288343, -35.02751], [-8.288191, -35.027553], [-8.28736, -35.027806], [-8.286489, -35.028064], [-8.286036, -35.0282], [-8.285713, -35.028316], [-8.285359, -35.028444], [-8.285059, -35.028533], [-8.284045, -35.028831], [-8.283662, -35.028946], [-8.283411, -35.029073], [-8.283371, -35.029149], [-8.283132, -35.029207], [-8.282572, -35.029276], [-8.282055, -35.029427], [-8.280999, -35.029695], [-8.280515, -35.029703], [-8.280205, -35.029691], [-8.279929, -35.02976], [-8.279723, -35.029839], [-8.279798, -35.030023], [-8.279961, -35.030169], [-8.281054, -35.031251], [-8.281078, -35.031274], [-8.281218, -35.031391], [-8.281013, -35.031872], [-8.280847, -35.03244], [-8.28134, -35.032929], [-8.282104, -35.033649], [-8.282577, -35.034129], [-8.282814, -35.03437], [-8.283517, -35.035012], [-8.283672, -35.035155], [-8.28435, -35.035886], [-8.284477, -35.03601], [-8.285614, -35.037104], [-8.28655, -35.036954], [-8.286656, -35.037062], [-8.286849, -35.037213], [-8.286889, -35.037277], [-8.286973, -35.037341], [-8.287132, -35.037503], [-8.287332, -35.037709], [-8.28746, -35.037594], [-8.287506, -35.037515], [-8.287562, -35.037265], [-8.287649, -35.036702], [-8.287691, -35.036494], [-8.287716, -35.036367], [-8.287775, -35.036077], [-8.287334, -35.034882], [-8.287174, -35.034241], [-8.286829, -35.034553], [-8.286625, -35.034629], [-8.286138, -35.034694], [-8.285789, -35.034727], [-8.285038, -35.033289], [-8.28503, -35.03316], [-8.28452, -35.0322], [-8.285029, -35.031968], [-8.28503, -35.031968], [-8.285271, -35.031862], [-8.285327, -35.031919], [-8.28534, -35.032029], [-8.284849, -35.032337], [-8.285, -35.032603], [-8.284983, -35.032777]], "stops": [{"seq": 1, "stop_id": "030905", "name": "TI Cabo (Plataforma 05) · Centro, Cabo", "lat": -8.284986, "lon": -35.032781, "scheduled_time": "05:30:00", "cittamobi_id": 2966405, "cittamobi_mnemonic": "T.I Cabo, Centro, Cabo de Santo Agostinho - Pernambuco, 54510, Brasil", "cittamobi_dist_m": 31.5, "cittamobi_active_vehicles": 0, "wait_gps_min": 14, "catraca_boardings_40m": 42, "abandonment_10m": 0, "k_anonymity_unlocked": false, "stgcn_horizon_min": [15.2, 16.0, 16.8], "operational_state": "REGULAR"}, {"seq": 2, "stop_id": "030291", "name": "Terminal Integrado do Cabo (Saída Sul)", "lat": -8.286839, "lon": -35.036553, "scheduled_time": "05:31:11", "cittamobi_id": 2966406, "cittamobi_mnemonic": "Terminal Integrado do Cabo", "cittamobi_dist_m": 9.2, "cittamobi_active_vehicles": 0, "wait_gps_min": 15, "catraca_boardings_40m": 19, "abandonment_10m": 1, "k_anonymity_unlocked": false, "stgcn_horizon_min": [16.1, 17.4, 18.2], "operational_state": "REGULAR"}, {"seq": 3, "stop_id": "030691", "name": "Av. Hist. Pereira da Costa, 300 · Centro, Cabo", "lat": -8.285883, "lon": -35.036094, "scheduled_time": "05:31:47", "cittamobi_id": 2966565, "cittamobi_mnemonic": "Avenida Historiador Pereira da Costa, 300", "cittamobi_dist_m": 17.4, "cittamobi_active_vehicles": 0, "wait_gps_min": 18, "catraca_boardings_40m": 14, "abandonment_10m": 2, "k_anonymity_unlocked": false, "stgcn_horizon_min": [19.0, 21.2, 22.5], "operational_state": "REGULAR"}, {"seq": 4, "stop_id": "190114", "name": "Av. Pres. Getúlio Vargas, 689 · Centro, Cabo", "lat": -8.282369, "lon": -35.034214, "scheduled_time": "05:32:55", "cittamobi_id": 2966448, "cittamobi_mnemonic": "Avenida Presidente Getúlio Vargas, 689", "cittamobi_dist_m": 20.7, "cittamobi_active_vehicles": 0, "wait_gps_min": 21, "catraca_boardings_40m": 11, "abandonment_10m": 2, "k_anonymity_unlocked": false, "stgcn_horizon_min": [22.4, 24.8, 26.1], "operational_state": "REGULAR"}, {"seq": 5, "stop_id": "190115", "name": "Av. Pres. Getúlio Vargas, 1032 · Centro, Cabo", "lat": -8.281153, "lon": -35.032992, "scheduled_time": "05:33:23", "cittamobi_id": 5339618, "cittamobi_mnemonic": "Avenida Presidente Getúlio Vargas 1032, Centro, Cabo de Santo Agostinho - Pernambuco, PE, Brasil", "cittamobi_dist_m": 9.5, "cittamobi_active_vehicles": 0, "wait_gps_min": 24, "catraca_boardings_40m": 8, "abandonment_10m": 3, "k_anonymity_unlocked": true, "stgcn_horizon_min": [25.8, 28.1, 30.4], "operational_state": "REGULAR"}, {"seq": 6, "stop_id": "030186", "name": "Rua Antônio Custódio de Lima, 149 · Santo Inácio", "lat": -8.285831, "lon": -35.028672, "scheduled_time": "05:36:04", "cittamobi_id": 2965544, "cittamobi_mnemonic": "Rua Antônio Custódio de Lima, 149", "cittamobi_dist_m": 25.6, "cittamobi_active_vehicles": 0, "wait_gps_min": 31, "catraca_boardings_40m": 3, "abandonment_10m": 6, "k_anonymity_unlocked": true, "stgcn_horizon_min": [33.5, 36.8, 39.2], "operational_state": "WARNING"}, {"seq": 7, "stop_id": "030187", "name": "Rodovia PE-60, 330 · Santo Inácio, Cabo", "lat": -8.287672, "lon": -35.028167, "scheduled_time": "05:36:35", "cittamobi_id": 2966771, "cittamobi_mnemonic": "Rodovia PE-060, 330 - Santo Inácio, Cabo de Santo Agostinho - PE, Brasil", "cittamobi_dist_m": 14.1, "cittamobi_active_vehicles": 0, "wait_gps_min": 36, "catraca_boardings_40m": 0, "abandonment_10m": 8, "k_anonymity_unlocked": true, "stgcn_horizon_min": [38.0, 41.2, 43.5], "operational_state": "CRITICAL"}, {"seq": 8, "stop_id": "030212", "name": "Paralela Rodovia PE-60, 1600 · Santo Inácio", "lat": -8.289831, "lon": -35.027567, "scheduled_time": "05:37:12", "cittamobi_id": 2965546, "cittamobi_mnemonic": "Paralela Rodovia Pe-060, 1600", "cittamobi_dist_m": 9.1, "cittamobi_active_vehicles": 0, "wait_gps_min": 38, "catraca_boardings_40m": 0, "abandonment_10m": 9, "k_anonymity_unlocked": true, "stgcn_horizon_min": [39.4, 42.6, 44.8], "operational_state": "CRITICAL"}, {"seq": 9, "stop_id": "030190", "name": "Paralela Rodovia PE-60, 1846 · Cohab, Cabo", "lat": -8.292508, "lon": -35.0268, "scheduled_time": "05:37:57", "cittamobi_id": 2966471, "cittamobi_mnemonic": "Paralela Rodovia Pe-060, 1846", "cittamobi_dist_m": 8.6, "cittamobi_active_vehicles": 0, "wait_gps_min": 39, "catraca_boardings_40m": 0, "abandonment_10m": 11, "k_anonymity_unlocked": true, "stgcn_horizon_min": [40.2, 43.9, 46.1], "operational_state": "CRITICAL"}, {"seq": 10, "stop_id": "030191", "name": "Rodovia PE-60, 1439 (Acesso Garapu) · Cabo", "lat": -8.297536, "lon": -35.025536, "scheduled_time": "05:39:22", "cittamobi_id": 2965548, "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, 1439", "cittamobi_dist_m": 20.6, "cittamobi_active_vehicles": 0, "wait_gps_min": 37, "catraca_boardings_40m": 0, "abandonment_10m": 12, "k_anonymity_unlocked": true, "stgcn_horizon_min": [39.0, 43.1, 45.9], "operational_state": "CRITICAL"}, {"seq": 11, "stop_id": "030192", "name": "Rodovia PE-60 (Trecho Garapu / Vila Roca) · Cabo", "lat": -8.304873, "lon": -35.021349, "scheduled_time": "05:41:41", "cittamobi_id": 2966773, "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, Cabo de Santo Agostinho - PE, Brasil", "cittamobi_dist_m": 16.5, "cittamobi_active_vehicles": 0, "wait_gps_min": 35, "catraca_boardings_40m": 0, "abandonment_10m": 14, "k_anonymity_unlocked": true, "stgcn_horizon_min": [38.4, 43.8, 47.2], "operational_state": "CRITICAL"}, {"seq": 12, "stop_id": "030193", "name": "Rodovia PE-60 (Entrada Rua 18 · Garapu) · Cabo", "lat": -8.309411, "lon": -35.01865, "scheduled_time": "05:43:07", "cittamobi_id": 2965549, "cittamobi_mnemonic": "Rua 18, 2", "cittamobi_dist_m": 7.0, "cittamobi_active_vehicles": 0, "wait_gps_min": 33, "catraca_boardings_40m": 1, "abandonment_10m": 10, "k_anonymity_unlocked": true, "stgcn_horizon_min": [36.2, 41.5, 44.6], "operational_state": "CRITICAL"}, {"seq": 13, "stop_id": "030194", "name": "Rodovia PE-60, 7700 (Engenho Massangana) · Cabo", "lat": -8.311617, "lon": -35.016897, "scheduled_time": "05:43:53", "cittamobi_id": 2966472, "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, 7745", "cittamobi_dist_m": 8.1, "cittamobi_active_vehicles": 0, "wait_gps_min": 29, "catraca_boardings_40m": 4, "abandonment_10m": 7, "k_anonymity_unlocked": true, "stgcn_horizon_min": [32.8, 38.0, 41.2], "operational_state": "CRITICAL"}, {"seq": 14, "stop_id": "030650", "name": "Rodovia PE-60, 7745 (Acesso Massangana) · Cabo", "lat": -8.314831, "lon": -35.014375, "scheduled_time": "05:45:03", "cittamobi_id": 2965550, "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme, 7745", "cittamobi_dist_m": 2.3, "cittamobi_active_vehicles": 0, "wait_gps_min": 27, "catraca_boardings_40m": 6, "abandonment_10m": 6, "k_anonymity_unlocked": true, "stgcn_horizon_min": [31.0, 36.4, 39.8], "operational_state": "WARNING"}, {"seq": 15, "stop_id": "030680", "name": "Rodovia PE-60 (Trevo PE-028 / Gaibu) · Cabo", "lat": -8.321506, "lon": -35.010478, "scheduled_time": "05:47:13", "cittamobi_id": 2966519, "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme", "cittamobi_dist_m": 82.4, "cittamobi_active_vehicles": 0, "wait_gps_min": 26, "catraca_boardings_40m": 2, "abandonment_10m": 9, "k_anonymity_unlocked": true, "stgcn_horizon_min": [32.4, 39.1, 43.6], "operational_state": "CRITICAL"}, {"seq": 16, "stop_id": "030687", "name": "Rodovia PE-028 (Saída Trevo PE-60) · Cabo", "lat": -8.321692, "lon": -35.009497, "scheduled_time": "05:47:58", "cittamobi_id": 2966473, "cittamobi_mnemonic": "Rodovia Armínio Cuil Hi Rme", "cittamobi_dist_m": 8.6, "cittamobi_active_vehicles": 0, "wait_gps_min": 19, "catraca_boardings_40m": 12, "abandonment_10m": 2, "k_anonymity_unlocked": false, "stgcn_horizon_min": [21.0, 23.5, 25.0], "operational_state": "REGULAR"}, {"seq": 17, "stop_id": "030313", "name": "Rodovia PE-028 (Acesso Suape / Gaibu) · Cabo", "lat": -8.320867, "lon": -35.008031, "scheduled_time": "05:48:38", "cittamobi_id": 2966474, "cittamobi_mnemonic": "PE-028", "cittamobi_dist_m": 18.2, "cittamobi_active_vehicles": 0, "wait_gps_min": 16, "catraca_boardings_40m": 18, "abandonment_10m": 0, "k_anonymity_unlocked": false, "stgcn_horizon_min": [17.2, 18.4, 19.1], "operational_state": "REGULAR"}, {"seq": 18, "stop_id": "030314", "name": "Rodovia PE-009, 51 (Complexo Suape) · Cabo", "lat": -8.320017, "lon": -35.003756, "scheduled_time": "05:49:49", "cittamobi_id": 2966475, "cittamobi_mnemonic": "PE-009, 51", "cittamobi_dist_m": 13.7, "cittamobi_active_vehicles": 0, "wait_gps_min": 14, "catraca_boardings_40m": 22, "abandonment_10m": 0, "k_anonymity_unlocked": false, "stgcn_horizon_min": [14.8, 15.5, 16.0], "operational_state": "REGULAR"}, {"seq": 19, "stop_id": "030701", "name": "Rodovia PE-037 (Zona Industrial Suape) · Cabo", "lat": -8.318056, "lon": -34.999858, "scheduled_time": "05:51:04", "cittamobi_id": 5339252, "cittamobi_mnemonic": "Pe-037 Cabo de Santo Agostinho - Pernambuco, Brasil", "cittamobi_dist_m": 41.4, "cittamobi_active_vehicles": 0, "wait_gps_min": 11, "catraca_boardings_40m": 1, "abandonment_10m": 0, "k_anonymity_unlocked": false, "stgcn_horizon_min": [11.5, 12.0, 12.2], "operational_state": "REGULAR"}, {"seq": 20, "stop_id": "030778", "name": "Ponto de Retorno Porto de Suape (PE-038) · Ipojuca", "lat": -8.394, "lon": -34.972744, "scheduled_time": "06:25:00", "cittamobi_id": 5339230, "cittamobi_mnemonic": "Pe-038 Ipojuca - Pernambuco, Brasil", "cittamobi_dist_m": 42.9, "cittamobi_active_vehicles": 0, "wait_gps_min": 10, "catraca_boardings_40m": 2, "abandonment_10m": 0, "k_anonymity_unlocked": false, "stgcn_horizon_min": [10.4, 11.0, 11.5], "operational_state": "REGULAR"}], "tmd_real_windows": {"Still": [{"acc_mean": 9.811, "acc_max": 9.849, "acc_std": 0.0146, "gyro_mean": 0.0017, "gyro_std": 0.0007, "sound_db": 0.0}, {"acc_mean": 9.827, "acc_max": 9.849, "acc_std": 0.0112, "gyro_mean": 0.0015, "gyro_std": 0.0007, "sound_db": 0.0}, {"acc_mean": 9.865, "acc_max": 10.343, "acc_std": 0.1143, "gyro_mean": 0.1313, "gyro_std": 0.0033, "sound_db": 70.57}, {"acc_mean": 10.181, "acc_max": 10.198, "acc_std": 0.0136, "gyro_mean": 0.0064, "gyro_std": 0.0025, "sound_db": 80.62}, {"acc_mean": 9.709, "acc_max": 10.573, "acc_std": 0.2982, "gyro_mean": 0.2517, "gyro_std": 0.0078, "sound_db": 84.47}, {"acc_mean": 10.192, "acc_max": 10.251, "acc_std": 0.0544, "gyro_mean": 0.0881, "gyro_std": 0.1076, "sound_db": 69.35}, {"acc_mean": 9.841, "acc_max": 9.867, "acc_std": 0.0131, "gyro_mean": 0.0017, "gyro_std": 0.0007, "sound_db": 0.0}, {"acc_mean": 9.821, "acc_max": 9.88, "acc_std": 0.0237, "gyro_mean": 0.0017, "gyro_std": 0.0008, "sound_db": 0.0}, {"acc_mean": 9.73, "acc_max": 11.003, "acc_std": 0.2951, "gyro_mean": 0.2703, "gyro_std": 0.1403, "sound_db": 84.13}, {"acc_mean": 9.764, "acc_max": 10.014, "acc_std": 0.1277, "gyro_mean": 0.0764, "gyro_std": 0.0594, "sound_db": 57.65}, {"acc_mean": 9.73, "acc_max": 10.221, "acc_std": 0.1369, "gyro_mean": 0.0697, "gyro_std": 0.0553, "sound_db": 84.38}, {"acc_mean": 9.844, "acc_max": 10.001, "acc_std": 0.068, "gyro_mean": 0.0564, "gyro_std": 0.0702, "sound_db": 82.87}, {"acc_mean": 9.838, "acc_max": 9.865, "acc_std": 0.0148, "gyro_mean": 0.0024, "gyro_std": 0.0005, "sound_db": 36.65}, {"acc_mean": 9.814, "acc_max": 9.853, "acc_std": 0.0162, "gyro_mean": 0.0016, "gyro_std": 0.0007, "sound_db": 0.0}, {"acc_mean": 9.803, "acc_max": 10.306, "acc_std": 0.1829, "gyro_mean": 0.0106, "gyro_std": 0.0059, "sound_db": 48.38}, {"acc_mean": 10.007, "acc_max": 10.018, "acc_std": 0.0109, "gyro_mean": 0.0068, "gyro_std": 0.003, "sound_db": 89.78}, {"acc_mean": 9.765, "acc_max": 9.869, "acc_std": 0.0405, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 42.8}, {"acc_mean": 9.853, "acc_max": 9.894, "acc_std": 0.0184, "gyro_mean": 0.0019, "gyro_std": 0.0003, "sound_db": 0.0}, {"acc_mean": 9.84, "acc_max": 9.856, "acc_std": 0.0085, "gyro_mean": 0.0045, "gyro_std": 0.0001, "sound_db": 38.69}, {"acc_mean": 9.829, "acc_max": 9.847, "acc_std": 0.0108, "gyro_mean": 0.0017, "gyro_std": 0.0006, "sound_db": 44.3}, {"acc_mean": 9.865, "acc_max": 11.092, "acc_std": 0.3212, "gyro_mean": 0.1163, "gyro_std": 0.1019, "sound_db": 46.57}, {"acc_mean": 9.929, "acc_max": 9.943, "acc_std": 0.0148, "gyro_mean": 0.023, "gyro_std": 0.0256, "sound_db": 89.89}, {"acc_mean": 9.831, "acc_max": 9.865, "acc_std": 0.0121, "gyro_mean": 0.0037, "gyro_std": 0.0013, "sound_db": 0.0}, {"acc_mean": 9.75, "acc_max": 10.548, "acc_std": 0.1335, "gyro_mean": 0.0514, "gyro_std": 0.0298, "sound_db": 80.83}, {"acc_mean": 9.638, "acc_max": 9.654, "acc_std": 0.0174, "gyro_mean": 0.0072, "gyro_std": 0.0034, "sound_db": 51.82}, {"acc_mean": 9.637, "acc_max": 9.655, "acc_std": 0.0143, "gyro_mean": 0.0073, "gyro_std": 0.0037, "sound_db": 56.64}, {"acc_mean": 9.815, "acc_max": 9.853, "acc_std": 0.0149, "gyro_mean": 0.0018, "gyro_std": 0.0008, "sound_db": 0.0}, {"acc_mean": 9.85, "acc_max": 9.901, "acc_std": 0.0154, "gyro_mean": 0.0024, "gyro_std": 0.0008, "sound_db": 0.0}, {"acc_mean": 9.872, "acc_max": 10.968, "acc_std": 0.1955, "gyro_mean": 0.0187, "gyro_std": 0.0122, "sound_db": 78.06}, {"acc_mean": 9.945, "acc_max": 9.994, "acc_std": 0.0187, "gyro_mean": 0.0108, "gyro_std": 0.0064, "sound_db": 88.94}, {"acc_mean": 9.825, "acc_max": 9.847, "acc_std": 0.0134, "gyro_mean": 0.0018, "gyro_std": 0.0007, "sound_db": 43.17}, {"acc_mean": 10.001, "acc_max": 10.025, "acc_std": 0.0172, "gyro_mean": 0.0056, "gyro_std": 0.0028, "sound_db": 85.65}, {"acc_mean": 9.578, "acc_max": 9.676, "acc_std": 0.0291, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 55.4}, {"acc_mean": 10.112, "acc_max": 10.128, "acc_std": 0.0105, "gyro_mean": 0.0106, "gyro_std": 0.0089, "sound_db": 82.51}, {"acc_mean": 9.812, "acc_max": 9.919, "acc_std": 0.0478, "gyro_mean": 0.0158, "gyro_std": 0.0042, "sound_db": 0.0}, {"acc_mean": 9.814, "acc_max": 9.851, "acc_std": 0.0176, "gyro_mean": 0.0018, "gyro_std": 0.0008, "sound_db": 0.0}, {"acc_mean": 9.45, "acc_max": 9.47, "acc_std": 0.0162, "gyro_mean": 0.007, "gyro_std": 0.0036, "sound_db": 49.94}, {"acc_mean": 9.813, "acc_max": 9.86, "acc_std": 0.0148, "gyro_mean": 0.0016, "gyro_std": 0.0007, "sound_db": 0.0}, {"acc_mean": 9.816, "acc_max": 10.04, "acc_std": 0.0897, "gyro_mean": 0.0148, "gyro_std": 0.0729, "sound_db": 84.23}, {"acc_mean": 10.146, "acc_max": 14.751, "acc_std": 1.054, "gyro_mean": 0.8906, "gyro_std": 0.0004, "sound_db": 0.0}], "Walking": [{"acc_mean": 10.098, "acc_max": 20.965, "acc_std": 4.4969, "gyro_mean": 1.9367, "gyro_std": 1.2135, "sound_db": 0.0}, {"acc_mean": 9.899, "acc_max": 15.595, "acc_std": 2.8398, "gyro_mean": 1.8346, "gyro_std": 1.0668, "sound_db": 89.8}, {"acc_mean": 8.535, "acc_max": 14.54, "acc_std": 3.698, "gyro_mean": 1.2441, "gyro_std": 0.813, "sound_db": 89.76}, {"acc_mean": 10.412, "acc_max": 18.951, "acc_std": 3.3287, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 72.4}, {"acc_mean": 10.073, "acc_max": 10.139, "acc_std": 0.0942, "gyro_mean": 0.248, "gyro_std": 0.3076, "sound_db": 89.77}, {"acc_mean": 11.069, "acc_max": 14.028, "acc_std": 1.2832, "gyro_mean": 0.6154, "gyro_std": 0.656, "sound_db": 77.06}, {"acc_mean": 9.668, "acc_max": 15.966, "acc_std": 3.5975, "gyro_mean": 1.4293, "gyro_std": 0.815, "sound_db": 89.69}, {"acc_mean": 10.414, "acc_max": 14.609, "acc_std": 4.0318, "gyro_mean": 0.5974, "gyro_std": 0.167, "sound_db": 77.22}, {"acc_mean": 10.178, "acc_max": 17.637, "acc_std": 3.5513, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 0.0}, {"acc_mean": 9.918, "acc_max": 15.088, "acc_std": 3.4389, "gyro_mean": 0.551, "gyro_std": 0.251, "sound_db": 79.33}, {"acc_mean": 10.398, "acc_max": 15.54, "acc_std": 4.6755, "gyro_mean": 0.674, "gyro_std": 0.3788, "sound_db": 78.2}, {"acc_mean": 10.026, "acc_max": 10.061, "acc_std": 0.025, "gyro_mean": 0.0143, "gyro_std": 0.009, "sound_db": 89.76}, {"acc_mean": 9.967, "acc_max": 15.16, "acc_std": 2.9465, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 0.0}, {"acc_mean": 10.083, "acc_max": 18.031, "acc_std": 3.609, "gyro_mean": 1.4152, "gyro_std": 0.7228, "sound_db": 88.63}, {"acc_mean": 9.117, "acc_max": 13.888, "acc_std": 3.7582, "gyro_mean": 0.7846, "gyro_std": 0.3525, "sound_db": 82.6}, {"acc_mean": 10.683, "acc_max": 14.43, "acc_std": 4.1898, "gyro_mean": 0.6818, "gyro_std": 0.2545, "sound_db": 76.88}, {"acc_mean": 9.075, "acc_max": 9.187, "acc_std": 0.0706, "gyro_mean": 0.0695, "gyro_std": 0.0481, "sound_db": 6.02}, {"acc_mean": 10.759, "acc_max": 19.464, "acc_std": 3.4606, "gyro_mean": 1.3624, "gyro_std": 0.8485, "sound_db": 89.76}, {"acc_mean": 9.918, "acc_max": 12.054, "acc_std": 1.151, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 53.44}, {"acc_mean": 10.731, "acc_max": 13.374, "acc_std": 2.3605, "gyro_mean": 1.1561, "gyro_std": 0.7187, "sound_db": 89.78}, {"acc_mean": 11.589, "acc_max": 17.714, "acc_std": 3.6533, "gyro_mean": 1.4723, "gyro_std": 0.8303, "sound_db": 89.72}, {"acc_mean": 12.236, "acc_max": 45.515, "acc_std": 7.4354, "gyro_mean": 2.4966, "gyro_std": 0.9883, "sound_db": 0.0}, {"acc_mean": 10.831, "acc_max": 21.133, "acc_std": 4.0173, "gyro_mean": 1.6872, "gyro_std": 1.0869, "sound_db": 89.81}, {"acc_mean": 10.38, "acc_max": 14.405, "acc_std": 2.5862, "gyro_mean": 1.3508, "gyro_std": 0.8296, "sound_db": 89.78}, {"acc_mean": 9.878, "acc_max": 14.927, "acc_std": 2.2167, "gyro_mean": 1.4937, "gyro_std": 0.7281, "sound_db": 89.8}, {"acc_mean": 12.442, "acc_max": 23.873, "acc_std": 5.7211, "gyro_mean": 1.134, "gyro_std": 0.667, "sound_db": 89.76}, {"acc_mean": 10.336, "acc_max": 17.744, "acc_std": 4.272, "gyro_mean": 1.7343, "gyro_std": 1.4002, "sound_db": 73.7}, {"acc_mean": 8.89, "acc_max": 11.228, "acc_std": 1.1471, "gyro_mean": 0.7339, "gyro_std": 0.7253, "sound_db": 16.9}, {"acc_mean": 11.664, "acc_max": 15.016, "acc_std": 3.7242, "gyro_mean": 1.5536, "gyro_std": 0.8317, "sound_db": 89.75}, {"acc_mean": 10.859, "acc_max": 13.636, "acc_std": 1.8839, "gyro_mean": 1.2, "gyro_std": 0.6501, "sound_db": 89.71}, {"acc_mean": 13.004, "acc_max": 20.217, "acc_std": 4.6682, "gyro_mean": 1.4225, "gyro_std": 0.8235, "sound_db": 89.69}, {"acc_mean": 11.061, "acc_max": 30.713, "acc_std": 8.3017, "gyro_mean": 1.9361, "gyro_std": 1.0988, "sound_db": 89.77}, {"acc_mean": 10.756, "acc_max": 14.056, "acc_std": 3.2905, "gyro_mean": 0.6374, "gyro_std": 0.3568, "sound_db": 80.92}, {"acc_mean": 11.845, "acc_max": 18.532, "acc_std": 4.2171, "gyro_mean": 2.501, "gyro_std": 0.8353, "sound_db": 0.0}, {"acc_mean": 11.215, "acc_max": 27.376, "acc_std": 4.6522, "gyro_mean": 3.1288, "gyro_std": 1.2389, "sound_db": 73.83}, {"acc_mean": 10.33, "acc_max": 13.511, "acc_std": 2.1964, "gyro_mean": 1.1758, "gyro_std": 0.8275, "sound_db": 89.76}, {"acc_mean": 10.14, "acc_max": 20.002, "acc_std": 3.7782, "gyro_mean": 1.2199, "gyro_std": 0.7816, "sound_db": 89.69}, {"acc_mean": 10.597, "acc_max": 12.327, "acc_std": 1.1035, "gyro_mean": 0.4736, "gyro_std": 0.1698, "sound_db": 6.02}, {"acc_mean": 10.759, "acc_max": 17.103, "acc_std": 3.756, "gyro_mean": 1.3593, "gyro_std": 0.8454, "sound_db": 89.71}, {"acc_mean": 10.739, "acc_max": 12.978, "acc_std": 1.3293, "gyro_mean": 0.493, "gyro_std": 0.2804, "sound_db": 19.08}], "Bus": [{"acc_mean": 9.906, "acc_max": 14.203, "acc_std": 1.0447, "gyro_mean": 0.1409, "gyro_std": 0.1197, "sound_db": 0.0}, {"acc_mean": 9.64, "acc_max": 10.028, "acc_std": 0.2551, "gyro_mean": 0.0416, "gyro_std": 0.0301, "sound_db": 89.81}, {"acc_mean": 9.826, "acc_max": 11.364, "acc_std": 0.3893, "gyro_mean": 0.0293, "gyro_std": 0.0017, "sound_db": 78.51}, {"acc_mean": 10.026, "acc_max": 10.669, "acc_std": 0.2727, "gyro_mean": 0.0297, "gyro_std": 0.0319, "sound_db": 88.98}, {"acc_mean": 9.808, "acc_max": 12.137, "acc_std": 0.7826, "gyro_mean": 0.0812, "gyro_std": 0.0149, "sound_db": 85.89}, {"acc_mean": 9.395, "acc_max": 10.909, "acc_std": 1.2423, "gyro_mean": 0.2441, "gyro_std": 0.2002, "sound_db": 89.78}, {"acc_mean": 9.665, "acc_max": 10.944, "acc_std": 0.4961, "gyro_mean": 0.0698, "gyro_std": 0.0505, "sound_db": 89.79}, {"acc_mean": 9.263, "acc_max": 9.963, "acc_std": 0.362, "gyro_mean": 0.4478, "gyro_std": 0.1166, "sound_db": 74.18}, {"acc_mean": 9.797, "acc_max": 10.127, "acc_std": 0.0977, "gyro_mean": 0.0177, "gyro_std": 0.009, "sound_db": 81.12}, {"acc_mean": 9.661, "acc_max": 9.902, "acc_std": 0.2299, "gyro_mean": 0.0511, "gyro_std": 0.0408, "sound_db": 86.78}, {"acc_mean": 10.009, "acc_max": 10.688, "acc_std": 0.2146, "gyro_mean": 0.1829, "gyro_std": 0.2279, "sound_db": 0.0}, {"acc_mean": 9.609, "acc_max": 10.138, "acc_std": 0.26, "gyro_mean": 0.0925, "gyro_std": 0.043, "sound_db": 86.78}, {"acc_mean": 9.506, "acc_max": 10.047, "acc_std": 0.3588, "gyro_mean": 0.1552, "gyro_std": 0.0972, "sound_db": 86.78}, {"acc_mean": 9.889, "acc_max": 10.923, "acc_std": 0.2236, "gyro_mean": 0.1515, "gyro_std": 0.1665, "sound_db": 0.0}, {"acc_mean": 10.2, "acc_max": 12.091, "acc_std": 0.7214, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 78.88}, {"acc_mean": 9.506, "acc_max": 10.251, "acc_std": 0.4534, "gyro_mean": 0.0994, "gyro_std": 0.0465, "sound_db": 89.75}, {"acc_mean": 9.763, "acc_max": 11.94, "acc_std": 0.7934, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 70.43}, {"acc_mean": 9.603, "acc_max": 9.636, "acc_std": 0.0245, "gyro_mean": 0.0079, "gyro_std": 0.0033, "sound_db": 89.05}, {"acc_mean": 9.061, "acc_max": 9.564, "acc_std": 0.4518, "gyro_mean": 0.045, "gyro_std": 0.0274, "sound_db": 72.56}, {"acc_mean": 9.688, "acc_max": 9.714, "acc_std": 0.0196, "gyro_mean": 0.0258, "gyro_std": 0.0237, "sound_db": 83.93}, {"acc_mean": 10.393, "acc_max": 13.204, "acc_std": 1.5685, "gyro_mean": 0.2133, "gyro_std": 0.1425, "sound_db": 89.76}, {"acc_mean": 9.787, "acc_max": 10.075, "acc_std": 0.1568, "gyro_mean": 0.0148, "gyro_std": 0.007, "sound_db": 0.0}, {"acc_mean": 9.977, "acc_max": 11.463, "acc_std": 0.3239, "gyro_mean": 0.1426, "gyro_std": 0.1013, "sound_db": 0.0}, {"acc_mean": 10.462, "acc_max": 13.835, "acc_std": 1.4112, "gyro_mean": 0.1614, "gyro_std": 0.0815, "sound_db": 89.75}, {"acc_mean": 9.687, "acc_max": 10.14, "acc_std": 0.1904, "gyro_mean": 0.1285, "gyro_std": 0.0753, "sound_db": 89.78}, {"acc_mean": 9.474, "acc_max": 10.316, "acc_std": 1.1091, "gyro_mean": 0.2993, "gyro_std": 0.1622, "sound_db": 89.74}, {"acc_mean": 9.766, "acc_max": 9.812, "acc_std": 0.018, "gyro_mean": 0.0061, "gyro_std": 0.0105, "sound_db": 71.48}, {"acc_mean": 9.33, "acc_max": 12.28, "acc_std": 1.4588, "gyro_mean": 0.1857, "gyro_std": 0.0899, "sound_db": 89.76}, {"acc_mean": 9.873, "acc_max": 10.842, "acc_std": 0.5042, "gyro_mean": 0.1047, "gyro_std": 0.0467, "sound_db": 85.24}, {"acc_mean": 9.912, "acc_max": 12.657, "acc_std": 2.2977, "gyro_mean": 0.4247, "gyro_std": 0.4456, "sound_db": 89.76}, {"acc_mean": 10.304, "acc_max": 34.693, "acc_std": 3.2979, "gyro_mean": 2.1233, "gyro_std": 0.1365, "sound_db": 85.92}, {"acc_mean": 9.633, "acc_max": 9.659, "acc_std": 0.0228, "gyro_mean": 0.0342, "gyro_std": 0.025, "sound_db": 89.76}, {"acc_mean": 9.805, "acc_max": 11.891, "acc_std": 0.9555, "gyro_mean": 0.0616, "gyro_std": 0.0118, "sound_db": 82.57}, {"acc_mean": 9.879, "acc_max": 10.631, "acc_std": 0.2419, "gyro_mean": 0.0251, "gyro_std": 0.0191, "sound_db": 89.78}, {"acc_mean": 9.241, "acc_max": 11.371, "acc_std": 1.1575, "gyro_mean": 0.1143, "gyro_std": 0.0712, "sound_db": 89.77}, {"acc_mean": 10.458, "acc_max": 13.412, "acc_std": 1.8411, "gyro_mean": 0.3633, "gyro_std": 0.282, "sound_db": 89.79}, {"acc_mean": 9.285, "acc_max": 10.631, "acc_std": 1.2113, "gyro_mean": 0.2811, "gyro_std": 0.1819, "sound_db": 89.77}, {"acc_mean": 9.361, "acc_max": 10.901, "acc_std": 1.0193, "gyro_mean": 0.2539, "gyro_std": 0.1615, "sound_db": 89.75}, {"acc_mean": 9.743, "acc_max": 10.986, "acc_std": 0.9187, "gyro_mean": 0.1058, "gyro_std": 0.0654, "sound_db": 89.76}, {"acc_mean": 9.784, "acc_max": 10.16, "acc_std": 0.2139, "gyro_mean": 0.0148, "gyro_std": 0.0061, "sound_db": 0.0}], "Car": [{"acc_mean": 9.939, "acc_max": 17.147, "acc_std": 1.7759, "gyro_mean": 0.0363, "gyro_std": 0.0203, "sound_db": 89.2}, {"acc_mean": 9.673, "acc_max": 12.304, "acc_std": 0.8626, "gyro_mean": 0.0364, "gyro_std": 0.0106, "sound_db": 87.47}, {"acc_mean": 9.993, "acc_max": 10.892, "acc_std": 0.5041, "gyro_mean": 0.1832, "gyro_std": 0.0988, "sound_db": 89.77}, {"acc_mean": 9.33, "acc_max": 9.52, "acc_std": 0.1039, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 57.36}, {"acc_mean": 9.366, "acc_max": 13.725, "acc_std": 2.5084, "gyro_mean": 0.297, "gyro_std": 0.232, "sound_db": 85.03}, {"acc_mean": 9.932, "acc_max": 10.204, "acc_std": 0.146, "gyro_mean": 0.0179, "gyro_std": 0.0122, "sound_db": 89.76}, {"acc_mean": 9.528, "acc_max": 9.987, "acc_std": 0.3123, "gyro_mean": 0.1084, "gyro_std": 0.1897, "sound_db": 89.75}, {"acc_mean": 9.765, "acc_max": 11.179, "acc_std": 0.7394, "gyro_mean": 0.0279, "gyro_std": 0.0149, "sound_db": 0.0}, {"acc_mean": 9.936, "acc_max": 10.486, "acc_std": 0.2725, "gyro_mean": 0.0216, "gyro_std": 0.0087, "sound_db": 86.67}, {"acc_mean": 9.681, "acc_max": 10.551, "acc_std": 0.4128, "gyro_mean": 0.0493, "gyro_std": 0.0319, "sound_db": 82.26}, {"acc_mean": 9.691, "acc_max": 9.73, "acc_std": 0.0171, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 49.31}, {"acc_mean": 9.857, "acc_max": 10.54, "acc_std": 0.251, "gyro_mean": 0.1613, "gyro_std": 0.1596, "sound_db": 76.33}, {"acc_mean": 9.774, "acc_max": 11.842, "acc_std": 0.608, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 72.58}, {"acc_mean": 10.053, "acc_max": 12.568, "acc_std": 0.8433, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 76.38}, {"acc_mean": 9.77, "acc_max": 10.624, "acc_std": 0.4045, "gyro_mean": 0.0604, "gyro_std": 0.0393, "sound_db": 0.0}, {"acc_mean": 9.595, "acc_max": 10.801, "acc_std": 0.5993, "gyro_mean": 0.0701, "gyro_std": 0.0528, "sound_db": 89.77}, {"acc_mean": 9.708, "acc_max": 9.971, "acc_std": 0.1782, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 81.15}, {"acc_mean": 9.998, "acc_max": 11.146, "acc_std": 0.3826, "gyro_mean": 0.3303, "gyro_std": 0.1557, "sound_db": 80.81}, {"acc_mean": 9.974, "acc_max": 10.851, "acc_std": 0.5033, "gyro_mean": 0.2883, "gyro_std": 0.3029, "sound_db": 86.17}, {"acc_mean": 9.958, "acc_max": 10.223, "acc_std": 0.1187, "gyro_mean": 0.0089, "gyro_std": 0.0035, "sound_db": 75.87}, {"acc_mean": 11.064, "acc_max": 17.373, "acc_std": 3.7659, "gyro_mean": 0.1696, "gyro_std": 0.133, "sound_db": 0.0}, {"acc_mean": 9.835, "acc_max": 11.415, "acc_std": 0.5997, "gyro_mean": 0.025, "gyro_std": 0.0169, "sound_db": 84.78}, {"acc_mean": 9.829, "acc_max": 10.916, "acc_std": 0.7634, "gyro_mean": 0.0325, "gyro_std": 0.0122, "sound_db": 89.82}, {"acc_mean": 9.854, "acc_max": 10.57, "acc_std": 0.4674, "gyro_mean": 0.4334, "gyro_std": 0.2467, "sound_db": 0.0}, {"acc_mean": 9.713, "acc_max": 10.173, "acc_std": 0.265, "gyro_mean": 0.0187, "gyro_std": 0.0113, "sound_db": 85.45}, {"acc_mean": 9.797, "acc_max": 11.735, "acc_std": 0.7694, "gyro_mean": 0.0508, "gyro_std": 0.0252, "sound_db": 82.08}, {"acc_mean": 9.875, "acc_max": 10.239, "acc_std": 0.1456, "gyro_mean": 0.0104, "gyro_std": 0.0058, "sound_db": 66.87}, {"acc_mean": 9.645, "acc_max": 10.349, "acc_std": 0.365, "gyro_mean": 0.0346, "gyro_std": 0.0063, "sound_db": 81.59}, {"acc_mean": 9.569, "acc_max": 11.22, "acc_std": 1.0363, "gyro_mean": 0.0246, "gyro_std": 0.0141, "sound_db": 0.0}, {"acc_mean": 10.086, "acc_max": 12.458, "acc_std": 1.0231, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 80.01}, {"acc_mean": 9.703, "acc_max": 11.083, "acc_std": 0.5535, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 81.37}, {"acc_mean": 9.779, "acc_max": 10.536, "acc_std": 0.4331, "gyro_mean": 0.0184, "gyro_std": 0.0073, "sound_db": 0.0}, {"acc_mean": 9.759, "acc_max": 10.668, "acc_std": 0.6661, "gyro_mean": 0.0562, "gyro_std": 0.0293, "sound_db": 89.8}, {"acc_mean": 10.051, "acc_max": 13.32, "acc_std": 1.2725, "gyro_mean": 0.0351, "gyro_std": 0.0183, "sound_db": 82.24}, {"acc_mean": 9.975, "acc_max": 11.232, "acc_std": 0.5126, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 69.99}, {"acc_mean": 9.457, "acc_max": 10.094, "acc_std": 0.3188, "gyro_mean": 0.1293, "gyro_std": 0.1021, "sound_db": 88.86}, {"acc_mean": 9.815, "acc_max": 10.776, "acc_std": 0.4264, "gyro_mean": 0.0236, "gyro_std": 0.0076, "sound_db": 89.76}, {"acc_mean": 9.8, "acc_max": 12.463, "acc_std": 1.0204, "gyro_mean": 0.0, "gyro_std": 0.0, "sound_db": 81.31}, {"acc_mean": 10.256, "acc_max": 12.998, "acc_std": 1.2246, "gyro_mean": 0.0229, "gyro_std": 0.0161, "sound_db": 0.0}, {"acc_mean": 9.924, "acc_max": 10.282, "acc_std": 0.2267, "gyro_mean": 0.0272, "gyro_std": 0.0175, "sound_db": 89.72}]}, "cittamobi_live_audit": {"cabo_pe60_viewport": {"bbox": "[-8.4000, -35.0550, -8.2600, -34.9700]", "stops_returned": 534, "payload_bytes": 142363, "payload_kb": 139.03, "latency_ms": 358.58}, "recife_centro_viewport": {"bbox": "[-8.0800, -34.9100, -8.0300, -34.8650]", "stops_returned": 1000, "payload_bytes": 274520, "payload_kb": 268.09, "latency_ms": 411.51}, "polling_architecture_cittamobi": {"timer_interval_sec": 15, "polls_in_25min_wait": 100, "initial_map_load_bytes": 142363, "session_bytes_apagao_m3p": 185563, "session_bytes_active_polling": 567363, "grafoparada_normal_trip_bytes": 0, "grafoparada_abandonment_event_bytes": 36, "bandwidth_reduction_pct": 99.9937}}, "cittamobi_services": [{"serviceId": 9655998, "routeCode": "0178", "serviceMnemonic": "PORTO DE SUAPE / TI CABO", "direction": "OUTWARD", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 177.43}, {"serviceId": 9655999, "routeCode": "0178", "serviceMnemonic": "TI CABO / PORTO DE SUAPE", "direction": "RETURN", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 184.73}, {"serviceId": 9656486, "routeCode": "0178", "serviceMnemonic": "PORTO DE SUAPE / TI CABO (Posto ZIP e Comp. Suape)", "direction": "OUTWARD", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 162.57}, {"serviceId": 9656487, "routeCode": "0178", "serviceMnemonic": "TI CABO (Posto ZIP e Comp. Suape)/ PORTO DE SUAPE", "direction": "RETURN", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 185.21}, {"serviceId": 9656488, "routeCode": "0178", "serviceMnemonic": "TI CABO (Posto ZIP)/ PORTO DE SUAPE", "direction": "RETURN", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 158.54}, {"serviceId": 9656489, "routeCode": "0178", "serviceMnemonic": "PORTO DE SUAPE / TI CABO (Posto ZIP)", "direction": "OUTWARD", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 184.46}, {"serviceId": 9656042, "routeCode": "0197", "serviceMnemonic": "IPOJUCA / CABO", "direction": "RETURN", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 185.41}, {"serviceId": 9656043, "routeCode": "0197", "serviceMnemonic": "CABO / IPOJUCA", "direction": "OUTWARD", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 192.39}, {"serviceId": 9656040, "routeCode": "0198", "serviceMnemonic": "TI CABO/ IPOJUCA", "direction": "RETURN", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 158.36}, {"serviceId": 9656041, "routeCode": "0198", "serviceMnemonic": "IPOJUCA / TI CABO", "direction": "OUTWARD", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 180.31}, {"serviceId": 9656508, "routeCode": "0198", "serviceMnemonic": "TI CABO (Vila do Estaleiro)/ IPOJUCA", "direction": "RETURN", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 178.85}, {"serviceId": 9656509, "routeCode": "0198", "serviceMnemonic": "IPOJUCA / TI CABO (Vila do Estaleiro)", "direction": "OUTWARD", "companyId": 655935, "companyName": "Expresso Vera Cruz", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 164.61}, {"serviceId": 6663, "routeCode": "119", "serviceMnemonic": "Circular / T.I. Cabo (Via Garapú)", "direction": "RETURN", "companyId": 112, "companyName": "São Judas Tadeu", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 170.06}, {"serviceId": 6666, "routeCode": "119", "serviceMnemonic": "Circular / T.I. Cabo (Via Garapú)", "direction": "OUTWARD", "companyId": 112, "companyName": "São Judas Tadeu", "companyAuthorized": true, "activeVehicles": 0, "responseBytes": 2, "latencyMs": 181.66}], "benchmarks": {"iterations": {"v1": {"sensor_acc": 75.29, "acc_global": 67.75, "fp_desembarque": 0.0, "recall_desembarque": 56.33, "prec_abn": 72.54, "rec_abn": 71.33, "f1_abn": 71.93, "matriz": [[169, 5, 0, 126], [2, 162, 81, 55], [1, 57, 214, 28], [21, 11, 0, 268]]}, "v2": {"sensor_acc": 86.96, "acc_global": 84.67, "fp_desembarque": 0.0, "recall_desembarque": 84.0, "prec_abn": 85.33, "rec_abn": 73.67, "f1_abn": 79.07, "matriz": [[252, 0, 0, 48], [2, 247, 38, 13], [0, 70, 221, 9], [3, 1, 0, 296]]}, "v3": {"sensor_acc": 97.42, "acc_global": 99.67, "fp_desembarque": 0.0, "recall_desembarque": 99.33, "prec_abn": 99.34, "rec_abn": 100.0, "f1_abn": 99.67, "matriz": [[298, 2, 0, 0], [0, 298, 2, 0], [0, 0, 300, 0], [0, 0, 0, 300]], "latency_us": 65.36, "peak_ram_kb": 15.37}, "classes": ["ALIGHTING", "BOARDING_SERVED", "ABANDONMENT", "TRANSIT_BYPASS"]}, "routine_30d": {"dia_convergencia": 4, "recall_voz_pos_convergencia": 100.0, "falso_disparo_fim_de_semana": 0.0, "storage_local_bytes": 166, "nuvem_bytes_enviados": 0, "evolucao_30dias": [{"dia": 1, "tipo": "Util", "confianca_ida": 0.28, "voz_ativa": false}, {"dia": 2, "tipo": "Util", "confianca_ida": 0.538, "voz_ativa": false}, {"dia": 3, "tipo": "Util", "confianca_ida": 0.757, "voz_ativa": false}, {"dia": 4, "tipo": "Util", "confianca_ida": 0.944, "voz_ativa": true}, {"dia": 5, "tipo": "Util", "confianca_ida": 1.0, "voz_ativa": true}, {"dia": 6, "tipo": "FimDeSemana", "confianca_ida": 1.0, "voz_ativa": false}, {"dia": 7, "tipo": "FimDeSemana", "confianca_ida": 1.0, "voz_ativa": false}, {"dia": 8, "tipo": "Util", "confianca_ida": 1.0, "voz_ativa": true}, {"dia": 9, "tipo": "Util", "confianca_ida": 1.0, "voz_ativa": true}, {"dia": 10, "tipo": "Util", "confianca_ida": 1.0, "voz_ativa": true}, {"dia": 11, "tipo": "Util", "confianca_ida": 1.0, "voz_ativa": true}, {"dia": 12, "tipo": "Util", "confianca_ida": 1.0, "voz_ativa": true}, {"dia": 13, "tipo": "FimDeSemana", "confianca_ida": 1.0, "voz_ativa": false}, {"dia": 14, "tipo": "FimDeSemana", "confianca_ida": 1.0, "voz_ativa": false}]}, "graph_scaling": {"corredor_curto_5_paradas": {"regressao_tabular_mae": 2.46, "stgcn_mae": 4.42, "vencedor": "Regressão Tabular (Parcimônia em linha curta de 5 nós)"}, "corredor_completo_20_paradas_pe60": {"persistencia": {"mae_min": 7.13, "erro_sem_aviso_pct": 0.0, "alerta_exato_pct": 0.0}, "regressao_tabular_20nos": {"mae_min": 1.93, "erro_sem_aviso_pct": 0.0, "alerta_exato_pct": 0.0}, "stgcn_grafo_20nos": {"mae_min": 1.51, "erro_sem_aviso_pct": 0.0, "alerta_exato_pct": 0.0}, "vencedor": "STGCN com Grafo Laplaciano (Regressão linear sofre colinearidade ao achatar 20 paradas)"}}, "ml_comparison": {"cittamobi_bigquery_rf_f1_pct": 40.85, "cittamobi_bigquery_catboost_f1_pct": 48.01, "cittamobi_bigquery_auc": 0.6184, "grafoparada_v3_f1_pct": 99.67, "grafoparada_alighting_fp_pct": 0.0, "reason_for_gap": "O pipeline de ML do Cittamobi depende de cliques manuais de tela (stop_event_rate), onde 70% das consultas não permitem distinguir embarque, desistência ou simples checagem em casa. O GrafoParada opera em background com ResSensorNetV2 (26 features inerciais) + cinemática geodésica v = delta_d/delta_t."}}};
 
@@ -1026,12 +1380,46 @@
       setBaseTile(next === "dark" ? "dark" : "osm");
     }
 
+    function toggleMobileSheet() {
+      const sheet = document.getElementById("companion-bottom-sheet");
+      const hint = document.getElementById("sheet-handle-text");
+      if (!sheet) return;
+      sheet.classList.toggle("sheet-expanded");
+      if (sheet.classList.contains("sheet-expanded")) {
+        if (hint) hint.textContent = "▼ Toque para recolher";
+      } else {
+        if (hint) hint.textContent = "▲ Puxe para ver paradas e rotas";
+      }
+    }
+
+    function searchUserPlaceMobile() {
+      const inp = document.getElementById("mobile-search-input");
+      if (!inp || !inp.value.trim()) return;
+      const deskInp = document.getElementById("map-search-input");
+      if (deskInp) deskInp.value = inp.value;
+      searchUserPlace();
+    }
+
     function switchModule(modId, btnEl) {
       document.querySelectorAll(".workspace-view").forEach(v => v.classList.remove("active"));
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.getElementById(modId).classList.add("active");
-      if (btnEl) btnEl.classList.add("active");
-      if (modId === "mod-gis") requestAnimationFrame(drawPe60GisCanvas);
+      document.querySelectorAll(".mob-nav-item").forEach(b => b.classList.remove("active"));
+      const targetView = document.getElementById(modId);
+      if (targetView) targetView.classList.add("active");
+
+      // Synchronize desktop top tabs and mobile bottom nav
+      const modIndex = modId === "mod-gis" ? 0 : (modId === "mod-safety" ? 1 : 2);
+      const topTabs = document.querySelectorAll(".tab-btn");
+      if (topTabs[modIndex]) topTabs[modIndex].classList.add("active");
+      const mobTabs = document.querySelectorAll(".mob-nav-item");
+      if (mobTabs[modIndex]) mobTabs[modIndex].classList.add("active");
+
+      if (modId === "mod-gis") {
+        if (leafletMap) {
+          setTimeout(() => leafletMap.invalidateSize(), 150);
+        }
+        requestAnimationFrame(drawPe60GisCanvas);
+      }
     }
 
     // =========================================================================
@@ -1093,6 +1481,10 @@
       }
 
       leafletMap.on("click", (ev) => {
+        const sheet = document.getElementById("companion-bottom-sheet");
+        if (sheet && sheet.classList.contains("sheet-expanded")) {
+          toggleMobileSheet();
+        }
         setSimulatedUserLocation(ev.latlng.lat, ev.latlng.lng, "Posição escolhida no mapa", false);
       });
 
