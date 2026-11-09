@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 08/11/2026 21:18
+- **Última Atualização:** 08/11/2026 22:40
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -64,6 +64,11 @@
   - Branch atualizada e sincronizada com o GitHub (feature/if-2va-pqc-telessaude).
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
+- [x] **Pipeline Profissional Anti-AI-Slop & Redesign Editorial Concluídos**:
+  - *Manifesto Anti-Slop Implementado:* Eliminação completa de poluição de badges, cartões microscópicos amontoados e artes com letras defeituosas de IA. Geração painel por painel com linha clara autoral, nanquim puro e zero texto dentro das imagens.
+  - *Infográfico Editorial Atualizado:* `code/projeto_ead_tutores/infografico.html` e PDF de 1 página contínua (`infografico-anatomia-tutor-ia.pdf`, 1.68 MB) com os 4 atos (Diagnóstico PISA 2025, Scanner 4D, Caso #03 da Memória com +100% de ganho e Cirurgia no System Prompt com 4 Travas).
+  - *Painéis-Chave da HQ Integrados:* Capa limpa editorial (`p1_cover_clean.jpg`), Clara no quarto às 23h40 (`p3_panel1.jpg`) e Momento Eureka das Caixas Organizadoras (`p7_panel2_boxes.jpg`).
+  - *Deploy Vercel Atualizado:* `https://projeto-ead-caua.vercel.app` servindo o novo infográfico, HQ e ambos os PDFs com HTTP 200.
 - [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Edição Expandida Definitiva de 12 Páginas A4)**:
   - `code/projeto_ead_tutores/ebook-hq.html` (5.11 MB, 100% autocontido com as 16 artes embutidas em Base64, leitor interativo, modo folhear vs webtoon, dark/light mode e botões de cópia de prompts com 1 clique).
   - `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` (4.69 MB, exportação A4 perfeita cravada em **exatamente 12 páginas** via headless Edge).
