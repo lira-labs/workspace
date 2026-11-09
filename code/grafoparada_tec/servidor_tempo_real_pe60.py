@@ -1377,10 +1377,11 @@ class ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
 
 def main():
     port = int(os.environ.get("PORT", "8890"))
-    server = ExclusiveThreadingHTTPServer(("127.0.0.1", port), GrafoParadaLiveHandler)
+    server = ExclusiveThreadingHTTPServer(("0.0.0.0", port), GrafoParadaLiveHandler)
     print(f"\n==========================================================================")
     print(f" [ONLINE] Console GrafoParada v6.0 em Tempo Real:")
-    print(f" -> URL: http://localhost:{port}/prototipo_grafoparada.html")
+    print(f" -> Local:  http://localhost:{port}/prototipo_grafoparada.html")
+    print(f" -> Celular (Wi-Fi LAN): http://192.168.1.13:{port}/prototipo_grafoparada.html")
     print(f"==========================================================================\n")
     server.serve_forever()
 
