@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 08/11/2026 22:40
+- **Última Atualização:** 08/11/2026 22:52
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -122,6 +122,10 @@
     - Tratamento automático para desvio de IP da operadora do Windows (que jogava para Japaratinga/AL), reposicionando para a parada real em Camela.
     - Otimização do radar geodésico (redução de 19s para <400ms por varredura, ganho de 50x) com cache em memória e geocodificação reversa instantânea.
     - Integração de Vozes Neurais Brasileiras Humanas (`edge-tts` `pt-BR-FranciscaNeural`, `Antonio`, `Thalita`) e Modo Escudo Antirroubo (*"Não pegue o celular neste local"*).
+    - **Validação Empírica em Campo com GPS Real do Celular (08/11/2026 · 22:50)**:
+      - *Diagnóstico do PC:* Windows Location API retornou `NoData`, confirmando ausência de chip de satélite físico e dependência do roteador/GeoIP da DTEL Telecom (`177.200.245.197`), que causava desvio de ~70 km para Japaratinga/AL.
+      - *Túnel Seguro e Validação Mobile:* Servidor local conectado via HTTPS seguro (`https://icy-oranges-think.loca.lt`) com liberação de permissão W3C e confirmação de IP.
+      - *Resultado:* Celular ativou o sensor GNSS real e capturou as coordenadas exatas do usuário em Camela (Ipojuca - PE), comprovando a detecção das paradas da PE-60 com raio de proximidade perfeito e sem distorções.
 
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
