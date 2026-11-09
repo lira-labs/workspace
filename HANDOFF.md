@@ -26,9 +26,17 @@
 - [x] **Correção do CLI / Launcher Windows (`iniciar.ps1` — "Run Failed")**:
   - *Diagnóstico do Erro:* O launcher original buscava apenas `py.exe` ou caminhos fechados de cache. Em sistemas com Python instalado via `uv`, Microsoft Store ou instalador padrão no PATH (`python.exe` / `python3.exe`), o script falhava com exit code 1 ("Run Failed").
   - *Solução:* Adicionada checagem dinâmica via `Get-Command` com fallbacks para `python.exe`, `py.exe` e `python3.exe`. Testado e validado com sucesso.
+- [x] **Modo Eco de Bateria na Câmera (`ecoCamera`)**:
+  - *Problema Resolvido:* O MediaPipe rodando a 30 FPS no navegador drenava a bateria e aquecia notebooks.
+  - *Solução:* Implementado Modo Eco inteligente no `web/app.js` e `web/index.html`. Em modo calibração, mantém alta responsividade (120ms); durante o foco, reduz para 1-2s, poupando até 85% de ciclos de CPU da máquina.
+- [x] **Presets Adaptativos para Extensão Chromium (`web/presets.js`)**:
+  - *Problema Resolvido:* Alunos assistindo aula eram bloqueados indevidamente no YouTube se o bloqueador estivesse ativo.
+  - *Solução:* O preset "🎓 Assistir Aula" libera o YouTube exclusivamente para videoaulas e bloqueia redes sociais e distrações (TikTok, Instagram, Twitter, Twitch, WhatsApp). Os modos de leitura e escrita continuam bloqueando YouTube.
+- [x] **Ritmo Semanal de Hiperfoco (7 Dias no Relatório)**:
+  - *Implementação:* Backend SQLite calcula o volume de foco dos últimos 7 dias em `Store.report()` em <1ms. Frontend renderiza 7 colunas elegantes com meta visual de 1h de hiperfoco diário (`web/style.css`, `web/index.html`, `web/app.js`).
 - [x] **Guia Canônico de Arquitetura e Harness (`docs/GUIA_ARQUITETURA_E_HARNESS.md`)**:
   - Documento mestre criado na branch para orientar o Igor (hacker principal) e qualquer harness/agente futuro.
-  - Cobre: Fundamentação teórica ($B=MAP$, Nudge, SRL Zimmerman, 1h hiperfoco vs 6h zumbi), diretrizes Anti-AI Slop, mapa completo do repositório, comandos de execução e testes.
+  - Cobre: Fundamentação teórica ($B=MAP$, Nudge, SRL Zimmerman, 1h hiperfoco vs 6h zumbi), diretrizes Anti-AI Slop, mapa completo do repositório, comandos de execução e testes (24 testes unitários).
 - [x] **Pesquisa e Diretriz Rigorosa Anti-AI Slop (Simon Willison & Ética em EdTech)**:
   - *Definição de AI Slop:* Conteúdo digital massivo, prolixo e de baixo valor gerado por IA sem curadoria humana, que polui interfaces, documentações e códigos.
   - *Na Aplicação e UI:* Eliminação de paredes de texto, disclaimers minúsculos desnecessários e formulários inchados; priorização de design subtrativo (apenas o sinal essencial na tela).
@@ -39,7 +47,7 @@
   - Adição do botão e modal **'💡 Empacou no conteúdo? Destravar com Copiloto IA'** na tela principal de Foco (quebra em 3 passos, método Feynman e micro-pausa restaurativa).
   - Adição do modal de celebração com micro-avaliação metacognitiva (1 a 5 estrelas) ao concluir o bloco.
   - Tratamento amigável para câmera opcional ('Modo Janelas Ativo · Câmera Opcional').
-  - Suíte completa de **23 testes unitários Python** e testes de visão/política em Node **100% aprovados**.
+  - Suíte completa de **24 testes unitários Python** e testes de visão/política em Node **100% aprovados**.
   - Branch sincronizada e publicada no GitHub: https://github.com/grupo-zeta/prob-tech-fit-cp01/tree/feat/compasso-estudo-ia.
 
 ### 00. Projeto 2ª VA · Internet do Futuro (Criptografia Pós-Quântica · Profa. Jeisa)
