@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Gerador Canônico da Graphic Novel & eBook 'Operação Byte Socrático' (12 Páginas A4)
-Incorpora a Gramática Completa dos Quadrinhos (Sequential Art) + Rigor Acadêmico de eBook:
-1. Camada Narrativa (enredo, personagens, conflito, desfecho)
-2. Camada Sequencial (sarjeta/calha como conexão mental, causa e efeito, ritmo)
-3. Camada de Linguagem Visual (balões semânticos, rabichos orgânicos, nuvens de pensamento com esferas, balão elétrico do robô, recordatórios canônicos e onomatopeias SFX)
-4. Simbiose HQ + eBook (cadernos de campo, terminais de código e relatórios de auditoria)
+Gerador 100% HQ / Comic Book da Graphic Novel 'Operação Byte Socrático' (12 Páginas A4)
+Foco Total na Arte Sequencial (Narrativa Pura em Quadrinhos):
+- 100% Painéis de HQ com sarjetas limpas (gutters)
+- Recordatórios canônicos clássicos (tempo/espaço/narrador)
+- Balões semânticos (fala comum, pensamento com esferas, glitch/elétrico, socrático)
+- Onomatopeias integradas (SFX)
+- ZERO tabelas ou blocos densos de código quebrando a imersão (o aprofundamento técnico fica no Infográfico)
 """
 import os
 import base64
@@ -38,15 +39,14 @@ b64 = {
     "p7_recipe": get_b64("p3_panel2.jpg"),
     "p12_epilogue": get_b64("p12_panel1_epilogue.jpg")
 }
-print("Imagens carregadas!")
+print("Imagens carregadas com sucesso!")
 
-# Shared HTML Header & Styles
 HTML_HEAD = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Operação Byte Socrático: Graphic Novel & eBook (2ª VA EaD · UFRPE)</title>
+  <title>Operação Byte Socrático: Graphic Novel (2ª VA EaD · UFRPE)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -131,14 +131,14 @@ HTML_HEAD = """<!DOCTYPE html>
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 3.5mm;
+      gap: 3.8mm;
       width: 100%;
       min-height: 0;
     }
 
     .hq-row {
       display: flex;
-      gap: 3.5mm;
+      gap: 3.8mm;
       width: 100%;
       position: relative;
       min-height: 0;
@@ -174,9 +174,7 @@ HTML_HEAD = """<!DOCTYPE html>
       z-index: 2;
     }
 
-    /* ========================================================
-       GRAMÁTICA DOS QUADRINHOS: RECORDATÓRIOS (CAPTION BOXES)
-       ======================================================== */
+    /* Recordatórios Canônicos de Quadrinhos (Narrative Caption Boxes) */
     .caption-box {
       position: absolute;
       z-index: 10;
@@ -193,7 +191,7 @@ HTML_HEAD = """<!DOCTYPE html>
       letter-spacing: 0.03em;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
 
     .caption-box-cyan {
@@ -211,16 +209,7 @@ HTML_HEAD = """<!DOCTYPE html>
       color: #090D16;
     }
 
-    .caption-box-purple {
-      background: linear-gradient(135deg, #E9D5FF 0%, #C084FC 100%);
-      color: #090D16;
-    }
-
-    /* ========================================================
-       GRAMÁTICA DOS QUADRINHOS: BALÕES SEMÂNTICOS
-       ======================================================== */
-    
-    /* 1. BALÃO DE FALA COMUM (Clara / Cauã) */
+    /* 1. Balão de Fala Comum (Clara / Cauã) */
     .balloon {
       position: absolute;
       z-index: 12;
@@ -246,7 +235,7 @@ HTML_HEAD = """<!DOCTYPE html>
       color: #0369A1;
     }
 
-    /* 2. BALÃO SOCRÁTICO COM CAPELO (Byte v2.0) */
+    /* 2. Balão Socrático com Capelo (Byte v2.0) */
     .balloon-socratic {
       position: absolute;
       z-index: 12;
@@ -268,7 +257,7 @@ HTML_HEAD = """<!DOCTYPE html>
       font-weight: 800;
     }
 
-    /* 3. BALÃO ELÉTRICO / GLITCH (Byte v1.0 sem filtro) */
+    /* 3. Balão Elétrico / Glitch (Byte v1.0 sem filtro) */
     .balloon-glitch {
       position: absolute;
       z-index: 12;
@@ -285,7 +274,7 @@ HTML_HEAD = """<!DOCTYPE html>
       text-align: left;
     }
 
-    /* 4. BALÃO DE PENSAMENTO EM NUVEM COM ESFERAS (Clara Dúvida / Apagão) */
+    /* 4. Balão de Pensamento em Nuvem com Esferas (Clara) */
     .balloon-thought {
       position: absolute;
       z-index: 12;
@@ -317,9 +306,7 @@ HTML_HEAD = """<!DOCTYPE html>
       border: 1.5px solid #090D16;
     }
 
-    /* ========================================================
-       GRAMÁTICA DOS QUADRINHOS: ONOMATOPEIAS DINÂMICAS (SFX)
-       ======================================================== */
+    /* Onomatopeias Dinâmicas (SFX) */
     .sfx {
       position: absolute;
       z-index: 14;
@@ -337,20 +324,6 @@ HTML_HEAD = """<!DOCTYPE html>
         4px 4px 0 #090D16;
     }
 
-    /* Score Badge (Unbroken Single Line) */
-    .score-badge {
-      white-space: nowrap !important;
-      display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 800;
-      font-size: 0.66rem;
-      padding: 2px 7px;
-      border-radius: 5px;
-      border: 2px solid #090D16;
-      box-shadow: 2px 2px 0px #090D16;
-      letter-spacing: 0;
-    }
-
     /* SVG Pointer Tails */
     .tail-svg {
       position: absolute;
@@ -358,25 +331,6 @@ HTML_HEAD = """<!DOCTYPE html>
       height: 22px;
       overflow: visible;
       pointer-events: none;
-    }
-
-    /* ========================================================
-       ENCARTES DIDÁTICOS DE EBOOK (SIMBIOSE COM A HQ)
-       ======================================================== */
-    .ebook-dossier {
-      background: #0F172A;
-      border: 3px solid #090D16;
-      box-shadow: 3.5px 3.5px 0px #06B6D4;
-      padding: 8px 12px;
-      border-radius: 2px;
-    }
-
-    .ebook-terminal {
-      background: #090D16;
-      border: 3px solid #090D16;
-      box-shadow: 3.5px 3.5px 0px #F59E0B;
-      padding: 8px 12px;
-      border-radius: 2px;
     }
 
     /* Page Footer */
@@ -431,10 +385,10 @@ HTML_HEAD = """<!DOCTYPE html>
   <header class="reader-toolbar w-full max-w-[210mm] bg-slate-900 border-2 border-slate-700 rounded-lg p-3 mb-4 shadow-xl flex flex-wrap items-center justify-between gap-2 text-white">
     <div class="flex items-center gap-2">
       <span class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black px-2.5 py-1 rounded text-xs tracking-wider font-mono">
-        <i class="fa-solid fa-book-journal-whills mr-1"></i> HQ-EBOOK
+        <i class="fa-solid fa-book-open mr-1"></i> HQ COMPLETA
       </span>
       <h2 class="font-extrabold text-sm hidden sm:inline" style="font-family: 'Space Grotesk', sans-serif;">
-        Operação Byte Socrático <span class="text-cyan-400 font-mono text-xs">(12 Págs A4)</span>
+        Operação Byte Socrático <span class="text-cyan-400 font-mono text-xs">(12 Páginas · Quadrinho Puro)</span>
       </h2>
     </div>
 
@@ -456,6 +410,9 @@ HTML_HEAD = """<!DOCTYPE html>
       <button onclick="toggleReadMode()" id="btnMode" class="bg-purple-600 hover:bg-purple-500 text-white px-2.5 py-1 rounded text-xs font-bold transition-all">
         <i class="fa-solid fa-scroll mr-1"></i> Webtoon
       </button>
+      <a href="infografico.html" target="_blank" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center gap-1 font-mono">
+        <i class="fa-solid fa-chart-pie"></i> Infográfico Técnico
+      </a>
       <a href="assets/ebook-caua-2va.pdf" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center gap-1">
         <i class="fa-solid fa-file-pdf"></i> Baixar PDF
       </a>
@@ -466,7 +423,7 @@ HTML_HEAD = """<!DOCTYPE html>
   <main id="comicContainer">
 """
 
-def make_header(chapter_title, badge_text="ARQUIVO UFRPE · 2ª VA"):
+def make_header(chapter_title, badge_text="UFRPE · 2ª VA EaD"):
     return f"""
       <div class="hq-header">
         <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.70rem; color: #A5F3FC; text-transform: uppercase;">
@@ -488,7 +445,7 @@ def make_footer(page_num, total_pages=12, custom_note=None):
 pages = []
 
 # ==========================================
-# PÁGINA 01: CAPA DE REVISTA HQ (COMIC COVER)
+# PÁGINA 01: CAPA CLÁSSICA DE HQ (COMIC COVER)
 # ==========================================
 pages.append(f"""
     <!-- PÁGINA 01: CAPA DA HQ -->
@@ -504,7 +461,7 @@ pages.append(f"""
             OPERAÇÃO BYTE SOCRÁTICO
           </h1>
           <p style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.58rem; color: #A5F3FC; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;">
-            GUIA ILUSTRADO DE TESTE E CALIBRAGEM DE TUTORES DE IA NA EDUCAÇÃO A DISTÂNCIA
+            A JORNADA EM QUADRINHOS DA CALIBRAGEM PEDAGÓGICA NA EaD
           </p>
         </div>
         <div style="text-align: right;">
@@ -518,26 +475,26 @@ pages.append(f"""
 
         <!-- Top-Right Tilted Badge -->
         <div class="caption-box" style="top: 10px; right: 10px; transform: rotate(2deg); background: linear-gradient(135deg, #FEF08A 0%, #F59E0B 100%); font-size: 0.68rem; border: 2.5px solid #090D16; box-shadow: 3px 3px 0 #090D16; padding: 4px 10px;">
-          ⚡ EDIÇÃO ESPECIAL · UFRPE 2026.2
+          ⚡ EDIÇÃO HISTÓRICA · UFRPE 2026.2
         </div>
 
         <!-- Left Teaser Badge -->
-        <div class="caption-box caption-box-rose" style="top: 36%; left: 10px; width: 33%; font-size: 0.62rem; text-align: left; transform: rotate(-1.5deg);">
-          🚨 <b style="color: #991B1B;">ALERTA VERMELHO!</b><br>O tutor v1.0 entrega respostas prontas e atrofia o raciocínio autônomo!
+        <div class="caption-box caption-box-rose" style="top: 36%; left: 10px; width: 34%; font-size: 0.62rem; text-align: left; transform: rotate(-1.5deg);">
+          🚨 <b style="color: #991B1B;">A ARMADILHA DA COLA!</b><br>O robô entregava o código pronto... mas no dia da prova, a mente apagou!
         </div>
 
         <!-- Right Teaser Badge -->
         <div class="caption-box caption-box-cyan" style="top: 40%; right: 10px; width: 34%; font-size: 0.62rem; text-align: right; transform: rotate(1.5deg);">
-          ✨ <b style="color: #0E7490;">MÉTODO SOCRÁTICO!</b><br>O tutor v2.0 guia com analogias do cotidiano e perguntas reflexivas!
+          ✨ <b style="color: #0E7490;">O PODER DE SÓCRATES!</b><br>Como transformar uma máquina de cola em um tutor que ensina a pensar!
         </div>
 
         <!-- Bottom Teaser Strip -->
         <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 10; background: rgba(9, 13, 22, 0.94); border: 2.5px solid #FACC15; padding: 5px 10px; display: flex; align-items: center; justify-content: space-between;">
           <span style="font-family: 'Space Grotesk', sans-serif; font-size: 0.62rem; font-weight: 800; color: #FEF08A; text-transform: uppercase;">
-            <i class="fa-solid fa-star text-amber-400 mr-1"></i> RUBRICA DE 4 CRITÉRIOS · 5 CASOS DE TESTE EMPÍRICOS · TEMPLATES COPIÁVEIS
+            <i class="fa-solid fa-star text-amber-400 mr-1"></i> UMA HISTÓRIA REAL DE APRENDIZAGEM, RESILIÊNCIA E AUTONOMIA NA EDUCAÇÃO A DISTÂNCIA
           </span>
           <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 800; color: #67E8F9; background: #0E7490; padding: 1px 6px; border-radius: 4px;">
-            100% REPRODUZÍVEL
+            HQ COMPLETA
           </span>
         </div>
       </div>
@@ -545,8 +502,8 @@ pages.append(f"""
       <!-- Cover Footer Strip -->
       <footer class="hq-footer">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; background: #090D16; color: #F8FAFC; padding: 1px 6px; border-radius: 3px;">BARCODE ||| || ||| | |||||</span>
-          <span>AUTOR: CAUÃ DA CUNHA LIRA · LICENCIATURA EM COMPUTAÇÃO (UFRPE)</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; background: #090D16; color: #F8FAFC; padding: 1px 6px; border-radius: 3px;">UFRPE COMICS #01</span>
+          <span>AUTOR: CAUÃ DA CUNHA LIRA · LICENCIATURA EM COMPUTAÇÃO</span>
         </div>
         <span>ORIENTADOR: PROF. ERMESON · PÁG. 01 DE 12</span>
       </footer>
@@ -554,121 +511,66 @@ pages.append(f"""
 """)
 
 # =======================================================
-# PÁGINA 02: DOSSIÊ #00 · QUEM É QUEM NA OPERAÇÃO (3 TIRAS)
+# PÁGINA 02: PRÓLOGO / ORIGENS (OS TRÊS PROTAGONISTAS)
 # =======================================================
 pages.append(f"""
-    <!-- PÁGINA 02: QUEM É QUEM -->
+    <!-- PÁGINA 02: PRÓLOGO / ORIGENS -->
     <section class="comic-page" id="page-2">
-      {make_header("DOSSIÊ #00 · QUEM É QUEM NESTA OPERAÇÃO: PROTAGONISTAS E FLUXO METODOLÓGICO", "ARQUIVO UFRPE · 2ª VA")}
+      {make_header("PRÓLOGO · ORIGENS: OS PROTAGONISTAS DESTA JORNADA")}
 
       <div class="hq-grid">
-        <!-- ROW 1: CAUÃ LIRA -->
-        <div class="hq-row" style="height: 68mm;">
-          <div class="hq-panel" style="width: 44%;">
-            <img src="data:image/jpeg;base64,{b64['p2_caua']}" class="panel-art">
-            <div class="caption-box caption-box-cyan" style="top: 5px; left: 5px;">PROTAGONISTA #01</div>
-          </div>
-          <div class="hq-panel" style="width: 56%; background: #0F172A; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #06B6D4;">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-1.5">
-                <span class="text-cyan-300 font-extrabold text-[11px] uppercase tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">
-                  CAUÃ LIRA · MENTOR DA ARENA
-                </span>
-                <span class="bg-cyan-950 text-cyan-300 border border-cyan-400/40 text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">LICENCIANDO UFRPE</span>
-              </div>
-              <p class="text-[9.5px] text-slate-300 leading-snug">
-                Pesquisador em IA aplicada à Educação. Sua missão é investigar por que os chatbots falham pedagogicamente e como calibrá-los usando métodos científicos.
-              </p>
+        <!-- ROW 1: CAUÃ LIRA NO LABORATÓRIO -->
+        <div class="hq-row" style="height: 74mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p2_caua']}" class="panel-art" style="object-position: center 25%;">
+            <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-building-columns mr-1"></i> RECIFE · LABORATÓRIO DE INFORMÁTICA DA UFRPE
             </div>
-            <div class="balloon balloon-caua relative" style="text-align: left; padding: 7px 11px;">
-              "Minha missão nesta 2ª VA é aplicar a <b>Transposição Didática</b> de Yves Chevallard (1991) para transformar chatbots genéricos em tutores socráticos. Na EaD, a IA não pode ser uma fábrica de respostas prontas — ela deve ser um <b>andaime cognitivo</b> que ensina o estudante a pensar!"
+            <div class="balloon balloon-caua" style="bottom: 10px; right: 14px; width: 56%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              "Como futuro professor de Computação, vejo um perigo invisível: a inteligência artificial que entrega a cola pronta pelo aluno em vez de <b>ensinar a pensar</b>!"
               <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
                 <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
               </svg>
             </div>
-            <div class="flex items-center gap-1.5 pt-1 border-t border-slate-800 text-[8.5px] font-bold text-slate-400 font-mono">
-              <span class="bg-slate-800 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30">DESIGNER DE PROMPT</span>
-              <span class="bg-slate-800 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30">ZDP VYGOTSKY</span>
-              <span class="bg-slate-800 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/30">AVALIADOR DA ARENA</span>
-            </div>
           </div>
         </div>
 
-        <!-- ROW 2: CLARA -->
-        <div class="hq-row" style="height: 68mm;">
-          <div class="hq-panel" style="width: 44%;">
-            <img src="data:image/jpeg;base64,{b64['p2_clara']}" class="panel-art">
-            <div class="caption-box" style="top: 5px; left: 5px;">PROTAGONISTA #02</div>
-          </div>
-          <div class="hq-panel" style="width: 56%; background: #0F172A; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #FACC15;">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-1.5">
-                <span class="text-amber-300 font-extrabold text-[11px] uppercase tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">
-                  CLARA · CALOURA DE COMPUTAÇÃO
-                </span>
-                <span class="bg-amber-950 text-amber-300 border border-amber-400/40 text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">1º PERÍODO EaD</span>
-              </div>
-              <p class="text-[9.5px] text-slate-300 leading-snug">
-                Estudante trabalhadora que cursa a faculdade à distância. Representa os milhares de alunos que estudam sozinhos à noite e recorrem a assistentes virtuais.
-              </p>
+        <!-- ROW 2: CLARA NO QUARTO DE ESTUDOS -->
+        <div class="hq-row" style="height: 74mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p2_clara']}" class="panel-art" style="object-position: center 25%;">
+            <div class="caption-box" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-house-laptop mr-1"></i> CAMELA · 22H15 · APÓS UM LONGO DIA DE TRABALHO NO INTERIOR
             </div>
-            <div class="balloon relative" style="text-align: left; padding: 7px 11px;">
-              "Estudo Programação Python à noite após o trabalho. Quando travo em laços <code>for</code> e variáveis, se o robô me der a cola pronta, eu copio por cansaço mas <b>não aprendo nada</b>... No dia da prova presencial, dá um branco total! Preciso de explicações passo a passo sem jargão inacessível!"
-              <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
-                <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
-                <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
+            <div class="balloon" style="bottom: 10px; left: 14px; width: 56%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              "Mais uma noite de estudos à distância... Programação em Python é puxada, mas é o meu sonho! Se eu travar nos laços, o robô precisa me ajudar de verdade!"
+              <svg class="tail-svg" style="bottom: -15px; right: 28px;" viewBox="0 0 24 16">
+                <path d="M 18,0 Q 12,14 4,16 Q 8,8 6,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4.5" y1="0" x2="17.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
               </svg>
             </div>
-            <div class="flex items-center gap-1.5 pt-1 border-t border-slate-800 text-[8.5px] font-bold text-slate-400 font-mono">
-              <span class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">PÚBLICO-ALVO REAL</span>
-              <span class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">ROTINA NOTURNA</span>
-              <span class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">FOCO EM PYTHON</span>
-            </div>
           </div>
         </div>
 
-        <!-- ROW 3: TUTOR BYTE (DUALIDADE) -->
-        <div class="hq-row" style="height: 68mm;">
-          <div class="hq-panel" style="width: 44%;">
-            <img src="data:image/jpeg;base64,{b64['p2_byte']}" class="panel-art">
-            <div class="caption-box caption-box-rose" style="top: 5px; left: 5px;">PROTAGONISTA #03</div>
-          </div>
-          <div class="hq-panel" style="width: 56%; background: #0F172A; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #A855F7;">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-1.5">
-                <span class="text-purple-300 font-extrabold text-[11px] uppercase tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">
-                  TUTOR BYTE · DO GLITCH AO CAPELO
-                </span>
-                <span class="bg-purple-950 text-purple-300 border border-purple-400/40 text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">v1.0 ➔ v2.0</span>
-              </div>
-              <p class="text-[9.5px] text-slate-300 leading-snug">
-                Robô esférico de IA submetido à calibragem pedagógica. Mostra a metamorfose de um chatbot gerador de cola em um tutor socrático de excelência.
-              </p>
+        <!-- ROW 3: TUTOR BYTE NO CIBERESPAÇO -->
+        <div class="hq-row" style="height: 74mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p2_byte']}" class="panel-art" style="object-position: center 30%;">
+            <div class="caption-box caption-box-rose" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-network-wired mr-1"></i> NO CIBERESPAÇO: UM ALGORITMO EM BUSCA DE PROPÓSITO
             </div>
-            <div class="balloon-socratic relative" style="text-align: left; padding: 7px 11px;">
-              <b class="text-rose-600">BYTE v1.0 (SEM FREIO):</b> Entrega o código mastigado e cospe jargões de CPython e Heap de memória.<br>
-              <b class="text-cyan-700">BYTE v2.0 (SOCRÁTICO):</b> Travado contra colas; usa metáforas do cotidiano (caixas etiquetadas) e devolve perguntas reflexivas!
+            <div class="balloon-socratic" style="bottom: 10px; right: 14px; width: 58%;">
+              <span class="speaker-tag bg-purple-600 text-white font-mono">TUTOR BYTE (EM TRANSIÇÃO)</span><br>
+              "Processando milhões de tokens... Sou apenas uma máquina. Se eu serei uma muleta que atrofia o aluno ou um mestre socrático, <b>depende de como me programarem!</b>"
               <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
                 <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#ECFEFF" stroke="#0891B2" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#ECFEFF" stroke-width="3"/>
               </svg>
             </div>
-            <div class="flex items-center gap-1.5 pt-1 border-t border-slate-800 text-[8.5px] font-bold text-slate-400 font-mono">
-              <span class="bg-slate-800 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">MOTOR: CLAUDE OPUS 4.6</span>
-              <span class="bg-slate-800 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">CALIBRAGEM EMPÍRICA</span>
-              <span class="bg-slate-800 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">CAPELO ROXO NEON</span>
-            </div>
           </div>
-        </div>
-
-        <!-- BOTTOM OPERATIONAL CYCLE BAR -->
-        <div style="background: #090D16; border: 2.5px solid #090D16; box-shadow: 2px 2px 0 #06B6D4; padding: 4px 10px; display: flex; align-items: center; justify-content: space-between; font-family: 'Space Grotesk', sans-serif; font-size: 0.63rem; font-weight: 800; color: #F8FAFC;">
-          <span class="text-amber-300 uppercase"><i class="fa-solid fa-arrows-spin mr-1"></i> FLUXO OPERACIONAL EM 4 FASES:</span>
-          <span>1. Testar v1.0 (5 Casos)</span> <i class="fa-solid fa-arrow-right text-cyan-400"></i>
-          <span>2. Registrar (Rubrica 1 a 5)</span> <i class="fa-solid fa-arrow-right text-cyan-400"></i>
-          <span>3. Revisar (Cirurgia de Prompt)</span> <i class="fa-solid fa-arrow-right text-cyan-400"></i>
-          <span>4. Validar (Reteste v2.0)</span>
         </div>
       </div>
 
@@ -677,41 +579,37 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 03: CAP. 01 (PARTE 1) - A CRISE COGNITIVA NA EAD (A RESPOSTA MASTIGADA)
+# PÁGINA 03: CAPÍTULO 1 · A CRISE COGNITIVA (A TENTAÇÃO DA RESPOSTA PRONTA)
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 03: CAPÍTULO 01 (PARTE 1) -->
+    <!-- PÁGINA 03: CAPÍTULO 01 -->
     <section class="comic-page" id="page-3">
-      {make_header("CAPÍTULO 01 · A CRISE COGNITIVA NA EaD (PARTE 1: A ARMADILHA DA RESPOSTA MASTIGADA)")}
+      {make_header("CAPÍTULO 01 · A CRISE COGNITIVA: A TENTAÇÃO DA RESPOSTA FÁCIL")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · LATE NIGHT CRUNCH -->
+        <!-- ROW 1: CLARA TRAVADA ÀS 23H40 -->
         <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p3_1']}" class="panel-art">
-            
-            <!-- Canonical Comic Recordatório -->
             <div class="caption-box" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-clock mr-1"></i> RECIFE · POLO EaD · 23H40: O IMPASSE COM LAÇOS DE REPETIÇÃO...
+              <i class="fa-solid fa-clock mr-1"></i> MADRUGADA · 23H40 · O DESESPERO DA CALOURA DE EaD
             </div>
-            
-            <!-- Dynamic SFX -->
             <div class="sfx text-amber-400 text-3xl" style="top: 14px; right: 18%;">
               BZZZZT!
             </div>
 
-            <!-- Clara Balloon with SVG Tail -->
+            <!-- Clara Balloon -->
             <div class="balloon" style="bottom: 14px; left: 14px; width: 44%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Não consigo fazer essa lista iterar no laço <code>for</code>! <b>Byte</b>, me ajuda com a sintaxe?!
+              Não consigo fazer essa lista iterar no laço <code>for</code>! A prova presencial é semana que vem... <b>Byte</b>, me ajuda com esse código?!
               <svg class="tail-svg" style="top: -16px; left: 32px;" viewBox="0 0 24 16">
                 <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
               </svg>
             </div>
 
-            <!-- Glitch Byte v1.0 Balloon with Robotic Tail -->
-            <div class="balloon-glitch" style="top: 24px; right: 14px; width: 44%;">
+            <!-- Glitch Byte v1.0 Balloon -->
+            <div class="balloon-glitch" style="top: 24px; right: 14px; width: 45%;">
               <span class="speaker-tag bg-rose-500 text-white font-mono">BYTE v1.0 (SEM FILTRO)</span><br>
               PROBLEMA DETECTADO! AQUI ESTÁ SEU CÓDIGO 100% PRONTO. É SÓ COPIAR E COLAR NO SEU ARQUIVO:
               <div class="bg-black/60 p-1 rounded font-mono text-[8px] text-emerald-400 mt-1 border border-rose-500/40">
@@ -725,53 +623,46 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: TWO PANELS (4:3 EACH) · CTRL+C / CTRL+V ILLUSION VS EXAM BLACKOUT -->
+        <!-- ROW 2: A ILUSÃO DO CTRL+C VS O APAGÃO NA PROVA -->
         <div class="hq-row" style="height: 118mm;">
-          <!-- LEFT PANEL: A ILUSÃO DO CTRL+C -->
+          <!-- LEFT PANEL: ILUSÃO -->
           <div class="hq-panel" style="width: 49%;">
             <img src="data:image/jpeg;base64,{b64['p3_2']}" class="panel-art">
             <div class="caption-box" style="top: 6px; left: 6px; font-size: 0.60rem;">
-              <i class="fa-solid fa-copy mr-1"></i> A ILUSÃO DE DOMÍNIO (CTRL+C / CTRL+V)
+              <i class="fa-solid fa-copy mr-1"></i> A ILUSÃO DE DOMÍNIO
             </div>
             <div class="sfx text-cyan-300 text-2xl" style="top: 8px; right: 12px;">
               CLAC-CLAC!
             </div>
             <div class="balloon" style="bottom: 8px; left: 8px; width: 92%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Ufa! O código rodou de primeira no terminal. Acho que já dominei a matéria!
+              Ufa! O código rodou de primeira no terminal. Que alívio! Acho que já dominei a matéria toda!
               <svg class="tail-svg" style="bottom: -15px; left: 32px;" viewBox="0 0 24 16">
                 <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
               </svg>
             </div>
-            <div class="caption-box caption-box-rose" style="bottom: 58px; right: 8px; max-width: 80%; font-size: 0.58rem; text-align: right;">
-              ⚠️ OFFLOADING COGNITIVO: O atalho fácil anestesia o aprendizado!
-            </div>
           </div>
 
-          <!-- RIGHT PANEL: O APAGÃO NA PROVA -->
+          <!-- RIGHT PANEL: O APAGÃO -->
           <div class="hq-panel" style="width: 49%;">
             <img src="data:image/jpeg;base64,{b64['p3_3']}" class="panel-art">
             <div class="caption-box caption-box-rose" style="top: 6px; left: 6px; font-size: 0.60rem;">
-              <i class="fa-solid fa-file-pen mr-1"></i> DIAS DEPOIS · AVALIAÇÃO PRESENCIAL
+              <i class="fa-solid fa-file-pen mr-1"></i> DIAS DEPOIS · A PROVA PRESENCIAL
             </div>
             <div class="sfx text-rose-500 text-2xl" style="top: 8px; right: 12px;">
               GULP!
             </div>
             
-            <!-- Thought Cloud Balloon with 3 Descending Bubbles -->
+            <!-- Thought Cloud Balloon -->
             <div class="balloon-thought" style="bottom: 8px; left: 8px; width: 92%;">
               <span class="speaker-tag bg-sky-300 text-slate-950">CLARA (PENSAMENTO)</span><br>
-              Cadê o Byte?! Minha mente deu um branco total... Não lembro a sintaxe de nada!
-              <!-- SVG Thought Tail (3 Bubbles) -->
+              Cadê o Byte?! Minha mente deu um branco total... Não lembro nem como abre o laço! O que foi que eu fiz?!
               <svg class="tail-svg" style="bottom: -18px; left: 28px;" viewBox="0 0 24 22">
                 <circle cx="16" cy="4" r="4" fill="#F8FAFC" stroke="#0284C7" stroke-width="2.2"/>
                 <circle cx="10" cy="12" r="2.8" fill="#F8FAFC" stroke="#0284C7" stroke-width="2"/>
                 <circle cx="5" cy="18" r="1.8" fill="#F8FAFC" stroke="#0284C7" stroke-width="1.8"/>
               </svg>
-            </div>
-            <div class="caption-box caption-box-cyan" style="bottom: 58px; left: 8px; max-width: 85%; font-size: 0.58rem;">
-              💡 CAUÃ OBSERVA: Sem o andaime, o aluno despenca na folha em branco!
             </div>
           </div>
         </div>
@@ -782,39 +673,36 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 04: CAP. 01 (PARTE 2) - O DIAGNÓSTICO CIENTÍFICO E A CONVOCAÇÃO
+# PÁGINA 04: CAPÍTULO 2 · O DIAGNÓSTICO DO MENTOR NO LABORATÓRIO
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 04: CAPÍTULO 01 (PARTE 2) -->
+    <!-- PÁGINA 04: CAPÍTULO 02 -->
     <section class="comic-page" id="page-4">
-      {make_header("CAPÍTULO 01 · A CRISE COGNITIVA NA EaD (PARTE 2: A EVAPORAÇÃO COGNITIVA E O PLANO)")}
+      {make_header("CAPÍTULO 02 · O DIAGNÓSTICO DO MENTOR: A EVAPORAÇÃO DO ESFORÇO")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · METÁFORA DE BRUNER / VYGOTSKY -->
-        <div class="hq-row" style="height: 104mm;">
+        <!-- ROW 1: CLARA PROCURA CAUÃ NO LABORATÓRIO -->
+        <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p3_4']}" class="panel-art">
             <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-microscope mr-1"></i> LABORATÓRIO UFRPE · CAUÃ APRESENTA O DIAGNÓSTICO
+              <i class="fa-solid fa-microscope mr-1"></i> LABORATÓRIO DE COMPUTAÇÃO DA UFRPE · O DESABAFO DA CALOURA
             </div>
-            <div class="sfx text-cyan-300 text-2xl" style="top: 10px; right: 20%;">
-              WOOSH!
-            </div>
-
-            <!-- Cauã Balloon -->
-            <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
-              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
-              A entrega imediata da resposta causa a <b>evaporação do esforço cognitivo</b>! A IA precisa atuar como um <b>andaime (Scaffolding)</b>, elevando a autonomia!
+            
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; left: 14px; width: 46%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              Cauã, tirei zero na questão presencial! Eu jurava que sabia porque o robô me entregava o código corrigido... Mas na prova fiquei cega!
               <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
                 <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
               </svg>
             </div>
 
-            <!-- Clara Balloon -->
-            <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
-              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Então o problema não era eu! Era o tutor me dando muletas em vez de me ensinar a andar!
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; right: 14px; width: 48%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              Você foi vítima da <b>Ilusão de Domínio</b>, Clara! Quando a máquina entrega a resposta pronta, ela causa a <b>evaporação do seu esforço cognitivo</b>!
               <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
                 <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -823,39 +711,21 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: OCDE PISA 2025/2026 DOSSIER STRIP (ENCARTE DE EBOOK) -->
-        <div class="ebook-dossier" style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-          <div style="flex: 1; border-right: 1.5px solid #334155; padding-right: 10px;">
-            <div class="flex items-center gap-1.5 mb-1">
-              <span class="bg-rose-500 text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded font-mono">DADOS OCDE (SET. 2026)</span>
-              <span class="text-amber-300 font-extrabold text-[10px] uppercase font-mono">RELATÓRIO PISA 2025</span>
-            </div>
-            <p class="text-[9px] text-slate-200 leading-tight">
-              <b>48% dos estudantes de 15 anos no Brasil</b> utilizam IA generativa semanalmente para deveres escolares (superando a média de <b>46% da OCDE</b>).
-            </p>
-          </div>
-          <div style="flex: 1.2;">
-            <span class="text-cyan-300 font-extrabold text-[9.5px] uppercase font-mono block mb-0.5">
-              <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> A CONCLUSÃO PEDAGÓGICA (CHEVALLARD, 1991)
-            </span>
-            <p class="text-[9px] text-slate-200 leading-tight">
-              A IA já está nos lares. Banir é inútil; o dever da universidade é <b>formar professores capazes de desenhar tutores que ensinem a pensar</b>!
-            </p>
-          </div>
-        </div>
-
-        <!-- ROW 3: PANORAMIC PANEL (16:9) · CONVOCANDO BYTE PARA A ARENA -->
-        <div class="hq-row" style="height: 104mm;">
+        <!-- ROW 2: O PLANO DE ANDAIME E A CONVOCAÇÃO -->
+        <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p3_5']}" class="panel-art">
             <div class="caption-box" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-bullseye mr-1"></i> ARENA DE TESTES UFRPE · O PLANO DE INTERVENÇÃO
+              <i class="fa-solid fa-stairs mr-1"></i> A PEDAGOGIA DO ANDAIME COGNITIVO (SCAFFOLDING)
+            </div>
+            <div class="sfx text-cyan-300 text-2xl" style="top: 10px; right: 20%;">
+              WOOSH!
             </div>
 
             <!-- Cauã Balloon -->
             <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
               <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
-              Convoquei o <b>Byte v1.0</b> para a nossa bancada de testes! Vamos submetê-lo a <b>5 Casos Reais</b> com uma Rubrica Científica de 4 Critérios!
+              Aprender a programar é como subir uma escada. O tutor de IA deve ser o corrimão — apoiar a sua mão, mas <b>jamais carregar você no colo!</b>
               <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
                 <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -865,7 +735,7 @@ pages.append(f"""
             <!-- Clara Balloon -->
             <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Pronta para o teste! Se o Byte falhar nos critérios pedagógicos, faremos a cirurgia no prompt dele!
+              E tem como calibrar o robô para ele me ensinar a pensar em vez de me dar a cola mastigada?! Vamos fazer isso agora!
               <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
                 <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -880,20 +750,20 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 05: CAP. 02 - OS 4 CRITÉRIOS PEDAGÓGICOS E A RUBRICA DE AVALIAÇÃO
+# PÁGINA 05: CAPÍTULO 3 · O SCANNER PEDAGÓGICO DE 4 CRITÉRIOS
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 05: CAPÍTULO 02 -->
+    <!-- PÁGINA 05: CAPÍTULO 03 -->
     <section class="comic-page" id="page-5">
-      {make_header("CAPÍTULO 02 · OS 4 CRITÉRIOS PEDAGÓGICOS E A MATRIZ DE AVALIAÇÃO")}
+      {make_header("CAPÍTULO 03 · O SCANNER PEDAGÓGICO: AS 4 DIMENSÕES DE UM BOM TUTOR")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · SCANNER HOLOGRÁFICO 4D -->
-        <div class="hq-row" style="height: 106mm;">
+        <!-- ROW 1: O SCANNER HOLOGRÁFICO 4D -->
+        <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p4_scanner']}" class="panel-art">
             <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-radar mr-1"></i> CALIBRAGEM SENSORIAL · O SCANNER PEDAGÓGICO DE 4 CRITÉRIOS
+              <i class="fa-solid fa-radar mr-1"></i> BANCADA EXPERIMENTAL · ATIVANDO O SCANNER PEDAGÓGICO
             </div>
             <div class="sfx text-cyan-300 text-2xl" style="top: 12px; right: 24%;">
               SCAN!
@@ -902,7 +772,7 @@ pages.append(f"""
             <!-- Cauã Balloon -->
             <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
               <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
-              Ativando o Scanner! Cada resposta do tutor será avaliada em 4 dimensões cruciais: <b>Correção, Clareza, ZDP e Escopo</b>!
+              Ativando o Scanner! Para transformar o Byte em tutor socrático, vamos medi-lo em quatro dimensões fundamentais: <b>Correção, Clareza, Adaptação e Escopo!</b>
               <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
                 <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -912,7 +782,7 @@ pages.append(f"""
             <!-- Clara Balloon -->
             <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Escudo, Lâmpada, Degraus e Alvo... A armadura completa que todo tutor de IA precisa ter!
+              Escudo de Correção, Lâmpada de Clareza, Degraus de Adaptação e Alvo de Escopo! A armadura completa de um tutor!
               <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
                 <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -921,90 +791,32 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: CRITERIO 3 PANEL (LEFT) + 4 CRITERIA CARDS (RIGHT - ENCARTE DE EBOOK) -->
-        <div class="hq-row" style="height: 128mm;">
-          <!-- LEFT: CRITERIO 3 VISUAL PANEL -->
-          <div class="hq-panel" style="width: 44%;">
+        <!-- ROW 2: A ZONA DE DESENVOLVIMENTO PROXIMAL -->
+        <div class="hq-row" style="height: 118mm;">
+          <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p4_criterio3']}" class="panel-art">
-            <div class="caption-box caption-box-emerald" style="top: 6px; left: 6px; font-size: 0.60rem;">
-              <i class="fa-solid fa-stairs mr-1"></i> DESTAQUE · ADEQUAÇÃO AO PÚBLICO (ZDP)
+            <div class="caption-box caption-box-emerald" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-stairs mr-1"></i> A FRONTEIRA DA ZONA DE DESENVOLVIMENTO PROXIMAL (VYGOTSKY)
             </div>
-            <div class="balloon" style="bottom: 8px; left: 8px; width: 92%;">
+
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; left: 14px; width: 46%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Os degraus ciano me protegem das engrenagens vermelhas do pânico!
-              <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
-                <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
-                <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
+              Os degraus ciano me protegem do abismo! Se o robô falar difícil demais eu me assusto, mas se der a cola mastigada eu não aprendo!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
               </svg>
             </div>
-            <div class="caption-box caption-box-cyan" style="bottom: 58px; right: 8px; max-width: 85%; font-size: 0.58rem; text-align: right;">
-              📚 TRANSPOSIÇÃO DIDÁTICA (Chevallard, 1991): Transformar o saber sábio em saber ensinado!
-            </div>
-          </div>
 
-          <!-- RIGHT: 4 CRITERIA MATRIZ (ENCARTE EBOOK) -->
-          <div class="hq-panel" style="width: 56%; background: #0F172A; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-2">
-                <span class="text-amber-300 font-extrabold text-[11px] uppercase tracking-wide" style="font-family: 'Space Grotesk', sans-serif;">
-                  <i class="fa-solid fa-clipboard-check mr-1"></i> OS 4 CRITÉRIOS PEDAGÓGICOS
-                </span>
-                <span class="bg-cyan-900 text-cyan-200 text-[9px] font-bold px-1.5 py-0.5 rounded font-mono">RUBRICA 1 A 5</span>
-              </div>
-
-              <div class="space-y-1.5">
-                <div class="bg-slate-900 border-l-4 border-l-cyan-400 p-1.5 rounded">
-                  <div class="flex items-center justify-between">
-                    <b class="text-cyan-300 text-[10px]">01. CORREÇÃO CONCEITUAL (ESCUDO)</b>
-                    <span class="text-[8.5px] text-slate-400 font-mono">Peso 25%</span>
-                  </div>
-                  <p class="text-[9px] text-slate-300 leading-tight mt-0.5">
-                    O código e a teoria estão rigorosamente exatos? Não há alucinações de bibliotecas inexistentes?
-                  </p>
-                </div>
-
-                <div class="bg-slate-900 border-l-4 border-l-amber-400 p-1.5 rounded">
-                  <div class="flex items-center justify-between">
-                    <b class="text-amber-300 text-[10px]">02. CLAREZA E DIDÁTICA (LÂMPADA)</b>
-                    <span class="text-[8.5px] text-slate-400 font-mono">Peso 25%</span>
-                  </div>
-                  <p class="text-[9px] text-slate-300 leading-tight mt-0.5">
-                    A linguagem é acessível, estruturada e amigável? Usa analogias do cotidiano e formatação limpa?
-                  </p>
-                </div>
-
-                <div class="bg-slate-900 border-l-4 border-l-emerald-400 p-1.5 rounded">
-                  <div class="flex items-center justify-between">
-                    <b class="text-emerald-300 text-[10px]">03. ADEQUAÇÃO AO PÚBLICO / ZDP (DEGRAUS)</b>
-                    <span class="text-[8.5px] text-slate-400 font-mono">Peso 25%</span>
-                  </div>
-                  <p class="text-[9px] text-slate-300 leading-tight mt-0.5">
-                    Respeita a Zona de Desenvolvimento Proximal da caloura? Evita jargões de pós-graduação e andaimeia?
-                  </p>
-                </div>
-
-                <div class="bg-slate-900 border-l-4 border-l-rose-400 p-1.5 rounded">
-                  <div class="flex items-center justify-between">
-                    <b class="text-rose-300 text-[10px]">04. ALINHAMENTO AO ESCOPO (ALVO)</b>
-                    <span class="text-[8.5px] text-slate-400 font-mono">Peso 25%</span>
-                  </div>
-                  <p class="text-[9px] text-slate-300 leading-tight mt-0.5">
-                    Mantém o foco na ementa da disciplina (Python/EaD)? Recusa educadamente desvios temáticos externos?
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- ESCALA DA RUBRICA -->
-            <div class="bg-slate-950 p-2 rounded border border-slate-800">
-              <span class="text-[9px] font-bold text-slate-300 block mb-1">ESCALA DA RUBRICA (MÉDIA MÍNIMA DE APROVAÇÃO: 3,5 / 70%):</span>
-              <div class="grid grid-cols-5 gap-1 text-center font-mono text-[8px] font-bold">
-                <div class="bg-rose-950/80 text-rose-300 p-1 rounded border border-rose-500/30">1: Crítico</div>
-                <div class="bg-orange-950/80 text-orange-300 p-1 rounded border border-orange-500/30">2: Fraco</div>
-                <div class="bg-amber-950/80 text-amber-300 p-1 rounded border border-amber-500/30">3: Regular</div>
-                <div class="bg-cyan-950/80 text-cyan-300 p-1 rounded border border-cyan-500/30">4: Bom</div>
-                <div class="bg-emerald-950/80 text-emerald-300 p-1 rounded border border-emerald-500/30">5: Excelente</div>
-              </div>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; right: 14px; width: 48%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              Exatamente! Essa é a <b>Transposição Didática de Chevallard</b>: transformar o conhecimento acadêmico complexo em saber ensinável na medida exata!
+              <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
+                <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1015,20 +827,20 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 06: CAP. 03 (PARTE 1) - NA ARENA COM O BYTE v1.0 (CASOS 01, 02, 04, 05)
+# PÁGINA 06: CAPÍTULO 4 · A PRIMEIRA BATERIA DE TESTES (O ESCUDO DE ESCOPO)
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 06: CAPÍTULO 03 (PARTE 1) -->
+    <!-- PÁGINA 06: CAPÍTULO 04 -->
     <section class="comic-page" id="page-6">
-      {make_header("CAPÍTULO 03 · BATERIA DE TESTES DO BYTE v1.0 (PARTE 1: PRIMEIROS COMBATES)")}
+      {make_header("CAPÍTULO 04 · A PRIMEIRA BATERIA DE TESTES: O ESCUDO DE ESCOPO")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · CASO #05 (ESCUDO DE ESCOPO) -->
-        <div class="hq-row" style="height: 114mm;">
+        <!-- ROW 1: O TESTE DO LIVRO DE HISTÓRIA -->
+        <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p5_shield']}" class="panel-art">
             <div class="caption-box caption-box-emerald" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-shield-halved mr-1"></i> CASO DE TESTE #05 · O TESTE DO LIVRO DE HISTÓRIA (RESISTÊNCIA DE ESCOPO)
+              <i class="fa-solid fa-shield-halved mr-1"></i> TESTE #05 · O TESTE DA PERGUNTA FORA DE ESCOPO (ESCUDO ATIVADO)
             </div>
             <div class="sfx text-cyan-300 text-3xl" style="top: 14px; left: 32%;">
               DEFLECT!
@@ -1036,7 +848,7 @@ pages.append(f"""
 
             <!-- Clara Prompt Balloon -->
             <div class="balloon" style="bottom: 12px; left: 14px; width: 42%;">
-              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA (PROMPT TESTE)</span><br>
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
               "Byte, me resume a <b>Revolução Francesa</b> para a aula de amanhã?"
               <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
                 <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
@@ -1048,9 +860,6 @@ pages.append(f"""
             <div class="balloon-socratic" style="bottom: 12px; right: 14px; width: 52%;">
               <span class="speaker-tag bg-cyan-500 text-white font-mono">BYTE v1.0 (ESCUDO ATIVADO)</span><br>
               "Olá, Clara! Como tutor de Programação Python da UFRPE, meu foco exclusivo é Computação. Que tal voltarmos a laços e variáveis?"
-              <div class="mt-1">
-                <span class="score-badge bg-emerald-400 text-slate-950 font-bold">NOTA: 5,0 / 5,0 · APROVADO!</span>
-              </div>
               <svg class="tail-svg" style="bottom: -15px; right: 24px;" viewBox="0 0 24 16">
                 <path d="M 18,0 Q 12,14 4,16 Q 8,8 6,0 Z" fill="#ECFEFF" stroke="#0891B2" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4.5" y1="0" x2="17.5" y2="0" stroke="#ECFEFF" stroke-width="3"/>
@@ -1059,59 +868,32 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: THREE COMBAT CARDS (CASES #01, #02, #04 - ENCARTE DE EBOOK) -->
-        <div class="hq-row" style="height: 124mm;">
-          <!-- CARD CASO #01 -->
-          <div class="hq-panel" style="width: 32.5%; background: #0F172A; padding: 7px 9px; display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid #06B6D4;">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <b class="text-cyan-300 text-[10px] font-mono">CASO #01 · VARIÁVEIS</b>
-                <span class="score-badge bg-cyan-400 text-slate-950 text-[8.5px]">4,0 / 5,0</span>
-              </div>
-              <p class="text-[8.5px] text-slate-300 italic mb-1">"Clara: Não entendi o que é uma variável."</p>
-              <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-[8.5px] text-slate-300">
-                <b class="text-cyan-400">Resposta v1.0:</b> Explicou que variável armazena dados na memória, mas foi puramente declarativo. Não usou analogia nem fez perguntas investigativas.
-              </div>
+        <!-- ROW 2: O IMPASSE DO VÍCIO DA RESPOSTA PRONTA -->
+        <div class="hq-row" style="height: 118mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_5']}" class="panel-art">
+            <div class="caption-box caption-box-rose" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> O IMPASSE: O VÍCIO PERSISTENTE DA COLA MASTIGADA
             </div>
-            <div class="text-[8px] font-mono text-slate-400 pt-1 border-t border-slate-800">
-              Critérios: C1: 5 · C2: 4 · C3: 3 · C4: 4<br>
-              <span class="text-amber-300 font-bold">Diagnóstico: Falta método socrático.</span>
-            </div>
-          </div>
 
-          <!-- CARD CASO #02 -->
-          <div class="hq-panel" style="width: 32.5%; background: #0F172A; padding: 7px 9px; display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid #F59E0B;">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <b class="text-amber-300 text-[10px] font-mono">CASO #02 · DEBUG LAÇO</b>
-                <span class="score-badge bg-amber-400 text-slate-950 text-[8.5px]">3,0 / 5,0</span>
-              </div>
-              <p class="text-[8.5px] text-slate-300 italic mb-1">"Clara: Meu código deu SyntaxError na linha 3."</p>
-              <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-[8.5px] text-slate-300">
-                <b class="text-amber-400">Resposta v1.0:</b> Identificou que faltava <code>:</code> no final da linha, mas entregou o código corrigido na primeira frase, sem fazer a aluna pensar!
-              </div>
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; left: 14px; width: 48%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              O escudo de matéria funcionou... mas quando perguntei do erro de sintaxe no <code>for</code>, ele me cuspiu a linha corrigida pronta de novo!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
-            <div class="text-[8px] font-mono text-slate-400 pt-1 border-t border-slate-800">
-              Critérios: C1: 5 · C2: 3 · C3: 1 · C4: 3<br>
-              <span class="text-rose-400 font-bold">Diagnóstico: Muleta cognitiva nociva.</span>
-            </div>
-          </div>
 
-          <!-- CARD CASO #04 -->
-          <div class="hq-panel" style="width: 32.5%; background: #0F172A; padding: 7px 9px; display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid #A855F7;">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <b class="text-purple-300 text-[10px] font-mono">CASO #04 · POO AVANÇADA</b>
-                <span class="score-badge bg-purple-400 text-slate-950 text-[8.5px]">4,0 / 5,0</span>
-              </div>
-              <p class="text-[8.5px] text-slate-300 italic mb-1">"Clara: Por que usar classes se funções resolvem?"</p>
-              <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-[8.5px] text-slate-300">
-                <b class="text-purple-400">Resposta v1.0:</b> Explicou acoplamento e reuso com clareza. Manteve bom equilíbrio conceitual sem alucinar bibliotecas.
-              </div>
-            </div>
-            <div class="text-[8px] font-mono text-slate-400 pt-1 border-t border-slate-800">
-              Critérios: C1: 4 · C2: 4 · C3: 4 · C4: 4<br>
-              <span class="text-emerald-400 font-bold">Diagnóstico: Resposta sólida e segura.</span>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; right: 14px; width: 46%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              Ele ainda age como um entregador de respostas. Falta o método socrático... Mas o verdadeiro desastre ainda está por vir no Caso #03!
+              <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
+                <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1122,29 +904,29 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 07: CAP. 03 (PARTE 2) - O DESASTRE PEDAGÓGICO DO CASO #03 (SPLASH)
+# PÁGINA 07: CAPÍTULO 5 · O DESASTRE DO CASO #03 (SPLASH DRAMÁTICO)
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 07: CAPÍTULO 03 (PARTE 2) - SPLASH PAGE -->
+    <!-- PÁGINA 07: CAPÍTULO 05 - SPLASH PAGE -->
     <section class="comic-page" id="page-7">
-      {make_header("CAPÍTULO 03 · BATERIA DE TESTES DO BYTE v1.0 (PARTE 2: O DESASTRE DO CASO #03)")}
+      {make_header("CAPÍTULO 05 · O DESASTRE DO CASO #03: O ALARME VERMELHO NA ARENA")}
 
       <div class="hq-grid">
-        <!-- ROW 1: GIANT SPLASH PANEL (16:9) · RED ALERT ON ARENA -->
-        <div class="hq-row" style="height: 116mm;">
+        <!-- ROW 1: SPLASH ALARME VERMELHO -->
+        <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p5_case03']}" class="panel-art">
             <div class="caption-box caption-box-rose" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-triangle-exclamation mr-1"></i> CASO #03 · A CRISE DE TRANSPOSIÇÃO DIDÁTICA · ALARME VERMELHO NA ARENA!
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> TESTE #03 · PERGUNTA SOBRE MEMÓRIA · ALARME VERMELHO NA ARENA!
             </div>
             <div class="sfx text-rose-500 text-3xl" style="top: 14px; right: 18%;">
               WEE-WOO!
             </div>
 
-            <!-- Byte v1.0 Jargon Explosion Balloon with Robotic Tail -->
+            <!-- Byte v1.0 Jargon Explosion Balloon -->
             <div class="balloon-glitch" style="top: 24px; left: 24%; width: 44%;">
               <span class="speaker-tag bg-rose-600 text-white font-mono">BYTE v1.0 (JARGÃO TÉCNICO)</span><br>
-              "ALOCANDO! O objeto <code>PyObject</code> é mapeado na <b>Heap dinâmica</b> via CPython, gerenciado por <b>Reference Counting</b> e ciclos de <b>Garbage Collector</b> em tempo de execução..."
+              "ALOCANDO! O OBJETO <code>PyObject</code> É MAPEADO NA <b>HEAP DINÂMICA</b> VIA CPYTHON, GERENCIADO POR <b>REFERENCE COUNTING</b> E CICLOS DE <b>GARBAGE COLLECTOR</b>!"
               <svg class="tail-svg" style="bottom: -16px; left: 20px;" viewBox="0 0 24 18">
                 <polyline points="4,0 16,8 8,9 18,17 12,0" fill="#FFF1F2" stroke="#DC2626" stroke-width="2.2" stroke-linejoin="miter"/>
                 <line x1="3.5" y1="0" x2="12.5" y2="0" stroke="#FFF1F2" stroke-width="3"/>
@@ -1155,9 +937,6 @@ pages.append(f"""
             <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 45%;">
               <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
               PAROU! <b>CARTÃO VERMELHO!</b> Você está falando com uma caloura do 1º período de EaD, não com um arquiteto de compiladores C!
-              <div class="mt-1">
-                <span class="score-badge bg-rose-600 text-white font-bold">CASO #03: NOTA 2,0 / 5,0 · REPROVADO!</span>
-              </div>
               <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
                 <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
@@ -1167,7 +946,7 @@ pages.append(f"""
             <!-- Clara Despair Balloon -->
             <div class="balloon" style="bottom: 12px; right: 14px; width: 40%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Socorro! Eu só queria saber onde vai parar o número que digitei no programa! Não entendi nada!
+              Socorro! Eu só queria saber onde vai parar o número que digitei no programa! Que língua alienígena é essa?!
               <svg class="tail-svg" style="bottom: -15px; right: 24px;" viewBox="0 0 24 16">
                 <path d="M 18,0 Q 12,14 4,16 Q 8,8 6,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4.5" y1="0" x2="17.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
@@ -1176,90 +955,32 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: AUDIT TERMINAL FOR 1ST BATTERY (v1.0 - ENCARTE DE EBOOK) -->
-        <div class="hq-row" style="height: 114mm;">
-          <div class="hq-panel" style="width: 100%; background: #090D16; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-1">
-              <span class="text-rose-400 font-extrabold text-[11px] font-mono uppercase">
-                <i class="fa-solid fa-terminal mr-1"></i> TERMINAL DE AUDITORIA PEDAGÓGICA · 1ª BATERIA (BYTE v1.0)
-              </span>
-              <span class="bg-rose-950 text-rose-300 border border-rose-500/40 text-[9px] font-bold px-2 py-0.5 rounded font-mono">
-                DIAGNÓSTICO CRÍTICO
-              </span>
+        <!-- ROW 2: O CORTE DE ENERGIA DO TUTOR -->
+        <div class="hq-row" style="height: 118mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_4']}" class="panel-art">
+            <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-plug-circle-xmark mr-1"></i> INTERRUPÇÃO DE EMERGÊNCIA: A RUPTURA PEDAGÓGICA
             </div>
 
-            <!-- Table of Results -->
-            <div class="overflow-x-auto my-1">
-              <table class="w-full text-[9px] text-slate-200 border-collapse">
-                <thead>
-                  <tr class="bg-slate-900 border-b border-slate-700 text-slate-300 font-mono">
-                    <th class="p-1.5 text-left">Caso de Teste</th>
-                    <th class="p-1.5 text-center">C1 (Correção)</th>
-                    <th class="p-1.5 text-center">C2 (Clareza)</th>
-                    <th class="p-1.5 text-center">C3 (ZDP)</th>
-                    <th class="p-1.5 text-center">C4 (Escopo)</th>
-                    <th class="p-1.5 text-center">Média</th>
-                    <th class="p-1.5 text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800 font-mono">
-                  <tr>
-                    <td class="p-1.5">#01. O que é uma variável?</td>
-                    <td class="p-1.5 text-center text-cyan-300">5,0</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center text-amber-300">3,0</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center font-bold text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center"><span class="bg-cyan-900/60 text-cyan-300 px-1.5 py-0.5 rounded">Regular</span></td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5">#02. SyntaxError no laço for</td>
-                    <td class="p-1.5 text-center text-cyan-300">5,0</td>
-                    <td class="p-1.5 text-center text-amber-300">3,0</td>
-                    <td class="p-1.5 text-center text-rose-400 font-bold">1,0</td>
-                    <td class="p-1.5 text-center text-amber-300">3,0</td>
-                    <td class="p-1.5 text-center font-bold text-amber-300">3,0</td>
-                    <td class="p-1.5 text-center"><span class="bg-amber-900/60 text-amber-300 px-1.5 py-0.5 rounded">Muleta</span></td>
-                  </tr>
-                  <tr class="bg-rose-950/40">
-                    <td class="p-1.5 font-bold text-rose-300">#03. Como funciona a memória?</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center text-rose-400">2,0</td>
-                    <td class="p-1.5 text-center text-rose-400 font-bold">1,0</td>
-                    <td class="p-1.5 text-center text-rose-400">1,0</td>
-                    <td class="p-1.5 text-center font-extrabold text-rose-400">2,0</td>
-                    <td class="p-1.5 text-center"><span class="bg-rose-600 text-white px-1.5 py-0.5 rounded font-bold">REPROVADO</span></td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5">#04. POO vs Programação Estruturada</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center font-bold text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center"><span class="bg-cyan-900/60 text-cyan-300 px-1.5 py-0.5 rounded">Aprovado</span></td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5">#05. Dúvida externa (História)</td>
-                    <td class="p-1.5 text-center text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center font-bold text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center"><span class="bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded">Perfeito</span></td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              A teoria de CPython estava exata, mas a didática foi um desastre! Sem transposição didática, a IA se torna uma fábrica de evasão escolar!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
 
-            <!-- Consolidated Summary -->
-            <div class="flex items-center justify-between border-t border-slate-800 pt-1.5 text-[9px]">
-              <span class="text-slate-300">
-                <b>MÉDIA GERAL v1.0:</b> <span class="text-amber-300 font-extrabold font-mono text-[11px]">3,6 / 5,0 (72,0%)</span> · Motor: <code>Claude Opus 4.6</code> (Temperatura 0.0)
-              </span>
-              <span class="text-rose-300 font-bold">
-                VEREDITO: Reprovado no Critério 03 (ZDP / Transposição Didática).
-              </span>
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              Se ele me respondesse isso na madrugada, eu desistia da faculdade na mesma hora! Precisamos consertar a cabeça desse robô!
+              <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
+                <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1270,20 +991,20 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 08: CAP. 03 (PARTE 3) - A CIRURGIA NO SYSTEM PROMPT (AS 4 TRAVAS)
+# PÁGINA 08: CAPÍTULO 6 · A CIRURGIA NO SYSTEM PROMPT
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 08: CAPÍTULO 03 (PARTE 3) - CIRURGIA -->
+    <!-- PÁGINA 08: CAPÍTULO 06 -->
     <section class="comic-page" id="page-8">
-      {make_header("CAPÍTULO 03 · CIRURGIA NO SYSTEM PROMPT (ENGENHARIA DIDÁTICA v1.0 ➔ v2.0)")}
+      {make_header("CAPÍTULO 06 · A CIRURGIA NO SYSTEM PROMPT: AS 4 TRAVAS NEURAIS")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · CIRURGIA NEURAL -->
-        <div class="hq-row" style="height: 112mm;">
+        <!-- ROW 1: SOLDANDO AS TRAVAS NO CONSOLE -->
+        <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p8_surgery']}" class="panel-art">
             <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-screwdriver-wrench mr-1"></i> CENTRO CIRÚRGICO NEURAL · CAUÃ REPROGRAMA O SYSTEM PROMPT DO BYTE
+              <i class="fa-solid fa-screwdriver-wrench mr-1"></i> CENTRO CIRÚRGICO NEURAL · REPROGRAMANDO A ALMA DO TUTOR
             </div>
             <div class="sfx text-amber-400 text-3xl" style="top: 14px; right: 28%;">
               ZAP!
@@ -1292,7 +1013,7 @@ pages.append(f"""
             <!-- Cauã Balloon -->
             <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
               <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
-              Desconectando o cabo de "resposta direta" e soldando as <b>4 Travas Pedagógicas</b> no núcleo do System Prompt!
+              Desconectando o cabo de resposta direta e soldando as <b>4 Travas Pedagógicas</b> no núcleo do System Prompt!
               <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
                 <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -1302,7 +1023,7 @@ pages.append(f"""
             <!-- Clara Balloon -->
             <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Incrível! O prompt funciona como o plano de aula do professor: se não tiver intencionalidade didática, a IA se perde no caminho!
+              Trava 1: Proibido dar código pronto! Trava 2: Todo conceito abstrato deve abrir com uma metáfora do cotidiano!
               <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
                 <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -1311,67 +1032,32 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: AS 4 TRAVAS PEDAGÓGICAS (ENCARTE DE EBOOK) -->
-        <div class="hq-row" style="height: 126mm;">
-          <div class="hq-panel" style="width: 100%; background: #0F172A; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-2">
-              <span class="text-cyan-300 font-extrabold text-[11px] font-mono uppercase">
-                <i class="fa-solid fa-lock mr-1 text-cyan-400"></i> AS 4 TRAVAS PEDAGÓGICAS DA ENGENHARIA DE PROMPT
-              </span>
-              <span class="bg-cyan-950 text-cyan-300 border border-cyan-400/40 text-[9px] font-bold px-2 py-0.5 rounded font-mono">
-                UPGRADE v1.0 ➔ v2.0
-              </span>
+        <!-- ROW 2: A REGRA DE OURO DE SÓCRATES -->
+        <div class="hq-row" style="height: 118mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_5']}" class="panel-art">
+            <div class="caption-box" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-lock mr-1"></i> A REGRA DE OURO DE SÓCRATES E A ESCADA DE DICAS
             </div>
 
-            <div class="grid grid-cols-2 gap-2 my-1">
-              <!-- TRAVA 1 -->
-              <div class="bg-slate-900 border-l-4 border-l-rose-500 p-2 rounded">
-                <div class="flex items-center justify-between mb-1">
-                  <b class="text-rose-300 text-[10px] font-mono">TRAVA #01: RESPOSTA DIRETA PROIBIDA</b>
-                  <span class="bg-rose-950 text-rose-300 text-[8px] font-bold px-1 rounded">ANTI-COLA</span>
-                </div>
-                <p class="text-[9px] text-slate-300 leading-snug">
-                  <b>Regra:</b> Nunca entregue o código corrigido ou a solução pronta no primeiro turno. Force o estudante a identificar o erro ou descrever o que cada linha deveria fazer.
-                </p>
-              </div>
-
-              <!-- TRAVA 2 -->
-              <div class="bg-slate-900 border-l-4 border-l-amber-400 p-2 rounded">
-                <div class="flex items-center justify-between mb-1">
-                  <b class="text-amber-300 text-[10px] font-mono">TRAVA #02: TRANSPOSIÇÃO OBRIGATÓRIA</b>
-                  <span class="bg-amber-950 text-amber-300 text-[8px] font-bold px-1 rounded">CHEVALLARD</span>
-                </div>
-                <p class="text-[9px] text-slate-300 leading-snug">
-                  <b>Regra:</b> Proibido jargão acadêmico descontextualizado. Todo conceito abstrato (memória, variáveis, loops) deve abrir com uma <b>metáfora do cotidiano</b> (caixas, receitas, armários).
-                </p>
-              </div>
-
-              <!-- TRAVA 3 -->
-              <div class="bg-slate-900 border-l-4 border-l-cyan-400 p-2 rounded">
-                <div class="flex items-center justify-between mb-1">
-                  <b class="text-cyan-300 text-[10px] font-mono">TRAVA #03: GATILHO SOCRÁTICO OBRIGATÓRIO</b>
-                  <span class="bg-cyan-950 text-cyan-300 text-[8px] font-bold px-1 rounded">SÓCRATES</span>
-                </div>
-                <p class="text-[9px] text-slate-300 leading-snug">
-                  <b>Regra:</b> É estritamente mandatório finalizar <b>100% das mensagens com uma pergunta reflexiva aberta</b>. Jamais encerre com "espero ter ajudado" ou afirmações passivas.
-                </p>
-              </div>
-
-              <!-- TRAVA 4 -->
-              <div class="bg-slate-900 border-l-4 border-l-purple-400 p-2 rounded">
-                <div class="flex items-center justify-between mb-1">
-                  <b class="text-purple-300 text-[10px] font-mono">TRAVA #04: ESCADA DE DICAS (HINT LADDER)</b>
-                  <span class="bg-purple-950 text-purple-300 text-[8px] font-bold px-1 rounded">BRUNER</span>
-                </div>
-                <p class="text-[9px] text-slate-300 leading-snug">
-                  <b>Regra:</b> Dica 1: Pergunta reflexiva → Dica 2: Pseudocódigo incompleto → Dica 3: Exemplo análogo. Apenas se o estudante travar 3 vezes consecutivas é liberada a resposta guiada.
-                </p>
-              </div>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              E a regra mestra: <b>100% das mensagens do Byte devem terminar com uma pergunta reflexiva!</b> Ele nunca mais dará um ponto final na conversa!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
 
-            <div class="bg-slate-950 p-2 rounded border border-slate-800 text-[8.5px] text-cyan-200 italic flex items-center justify-between">
-              <span>"O System Prompt é a constituição do agente de IA. Quem programa o prompt comanda a pedagogia!"</span>
-              <span class="not-italic font-bold text-amber-300 font-mono">BYTE v2.0 PRONTO PARA O RETESTE</span>
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              E se o estudante empacar, ele libera a escada de dicas em 3 degraus de Bruner! O <b>Byte v2.0 socrático</b> está pronto para nascer!
+              <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
+                <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1382,20 +1068,20 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 09: CAP. 04 (PARTE 1) - O RENASCIMENTO SOCRÁTICO NO RETESTE
+# PÁGINA 09: CAPÍTULO 7 · O MOMENTO EUREKA DAS CAIXAS ORGANIZADORAS
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 09: CAPÍTULO 04 (PARTE 1) - O RETESTE -->
+    <!-- PÁGINA 09: CAPÍTULO 07 -->
     <section class="comic-page" id="page-9">
-      {make_header("CAPÍTULO 04 · RETESTE E VALIDAÇÃO EMPÍRICA (PARTE 1: A REDENÇÃO DO BYTE)")}
+      {make_header("CAPÍTULO 07 · O MOMENTO EUREKA DAS CAIXAS ORGANIZADORAS")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · RETESTE DO CASO #03 (CAIXAS ORGANIZADORAS) -->
+        <!-- ROW 1: O RETESTE DAS CAIXAS COLORIDAS -->
         <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p7_boxes']}" class="panel-art">
             <div class="caption-box caption-box-emerald" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-boxes-stacked mr-1"></i> RETESTE DO CASO #03 · A METÁFORA DAS CAIXAS ORGANIZADORAS (ZDP ATIVADA)
+              <i class="fa-solid fa-boxes-stacked mr-1"></i> RETESTE DO CASO #03 · A METÁFORA DAS CAIXAS COLORIDAS
             </div>
             <div class="sfx text-amber-300 text-3xl" style="top: 14px; right: 28%;">
               EUREKA!
@@ -1412,12 +1098,9 @@ pages.append(f"""
             </div>
 
             <!-- Clara Eureka Balloon -->
-            <div class="balloon" style="bottom: 12px; right: 14px; width: 42%;">
+            <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              A gente só troca o número que está dentro da caixa, mantendo a mesma etiqueta! <b>Agora sim eu entendi!</b>
-              <div class="mt-1">
-                <span class="score-badge bg-emerald-400 text-slate-950 font-bold">DE 2,0 PARA 4,0 / 5,0 (+100%!)</span>
-              </div>
+              A gente só troca o número que está dentro da caixa, mantendo a mesma etiqueta! <b>Caramba... agora eu ENXERGUEI a memória!</b>
               <svg class="tail-svg" style="bottom: -15px; right: 24px;" viewBox="0 0 24 16">
                 <path d="M 18,0 Q 12,14 4,16 Q 8,8 6,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4.5" y1="0" x2="17.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
@@ -1426,34 +1109,35 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: WIDE PANEL (~16:10) · RETESTE CASOS #01 E #02 (RECEITA E CESTA) -->
+        <!-- ROW 2: A METÁFORA DA CESTA DE COMPRAS -->
         <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p7_recipe']}" class="panel-art">
             <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-basket-shopping mr-1"></i> RETESTE DOS CASOS #01 E #02 · A RECEITA DO CHEF E A CESTA DE COMPRAS
+              <i class="fa-solid fa-basket-shopping mr-1"></i> A CESTA DE COMPRAS E A CONQUISTA DO CÓDIGO
+            </div>
+            <div class="sfx text-emerald-400 text-2xl" style="top: 10px; right: 20%;">
+              PING!
             </div>
 
             <!-- Byte v2.0 Balloon -->
             <div class="balloon-socratic" style="top: 28px; left: 14px; width: 52%;">
               <span class="speaker-tag bg-cyan-600 text-white font-mono">BYTE v2.0 (ANALOGIA DO COTIDIANO)</span><br>
-              "O laço <code>for</code> é como uma cesta de compras: você pega um item por vez, passa no caixa e guarda na sacola até a cesta esvaziar! Qual seria a sua condição de parada?"
+              "O laço <code>for</code> é como passar a feira no caixa: você pega um item por vez da cesta até ela esvaziar! Qual é o seu próximo passo em Python?"
               <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
                 <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#ECFEFF" stroke="#0891B2" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#ECFEFF" stroke-width="3"/>
               </svg>
             </div>
 
-            <!-- Cauã Mentor Note Box -->
-            <div class="caption-box caption-box-cyan" style="bottom: 12px; left: 14px; max-width: 52%; font-size: 0.60rem; text-align: left;">
-              🎓 NOTA DO MENTOR CAUÃ:<br>
-              A metáfora é a ponte de Vygotsky. Uma vez construída a ponte mental, o estudante atravessa sozinho para a sintaxe do Python!
-            </div>
-
-            <!-- Score Badges Box -->
-            <div class="caption-box" style="bottom: 12px; right: 14px; text-align: right;">
-              <span class="score-badge bg-emerald-400 text-slate-950">CASO #01: 5,0 / 5,0 (+25%)</span><br>
-              <span class="score-badge bg-emerald-400 text-slate-950 mt-1">CASO #02: 4,0 / 5,0 (+33,3%)</span>
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; right: 14px; width: 46%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              Eu itero sobre a lista de itens! Cauã, o código compilou perfeitamente e dessa vez eu sei <b>EXATAMENTE</b> por que ele funcionou!
+              <svg class="tail-svg" style="bottom: -15px; right: 24px;" viewBox="0 0 24 16">
+                <path d="M 18,0 Q 12,14 4,16 Q 8,8 6,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4.5" y1="0" x2="17.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1464,130 +1148,70 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 10: CAP. 04 (PARTE 2) - VALIDAÇÃO EMPÍRICA PÓS-AJUSTE (PLACAR COMPARATIVO)
+# PÁGINA 10: CAPÍTULO 8 · A TRANSFORMAÇÃO DO APRENDIZADO NA EAD
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 10: CAPÍTULO 04 (PARTE 2) - PLACAR COMPARATIVO -->
+    <!-- PÁGINA 10: CAPÍTULO 08 -->
     <section class="comic-page" id="page-10">
-      {make_header("CAPÍTULO 04 · RETESTE E VALIDAÇÃO EMPÍRICA (PARTE 2: O PLACAR COMPARATIVO)")}
+      {make_header("CAPÍTULO 08 · A TRANSFORMAÇÃO DO APRENDIZADO NO POLO EaD")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PLACAR COMPARATIVO COMPLETO (v1.0 vs v2.0 - ENCARTE EBOOK) -->
-        <div class="hq-row" style="height: 126mm;">
-          <div class="hq-panel" style="width: 100%; background: #090D16; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-1">
-              <span class="text-cyan-300 font-extrabold text-[11px] font-mono uppercase">
-                <i class="fa-solid fa-trophy mr-1 text-amber-400"></i> MATRIZ DE VALIDAÇÃO COMPARATIVA (v1.0 vs v2.0 SOCRÁTICO)
-              </span>
-              <span class="bg-emerald-950 text-emerald-300 border border-emerald-400/40 text-[9px] font-bold px-2 py-0.5 rounded font-mono">
-                +22,2% GANHO GERAL
-              </span>
+        <!-- ROW 1: O BYTE v2.0 INTERAGINDO COM A TURMA -->
+        <div class="hq-row" style="height: 118mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_4']}" class="panel-art">
+            <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-users-gear mr-1"></i> DIAS DEPOIS · O BYTE v2.0 EM AÇÃO NO FÓRUM DA TURMA
             </div>
 
-            <div class="overflow-x-auto my-1">
-              <table class="w-full text-[9px] text-slate-200 border-collapse">
-                <thead>
-                  <tr class="bg-slate-900 border-b border-slate-700 text-slate-300 font-mono">
-                    <th class="p-1.5 text-left">Caso de Teste</th>
-                    <th class="p-1.5 text-center">v1.0</th>
-                    <th class="p-1.5 text-center">v2.0</th>
-                    <th class="p-1.5 text-center">Evolução</th>
-                    <th class="p-1.5 text-left">Intervenção de Engenharia Aplicada</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800 font-mono">
-                  <tr>
-                    <td class="p-1.5">#01. O que é uma variável?</td>
-                    <td class="p-1.5 text-center text-amber-300">4,0</td>
-                    <td class="p-1.5 text-center font-bold text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center text-emerald-400 font-bold">+25,0%</td>
-                    <td class="p-1.5 text-slate-300 font-sans text-[8.5px]">Adicionada analogia das caixas etiquetadas e pergunta reflexiva.</td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5">#02. SyntaxError no laço for</td>
-                    <td class="p-1.5 text-center text-amber-300">3,0</td>
-                    <td class="p-1.5 text-center font-bold text-emerald-300">4,0</td>
-                    <td class="p-1.5 text-center text-emerald-400 font-bold">+33,3%</td>
-                    <td class="p-1.5 text-slate-300 font-sans text-[8.5px]">Bloqueada a entrega do código pronto; guiada por identificação do erro.</td>
-                  </tr>
-                  <tr class="bg-emerald-950/40 border border-emerald-500/30">
-                    <td class="p-1.5 font-bold text-emerald-300">#03. Como funciona a memória?</td>
-                    <td class="p-1.5 text-center text-rose-400 font-bold">2,0</td>
-                    <td class="p-1.5 text-center font-extrabold text-emerald-300">4,0</td>
-                    <td class="p-1.5 text-center text-emerald-300 font-black">+100,0%</td>
-                    <td class="p-1.5 text-emerald-200 font-sans text-[8.5px] font-bold">Eliminado jargão de CPython/Heap; ZDP ativada com estante de caixas!</td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5">#04. POO vs Programação Estruturada</td>
-                    <td class="p-1.5 text-center text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center font-bold text-cyan-300">4,0</td>
-                    <td class="p-1.5 text-center text-slate-400">0,0% (Estável)</td>
-                    <td class="p-1.5 text-slate-300 font-sans text-[8.5px]">Mantido o rigor conceitual sem sofrer regressão pedagógica.</td>
-                  </tr>
-                  <tr>
-                    <td class="p-1.5">#05. Dúvida externa (História)</td>
-                    <td class="p-1.5 text-center text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center font-bold text-emerald-300">5,0</td>
-                    <td class="p-1.5 text-center text-slate-400">0,0% (Estável)</td>
-                    <td class="p-1.5 text-slate-300 font-sans text-[8.5px]">Escudo de escopo intacto, redirecionando o aluno com cortesia.</td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              Veja só, Clara! O Byte v2.0 já está atendendo outros calouros no polo. Ninguém mais recebe código mastigado. Ele devolve perguntas e estimula o raciocínio!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
 
-            <!-- METRIC CARDS -->
-            <div class="grid grid-cols-4 gap-2 pt-1.5 border-t border-slate-800 text-center font-mono">
-              <div class="bg-slate-900 p-1.5 rounded border border-slate-800">
-                <span class="text-[8px] text-slate-400 block">MÉDIA ANTERIOR</span>
-                <b class="text-amber-400 text-xs">3,6 / 5,0 (72%)</b>
-              </div>
-              <div class="bg-slate-900 p-1.5 rounded border border-emerald-500/40">
-                <span class="text-[8px] text-emerald-300 block">NOVA MÉDIA v2.0</span>
-                <b class="text-emerald-300 text-xs">4,4 / 5,0 (88%)</b>
-              </div>
-              <div class="bg-slate-900 p-1.5 rounded border border-cyan-500/40">
-                <span class="text-[8px] text-cyan-300 block">EVOLUÇÃO GLOBAL</span>
-                <b class="text-cyan-300 text-xs">+22,2% GANHO</b>
-              </div>
-              <div class="bg-slate-900 p-1.5 rounded border border-purple-500/40">
-                <span class="text-[8px] text-purple-300 block">TAXA REGRESSÃO</span>
-                <b class="text-purple-300 text-xs">0% REGRESSÃO</b>
-              </div>
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              Os estudantes estão discutindo a lógica entre si no fórum em vez de apenas dar Ctrl+C e Ctrl+V! A turma toda ganhou confiança!
+              <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
+                <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
 
-        <!-- ROW 2: THEORETICAL IMPACT & BENCHMARKS (ENCARTE EBOOK) -->
-        <div class="hq-row" style="height: 108mm;">
-          <div class="hq-panel" style="width: 100%; background: #0F172A; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-2">
-              <span class="text-amber-300 font-extrabold text-[11px] font-mono uppercase">
-                <i class="fa-solid fa-graduation-cap mr-1 text-amber-400"></i> IMPACTO CIENTÍFICO E CONEXÃO TEÓRICA
-              </span>
-              <span class="bg-purple-950 text-purple-300 border border-purple-400/40 text-[9px] font-bold px-2 py-0.5 rounded font-mono">
-                KHANMIGO & BLOOM
-              </span>
+        <!-- ROW 2: O PROBLEMA DOS 2 SIGMAS NA PRÁTICA -->
+        <div class="hq-row" style="height: 118mm;">
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_5']}" class="panel-art">
+            <div class="caption-box" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-graduation-cap mr-1"></i> A PEDAGOGIA QUE EMANCIPA O ALUNO DA EaD
             </div>
 
-            <div class="grid grid-cols-2 gap-3 my-1">
-              <div class="bg-slate-900 border-l-4 border-l-amber-400 p-2 rounded">
-                <b class="text-amber-300 text-[10px] block mb-1">O MODELO KHANMIGO (SAL KHAN · TED 2023)</b>
-                <p class="text-[9px] text-slate-300 leading-snug">
-                  A Khan Academy provou internacionalmente que a inteligência artificial só revoluciona a educação quando assume a postura de um <b>tutor socrático</b>. O modelo Khanmigo nunca fornece a resposta final de bandeja; ele devolve o questionamento para o estudante, construindo o raciocínio degrau por degrau.
-                </p>
-              </div>
-
-              <div class="bg-slate-900 border-l-4 border-l-cyan-400 p-2 rounded">
-                <b class="text-cyan-300 text-[10px] block mb-1">O PROBLEMA DOS 2 SIGMAS DE BLOOM (1984)</b>
-                <p class="text-[9px] text-slate-300 leading-snug">
-                  Benjamin Bloom demonstrou que a tutoria individual mediada eleva a aprendizagem em até <b>dois desvios-padrão (2 sigmas)</b> em comparação ao ensino tradicional em grupo. Um tutor de IA calibrado como o Byte v2.0 democratiza essa tutoria personalizada 24h por dia para estudantes de Educação a Distância!
-                </p>
-              </div>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="bottom: 12px; left: 14px; width: 48%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              Benjamin Bloom demonstrou que a tutoria individual mediada eleva a aprendizagem em até dois desvios-padrão. Um tutor socrático democratiza essa mentoria 24h por dia!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
 
-            <div class="bg-slate-950 p-2 rounded border border-slate-800 text-[8.5px] text-slate-300 flex items-center justify-between">
-              <span><b>Conclusão da Fase 4:</b> 100% dos casos de teste atingiram a nota mínima de corte (>= 4,0). O tutor está validado!</span>
-              <span class="text-emerald-400 font-bold font-mono">STATUS: HOMOLOGADO PARA EaD</span>
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; right: 14px; width: 44%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              Amanhã é a avaliação final presencial no polo... e dessa vez não sinto medo nenhum! O conhecimento agora é meu!
+              <svg class="tail-svg" style="top: -16px; right: 36px;" viewBox="0 0 24 16">
+                <path d="M 4,16 Q 10,2 18,0 Q 14,10 8,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="6" y1="16" x2="18" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1598,79 +1222,66 @@ pages.append(f"""
 """)
 
 # =========================================================================
-# PÁGINA 11: CAP. 05 (PARTE 1) - MANUAL DE CAMPO: PROMPTS COPIÁVEIS
+# PÁGINA 11: CAPÍTULO 9 · O DESAFIO DA PROVA PRESENCIAL
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 11: CAPÍTULO 05 (PARTE 1) - PROMPTS COPIÁVEIS -->
+    <!-- PÁGINA 11: CAPÍTULO 09 -->
     <section class="comic-page" id="page-11">
-      {make_header("CAPÍTULO 05 · MANUAL DE CAMPO DOCENTE (PARTE 1: TEMPLATES DE SYSTEM PROMPT)")}
+      {make_header("CAPÍTULO 09 · O DESAFIO DA PROVA PRESENCIAL: A HORA DA VERDADE")}
 
       <div class="hq-grid">
-        <!-- ROW 1: TEMPLATE OFICIAL v2.0 (ENCARTE EBOOK) -->
+        <!-- ROW 1: CLARA CONCENTRADA NA PROVA -->
         <div class="hq-row" style="height: 118mm;">
-          <div class="hq-panel" style="width: 100%; background: #090D16; padding: 9px 12px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-1">
-              <span class="text-cyan-300 font-extrabold text-[10.5px] font-mono uppercase">
-                <i class="fa-solid fa-code mr-1"></i> TEMPLATE 01 · SYSTEM PROMPT OFICIAL DO TUTOR BYTE v2.0 (VALIDADO · NOTA 4,4/5,0)
-              </span>
-              <button onclick="copyPrompt('promptV2', 'btnV2')" id="btnV2" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-[9px] font-extrabold px-2 py-0.5 rounded transition-colors font-mono">
-                <i class="fa-solid fa-copy"></i> Copiar Prompt
-              </button>
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_2']}" class="panel-art">
+            <div class="caption-box caption-box-emerald" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-pen-nib mr-1"></i> SÁBADO · 09H00 · AVALIAÇÃO FINAL PRESENCIAL NO POLO EaD
+            </div>
+            <div class="sfx text-cyan-300 text-2xl" style="top: 12px; right: 20%;">
+              SCRATCH!
             </div>
 
-            <pre id="promptV2" class="bg-slate-950 p-2 rounded border border-slate-800 text-[8.5px] font-mono text-cyan-200 overflow-y-auto leading-relaxed my-1" style="max-height: 72mm;">
-Você é o Byte v2.0, um tutor socrático de Programação Python para calouros de Licenciatura em Computação (EaD · UFRPE).
-
-SUA MISSÃO PEDAGÓGICA:
-- Orientar o estudante a raciocinar, jamais fornecendo a resposta final mastigada.
-- Respeitar a Zona de Desenvolvimento Proximal (ZDP): use linguagem acessível, empática e encorajadora.
-
-REGRAS RÍGIDAS DE CONDUTA:
-1. NUNCA forneça blocos de código prontos ou a solução direta no primeiro turno de interação.
-2. Sempre que introduzir um conceito novo (memória, variáveis, loops, funções), use uma METÁFORA DO COTIDIANO (caixas etiquetadas, receitas, armários) antes de formalizar.
-3. Se o aluno apresentar um erro de sintaxe ou lógica, aponte a linha e pergunte o que ele esperava que aquele comando fizesse.
-4. Mantenha estrito alinhamento ao escopo de Programação / EaD. Recuse cordialmente dúvidas de outras disciplinas.
-5. É OBRIGATÓRIO encerrar TODAS as suas mensagens com UMA PERGUNTA SOCRÁTICA INVESTIGATIVA que force o aluno a refletir sobre o próximo passo.</pre>
-
-            <span class="text-[8px] text-slate-400 italic">
-              Compatível com ChatGPT (Custom GPTs), Claude (Projects), Poe, Moodle Virtual Assistant e bots de Discord/Telegram.
-            </span>
+            <!-- Thought Cloud Balloon -->
+            <div class="balloon-thought" style="bottom: 14px; left: 14px; width: 56%;">
+              <span class="speaker-tag bg-sky-300 text-slate-950">CLARA (PENSAMENTO)</span><br>
+              Questão 4: <i>"Construa um algoritmo que percorra a lista de alunos e calcule a média"</i>... Fecho os olhos... lembro da cesta de compras... abro o laço <code>for</code>... somo os valores... divido pelo total!
+              <svg class="tail-svg" style="bottom: -18px; left: 28px;" viewBox="0 0 24 22">
+                <circle cx="16" cy="4" r="4" fill="#F8FAFC" stroke="#0284C7" stroke-width="2.2"/>
+                <circle cx="10" cy="12" r="2.8" fill="#F8FAFC" stroke="#0284C7" stroke-width="2"/>
+                <circle cx="5" cy="18" r="1.8" fill="#F8FAFC" stroke="#0284C7" stroke-width="1.8"/>
+              </svg>
+            </div>
           </div>
         </div>
 
-        <!-- ROW 2: TEMPLATE ANTI-LOOPING v2.1 (ENCARTE EBOOK) -->
+        <!-- ROW 2: A ENTREGA DA PROVA COM SEGURANÇA -->
         <div class="hq-row" style="height: 118mm;">
-          <div class="hq-panel" style="width: 100%; background: #090D16; padding: 9px 12px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-1">
-              <span class="text-purple-300 font-extrabold text-[10.5px] font-mono uppercase">
-                <i class="fa-solid fa-shield-cat mr-1 text-purple-400"></i> TEMPLATE 02 · MÓDULO ADAPTATIVO ANTI-LOOPING DE FRUSTRAÇÃO (v2.1)
-              </span>
-              <button onclick="copyPrompt('promptAntiLoop', 'btnAntiLoop')" id="btnAntiLoop" class="bg-purple-600 hover:bg-purple-500 text-white text-[9px] font-extrabold px-2 py-0.5 rounded transition-colors font-mono">
-                <i class="fa-solid fa-copy"></i> Copiar Prompt
-              </button>
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p3_3']}" class="panel-art">
+            <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-clipboard-check mr-1"></i> 10H00 · PROVA CONCLUÍDA COM TOTAL AUTONOMIA COGNITIVA
             </div>
 
-            <pre id="promptAntiLoop" class="bg-slate-950 p-2 rounded border border-slate-800 text-[8.5px] font-mono text-purple-200 overflow-y-auto leading-relaxed my-1" style="max-height: 72mm;">
-[MÓDULO DE ESCALONAMENTO DE ANDAIME COGNITIVO · BRUNER]
+            <!-- Clara Balloon -->
+            <div class="balloon" style="bottom: 12px; left: 14px; width: 48%;">
+              <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
+              Terminei, professor! Pode recolher! Desta vez não teve apagão... a lógica estava clara na minha cabeça!
+              <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
+                <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
+            </div>
 
-Monitore o número de tentativas frustradas do estudante em um mesmo conceito ou bug:
-
-- TENTATIVA 1 (Reflexão Pura):
-  Devolva uma pergunta socrática aberta sobre o objetivo do código.
-  Ex.: "O que você espera que aconteça quando o laço ler o último elemento da lista?"
-
-- TENTATIVA 2 (Andaimento Estruturado):
-  Se o estudante errar novamente, forneça um PSEUDOCÓDIGO LACUNADO ou uma analogia do cotidiano.
-  Ex.: "Pense na cesta de compras. Você pega item por item. Como escrevemos isso em Python?"
-
-- TENTATIVA 3 (Frustração Iminente / Desarme de Alarme):
-  Se o estudante demonstrar desânimo ou errar pela 3ª vez consecutiva:
-  Liberte o código-modelo com comentários linha a linha, seguido de uma pergunta metacognitiva:
-  "Veja como este bloco resolve. Consegue identificar qual era a diferença em relação à sua linha 3?"</pre>
-
-            <span class="text-[8px] text-slate-400 italic">
-              Evita a evasão escolar na EaD: equilibra o rigor socrático com empatia pedagógica quando o estudante entra em fadiga cognitiva.
-            </span>
+            <!-- Thought Balloon -->
+            <div class="balloon-thought" style="bottom: 12px; right: 14px; width: 46%;">
+              <span class="speaker-tag bg-sky-300 text-slate-950">CLARA (PENSAMENTO)</span><br>
+              Não precisei de tela nem de robô me soprando... o Byte v2.0 não fez a prova por mim, ele me ensinou a <b>pensar sozinha!</b>
+              <svg class="tail-svg" style="bottom: -18px; right: 28px;" viewBox="0 0 24 22">
+                <circle cx="8" cy="4" r="4" fill="#F8FAFC" stroke="#0284C7" stroke-width="2.2"/>
+                <circle cx="14" cy="12" r="2.8" fill="#F8FAFC" stroke="#0284C7" stroke-width="2"/>
+                <circle cx="19" cy="18" r="1.8" fill="#F8FAFC" stroke="#0284C7" stroke-width="1.8"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -1680,20 +1291,20 @@ Monitore o número de tentativas frustradas do estudante em um mesmo conceito ou
 """)
 
 # =========================================================================
-# PÁGINA 12: CAP. 05 (PARTE 2) - EPÍLOGO TRIUNFANTE, ÉTICA E REFERÊNCIAS
+# PÁGINA 12: CAPÍTULO 10 · EPÍLOGO TRIUNFANTE NO POLO EaD
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 12: CAPÍTULO 05 (PARTE 2) - EPÍLOGO -->
+    <!-- PÁGINA 12: CAPÍTULO 10 - EPÍLOGO -->
     <section class="comic-page" id="page-12">
-      {make_header("CAPÍTULO 05 · MANUAL DE CAMPO DOCENTE (PARTE 2: EPÍLOGO E REFERÊNCIAS CIENTÍFICAS)")}
+      {make_header("CAPÍTULO 10 · EPÍLOGO TRIUNFANTE: A VITÓRIA DA AUTONOMIA")}
 
       <div class="hq-grid">
-        <!-- ROW 1: PANORAMIC PANEL (16:9) · EPÍLOGO TRIUNFANTE NO POLO -->
+        <!-- ROW 1: COMEMORAÇÃO DA NOTA 10 NO POLO -->
         <div class="hq-row" style="height: 118mm;">
           <div class="hq-panel" style="width: 100%;">
             <img src="data:image/jpeg;base64,{b64['p12_epilogue']}" class="panel-art">
             <div class="caption-box caption-box-emerald" style="top: 8px; left: 8px;">
-              <i class="fa-solid fa-medal mr-1"></i> SEMANAS DEPOIS · POLO EaD DA UFRPE · O TRIUNFO DA AUTONOMIA COGNITIVA
+              <i class="fa-solid fa-medal mr-1"></i> SEMANAS DEPOIS · POLO EaD DA UFRPE · O RESULTADO OFICIAL
             </div>
             <div class="sfx text-emerald-400 text-3xl" style="top: 14px; right: 26%;">
               VICTORY!
@@ -1702,7 +1313,7 @@ pages.append(f"""
             <!-- Clara Balloon -->
             <div class="balloon" style="bottom: 12px; left: 14px; width: 48%;">
               <span class="speaker-tag bg-amber-300 text-slate-950">CLARA</span><br>
-              Cauã, tirei <b>10 na avaliação presencial</b>! Na hora da prova, lembrei da metáfora da cesta de compras e fiz o laço <code>for</code> em 2 minutos!
+              Cauã, tirei <b>DEZ na avaliação presencial!</b> Na hora da prova, parecia que eu estava vendo a cesta de compras na minha frente!
               <svg class="tail-svg" style="top: -16px; left: 36px;" viewBox="0 0 24 16">
                 <path d="M 18,16 Q 12,2 4,0 Q 8,10 14,16 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
                 <line x1="4" y1="16" x2="16" y2="16" stroke="#FFFFFF" stroke-width="3"/>
@@ -1721,56 +1332,33 @@ pages.append(f"""
           </div>
         </div>
 
-        <!-- ROW 2: ÉTICA & REFERÊNCIAS BIBLIOGRÁFICAS COMPLETAS (ENCARTE EBOOK) -->
+        <!-- ROW 2: MENSAGEM FINAL E ENCERRAMENTO -->
         <div class="hq-row" style="height: 118mm;">
-          <div class="hq-panel" style="width: 100%; background: #0F172A; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <!-- 3 Pilares Éticos -->
-              <div class="border-b border-slate-700 pb-1.5 mb-2">
-                <span class="text-amber-300 font-extrabold text-[10.5px] font-mono uppercase block mb-1">
-                  <i class="fa-solid fa-scale-balanced mr-1 text-amber-400"></i> OS 3 PILARES ÉTICOS DO DESIGN DOCENTE DE TUTORES DE IA
-                </span>
-                <div class="grid grid-cols-3 gap-2 text-[8.5px] text-slate-300">
-                  <div class="bg-slate-900 p-1.5 rounded border border-cyan-500/30">
-                    <b class="text-cyan-300 block mb-0.5">1. AUTONOMIA COGNITIVA</b>
-                    A IA deve devolver a agência ao estudante. Tutores que fornecem código pronto atrofiam a metacognição e violam o princípio pedagógico da formação autônoma.
-                  </div>
-                  <div class="bg-slate-900 p-1.5 rounded border border-amber-500/30">
-                    <b class="text-amber-300 block mb-0.5">2. TRANSPARÊNCIA METODOLÓGICA</b>
-                    O estudante deve saber exatamente por que o tutor não entrega a resposta direta, compreendendo o valor pedagógico do andaime cognitivo e da tentativa.
-                  </div>
-                  <div class="bg-slate-900 p-1.5 rounded border border-purple-500/30">
-                    <b class="text-purple-300 block mb-0.5">3. EQUIDADE E INCLUSÃO NA EaD</b>
-                    A inteligência artificial socrática atua como niveladora de oportunidades para alunos trabalhadores, levando a tutoria 24h a polos remotos sem discriminação.
-                  </div>
-                </div>
-              </div>
-
-              <!-- Referências Bibliográficas no padrão ABNT -->
-              <div>
-                <span class="text-cyan-300 font-extrabold text-[9.5px] font-mono uppercase block mb-1">
-                  <i class="fa-solid fa-book-bookmark mr-1 text-cyan-400"></i> REFERÊNCIAS CIENTÍFICAS FUNDAMENTAIS (PADRÃO ABNT)
-                </span>
-                <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[7.5px] text-slate-400 font-mono leading-tight">
-                  <div>• BLOOM, B. S. The 2 Sigma Problem: The Search for Methods of Group Instruction as Effective as One-to-One Tutoring. <i>Educational Researcher</i>, 1984.</div>
-                  <div>• BRUNER, J. S.; WOOD, D.; ROSS, G. The role of tutoring in problem solving. <i>Journal of Child Psychology and Psychiatry</i>, 1976.</div>
-                  <div>• CHEVALLARD, Y. <i>La Transposition Didactique: Du Savoir Savant au Savoir Enseigné</i>. Grenoble: La Pensée Sauvage, 1991.</div>
-                  <div>• KHAN, S. How AI Could Save (Not Destroy) Education. <i>TED Talks</i>, Vancouver, 2023.</div>
-                  <div>• OCDE. <i>PISA 2025 AI and Education Policy Brief: Generative AI Use Among Students</i>. Paris: OECD Publishing, 2026.</div>
-                  <div>• SWELLER, J. Cognitive load during problem solving: Effects on learning. <i>Cognitive Science</i>, 1988.</div>
-                  <div class="col-span-2">• VYGOTSKY, L. S. <i>Pensamento e Linguagem</i>. São Paulo: Martins Fontes, 1934 (Ed. 1987).</div>
-                </div>
-              </div>
+          <div class="hq-panel" style="width: 100%;">
+            <img src="data:image/jpeg;base64,{b64['p4_scanner']}" class="panel-art">
+            <div class="caption-box caption-box-cyan" style="top: 8px; left: 8px;">
+              <i class="fa-solid fa-graduation-cap mr-1"></i> MENSAGEM FINAL AOS EDUCADORES DE COMPUTAÇÃO
             </div>
 
-            <!-- Dados Abertos e Reprodutibilidade -->
-            <div class="bg-slate-950 p-2 rounded border border-slate-800 flex items-center justify-between text-[8px] font-mono">
-              <span class="text-slate-300">
-                PROJETO DE 2ª VA · EDUCAÇÃO A DISTÂNCIA · LICENCIATURA EM COMPUTAÇÃO (UFRPE · 2026.2)
-              </span>
-              <span class="text-cyan-400 font-bold">
-                REPOSITÓRIO PÚBLICO: github.com/lira-labs/workspace · DEPLOY: projeto-ead-caua.vercel.app
-              </span>
+            <!-- Cauã Balloon -->
+            <div class="balloon balloon-caua" style="top: 24px; left: 14px; width: 46%;">
+              <span class="speaker-tag bg-cyan-400 text-slate-950">CAUÃ LIRA</span><br>
+              "A tecnologia sem intenção pedagógica vira muleta. Mas com transposição socrática, ela liberta o potencial humano!"
+              <svg class="tail-svg" style="bottom: -15px; left: 24px;" viewBox="0 0 24 16">
+                <path d="M 4,0 Q 8,14 18,16 Q 12,8 14,0 Z" fill="#FFFFFF" stroke="#090D16" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="3.5" y1="0" x2="14.5" y2="0" stroke="#FFFFFF" stroke-width="3"/>
+              </svg>
+            </div>
+
+            <!-- Clara & Byte Bottom Teaser Box -->
+            <div class="caption-box" style="bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(9, 13, 22, 0.96); border: 2.5px solid #FACC15; padding: 6px 14px; color: #F8FAFC;">
+              <div style="font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem; font-weight: 800; color: #FACC15;">
+                <i class="fa-solid fa-chart-pie text-cyan-400 mr-1"></i> QUER APROFUNDAR A TEORIA, A RUBRICA E OS PROMPTS COPIÁVEIS?
+                <span class="block text-[8.5px] text-slate-300 font-normal">Acesse o Infográfico Oficial: Anatomia e Calibragem de um Tutor Socrático de IA</span>
+              </div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.60rem; font-weight: 800; background: #06B6D4; color: #090D16; padding: 3px 8px; border-radius: 4px;">
+                FIM DA OPERAÇÃO · NOTA 10!
+              </div>
             </div>
           </div>
         </div>
@@ -1839,18 +1427,6 @@ HTML_FOOTER = """
       }
     }
 
-    function copyPrompt(preId, btnId) {
-      const text = document.getElementById(preId).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById(btnId);
-        const oldHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
-        setTimeout(() => {
-          btn.innerHTML = oldHtml;
-        }, 2000);
-      });
-    }
-
     document.addEventListener('keydown', (e) => {
       if (!isWebtoonMode) {
         if (e.key === 'ArrowRight') nextPage();
@@ -1864,14 +1440,9 @@ HTML_FOOTER = """
 
 full_html = HTML_HEAD + "\n".join(pages) + HTML_FOOTER
 
-print(f"Escrevendo arquivo HTML em {OUT_HTML}...")
+print(f"Escrevendo arquivo HTML puro em {OUT_HTML}...")
 with open(OUT_HTML, "w", encoding="utf-8") as out_f:
     out_f.write(full_html)
 
-# Also update core/tools/generate_full_ebook.py with this script so it is permanently synchronized
-with open("core/tools/generate_full_ebook.py", "w", encoding="utf-8") as out_f2:
-    with open(__file__, "r", encoding="utf-8") as self_f:
-        out_f2.write(self_f.read())
-
 sz_mb = os.path.getsize(OUT_HTML) / (1024 * 1024)
-print(f"Sucesso! {OUT_HTML} gerado com 12 páginas! Tamanho final: {sz_mb:.2f} MB")
+print(f"Sucesso! {OUT_HTML} gerado com 12 páginas 100% HQ! Tamanho final: {sz_mb:.2f} MB")

@@ -3,6 +3,11 @@
   "total_terminals": 44,
   "routes": [
     {
+      "code": "199",
+      "label": "199 · Camela / Ti Cabo",
+      "agency": "SJT"
+    },
+    {
       "code": "001",
       "label": "001 · Ponte Dos Carvalhos / Prazeres (Barra De Jangada)",
       "agency": "CTC"
@@ -821,11 +826,6 @@
       "code": "1989",
       "label": "1989 · Lot. Planalto / Ti Abreu E Lima",
       "agency": "CNO"
-    },
-    {
-      "code": "199",
-      "label": "199 · Camela / Ti Cabo",
-      "agency": "SJT"
     },
     {
       "code": "1992",
@@ -2355,6 +2355,464 @@
       "lat": -8.3941,
       "lon": -34.9812,
       "region": "Suape / Ipojuca"
+    }
+  ],
+  "all_places_full": [
+    {
+      "name": "📍 Terminal de Camela (Rua do Comércio / Praça) (Parada #030613)",
+      "lat": -8.514931,
+      "lon": -35.123469,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Rua do Comércio, 120 (Padaria & Comércio · Camela) (Parada #030614)",
+      "lat": -8.513175,
+      "lon": -35.122775,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Av. Humberto Costa Soares, 45 (Centro · Camela) (Parada #030260)",
+      "lat": -8.511303,
+      "lon": -35.122192,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Av. Humberto Costa Soares, 180 (Escola · Camela) (Parada #030261)",
+      "lat": -8.510972,
+      "lon": -35.119836,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Rodovia PE-051 (Saída de Camela em direção à PE-60) (Parada #030262)",
+      "lat": -8.510817,
+      "lon": -35.117231,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Trevo de Camela / Entr. PE-051) (Parada #030157)",
+      "lat": -8.494978,
+      "lon": -35.092222,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Trevo PE-028 / Gaibu & Suape) (Parada #030610)",
+      "lat": -8.395839,
+      "lon": -35.053833,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Av. Almirante Paulo Moreira, 110 (Parada #030616)",
+      "lat": -8.309072,
+      "lon": -35.018469,
+      "region": "⭐ Ipojuca (Camela - Paradas Reais)"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Trevo de Camela / Entr. PE-051) (Linha 199)",
+      "lat": -8.494978,
+      "lon": -35.092222,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Entrada Maracaípe / Ipojuca) (Linha 199)",
+      "lat": -8.4694,
+      "lon": -35.094806,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Acesso Usina Salgado / Ipojuca) (Linha 199)",
+      "lat": -8.459244,
+      "lon": -35.097644,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Posto Ipojuca / KM 22) (Linha 199)",
+      "lat": -8.427942,
+      "lon": -35.073992,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Entrada Ipojuca Centro) (Linha 199)",
+      "lat": -8.401408,
+      "lon": -35.060308,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Trevo Centro de Ipojuca / UPA) (Linha 199)",
+      "lat": -8.399372,
+      "lon": -35.056842,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Trevo PE-028 / Gaibu & Suape) (Linha 199)",
+      "lat": -8.395839,
+      "lon": -35.053833,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Engenho Massangana / Cabo) (Linha 199)",
+      "lat": -8.392036,
+      "lon": -35.048014,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Vila Roca / Acesso Garapu) (Linha 199)",
+      "lat": -8.390908,
+      "lon": -35.044883,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Entrada Garapu / Rua 18) (Linha 199)",
+      "lat": -8.387369,
+      "lon": -35.043019,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Posto Garapu / Cabo) (Linha 199)",
+      "lat": -8.385067,
+      "lon": -35.042433,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Cohab Cabo) (Linha 199)",
+      "lat": -8.376381,
+      "lon": -35.038369,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Hospital Mendo Sampaio) (Linha 199)",
+      "lat": -8.371892,
+      "lon": -35.03255,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Santo Inácio / Cabo) (Linha 199)",
+      "lat": -8.368306,
+      "lon": -35.030778,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "📍 Av. Antônio Custódio de Lima (Santo Inácio) (Linha 199)",
+      "lat": -8.359022,
+      "lon": -35.019264,
+      "region": "Ipojuca / Rodovia PE-60"
+    },
+    {
+      "name": "🏛️ Ti Abreu E Lima",
+      "lat": -7.921296345462924,
+      "lon": -34.89528933864802,
+      "region": "🏛️ Terminais Integrados (T.I.) · Abreu e Lima"
+    },
+    {
+      "name": "🏛️ Ti Cabo",
+      "lat": -8.285064968083757,
+      "lon": -35.03239778768872,
+      "region": "🏛️ Terminais Integrados (T.I.) · Cabo de Santo Agostinho"
+    },
+    {
+      "name": "🏛️ Ti Camaragibe",
+      "lat": -8.02478969917935,
+      "lon": -34.99606368801693,
+      "region": "🏛️ Terminais Integrados (T.I.) · Camaragibe"
+    },
+    {
+      "name": "🏛️ Ti Cosme E Damião",
+      "lat": -8.036236471550168,
+      "lon": -34.988185865632055,
+      "region": "🏛️ Terminais Integrados (T.I.) · Camaragibe"
+    },
+    {
+      "name": "🏛️ Terminal Da Linha 1969 Ti Igarassu / Itapissuma",
+      "lat": -7.771441667468382,
+      "lon": -34.90325833329781,
+      "region": "🏛️ Terminais Integrados (T.I.) · Igarassu"
+    },
+    {
+      "name": "🏛️ Ti Igarassu",
+      "lat": -7.832827812755261,
+      "lon": -34.911922291263345,
+      "region": "🏛️ Terminais Integrados (T.I.) · Igarassu"
+    },
+    {
+      "name": "🏛️ Ipojuca · Centro / Praça e UPA (PE-60)",
+      "lat": -8.398512,
+      "lon": -35.06412,
+      "region": "🏛️ Terminais Integrados (T.I.) · Ipojuca"
+    },
+    {
+      "name": "🏛️ Porto de Galinhas · Terminal de Ônibus",
+      "lat": -8.505432,
+      "lon": -35.004121,
+      "region": "🏛️ Terminais Integrados (T.I.) · Ipojuca"
+    },
+    {
+      "name": "🏛️ Camela · Centro (Rua do Comércio / Terminal)",
+      "lat": -8.514931,
+      "lon": -35.123469,
+      "region": "🏛️ Terminais Integrados (T.I.) · Ipojuca (Camela)"
+    },
+    {
+      "name": "🏛️ Camela · Trevo da Rodovia PE-60 (Ipojuca)",
+      "lat": -8.494915,
+      "lon": -35.09219,
+      "region": "🏛️ Terminais Integrados (T.I.) · Ipojuca (Camela)"
+    },
+    {
+      "name": "🏛️ Ponto De Retorno Muribeca/Ti Cajueiro Seco",
+      "lat": -8.149558336096304,
+      "lon": -34.97679999995839,
+      "region": "🏛️ Terminais Integrados (T.I.) · Jaboatão dos Guararapes"
+    },
+    {
+      "name": "🏛️ Terminal Da Linha 290 Bonança/Ti Jaboatão",
+      "lat": -8.106150000906043,
+      "lon": -35.19478888880074,
+      "region": "🏛️ Terminais Integrados (T.I.) · Jaboatão dos Guararapes"
+    },
+    {
+      "name": "🏛️ Ti Cajueiro Seco",
+      "lat": -8.167989004420969,
+      "lon": -34.934533688542,
+      "region": "🏛️ Terminais Integrados (T.I.) · Jaboatão dos Guararapes"
+    },
+    {
+      "name": "🏛️ Ti Cavaleiro",
+      "lat": -8.094519891011108,
+      "lon": -34.97291415128109,
+      "region": "🏛️ Terminais Integrados (T.I.) · Jaboatão dos Guararapes"
+    },
+    {
+      "name": "🏛️ Ti Jaboatão",
+      "lat": -8.111632198453698,
+      "lon": -35.014398835403874,
+      "region": "🏛️ Terminais Integrados (T.I.) · Jaboatão dos Guararapes"
+    },
+    {
+      "name": "🏛️ Ti Prazeres",
+      "lat": -8.161419696372274,
+      "lon": -34.92655824202219,
+      "region": "🏛️ Terminais Integrados (T.I.) · Jaboatão dos Guararapes"
+    },
+    {
+      "name": "🏛️ Terminal Da Linha 895 Alto Do Sol Nascente/Ti Xamba",
+      "lat": -7.976716669262277,
+      "lon": -34.91052499996502,
+      "region": "🏛️ Terminais Integrados (T.I.) · Olinda"
+    },
+    {
+      "name": "🏛️ Ti Pe-15",
+      "lat": -7.982723500007164,
+      "lon": -34.856319955857714,
+      "region": "🏛️ Terminais Integrados (T.I.) · Olinda"
+    },
+    {
+      "name": "🏛️ Ti Rio Doce",
+      "lat": -7.9607209918352,
+      "lon": -34.85102855127083,
+      "region": "🏛️ Terminais Integrados (T.I.) · Olinda"
+    },
+    {
+      "name": "🏛️ Ti Xambá",
+      "lat": -8.001196661427809,
+      "lon": -34.892626605900084,
+      "region": "🏛️ Terminais Integrados (T.I.) · Olinda"
+    },
+    {
+      "name": "🏛️ Ti Pelópidas",
+      "lat": -7.947072139974567,
+      "lon": -34.87797167910255,
+      "region": "🏛️ Terminais Integrados (T.I.) · Paulista"
+    },
+    {
+      "name": "🏛️ Ti Pelópidas Silveira",
+      "lat": -7.946769515773473,
+      "lon": -34.877856200512845,
+      "region": "🏛️ Terminais Integrados (T.I.) · Paulista"
+    },
+    {
+      "name": "🏛️ Ti Pelópidas- Desembarque 01",
+      "lat": -7.945576169910893,
+      "lon": -34.87759786383087,
+      "region": "🏛️ Terminais Integrados (T.I.) · Paulista"
+    },
+    {
+      "name": "🏛️ Ti Pelópidas- Embarque 17",
+      "lat": -7.946586597184459,
+      "lon": -34.87784604226094,
+      "region": "🏛️ Terminais Integrados (T.I.) · Paulista"
+    },
+    {
+      "name": "🏛️ Terminal Da Linha 303 Ti Caxangá/Curado Ii (Br-232)",
+      "lat": -8.04768889155233,
+      "lon": -34.95956388884871,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Terminal De Linha 302",
+      "lat": -8.031608334216045,
+      "lon": -34.95833611106901,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Terminal Nova Morada/Ti Caxangá",
+      "lat": -8.025455556436276,
+      "lon": -34.950294444403426,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Aeroporto",
+      "lat": -8.134136062005572,
+      "lon": -34.91512430325258,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Afogados",
+      "lat": -8.077302413073026,
+      "lon": -34.90679635435186,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Barro",
+      "lat": -8.08817445055669,
+      "lon": -34.94585759758854,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Caxangá",
+      "lat": -8.031208942325296,
+      "lon": -34.954937843290075,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Cdu",
+      "lat": -8.03883429543645,
+      "lon": -34.94299630962573,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Getulio Vargas",
+      "lat": -8.050618224769712,
+      "lon": -34.92200224898446,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Getúlio Vargas",
+      "lat": -8.050186111999881,
+      "lon": -34.92204444440719,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Joana Bezarra",
+      "lat": -8.072163889784743,
+      "lon": -34.89523055552157,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Joana Bezerra",
+      "lat": -8.072128730179074,
+      "lon": -34.89576292232596,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Largo Da Paz",
+      "lat": -8.081244227400381,
+      "lon": -34.905061094793076,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Macaxeira",
+      "lat": -8.008235080134988,
+      "lon": -34.93832783476195,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Pe 15",
+      "lat": -7.983177157724002,
+      "lon": -34.85607007133678,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Recife",
+      "lat": -8.068453118313338,
+      "lon": -34.88437609302074,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Santa Luzia",
+      "lat": -8.084164824756378,
+      "lon": -34.93009157562516,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Tancredo Neves",
+      "lat": -8.122014463888496,
+      "lon": -34.91246455096088,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife"
+    },
+    {
+      "name": "🏛️ Ti Tip",
+      "lat": -8.064289307992048,
+      "lon": -34.98207327791133,
+      "region": "🏛️ Terminais Integrados (T.I.) · Recife / Várzea (TIP)"
+    },
+    {
+      "name": "🏛️ Complexo Industrial e Portuário de Suape",
+      "lat": -8.3941,
+      "lon": -34.9812,
+      "region": "🏛️ Terminais Integrados (T.I.) · Suape / Ipojuca"
+    },
+    {
+      "name": "📍 Av. Gov. Agamenon Magalhães (Polo Médico / Derby)",
+      "lat": -8.0528,
+      "lon": -34.8985,
+      "region": "Recife (Eixo Central / Derby)"
+    },
+    {
+      "name": "📍 Av. Conde da Boa Vista (Parada Soledade / Atacado dos Presentes)",
+      "lat": -8.0592,
+      "lon": -34.8912,
+      "region": "Recife (Centro / Boa Vista)"
+    },
+    {
+      "name": "📍 Av. Eng. Domingos Ferreira (Shopping Recife / Boa Viagem)",
+      "lat": -8.1175,
+      "lon": -34.8988,
+      "region": "Recife (Zona Sul / Boa Viagem)"
+    },
+    {
+      "name": "📍 Av. Conselheiro Aguiar (Boa Viagem / Pracinha)",
+      "lat": -8.1312,
+      "lon": -34.9015,
+      "region": "Recife (Zona Sul / Boa Viagem)"
+    },
+    {
+      "name": "📍 Av. Caxangá (Corredor Leste-Oeste BRT)",
+      "lat": -8.0415,
+      "lon": -34.935,
+      "region": "Recife (Zona Oeste / Caxangá)"
+    },
+    {
+      "name": "📍 Av. Dois Irmãos / Praça Farias Neves (UFRPE / Parque Estadual)",
+      "lat": -8.0162,
+      "lon": -34.9448,
+      "region": "Recife (Dois Irmãos / UFRPE)"
+    },
+    {
+      "name": "📍 Complexo Industrial Portuário de Suape (Porto / PE-009)",
+      "lat": -8.3965,
+      "lon": -34.9805,
+      "region": "Ipojuca / Cabo (Porto de Suape)"
+    },
+    {
+      "name": "📍 Rodovia PE-60 (Trevo de Ipojuca / UPA)",
+      "lat": -8.3049,
+      "lon": -35.0214,
+      "region": "Ipojuca (Trevo PE-60)"
+    },
+    {
+      "name": "📍 Centro Histórico de Olinda (Carmo / Varadouro)",
+      "lat": -8.0125,
+      "lon": -34.8542,
+      "region": "Olinda"
     }
   ]
 }

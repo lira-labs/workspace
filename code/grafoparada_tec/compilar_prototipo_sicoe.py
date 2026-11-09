@@ -11,10 +11,14 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 OUT_HTML = BASE_DIR / "prototipo_grafoparada.html"
 
-with open(DATA_DIR / "telemetria_real_pe60.json", "r", encoding="utf-8") as f:
-    TELEMETRIA = json.load(f)
+with open(DATA_DIR / "telemetria_199_camela_cabo.json", "r", encoding="utf-8") as f:
+    TELEMETRIA_199 = json.load(f)
 
-TELEMETRIA_JSON_STR = json.dumps(TELEMETRIA, ensure_ascii=False)
+with open(DATA_DIR / "telemetria_real_pe60.json", "r", encoding="utf-8") as f:
+    TELEMETRIA_178 = json.load(f)
+
+TELEMETRIA_199_JSON_STR = json.dumps(TELEMETRIA_199, ensure_ascii=False)
+TELEMETRIA_178_JSON_STR = json.dumps(TELEMETRIA_178, ensure_ascii=False)
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
@@ -938,16 +942,26 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           </div>
 
           <div>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">CPF do Passageiro (Validação VEM / CTM):</label>
+            <input id="signup-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="formatCpfInput(this)" value="084.721.904-12"
+              style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
+            <span style="font-size:11.5px; color:var(--text-muted); display:block; margin-top:3px;">Exigido pelo Grande Recife Consórcio para identificação segura na catraca e bilhete digital.</span>
+          </div>
+
+          <div>
             <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Celular / WhatsApp:</label>
             <input id="signup-phone" type="tel" placeholder="(81) 98888-0000" value="(81) 98888-7766"
               style="width:100%; min-height:48px; padding:10px 14px; font-size:14px; border:1.5px solid var(--border-strong); border-radius:12px; background:var(--bg-surface); color:var(--text-main);" />
           </div>
 
-          <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">
-              Sua Parada, Bairro ou Terminal Integrado (T.I.):
-            </label>
-            <input id="signup-place-search" type="text" placeholder="🔍 Filtrar T.I. ou cidade (ex: Camela, TI Joana, TI Macaxeira, TI Pelópidas, Cabo)..." oninput="filterPlaceOptions(this.value)"
+          <di<div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label style="font-size:13px; font-weight:700;">Sua Parada Real ou Terminal Integrado (T.I.):</label>
+              <button type="button" class="btn btn-emerald" style="min-height:28px; padding:2px 8px; font-size:11px; font-weight:800; border:1px solid var(--brand-green);" onclick="autoDetectStopForSignup()">
+                📍 Usar Meu GPS Agora
+              </button>
+            </div>
+            <input id="signup-place-search" type="text" placeholder="🔍 Filtrar rua, código (ex: 030613, Rua do Comércio, Camela, TI Cabo)..." oninput="filterPlaceOptions(this.value)"
               style="width:100%; min-height:42px; padding:8px 12px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:6px;" />
             <select id="signup-place" size="6" style="width:100%; max-height:140px; padding:6px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:14px;">
   <optgroup label="📍 Abreu e Lima">
@@ -969,8 +983,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <option value="Porto de Galinhas · Terminal de Ônibus" data-lat="-8.505432" data-lon="-35.004121">Porto de Galinhas · Terminal de Ônibus</option>
   </optgroup>
   <optgroup label="📍 Ipojuca (Camela)">
-    <option value="Camela · Centro (Rua do Comércio / Terminal)" data-lat="-8.514931" data-lon="-35.123469">Camela · Centro (Rua do Comércio / Terminal)</option>
-    <option value="Camela · Trevo da Rodovia PE-60 (Ipojuca)" data-lat="-8.494915" data-lon="-35.09219" selected>Camela · Trevo da Rodovia PE-60 (Ipojuca)</option>
+    <option value="Parada 030613 · Rua do Comércio / Terminal de Camela" data-lat="-8.514931" data-lon="-35.123469" selected>Parada 030613 · Rua do Comércio / Terminal de Camela</option>
+    <option value="Parada 030157 · Rodovia PE-60 (Trevo de Camela / PE-051)" data-lat="-8.494915" data-lon="-35.09219">Parada 030157 · Rodovia PE-60 (Trevo de Camela / PE-051)</option>
+    <option value="Parada 030260 · Av. Humberto Costa Soares, 3A (Camela)" data-lat="-8.511303" data-lon="-35.122192">Parada 030260 · Av. Humberto Costa Soares, 3A (Camela)</option>
+    <option value="Parada 030261 · Av. Humberto Costa Soares, 19 (Camela)" data-lat="-8.510972" data-lon="-35.119836">Parada 030261 · Av. Humberto Costa Soares, 19 (Camela)</option>
+    <option value="Parada 030614 · Rua Olímpio Luiz Soares c/ Rua do Brejo (Camela)" data-lat="-8.513175" data-lon="-35.122775">Parada 030614 · Rua Olímpio Luiz Soares c/ Rua do Brejo (Camela)</option>
+    <option value="Parada 030255 · Rodovia PE-051 (Entrada Leste de Camela)" data-lat="-8.510817" data-lon="-35.117231">Parada 030255 · Rodovia PE-051 (Entrada Leste de Camela)</option>
+    <option value="Parada 030155 · Rodovia PE-60 (Trevo Sul de Camela)" data-lat="-8.4965" data-lon="-35.0928">Parada 030155 · Rodovia PE-60 (Trevo Sul de Camela)</option>
+    <option value="Parada 030159 · Rodovia PE-60 (Engenho Macaco / Camela)" data-lat="-8.4694" data-lon="-35.094806">Parada 030159 · Rodovia PE-60 (Engenho Macaco / Camela)</option>
   </optgroup>
   <optgroup label="📍 Jaboatão dos Guararapes">
     <option value="Ponto De Retorno Muribeca/Ti Cajueiro Seco" data-lat="-8.149558336096304" data-lon="-34.97679999995839">Ponto De Retorno Muribeca/Ti Cajueiro Seco</option>
@@ -1025,17 +1045,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">
               Linha de Ônibus Habitual (Todas as 400 Linhas do Grande Recife):
             </label>
-            <input id="signup-line-search" type="text" placeholder="🔍 Filtrar por número ou nome (ex: 178, 202, 026, 050, 914, Macaxeira, Camela, Caxangá)..." oninput="filterLineOptions(this.value)"
+            <input id="signup-line-search" type="text" placeholder="🔍 Filtrar por número ou nome (ex: 199, 178, 202, 026, Macaxeira, Camela, Caxangá)..." oninput="filterLineOptions(this.value)"
               style="width:100%; min-height:42px; padding:8px 12px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:6px;" />
             <select id="signup-line" size="6" style="width:100%; max-height:150px; padding:6px; font-size:13px; border:1.5px solid var(--border-strong); border-radius:10px; background:var(--bg-surface); color:var(--text-main); margin-bottom:18px;">
-  <optgroup label="⭐ Eixo Sul / PE-60 / Suape / Camela / Cabo">
-    <option value="001">🚌 Linha 001 · Ponte Dos Carvalhos / Prazeres (Barra De Jangada)</option>
-    <option value="034">🚌 Linha 034 · Curcurana / Ti Cajueiro Seco</option>
-    <option value="037">🚌 Linha 037 · Comportas / Ti Cajueiro Seco</option>
-    <option value="178" selected>🚌 Linha 178 · Porto De Suape / Ti Cabo</option>
+  <optgroup label="⭐ Eixo Sul / Camela / Suape / Cabo (Linhas Principais)">
+    <option value="199" selected>🚌 Linha 199 · Camela / Ti Cabo</option>
+    <option value="178">🚌 Linha 178 · Porto De Suape / Ti Cabo</option>
     <option value="191">🚌 Linha 191 · Recife / Porto De Galinhas (N. Sra. Do Ó)</option>
     <option value="195">🚌 Linha 195 · Recife / Porto De Galinhas (Opcional)</option>
     <option value="198">🚌 Linha 198 · Ipojuca / Ti Cabo</option>
+    <option value="001">🚌 Linha 001 · Ponte Dos Carvalhos / Prazeres (Barra De Jangada)</option>
+    <option value="034">🚌 Linha 034 · Curcurana / Ti Cajueiro Seco</option>
+    <option value="037">🚌 Linha 037 · Comportas / Ti Cajueiro Seco</option>
   </optgroup>
   <optgroup label="🔄 Linhas Interterminais / Perimetrais (T.I. a T.I.)">
     <option value="020">🚌 Linha 020 · Candeias / Ti Tancredo Neves</option>
@@ -1557,6 +1578,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       <div style="background:var(--bg-subtle); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:16px; line-height:1.5;">
         <div><strong>Nome:</strong> <span id="prof-modal-name">Cauã Cunha</span></div>
+        <div><strong>CPF:</strong> <span id="prof-modal-cpf">084.721.904-12</span></div>
         <div><strong>Telefone:</strong> <span id="prof-modal-phone">(81) 98888-7766</span></div>
         <div><strong>Parada Principal:</strong> <span id="prof-modal-place">Camela (PE-60)</span></div>
         <div><strong>Linha Favorita:</strong> <span id="prof-modal-line">Linha 178</span></div>
@@ -1673,7 +1695,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 Ir
               </button>
             </div>
-            <button class="btn btn-emerald" style="min-height:36px; padding:5px 11px; font-size:13px; font-weight:800; border:2px solid var(--brand-green);" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">
+            <button class="btn btn-emerald" style="min-height:36px; padding:5px 11px; font-size:13px; font-weight:800; border:2px solid var(--brand-green);" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Terminal de Camela (Rua do Comércio / Praça)', true)">
               📍 Camela (PE-60)
             </button>
             <button class="btn" style="min-height:36px; padding:5px 10px; font-size:12.5px;" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Centro de Camela · Rua do Comércio', true)">
@@ -1705,7 +1727,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               <span style="font-size:14px;">🔍</span>
               <input type="text" id="mobile-search-input" placeholder="Buscar parada ou rua..." onkeydown="if(event.key==='Enter') searchUserPlaceMobile()" />
             </div>
-            <button class="mobile-quick-chip" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela</button>
+            <button class="mobile-quick-chip" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Terminal de Camela (Rua do Comércio / Praça)', true)">📍 Camela</button>
             <button class="mobile-quick-chip" onclick="openAllTisModal()" style="background:var(--user-blue-bg) !important; border-color:var(--user-blue) !important; color:var(--user-blue) !important;">🏛️ T.I.s</button>
           </div>
 
@@ -1749,9 +1771,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <span style="font-size:12.5px; font-weight:700; color:var(--user-blue); text-transform:uppercase;" id="user-loc-coords-badge">
               Sua Parada Atual
             </span>
-            <h2 id="insp-stop-header" style="font-size:18px; font-weight:800; margin-top:2px;">
-              Parada #11 · Trevo de Ipojuca (PE-60)
-            </h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h2 id="insp-stop-header" style="font-size:18px; font-weight:800; margin-top:2px;">
+                Parada #11 · Trevo de Ipojuca (PE-60)
+              </h2>
+              <button id="btn-fav-stop" class="btn" style="min-height:28px; padding:2px 8px; font-size:11px; border-radius:999px;" onclick="toggleFavoriteCurrentStop()">
+                ⭐ Salvar Favorito
+              </button>
+            </div>
           </div>
           <span id="insp-stop-tag" class="tag tag-crimson">Atraso Crítico</span>
         </div>
@@ -1764,6 +1791,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <button class="btn btn-emerald" style="min-height:28px; padding:2px 8px; font-size:11.5px; font-weight:800; border:1.5px solid var(--brand-green); white-space:nowrap; margin-left:6px;" onclick="openLineSwitcherModal()">
             🔄 Trocar Linha (400)
           </button>
+        </div>
+
+        <!-- SELO ANTI-ÔNIBUS FANTASMA & STATUS DO SINAL GPS (PESQUISA CITTAMOBI) -->
+        <div style="background:var(--bg-surface); border:1.5px solid var(--brand-green); border-radius:12px; padding:8px 12px; margin:6px 0; display:flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <div style="font-size:22px;">🛰️</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span style="font-weight:800; font-size:12.5px; color:var(--brand-green);">GPS Satélite Ativo · Sinal em Tempo Real</span>
+              <span class="tag tag-emerald" style="font-size:10.5px; padding:1px 6px;">Zero Ônibus Fantasma</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-secondary);" id="gps-vehicle-meta">
+              Veículo transmitindo há 14s · Velocidade: 42 km/h · Linha confirmada na rodovia
+            </div>
+          </div>
+        </div>
+
+        <!-- INDICADOR DE LOTAÇÃO EM TEMPO REAL (SEM SURPRESA DE PORTA TRANCADA) -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--brand-green-bg); border:1px solid var(--brand-green-border); border-radius:10px; padding:6px 10px; margin-bottom:8px;">
+          <div style="font-size:12px; font-weight:700; color:var(--brand-green); display:flex; align-items:center; gap:6px;">
+            <span>💺 Lotação Prevista:</span>
+            <strong id="crowd-status-badge">🟢 Sentado Garantido (14 assentos livres)</strong>
+          </div>
+          <span class="tag tag-emerald" style="font-size:10.5px;">Embarque Seguro</span>
         </div>
 
         <!-- 2 Glanceable Big Numbers: Wait Time & People Waiting With You -->
@@ -2515,9 +2565,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <script>
-    const TELEMETRIA = __TELEMETRIA_JSON__;
-
-    let activeStopSeq = 11;
+    const ALL_ROUTES_TELEMETRIA = {
+      "199": __TELEMETRIA_199_JSON__,
+      "178": __TELEMETRIA_178_JSON__
+    };
+    let activeRouteCode = "199";
+    let TELEMETRIA = ALL_ROUTES_TELEMETRIA["199"];
+    let activeStopSeq = 1;
     let currentImuKey = "ALIGHTING";
     let oscTick = 0;
     let currentAudioPlayer = null;
@@ -2657,11 +2711,45 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     let userPos = { lat: -8.304950, lon: -35.021420, label: "Trevo de Ipojuca (Parada #11)" };
     let lastPocketVoicePrompt = "Oi! Você chegou na parada Trevo de Ipojuca. Cuidado: trecho com alertas de assalto. Não pegue o celular, deixe ele guardado no bolso!";
 
+        let routePolylineLayerGroup = null;
+    function redrawRoutePolyline() {
+      if (!leafletMap) return;
+      if (!routePolylineLayerGroup) {
+        routePolylineLayerGroup = L.layerGroup().addTo(leafletMap);
+      }
+      routePolylineLayerGroup.clearLayers();
+      if (TELEMETRIA.polyline && TELEMETRIA.polyline.length > 1) {
+        L.polyline(TELEMETRIA.polyline, { color: "#0057b8", weight: 9, opacity: 0.25 }).addTo(routePolylineLayerGroup);
+        L.polyline(TELEMETRIA.polyline, { color: "#0057b8", weight: 4.5, opacity: 0.9 }).addTo(routePolylineLayerGroup);
+      }
+    }
+
+    function switchActiveRoute(routeCode) {
+      if (ALL_ROUTES_TELEMETRIA[routeCode]) {
+        activeRouteCode = routeCode;
+        TELEMETRIA = ALL_ROUTES_TELEMETRIA[routeCode];
+      } else {
+        activeRouteCode = "199";
+        TELEMETRIA = ALL_ROUTES_TELEMETRIA["199"];
+      }
+      activeStopSeq = TELEMETRIA.stops[0].seq;
+
+      const lineBadge = document.getElementById("active-line-badge");
+      if (lineBadge) lineBadge.textContent = `Linha ${activeRouteCode}`;
+      const etaLabel = document.querySelector(".eta-stat-label");
+      if (etaLabel) etaLabel.textContent = `Previsão Linha ${activeRouteCode}`;
+
+      initQuickStopButtons();
+      redrawRoutePolyline();
+      drawPe60GisCanvas();
+      selectStopNode(activeStopSeq, true, true);
+    }
+
     function initRealLeafletMap() {
       if (leafletMap) return;
       leafletMap = L.map("pe60-leaflet-map", {
-        center: [-8.304873, -35.021349],
-        zoom: 14,
+        center: [-8.514931, -35.123469],
+        zoom: 15,
         zoomControl: false
       });
       L.control.zoom({ position: "topright" }).addTo(leafletMap);
@@ -2688,10 +2776,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       stopsLayerGroup = L.layerGroup().addTo(leafletMap);
       userRadarLayerGroup = L.layerGroup().addTo(leafletMap);
 
-      if (TELEMETRIA.polyline && TELEMETRIA.polyline.length > 1) {
-        L.polyline(TELEMETRIA.polyline, { color: "#0057b8", weight: 9, opacity: 0.2 }).addTo(leafletMap);
-        L.polyline(TELEMETRIA.polyline, { color: "#0057b8", weight: 4.5, opacity: 0.9 }).addTo(leafletMap);
-      }
+      redrawRoutePolyline();
 
       leafletMap.on("click", (ev) => {
         const sheet = document.getElementById("companion-bottom-sheet");
@@ -2817,7 +2902,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               ⚠️ <strong>Bloqueio de Segurança do Navegador (Requer HTTPS):</strong><br>
               Navegadores móveis bloqueiam o chip de satélite em endereços HTTP comuns (como <code>http://192.168...</code>).<br>
               • <strong>Acesso Seguro:</strong> Use <a href="https://icy-oranges-think.loca.lt" target="_blank" style="color:var(--brand-green); font-weight:800; text-decoration:underline;">https://icy-oranges-think.loca.lt</a><br>
-              • <strong>Ou veja agora mesmo:</strong> Clique no botão verde <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:11.5px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela (PE-60)</button> para carregar Camela instantaneamente!
+              • <strong>Ou veja agora mesmo:</strong> Clique no botão verde <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:11.5px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Terminal de Camela (Rua do Comércio / Praça)', true)">📍 Camela (PE-60)</button> para carregar Camela instantaneamente!
             </div>
           `;
         }
@@ -2838,7 +2923,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             notice.style.display = "block";
             notice.innerHTML = `⚠️ <strong>Desvio de IP da Operadora corrigido:</strong> Seu provedor (DTEL Telecom, IP 177.200.245.197) localizou seu IP em <strong>Japaratinga/AL</strong> (Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)}). Como você está em <strong>Camela (Ipojuca - PE)</strong>, reposicionamos você automaticamente para a sua parada real em Camela! <button class="btn" style="min-height:26px; padding:2px 8px; font-size:11.5px; margin-left:6px;" onclick="showPcDiagnosticsModal()">🔍 Ver Diagnóstico do seu PC</button>`;
           }
-          setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
+          setSimulatedUserLocation(-8.514931, -35.123469, "Terminal de Camela (Rua do Comércio / Praça)", true, true);
           return;
         }
 
@@ -2867,7 +2952,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               <strong>1.</strong> Toque no ícone de <strong>cadeado 🔒</strong> ou <strong>configurações do site 🎚️</strong> ao lado do endereço na barra do navegador.<br>
               <strong>2.</strong> Em <strong>Permissões</strong> (ou Localização), altere para <strong>"Permitir"</strong> e recarregue.<br>
               <strong>3.</strong> Certifique-se de que a <strong>Localização / GPS</strong> do aparelho está ligada.<br>
-              👉 <em>Ou veja agora sem permissão:</em> Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Usar Posição Camela (PE-60)</button>
+              👉 <em>Ou veja agora sem permissão:</em> Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Terminal de Camela (Rua do Comércio / Praça)', true)">📍 Usar Posição Camela (PE-60)</button>
             </div>
           `;
         } else if (err && err.code === 3) { // TIMEOUT
@@ -2876,12 +2961,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             handleSuccess,
             (err2) => {
               if (btn) btn.textContent = "📍 Usar Meu GPS";
-              notice.innerHTML = `⚠️ Sinal de satélite fraco no momento (ambiente interno). Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela (PE-60)</button> para carregar as paradas ao seu redor!`;
+              notice.innerHTML = `⚠️ Sinal de satélite fraco no momento (ambiente interno). Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Terminal de Camela (Rua do Comércio / Praça)', true)">📍 Camela (PE-60)</button> para carregar as paradas ao seu redor!`;
             },
             { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
           );
         } else {
-          notice.innerHTML = `⚠️ <strong>GPS indisponível:</strong> ${err && err.message ? err.message : 'Sinal não capturado'}. Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.494915, -35.092190, 'Camela (PE-60) · Ipojuca', true)">📍 Camela (PE-60)</button> para ver as paradas da sua rua!`;
+          notice.innerHTML = `⚠️ <strong>GPS indisponível:</strong> ${err && err.message ? err.message : 'Sinal não capturado'}. Clique em <button class="btn btn-emerald" style="min-height:26px; padding:2px 8px; font-size:12px; font-weight:800; margin-left:4px;" onclick="setSimulatedUserLocation(-8.514931, -35.123469, 'Terminal de Camela (Rua do Comércio / Praça)', true)">📍 Camela (PE-60)</button> para ver as paradas da sua rua!`;
         }
       }
 
@@ -3466,9 +3551,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     function quickTestUser(name, place) {
       const userData = {
         name: name || "Cauã Cunha",
+        cpf: "084.721.904-12",
         phone: "(81) 98888-7766",
-        place: place || "Camela (PE-60)",
-        line: "178",
+        place: place || "Parada 030613 · Terminal de Camela (Rua do Comércio / Praça)",
+        lat: -8.514931,
+        lon: -35.123469,
+        line: "199",
         voice: "pt-BR-FranciscaNeural"
       };
       saveAndEnterApp(userData);
@@ -3476,12 +3564,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     function completeRegistration() {
       const name = document.getElementById("signup-name").value.trim() || "Cauã Cunha";
+      const cpf = document.getElementById("signup-cpf") ? document.getElementById("signup-cpf").value.trim() : "084.721.904-12";
       const phone = document.getElementById("signup-phone").value.trim() || "(81) 98888-7766";
-      const place = document.getElementById("signup-place").value;
-      const line = document.getElementById("signup-line").value;
+      const placeSel = document.getElementById("signup-place");
+      const place = placeSel ? placeSel.value : "Parada 030613 · Terminal de Camela";
+      let lat = -8.514931, lon = -35.123469;
+      if (placeSel && placeSel.selectedIndex >= 0) {
+        const opt = placeSel.options[placeSel.selectedIndex];
+        if (opt.hasAttribute("data-lat")) lat = parseFloat(opt.getAttribute("data-lat"));
+        if (opt.hasAttribute("data-lon")) lon = parseFloat(opt.getAttribute("data-lon"));
+      }
+      const lineSel = document.getElementById("signup-line");
+      const line = lineSel ? lineSel.value : "199";
       const voice = document.getElementById("pref-voice-select").value;
 
-      const userData = { name, phone, place, line, voice };
+      const userData = { name, cpf, phone, place, line, voice, lat, lon };
       saveAndEnterApp(userData);
     }
 
@@ -3505,29 +3602,30 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const authScreen = document.getElementById("auth-onboarding-screen");
       if (authScreen) authScreen.style.display = "none";
 
-      // Atualiza o crachá da linha selecionada no app
-      const lineBadge = document.getElementById("active-line-badge");
-      if (lineBadge && userData.line) {
-        lineBadge.textContent = `Linha ${userData.line}`;
-      }
-      const etaLabel = document.querySelector(".eta-stat-label");
-      if (etaLabel && userData.line) {
-        etaLabel.textContent = `Previsão Linha ${userData.line}`;
+      // Ativa a rota escolhida (199 Camela / TI Cabo ou 178 Suape)
+      if (userData.line && ALL_ROUTES_TELEMETRIA[userData.line]) {
+        switchActiveRoute(userData.line);
+      } else {
+        switchActiveRoute("199");
       }
 
       // Welcome voice message dinâmico com a linha e local escolhidos pelo usuário
-      const placeShort = userData.place ? userData.place.split('·')[0].replace("📍", "").trim() : "Camela";
-      const voiceText = `Olá, ${userData.name.split(' ')[0]}! Bem-vindo ao GrafoParada. Monitorando a Linha ${userData.line} em ${placeShort} com proteção de inteligência artificial.`;
+      const placeShort = userData.place ? userData.place.split('·')[0].replace("📍", "").trim() : "Terminal de Camela";
+      const voiceText = `Olá, ${userData.name.split(' ')[0]}! Bem-vindo ao GrafoParada. Monitorando a Linha ${userData.line || '199'} em ${placeShort} com proteção de inteligência artificial.`;
       setTimeout(() => playNaturalVoice(voiceText, null), 800);
 
-      // Posiciona o usuário dinamicamente em QUALQUER Terminal Integrado ou parada de Camela
-      const matchedTerminal = ALL_TERMINALS_DATA.find(t => t.name === userData.place || (userData.place && userData.place.includes(t.name)) || (userData.place && t.name.includes(userData.place)));
-      if (matchedTerminal) {
-        setSimulatedUserLocation(matchedTerminal.lat, matchedTerminal.lon, matchedTerminal.name, true, true);
+      // Posiciona o usuário dinamicamente nas coordenadas exatas da parada escolhida
+      if (userData.lat && userData.lon && !isNaN(userData.lat) && !isNaN(userData.lon)) {
+        setSimulatedUserLocation(userData.lat, userData.lon, userData.place, true, true);
       } else if (userData.place && userData.place.includes("Camela")) {
-        setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, true);
+        setSimulatedUserLocation(-8.514931, -35.123469, "Parada 030613 · Terminal de Camela (Rua do Comércio)", true, true);
       } else {
-        setSimulatedUserLocation(-8.494915, -35.092190, userData.place || "Camela (PE-60)", true, true);
+        const matchedTerminal = ALL_TERMINALS_DATA.find(t => t.name === userData.place || (userData.place && userData.place.includes(t.name)) || (userData.place && t.name.includes(userData.place)));
+        if (matchedTerminal) {
+          setSimulatedUserLocation(matchedTerminal.lat, matchedTerminal.lon, matchedTerminal.name, true, true);
+        } else {
+          setSimulatedUserLocation(-8.514931, -35.123469, userData.place || "Camela (Terminal)", true, true);
+        }
       }
     }
 
@@ -3543,6 +3641,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const pVoice = document.getElementById("prof-modal-voice");
 
       if (pName) pName.textContent = userData.name;
+      const pCpf = document.getElementById("prof-modal-cpf");
+      if (pCpf && userData.cpf) pCpf.textContent = userData.cpf;
       if (pPhone) pPhone.textContent = userData.phone;
       if (pPlace) pPlace.textContent = userData.place;
       if (pLine) pLine.textContent = `Linha ${userData.line}`;
@@ -3568,6 +3668,124 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         localStorage.removeItem("grafoparada_user_data");
         closeUserProfileModal();
         initAuthFlow();
+      }
+    }
+
+    // =========================================================================
+    // REFINED UX & CPF MASK FUNCTIONS
+    // =========================================================================
+    function formatCpfInput(input) {
+      let v = input.value.replace(/[^0-9]/g, "");
+      if (v.length > 11) v = v.substring(0, 11);
+      if (v.length > 9) {
+        v = v.replace(/^([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{1,2})$/, "$1.$2.$3-$4");
+      } else if (v.length > 6) {
+        v = v.replace(/^([0-9]{3})([0-9]{3})([0-9]{1,3})$/, "$1.$2.$3");
+      } else if (v.length > 3) {
+        v = v.replace(/^([0-9]{3})([0-9]{1,3})$/, "$1.$2");
+      }
+      input.value = v;
+    }
+
+    async function autoDetectStopForSignup() {
+      if (!navigator.geolocation) {
+        alert("Seu navegador não suporta GPS.");
+        return;
+      }
+      const btn = event.target;
+      const oldTxt = btn.textContent;
+      btn.textContent = "Obtendo GPS...";
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          btn.textContent = "Detectado!";
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          try {
+            const resp = await fetch(`/api/live/nearby-stops?lat=${lat}&lon=${lon}&k=1`);
+            const data = await resp.json();
+            if (data.stops && data.stops.length > 0) {
+              const best = data.stops[0];
+              const sel = document.getElementById("signup-place");
+              if (sel) {
+                // Add or select
+                let opt = Array.from(sel.options).find(o => o.value === best.name || o.value.includes(best.name));
+                if (!opt) {
+                  opt = new Option(`📍 ${best.name} (a ${best.distance_m}m)`, best.name);
+                  opt.setAttribute("data-lat", best.lat);
+                  opt.setAttribute("data-lon", best.lon);
+                  sel.add(opt, 0);
+                }
+                opt.selected = true;
+              }
+              const searchInp = document.getElementById("signup-place-search");
+              if (searchInp) searchInp.value = best.name;
+              alert(`📍 Parada real detectada: ${best.name} (a ${best.distance_m} metros de você)!`);
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+          setTimeout(() => btn.textContent = oldTxt, 2500);
+        },
+        (err) => {
+          btn.textContent = oldTxt;
+          alert("Não foi possível acessar o GPS do aparelho. Selecione sua parada na lista abaixo.");
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
+
+    // FAVORITES SYSTEM (PERSISTENT IN LOCALSTORAGE)
+    function toggleFavoriteCurrentStop() {
+      const stopHeader = document.getElementById("insp-stop-header");
+      const name = stopHeader ? stopHeader.textContent.trim() : "Minha Parada";
+      const favKey = "grafoparada_favorites";
+      let favs = [];
+      try {
+        favs = JSON.parse(localStorage.getItem(favKey) || "[]");
+      } catch (e) { favs = []; }
+
+      const idx = favs.indexOf(name);
+      const btn = document.getElementById("btn-fav-stop");
+      if (idx === -1) {
+        favs.push(name);
+        localStorage.setItem(favKey, JSON.stringify(favs));
+        if (btn) {
+          btn.textContent = "★ Salvo nos Favoritos";
+          btn.classList.add("btn-emerald");
+        }
+        playNaturalVoice(`Parada ${name.split('·')[0].trim()} salva nos seus favoritos com sucesso!`, null);
+      } else {
+        favs.splice(idx, 1);
+        localStorage.setItem(favKey, JSON.stringify(favs));
+        if (btn) {
+          btn.textContent = "⭐ Salvar Favorito";
+          btn.classList.remove("btn-emerald");
+        }
+      }
+    }
+
+    function checkFavoriteStatus(name) {
+      const btn = document.getElementById("btn-fav-stop");
+      if (!btn) return;
+      try {
+        const favs = JSON.parse(localStorage.getItem("grafoparada_favorites") || "[]");
+        if (favs.includes(name)) {
+          btn.textContent = "★ Salvo nos Favoritos";
+          btn.classList.add("btn-emerald");
+        } else {
+          btn.textContent = "⭐ Salvar Favorito";
+          btn.classList.remove("btn-emerald");
+        }
+      } catch (e) {}
+    }
+
+    // PROXIMITY GEOFENCE AUDIO CHIME
+    let lastProximityAlertStop = null;
+    function checkProximityAudioTrigger(distMeters, stopName) {
+      if (distMeters <= 55 && lastProximityAlertStop !== stopName) {
+        lastProximityAlertStop = stopName;
+        // Bipe suave e mensagem no fone
+        playNaturalVoice(`Você chegou na parada ${stopName.split('·')[0].trim()}. Modo celular no bolso ativado. Avisaremos você quando o ônibus estiver chegando.`, null);
       }
     }
 
@@ -3718,7 +3936,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     requestAnimationFrame(() => {
       drawPe60GisCanvas();
-      setSimulatedUserLocation(-8.494915, -35.092190, "Rodovia PE-60 (Trevo de Camela) · Ipojuca", true, false);
+      setSimulatedUserLocation(-8.514931, -35.123469, "Terminal de Camela (Rua do Comércio / Praça)", true, false);
     });
     requestAnimationFrame(renderImuOscilloscope);
   </script>
@@ -3726,7 +3944,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
-final_html = HTML_TEMPLATE.replace("__TELEMETRIA_JSON__", TELEMETRIA_JSON_STR)
+final_html = HTML_TEMPLATE.replace("__TELEMETRIA_199_JSON__", TELEMETRIA_199_JSON_STR).replace("__TELEMETRIA_178_JSON__", TELEMETRIA_178_JSON_STR)
 with open(OUT_HTML, "w", encoding="utf-8") as f:
     f.write(final_html)
 
