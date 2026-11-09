@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrafoParada · Portal de Continuidade e Handoff da Sessão</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --green: #10b981;
+      --green-dark: #059669;
+      --blue: #38bdf8;
+      --accent: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 30px 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    p.lead {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-primary { background: var(--green); color: #042f2e; }
+    .btn-secondary { background: #1f2937; color: #ffffff; border: 1px solid #374151; }
+    .btn-accent { background: var(--blue); color: #082f49; }
+    pre {
+      background: #030712;
+      border: 1px solid #1f2937;
+      padding: 14px;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #a5f3fc;
+      margin: 10px 0;
+    }
+    .copy-btn {
+      background: #374151;
+      color: #e5e7eb;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      float: right;
+    }
+    ul { padding-left: 20px; margin-top: 8px; }
+    li { margin-bottom: 8px; color: #d1d5db; font-size: 14px; }
+    li strong { color: #ffffff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">🚀 Handoff de Continuidade · Trabalho (12:00)</div>
+    <h1>GrafoParada · Mobilidade & Segurança Coletiva</h1>
+    <p class="lead">Sessão da madrugada sincronizada no GitHub e na Vercel para continuar o refinamento do trabalho.</p>
+
+    <!-- CARD 1: ACESSO AO PROTÓTIPO WEB AO VIVO -->
+    <div class="card" style="border-color: rgba(16, 185, 129, 0.4);">
+      <h2><span>📱</span> Protótipo Interativo em Produção</h2>
+      <p style="font-size:14px; color:var(--text-muted);">
+        O protótipo com a correção do mapa, simulador mobile, fluxo de cadastro com CPF, 26 Terminais Integrados do SEI e Linha 199 já está no ar via CDN global da Vercel:
+      </p>
+      <div class="btn-row">
+        <a href="/" class="btn btn-primary" target="_blank">Abrir GrafoParada Web ➔</a>
+        <a href="https://github.com/lira-labs/workspace/issues/1" class="btn btn-secondary" target="_blank">Ver Issue #1 no GitHub</a>
+      </div>
+    </div>
+
+    <!-- CARD 2: COMANDOS PARA RETOMAR NO COMPUTADOR DO TRABALHO -->
+    <div class="card">
+      <h2><span>💻</span> Como Continuar no Computador do Trabalho (12:00)</h2>
+      <p style="font-size:14px; color:var(--text-muted);">
+        Para puxar todas as alterações e continuar com o Antigravity, OpenCode ou VS Code:
+      </p>
+      <div style="position:relative; margin-top:12px;">
+        <pre id="git-cmds">git clone https://github.com/lira-labs/workspace.git
+cd workspace
+git checkout feature/if-2va-pqc-telessaude
+git pull origin feature/if-2va-pqc-telessaude</pre>
+      </div>
+
+      <p style="font-size:14px; color:var(--text-muted); margin-top:16px;">
+        <strong>Prompt para colar no Agente (Antigravity / OpenCode):</strong>
+      </p>
+      <pre id="agent-prompt">Estou no trabalho continuando a sessão da madrugada do GrafoParada. Leia HANDOFF.md e me mostre o status atual para continuarmos o refinamento.</pre>
+    </div>
+
+    <!-- CARD 3: RESUMO DO QUE FOI FEITO NA MADRUGADA -->
+    <div class="card">
+      <h2><span>✅</span> O que foi Refinado nesta Sessão</h2>
+      <ul>
+        <li><strong>Erro do Mapa Preto Resolvido:</strong> Sintaxe JS corrigida (`Unexpected identifier 'JetBrains'`) e mapa Leaflet inicializando imediatamente com OpenStreetMap.</li>
+        <li><strong>Simulador Mobile no Computador:</strong> Em monitores desktop, o app renderiza dentro de uma moldura de smartphone (iPhone/Android com Dynamic Island) para testar a experiência mobile real. No smartphone, assume 100% da tela.</li>
+        <li><strong>Fluxo de Cadastro do Zero:</strong> Tela de apresentação com os 3 diferenciais (Zero Ônibus Fantasma, Sentado Garantido e Modo Bolso), seguido do formulário com CPF validado, seleção dos 26 Terminais Integrados do SEI agrupados por cidade e escolha de linha.</li>
+        <li><strong>Atalhos de 1 Toque:</strong> <code>🏠 Vou pra Casa</code> (Camela · 4 min) e <code>💼 Vou pro Destino</code> (TI Cabo · 32 min) com previsão ST-GCN e áudio no fone.</li>
+        <li><strong>Acolhimento Anti-Pânico:</strong> <code>🧭 Primeira vez aqui ou perdido?</code> com orientações calmas em 3 passos e instruções no fone de ouvido.</li>
+        <li><strong>Modo Celular no Bolso:</strong> Tela preta OLED contra assaltos com alertas por voz.</li>
+        <li><strong>Ônibus em Movimento:</strong> Simulação cinemática em tempo real do ônibus da Linha 199 trafegando a 42 km/h na PE-60.</li>
+      </ul>
+    </div>
+
+    <!-- CARD 4: LINKS ÚTEIS -->
+    <div class="card">
+      <h2><span>🔗</span> Links & Recursos do Projeto</h2>
+      <div class="btn-row">
+        <a href="https://github.com/lira-labs/workspace/tree/feature/if-2va-pqc-telessaude" class="btn btn-secondary" target="_blank">Repositório GitHub</a>
+        <a href="https://github.com/lira-labs/workspace/blob/feature/if-2va-pqc-telessaude/HANDOFF.md" class="btn btn-secondary" target="_blank">HANDOFF.md Canônico</a>
+        <a href="mailto:ccunhalira8760@gmail.com?subject=GrafoParada%20-%20Acesso%20no%20Trabalho&body=Links%20do%20GrafoParada%3A%0A-%20App%20Web%3A%20https%3A%2F%2Fgrafoparadaweb.vercel.app%0A-%20Portal%20de%20Handoff%3A%20https%3A%2F%2Fgrafoparadaweb.vercel.app%2Fconversa.html%0A-%20GitHub%3A%20https%3A%2F%2Fgithub.com%2Flira-labs%2Fworkspace%2Ftree%2Ffeature%2Fif-2va-pqc-telessaude" class="btn btn-accent">Enviar para Meu Gmail</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
