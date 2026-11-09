@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 08/11/2026 23:42
+- **Última Atualização:** 09/11/2026 00:05
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -64,48 +64,35 @@
   - Branch atualizada e sincronizada com o GitHub (feature/if-2va-pqc-telessaude).
 
 ### 0. Projeto 2ª VA · Educação a Distância (`code/projeto_ead_tutores/` · Prof. Ermeson)
-- [x] **Graphic Novel 100% Quadrinho Puro + Divisão Editorial Concluída**:
-  - *Separação Canônica:* Eliminação total de tabelas, blocos de código e cards densos de dentro da HQ. A imersão sequencial é 100% preservada em todas as 12 páginas, inspirada na estrutura de quadrinhos clássicos (como Superman 001 - 1939).
-  - *Aprofundamento Técnico no Infográfico:* Toda a densidade acadêmica (dados PISA 2025 da OCDE, Rubrica Analítica de 4 critérios, terminal CPython/Heap do Caso #03, Matriz Comparativa +22,2% e Prompts Copiáveis) fica centralizada no Infográfico Editorial (infografico.html e infografico-anatomia-tutor-ia.pdf).
-  - *Narrativa Sequencial 100% Fluida nas 12 Páginas da HQ:* Da madrugada com a cola do robô -> a ilusão do domínio -> o apagão na prova -> o diagnóstico de Bruner/Vygotsky -> o Scanner 4D -> o escudo de escopo -> o alarme vermelho do Caso #03 -> a cirurgia neural no prompt -> o momento Eureka com as caixas de memória -> o impacto no polo -> a prova final gabaritada com 10 -> e o epílogo da autonomia.
-  - *PDFs e Deploy:* ebook-caua-2va.pdf (12 páginas A4 exatas, 9.82 MB) e infografico-anatomia-tutor-ia.pdf (1 página contínua, 1.68 MB) em produção na Vercel (HTTP 200).
-- [x] **Consistência Total de Personagens (Character & Costume Continuity) 100% Resolvida**:
-  - *Causa Raiz Sanada:* A versão anterior mesclava ilustrações legadas (onde Clara usava moletom amarelo e fones de ouvido sem óculos) com ilustrações novas.
-  - *Ancoragem Visual Rígida (ImagePaths):* Todas as artes foram regeneradas com condicionamento visual sobre a referência canônica p1_cover_clean.jpg.
-  - *Continuidade Garantida em 100% dos Painéis:* Clara mantém rigorosamente seus óculos de aro fino metálico, mechas onduladas e moletom cinza mescla; Cauã mantém o corte fade, barba rala, óculos retangulares, camisa polo azul e jaqueta jeans aberta em todas as páginas (p1_cover, p2_caua, p2_clara, p3_1, p3_2, p3_3, p4_scanner, p7_boxes, p12_epilogue).
-  - *Deploy Vercel & PDFs:* ebook-caua-2va.pdf (12 páginas exatas, 10.31 MB) e infografico-anatomia-tutor-ia.pdf (1 página contínua, 1.68 MB) sincronizados e em produção na Vercel (HTTP 200).
-- [x] **Pipeline Profissional Anti-AI-Slop & Redesign Editorial Concluídos**:
-  - *Manifesto Anti-Slop Implementado:* Eliminação completa de poluição de badges, cartões microscópicos amontoados e artes com letras defeituosas de IA. Geração painel por painel com linha clara autoral, nanquim puro e zero texto dentro das imagens.
-  - *Infográfico Editorial Atualizado:* `code/projeto_ead_tutores/infografico.html` e PDF de 1 página contínua (`infografico-anatomia-tutor-ia.pdf`, 1.68 MB) com os 4 atos (Diagnóstico PISA 2025, Scanner 4D, Caso #03 da Memória com +100% de ganho e Cirurgia no System Prompt com 4 Travas).
-  - *Painéis-Chave da HQ Integrados:* Capa limpa editorial (`p1_cover_clean.jpg`), Clara no quarto às 23h40 (`p3_panel1.jpg`) e Momento Eureka das Caixas Organizadoras (`p7_panel2_boxes.jpg`).
-  - *Deploy Vercel Atualizado:* `https://projeto-ead-caua.vercel.app` servindo o novo infográfico, HQ e ambos os PDFs com HTTP 200.
-- [x] **Item 1 — eBook-HQ Interativo ("Operação Byte Socrático" · Edição Expandida Definitiva de 12 Páginas A4)**:
-  - `code/projeto_ead_tutores/ebook-hq.html` (5.11 MB, 100% autocontido com as 16 artes embutidas em Base64, leitor interativo, modo folhear vs webtoon, dark/light mode e botões de cópia de prompts com 1 clique).
-  - `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` (4.69 MB, exportação A4 perfeita cravada em **exatamente 12 páginas** via headless Edge).
-  - Todas as 16 artes geradas em nanquim e retícula (*halftone* / *Spider-Verse* / *Science Comics*), sem cortes de personagens nas bordas e livres de erros de IA (textos truncados em inglês removidos).
-  - **Estrutura Canônica das 12 Páginas**:
-    - *Pág. 01*: Capa de Revista HQ (*Comic Cover* vertical 896x1200 com Cauã, Clara e Byte v1.0/v2.0).
-    - *Pág. 02*: Dossiê #00 · Quem é Quem (Cauã Mentor, Clara Caloura e Byte Dualidade) + Fluxo Operacional.
-    - *Pág. 03*: Cap. 01 (Parte 1) · A Armadilha da Resposta Mastigada (23h40 no polo) + Apagão na Prova.
-    - *Pág. 04*: Cap. 01 (Parte 2) · A Evaporação do Esforço Cognitivo (Scaffolding Bruner/Vygotsky) + Dados PISA 2025/2026.
-    - *Pág. 05*: Cap. 02 · O Scanner Pedagógico de 4 Critérios (Correção, Clareza, ZDP e Escopo) + Rubrica 1 a 5.
-    - *Pág. 06*: Cap. 03 (Parte 1) · Primeiros Combates do Byte v1.0 (Casos #01, #02, #04 e #05 Escudo de Escopo).
-    - *Pág. 07*: Cap. 03 (Parte 2) · Splash do Desastre Didático do Caso #03 (CPython/Heap) + Terminal de Auditoria.
-    - *Pág. 08*: Cap. 03 (Parte 3) · Cirurgia Neural no System Prompt + As 4 Travas Pedagógicas.
-    - *Pág. 09*: Cap. 04 (Parte 1) · Reteste Empírico (Metáforas das Caixas Organizadoras e Cesta de Compras).
-    - *Pág. 10*: Cap. 04 (Parte 2) · Matriz Comparativa de Resultados (+22,2% ganho) + Impacto Teórico (Khanmigo & Bloom).
-    - *Pág. 11*: Cap. 05 (Parte 1) · Manual de Campo Docente com Templates Copiáveis (Byte v2.0 e v2.1 Anti-Loop).
-    - *Pág. 12*: Cap. 05 (Parte 2) · Epílogo Triunfante (Polo EaD), Os 3 Pilares Éticos e Referências Científicas Completas.
-  - Pipeline de automação e renderização consolidado em `core/tools/generate_full_ebook.py` e `core/tools/render_pdf.ps1`.
-  - Publicação no FlipHTML5 atualizada com a nova versão de 12 páginas: [https://online.fliphtml5.com/caualira02/ebook-caua-2va/](https://online.fliphtml5.com/caualira02/ebook-caua-2va/).
-  - Arquivo PDF nomeado para upload: code/projeto_ead_tutores/assets/ebook-caua-2va.pdf.
-- [x] **Item 2 — Infográfico Visual e Interativo ("Anatomia e Calibragem de um Tutor Socrático de IA")**:
-  - `code/projeto_ead_tutores/infografico.html` (1.00 MB, com artes Base64 embutidas, filtro interativo de comparação v1.0 vs v2.0 e botão de cópia de prompt).
-  - `code/projeto_ead_tutores/assets/infografico-anatomia-tutor-ia.pdf` (1.71 MB, pôster de página única contínua de alta resolução 240mm x 540mm gerado via headless Edge).
-  - 100% alinhado à HQ de 12 páginas: ilustrações do robô Byte (dualidade), Scanner 4D, Clara e a metáfora das caixas no Caso #03 (+100% ganho), matriz de 4 critérios, 5 casos canônicos de Python e as 4 travas do System Prompt.
-  - Deploy em produção atualizado com sucesso na Vercel (`https://projeto-ead-caua.vercel.app/infografico.html`).
-- [x] **Item 3 — Plataforma Web e Hub Unificado**:
-  - `code/projeto_ead_tutores/index.html` conectando Videoaula, Slides, Quiz, eBook-HQ de 12 Páginas e Infográfico em produção na Vercel (`https://projeto-ead-caua.vercel.app`).
+- [x] **Graphic Novel Deluxe 100% Quadrinho Puro (14 Páginas A4 Exatas) + Front & Back-Matter Clássicos**:
+  - *Front-Matter Clássico (Pág. 02):* Adicionado **Expediente Editorial Oficial da UFRPE** e **Índice Geral de Leitura ("Nesta Edição")** estruturado em 10 Atos, Prólogo e Caderno Final, com créditos institucionais, ficha técnica e orientações pedagógicas para a leitura sequencial.
+  - *Back-Matter Acadêmico (Pág. 14):* Adicionado **Caderno Final de Referências Científicas (Normas ABNT NBR 6023)** e **Posfácio Reflexivo de Cauã Lira**, contendo a nota metodológica sobre o uso autoral e supervisionado da IA na educação, licença Creative Commons (CC BY-SA 4.0) e link do repositório oficial.
+  - *Narrativa Sequencial 100% Pura e Livre de Intrusões:* Zero tabelas, blocos `<pre>` de código ou formulários quebrando a leitura visual da história. Cada quadro opera com gramática autêntica de HQ (recordatórios narrativos no topo, sarjetas limpas de 6px a 8px, balões de fala semânticos e onomatopeias expressivas).
+  - *Divisão Editorial Canônica:* A Graphic Novel foca na imersão humana e na jornada de aprendizagem (14 páginas); a densidade analítica, matriz de 4 critérios, dados PISA 2025 e prompts copiáveis permanecem no **Infográfico Editorial** (`infografico.html` e `infografico-anatomia-tutor-ia.pdf`).
+- [x] **Consistência Total de Personagens (Character Continuity) 100% Preservada**:
+  - Clara com traços firmes, óculos de aro fino metálico, mechas onduladas castanhas e moletom cinza mescla em todas as cenas.
+  - Cauã com fade alinhado, barba rala, óculos de grau modernos, jaqueta jeans aberta sobre polo azul.
+  - Byte em sua dualidade: Byte v1.0 (robô elétrico com olhos de advertência) e Byte v2.0 (tutor socrático caloroso com feixes azuis calmos).
+- [x] **Exportação PDF A4 Perfeita (14 Páginas Cravadas) & Deploy na Vercel**:
+  - `code/projeto_ead_tutores/ebook-hq.html` (23.70 MB, autocontido com artes e leitor interativo).
+  - `code/projeto_ead_tutores/assets/ebook-operacao-byte-socratico.pdf` e `ebook-caua-2va.pdf` (10.05 MB, exatamente 14 páginas A4 compiladas via Microsoft Edge headless, espelhamento perfeito para o FlipHTML5).
+  - Plataforma Web (`code/projeto_ead_tutores/index.html`) atualizada com o guia dos 10 Atos, Clara e links para o PDF de 14 páginas.
+  - Deploy em produção concluído na Vercel com HTTP 200: [https://projeto-ead-caua.vercel.app](https://projeto-ead-caua.vercel.app).
+- [x] **Estrutura Definitiva das 14 Páginas**:
+  - *Pág. 01*: Capa Clássica de Revista HQ (*Comic Cover* vertical com Cauã, Clara e Byte).
+  - *Pág. 02*: Expediente Editorial & Índice dos Capítulos ("Nesta Edição / Guia de Leitura").
+  - *Pág. 03*: Prólogo / Origens no Ciberespaço e no Polo EaD.
+  - *Pág. 04*: Cap. 01 · A Ilusão da Cola Mastigada (23h40 -> Byte v1.0 -> Apagão na prova).
+  - *Pág. 05*: Cap. 02 · O Diagnóstico do Scaffolding (Clara e Cauã na UFRPE -> a escada de Bruner/Vygotsky).
+  - *Pág. 06*: Cap. 03 · O Scanner Pedagógico 4D (Holograma dos 4 critérios -> fronteira da ZDP).
+  - *Pág. 07*: Cap. 04 · Primeiros Combates na Arena (Caso #05 e o Escudo de Escopo defletindo dúvida de história).
+  - *Pág. 08*: Cap. 05 · O Desastre do Caso #03 (*Splash Page* de Alarme Vermelho e Cartão de Auditoria).
+  - *Pág. 09*: Cap. 06 · A Cirurgia no System Prompt (Soldando as 4 Travas e 100% de perguntas reflexivas).
+  - *Pág. 10*: Cap. 07 · O Momento Eureka das Caixas (Metáfora das caixas organizadoras e laço `for`).
+  - *Pág. 11*: Cap. 08 · A Transformação no Polo EaD (Byte v2.0 mediando a turma no laboratório).
+  - *Pág. 12*: Cap. 09 · O Desafio da Prova Presencial (Clara concentrada e segura de si).
+  - *Pág. 13*: Cap. 10 · Epílogo Triunfante (Comemoração nota 10 e mensagem de autonomia aos educadores).
+  - *Pág. 14*: Caderno Final · Referências Científicas (ABNT NBR 6023) & Posfácio Reflexivo de Cauã Lira.
 
 ### 1. Entregas da VA2 (100% Concluídas, Auditadas e Públicas no GitHub)
 - [x] **`va2/brw.md` (Brainwriting Híbrido)**: Concluído e auditado.

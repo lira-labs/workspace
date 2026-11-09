@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Gerador 100% HQ / Comic Book da Graphic Novel 'Operação Byte Socrático' (12 Páginas A4)
-Foco Total na Arte Sequencial (Narrativa Pura em Quadrinhos):
-- 100% Painéis de HQ com sarjetas limpas (gutters)
-- Recordatórios canônicos clássicos (tempo/espaço/narrador)
-- Balões semânticos (fala comum, pensamento com esferas, glitch/elétrico, socrático)
-- Onomatopeias integradas (SFX)
-- ZERO tabelas ou blocos densos de código quebrando a imersão (o aprofundamento técnico fica no Infográfico)
+Gerador Canônico Completo da Graphic Novel 'Operação Byte Socrático' (14 Páginas A4)
+Edição Especial Deluxe de Colecionador com:
+- Pág 01: Capa Clássica de Revista em Quadrinhos
+- Pág 02: Índice Editorial & Expediente ("Nesta Edição / Guia de Leitura")
+- Pág 03: Prólogo / Origens (Dossiê dos Protagonistas: Cauã, Clara, Byte)
+- Págs 04 a 13: Os 10 Capítulos da História (100% Quadrinho Puro Sequencial)
+- Pág 14: Caderno de Referências Científicas (ABNT) & Posfácio do Autor (Cauã Lira)
 """
 import os
 import base64
@@ -19,7 +19,7 @@ def get_b64(filename):
     with open(p, "rb") as f:
         return base64.b64encode(f.read()).decode("utf-8")
 
-print("Carregando 16 imagens unificadas...")
+print("Carregando imagens canônicas...")
 b64 = {
     "cover": get_b64("p1_cover_v2.jpg"),
     "p2_caua": get_b64("p2_panel1_caua.jpg"),
@@ -39,14 +39,14 @@ b64 = {
     "p7_recipe": get_b64("p3_panel2.jpg"),
     "p12_epilogue": get_b64("p12_panel1_epilogue.jpg")
 }
-print("Imagens carregadas com sucesso!")
+print("Imagens carregadas!")
 
 HTML_HEAD = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Operação Byte Socrático: Graphic Novel (2ª VA EaD · UFRPE)</title>
+  <title>Operação Byte Socrático: Graphic Novel Deluxe (2ª VA EaD · UFRPE)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -381,14 +381,14 @@ HTML_HEAD = """<!DOCTYPE html>
 </head>
 <body class="p-0 md:p-6 flex flex-col items-center">
 
-  <!-- Interactive Reader Navigation Toolbar (Hidden on Print) -->
+  <!-- Interactive Reader Navigation Toolbar -->
   <header class="reader-toolbar w-full max-w-[210mm] bg-slate-900 border-2 border-slate-700 rounded-lg p-3 mb-4 shadow-xl flex flex-wrap items-center justify-between gap-2 text-white">
     <div class="flex items-center gap-2">
       <span class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black px-2.5 py-1 rounded text-xs tracking-wider font-mono">
-        <i class="fa-solid fa-book-open mr-1"></i> HQ COMPLETA
+        <i class="fa-solid fa-book-open mr-1"></i> HQ DELUXE
       </span>
       <h2 class="font-extrabold text-sm hidden sm:inline" style="font-family: 'Space Grotesk', sans-serif;">
-        Operação Byte Socrático <span class="text-cyan-400 font-mono text-xs">(12 Páginas · Quadrinho Puro)</span>
+        Operação Byte Socrático <span class="text-cyan-400 font-mono text-xs">(14 Páginas · Edição de Colecionador)</span>
       </h2>
     </div>
 
@@ -398,7 +398,7 @@ HTML_HEAD = """<!DOCTYPE html>
         <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
       </button>
       <span class="font-mono text-xs bg-slate-950 px-2.5 py-1 rounded border border-slate-800 text-cyan-300 font-bold" id="pageIndicator">
-        Pág. 01 / 12
+        Pág. 01 / 14
       </span>
       <button onclick="nextPage()" class="bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded border border-slate-600 text-xs font-bold transition-all">
         Próxima <i class="fa-solid fa-chevron-right ml-1"></i>
@@ -433,7 +433,7 @@ def make_header(chapter_title, badge_text="UFRPE · 2ª VA EaD"):
       </div>
     """
 
-def make_footer(page_num, total_pages=12, custom_note=None):
+def make_footer(page_num, total_pages=14, custom_note=None):
     note = custom_note or "CAUÃ DA CUNHA LIRA · LICENCIATURA EM COMPUTAÇÃO (UFRPE · 2026.2)"
     return f"""
       <footer class="hq-footer">
@@ -505,17 +505,138 @@ pages.append(f"""
           <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; background: #090D16; color: #F8FAFC; padding: 1px 6px; border-radius: 3px;">UFRPE COMICS #01</span>
           <span>AUTOR: CAUÃ DA CUNHA LIRA · LICENCIATURA EM COMPUTAÇÃO</span>
         </div>
-        <span>ORIENTADOR: PROF. ERMESON · PÁG. 01 DE 12</span>
+        <span>ORIENTADOR: PROF. ERMESON · PÁG. 01 DE 14</span>
       </footer>
     </section>
 """)
 
 # =======================================================
-# PÁGINA 02: PRÓLOGO / ORIGENS (OS TRÊS PROTAGONISTAS)
+# PÁGINA 02: ÍNDICE EDITORIAL & EXPEDIENTE (FRONT MATTER)
 # =======================================================
 pages.append(f"""
-    <!-- PÁGINA 02: PRÓLOGO / ORIGENS -->
+    <!-- PÁGINA 02: ÍNDICE & EXPEDIENTE -->
     <section class="comic-page" id="page-2">
+      {make_header("EXPEDIENTE EDITORIAL & GUIA DE LEITURA", "UFRPE COMICS #01")}
+
+      <div class="hq-grid" style="gap: 4mm;">
+        <!-- EXPEDIENTE BOX -->
+        <div style="background: #0F172A; border: 3.5px solid #090D16; box-shadow: 4px 4px 0 #06B6D4; padding: 10px 14px;">
+          <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-2">
+            <span class="text-amber-300 font-extrabold text-[12px] uppercase tracking-wider" style="font-family: 'Space Grotesk', sans-serif;">
+              <i class="fa-solid fa-id-card-clip mr-1"></i> FICHA TÉCNICA DA PUBLICAÇÃO
+            </span>
+            <span class="bg-cyan-950 text-cyan-300 border border-cyan-400/40 text-[9px] font-bold px-2 py-0.5 rounded font-mono">2026.2 · 2ª VA</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-[9.5px] text-slate-300 font-mono">
+            <div>
+              <b class="text-cyan-300 block">ROTEIRO & CRIAÇÃO:</b>
+              Cauã da Cunha Lira (Licenciando em Computação)
+            </div>
+            <div>
+              <b class="text-cyan-300 block">ORIENTAÇÃO PEDAGÓGICA:</b>
+              Prof. Ermeson (Educação a Distância · UFRPE)
+            </div>
+            <div>
+              <b class="text-amber-300 block">PIPELINE VISUAL & ANCORAGEM:</b>
+              Sequential Art Studio · Gemini 3.1 Flash (Anti-Slop)
+            </div>
+            <div>
+              <b class="text-amber-300 block">AMBIENTAÇÃO REAL:</b>
+              Polo EaD Camela / Recife · Interior de Pernambuco
+            </div>
+          </div>
+        </div>
+
+        <!-- ÍNDICE DE CAPÍTULOS -->
+        <div style="background: #090D16; border: 3.5px solid #090D16; box-shadow: 4px 4px 0 #FACC15; padding: 12px 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-3">
+              <span class="text-amber-400 font-extrabold text-[13px] uppercase tracking-wide" style="font-family: 'Bangers', cursive; letter-spacing: 1.5px;">
+                <i class="fa-solid fa-list-ol mr-1 text-cyan-400"></i> NESTA EDIÇÃO: GUIA DOS CAPÍTULOS
+              </span>
+              <span class="text-[9px] text-slate-400 font-mono">10 ATOS DRAMÁTICOS</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[9.5px]">
+              <!-- COLUNA 1 -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-cyan-400">
+                  <span class="text-slate-200"><b>Prólogo:</b> Origens dos Protagonistas</span>
+                  <span class="font-mono text-cyan-400 font-bold">Pág. 03</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-rose-500">
+                  <span class="text-slate-200"><b>Cap. 01:</b> A Ilusão da Cola Mastigada</span>
+                  <span class="font-mono text-rose-400 font-bold">Pág. 04</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-cyan-400">
+                  <span class="text-slate-200"><b>Cap. 02:</b> O Diagnóstico do Scaffolding</span>
+                  <span class="font-mono text-cyan-400 font-bold">Pág. 05</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-amber-400">
+                  <span class="text-slate-200"><b>Cap. 03:</b> O Scanner Pedagógico 4D</span>
+                  <span class="font-mono text-amber-400 font-bold">Pág. 06</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-emerald-400">
+                  <span class="text-slate-200"><b>Cap. 04:</b> Primeiros Combates na Arena</span>
+                  <span class="font-mono text-emerald-400 font-bold">Pág. 07</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-rose-500">
+                  <span class="text-slate-200"><b>Cap. 05:</b> O Desastre do Caso #03</span>
+                  <span class="font-mono text-rose-400 font-bold">Pág. 08</span>
+                </div>
+              </div>
+
+              <!-- COLUNA 2 -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-cyan-400">
+                  <span class="text-slate-200"><b>Cap. 06:</b> A Cirurgia no System Prompt</span>
+                  <span class="font-mono text-cyan-400 font-bold">Pág. 09</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-emerald-400">
+                  <span class="text-slate-200"><b>Cap. 07:</b> O Momento Eureka das Caixas</span>
+                  <span class="font-mono text-emerald-400 font-bold">Pág. 10</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-purple-400">
+                  <span class="text-slate-200"><b>Cap. 08:</b> A Transformação no Polo EaD</span>
+                  <span class="font-mono text-purple-400 font-bold">Pág. 11</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-sky-400">
+                  <span class="text-slate-200"><b>Cap. 09:</b> O Desafio da Prova Presencial</span>
+                  <span class="font-mono text-sky-400 font-bold">Pág. 12</span>
+                </div>
+                <div class="flex items-center justify-between bg-slate-900 p-1.5 rounded border-l-4 border-l-amber-400">
+                  <span class="text-slate-200"><b>Cap. 10:</b> O Triunfo da Autonomia</span>
+                  <span class="font-mono text-amber-400 font-bold">Pág. 13</span>
+                </div>
+                <div class="flex items-center justify-between bg-purple-950/80 p-1.5 rounded border-l-4 border-l-purple-400 border border-purple-500/30">
+                  <span class="text-purple-200 font-bold">Caderno: Referências & Posfácio</span>
+                  <span class="font-mono text-purple-300 font-bold">Pág. 14</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTA EDITORIAL DE ABERTURA -->
+          <div class="bg-slate-950 p-2.5 rounded border border-slate-800 text-[9px] text-slate-300 leading-relaxed">
+            <span class="text-amber-300 font-bold font-mono block mb-1">
+              <i class="fa-solid fa-quote-left mr-1"></i> AVISO AO LEITOR:
+            </span>
+            "Você tem em mãos uma obra que une a arte sequencial dos quadrinhos à ciência da aprendizagem. Acompanhe a transformação real de uma aluna que quase desiste da faculdade após ser enganada pela resposta fácil de um chatbot, e descubra como a pedagogia socrática devolveu a ela a alegria de aprender!"
+          </div>
+        </div>
+      </div>
+
+      {make_footer(2, 14)}
+    </section>
+""")
+
+# =======================================================
+# PÁGINA 03: PRÓLOGO / ORIGENS (OS TRÊS PROTAGONISTAS)
+# =======================================================
+pages.append(f"""
+    <!-- PÁGINA 03: PRÓLOGO / ORIGENS -->
+    <section class="comic-page" id="page-3">
       {make_header("PRÓLOGO · ORIGENS: OS PROTAGONISTAS DESTA JORNADA")}
 
       <div class="hq-grid">
@@ -574,16 +695,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(2)}
+      {make_footer(3, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 03: CAPÍTULO 1 · A CRISE COGNITIVA (A TENTAÇÃO DA RESPOSTA PRONTA)
+# PÁGINA 04: CAPÍTULO 1 · A CRISE COGNITIVA (A TENTAÇÃO DA RESPOSTA PRONTA)
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 03: CAPÍTULO 01 -->
-    <section class="comic-page" id="page-3">
+    <!-- PÁGINA 04: CAPÍTULO 01 -->
+    <section class="comic-page" id="page-4">
       {make_header("CAPÍTULO 01 · A CRISE COGNITIVA: A TENTAÇÃO DA RESPOSTA FÁCIL")}
 
       <div class="hq-grid">
@@ -668,16 +789,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(3)}
+      {make_footer(4, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 04: CAPÍTULO 2 · O DIAGNÓSTICO DO MENTOR NO LABORATÓRIO
+# PÁGINA 05: CAPÍTULO 2 · O DIAGNÓSTICO DO MENTOR NO LABORATÓRIO
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 04: CAPÍTULO 02 -->
-    <section class="comic-page" id="page-4">
+    <!-- PÁGINA 05: CAPÍTULO 02 -->
+    <section class="comic-page" id="page-5">
       {make_header("CAPÍTULO 02 · O DIAGNÓSTICO DO MENTOR: A EVAPORAÇÃO DO ESFORÇO")}
 
       <div class="hq-grid">
@@ -745,16 +866,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(4)}
+      {make_footer(5, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 05: CAPÍTULO 3 · O SCANNER PEDAGÓGICO DE 4 CRITÉRIOS
+# PÁGINA 06: CAPÍTULO 3 · O SCANNER PEDAGÓGICO DE 4 CRITÉRIOS
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 05: CAPÍTULO 03 -->
-    <section class="comic-page" id="page-5">
+    <!-- PÁGINA 06: CAPÍTULO 03 -->
+    <section class="comic-page" id="page-6">
       {make_header("CAPÍTULO 03 · O SCANNER PEDAGÓGICO: AS 4 DIMENSÕES DE UM BOM TUTOR")}
 
       <div class="hq-grid">
@@ -822,16 +943,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(5)}
+      {make_footer(6, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 06: CAPÍTULO 4 · A PRIMEIRA BATERIA DE TESTES (O ESCUDO DE ESCOPO)
+# PÁGINA 07: CAPÍTULO 4 · A PRIMEIRA BATERIA DE TESTES (O ESCUDO DE ESCOPO)
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 06: CAPÍTULO 04 -->
-    <section class="comic-page" id="page-6">
+    <!-- PÁGINA 07: CAPÍTULO 04 -->
+    <section class="comic-page" id="page-7">
       {make_header("CAPÍTULO 04 · A PRIMEIRA BATERIA DE TESTES: O ESCUDO DE ESCOPO")}
 
       <div class="hq-grid">
@@ -899,16 +1020,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(6)}
+      {make_footer(7, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 07: CAPÍTULO 5 · O DESASTRE DO CASO #03 (SPLASH DRAMÁTICO)
+# PÁGINA 08: CAPÍTULO 5 · O DESASTRE DO CASO #03 (SPLASH DRAMÁTICO)
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 07: CAPÍTULO 05 - SPLASH PAGE -->
-    <section class="comic-page" id="page-7">
+    <!-- PÁGINA 08: CAPÍTULO 05 - SPLASH PAGE -->
+    <section class="comic-page" id="page-8">
       {make_header("CAPÍTULO 05 · O DESASTRE DO CASO #03: O ALARME VERMELHO NA ARENA")}
 
       <div class="hq-grid">
@@ -986,16 +1107,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(7)}
+      {make_footer(8, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 08: CAPÍTULO 6 · A CIRURGIA NO SYSTEM PROMPT
+# PÁGINA 09: CAPÍTULO 6 · A CIRURGIA NO SYSTEM PROMPT
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 08: CAPÍTULO 06 -->
-    <section class="comic-page" id="page-8">
+    <!-- PÁGINA 09: CAPÍTULO 06 -->
+    <section class="comic-page" id="page-9">
       {make_header("CAPÍTULO 06 · A CIRURGIA NO SYSTEM PROMPT: AS 4 TRAVAS NEURAIS")}
 
       <div class="hq-grid">
@@ -1063,16 +1184,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(8)}
+      {make_footer(9, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 09: CAPÍTULO 7 · O MOMENTO EUREKA DAS CAIXAS ORGANIZADORAS
+# PÁGINA 10: CAPÍTULO 7 · O MOMENTO EUREKA DAS CAIXAS ORGANIZADORAS
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 09: CAPÍTULO 07 -->
-    <section class="comic-page" id="page-9">
+    <!-- PÁGINA 10: CAPÍTULO 07 -->
+    <section class="comic-page" id="page-10">
       {make_header("CAPÍTULO 07 · O MOMENTO EUREKA DAS CAIXAS ORGANIZADORAS")}
 
       <div class="hq-grid">
@@ -1143,16 +1264,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(9)}
+      {make_footer(10, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 10: CAPÍTULO 8 · A TRANSFORMAÇÃO DO APRENDIZADO NA EAD
+# PÁGINA 11: CAPÍTULO 8 · A TRANSFORMAÇÃO DO APRENDIZADO NA EAD
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 10: CAPÍTULO 08 -->
-    <section class="comic-page" id="page-10">
+    <!-- PÁGINA 11: CAPÍTULO 08 -->
+    <section class="comic-page" id="page-11">
       {make_header("CAPÍTULO 08 · A TRANSFORMAÇÃO DO APRENDIZADO NO POLO EaD")}
 
       <div class="hq-grid">
@@ -1217,16 +1338,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(10)}
+      {make_footer(11, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 11: CAPÍTULO 9 · O DESAFIO DA PROVA PRESENCIAL
+# PÁGINA 12: CAPÍTULO 9 · O DESAFIO DA PROVA PRESENCIAL
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 11: CAPÍTULO 09 -->
-    <section class="comic-page" id="page-11">
+    <!-- PÁGINA 12: CAPÍTULO 09 -->
+    <section class="comic-page" id="page-12">
       {make_header("CAPÍTULO 09 · O DESAFIO DA PROVA PRESENCIAL: A HORA DA VERDADE")}
 
       <div class="hq-grid">
@@ -1286,16 +1407,16 @@ pages.append(f"""
         </div>
       </div>
 
-      {make_footer(11)}
+      {make_footer(12, 14)}
     </section>
 """)
 
 # =========================================================================
-# PÁGINA 12: CAPÍTULO 10 · EPÍLOGO TRIUNFANTE NO POLO EaD
+# PÁGINA 13: CAPÍTULO 10 · EPÍLOGO TRIUNFANTE NO POLO EaD
 # =========================================================================
 pages.append(f"""
-    <!-- PÁGINA 12: CAPÍTULO 10 - EPÍLOGO -->
-    <section class="comic-page" id="page-12">
+    <!-- PÁGINA 13: CAPÍTULO 10 - EPÍLOGO -->
+    <section class="comic-page" id="page-13">
       {make_header("CAPÍTULO 10 · EPÍLOGO TRIUNFANTE: A VITÓRIA DA AUTONOMIA")}
 
       <div class="hq-grid">
@@ -1353,18 +1474,96 @@ pages.append(f"""
             <!-- Clara & Byte Bottom Teaser Box -->
             <div class="caption-box" style="bottom: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; background: rgba(9, 13, 22, 0.96); border: 2.5px solid #FACC15; padding: 6px 14px; color: #F8FAFC;">
               <div style="font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem; font-weight: 800; color: #FACC15;">
-                <i class="fa-solid fa-chart-pie text-cyan-400 mr-1"></i> QUER APROFUNDAR A TEORIA, A RUBRICA E OS PROMPTS COPIÁVEIS?
-                <span class="block text-[8.5px] text-slate-300 font-normal">Acesse o Infográfico Oficial: Anatomia e Calibragem de um Tutor Socrático de IA</span>
+                <i class="fa-solid fa-arrow-right text-cyan-400 mr-1"></i> SIGA PARA A PÁG. 14: CADERNO DE REFERÊNCIAS & NOTAS DO AUTOR
+                <span class="block text-[8.5px] text-slate-300 font-normal">Bibliografia ABNT, Metodologia de IA e Reprodutibilidade Aberta</span>
               </div>
               <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.60rem; font-weight: 800; background: #06B6D4; color: #090D16; padding: 3px 8px; border-radius: 4px;">
-                FIM DA OPERAÇÃO · NOTA 10!
+                FIM DA HISTÓRIA
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {make_footer(12, 12, "FIM DA OPERAÇÃO · LICENCIATURA EM COMPUTAÇÃO · UFRPE 2026.2")}
+      {make_footer(13, 14)}
+    </section>
+""")
+
+# =========================================================================
+# PÁGINA 14: CADERNO DE REFERÊNCIAS CIENTÍFICAS & POSFÁCIO DO AUTOR (BACK MATTER)
+# =========================================================================
+pages.append(f"""
+    <!-- PÁGINA 14: REFERÊNCIAS & POSFÁCIO DO AUTOR -->
+    <section class="comic-page" id="page-14">
+      {make_header("CADERNO FINAL · REFERÊNCIAS CIENTÍFICAS & POSFÁCIO DO AUTOR", "UFRPE · 2ª VA")}
+
+      <div class="hq-grid" style="gap: 3.5mm;">
+        <!-- POSFÁCIO DO AUTOR (METODOLOGIA & HUMANIDADE) -->
+        <div style="background: #0F172A; border: 3.5px solid #090D16; box-shadow: 4px 4px 0 #06B6D4; padding: 10px 14px;">
+          <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-2">
+            <span class="text-cyan-300 font-extrabold text-[11.5px] uppercase tracking-wider" style="font-family: 'Space Grotesk', sans-serif;">
+              <i class="fa-solid fa-feather-pointed mr-1 text-amber-400"></i> POSFÁCIO DO AUTOR: A IA COMO MEIO, A EMANCIPAÇÃO COMO FIM
+            </span>
+            <span class="bg-cyan-950 text-cyan-300 border border-cyan-400/40 text-[9px] font-bold px-2 py-0.5 rounded font-mono">POR CAUÃ LIRA</span>
+          </div>
+          <p class="text-[9.2px] text-slate-200 leading-relaxed font-sans mb-1.5">
+            Esta Graphic Novel nasceu de uma inquietude legítima na Licenciatura em Computação da UFRPE: <i>como ensinar quando a inteligência artificial generativa seduz o estudante com respostas mastigadas que atrofiam o pensamento autônomo?</i>
+          </p>
+          <p class="text-[9.2px] text-slate-200 leading-relaxed font-sans">
+            Para conceber esta obra, atuei como Diretor Pedagógico e Engenheiro de Pipeline Visual, domando modelos de IA generativa com <b>âncoras rígidas de consistência</b> para evitar o "AI Slop". Toda a narrativa, as dores de Clara, os 5 Casos de Teste e as 4 Travas do System Prompt foram formulados com base nos clássicos da Educação. A máquina gerou os pixels; a inteligência pedagógica foi 100% humana.
+          </p>
+        </div>
+
+        <!-- REFERÊNCIAS CIENTÍFICAS FUNDAMENTAIS (PADRÃO ABNT) -->
+        <div style="background: #090D16; border: 3.5px solid #090D16; box-shadow: 4px 4px 0 #FACC15; padding: 10px 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1 mb-2">
+              <span class="text-amber-400 font-extrabold text-[11.5px] uppercase tracking-wider font-mono">
+                <i class="fa-solid fa-book-bookmark mr-1 text-cyan-400"></i> REFERÊNCIAS BIBLIOGRÁFICAS FUNDAMENTAIS (PADRÃO ABNT)
+              </span>
+              <span class="text-[9px] text-slate-400 font-mono">RECONHECIMENTO CIENTÍFICO</span>
+            </div>
+
+            <div class="space-y-1.5 text-[8.2px] text-slate-300 font-mono leading-tight">
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-cyan-400">
+                • <b>BLOOM, Benjamin S.</b> The 2 Sigma Problem: The Search for Methods of Group Instruction as Effective as One-to-One Tutoring. <i>Educational Researcher</i>, v. 13, n. 6, p. 4-16, 1984.
+              </div>
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-emerald-400">
+                • <b>BRUNER, Jerome S.; WOOD, David; ROSS, Gail.</b> The role of tutoring in problem solving. <i>Journal of Child Psychology and Psychiatry</i>, v. 17, n. 2, p. 89-100, 1976.
+              </div>
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-amber-400">
+                • <b>CHEVALLARD, Yves.</b> <i>La Transposition Didactique: Du Savoir Savant au Savoir Enseigné</i>. Grenoble: La Pensée Sauvage, 1991.
+              </div>
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-purple-400">
+                • <b>KHAN, Salman.</b> How AI Could Save (Not Destroy) Education. <i>TED Talks</i>, Vancouver, 2023. Disponível em: &lt;ted.com&gt;.
+              </div>
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-rose-400">
+                • <b>OCDE.</b> <i>PISA 2025 AI and Education Policy Brief: Generative AI Use Among Students</i>. Paris: OECD Publishing, 2026.
+              </div>
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-sky-400">
+                • <b>SWELLER, John.</b> Cognitive load during problem solving: Effects on learning. <i>Cognitive Science</i>, v. 12, n. 2, p. 257-285, 1988.
+              </div>
+              <div class="p-1 bg-slate-900/80 rounded border-l-2 border-l-teal-400">
+                • <b>VYGOTSKY, Lev S.</b> <i>Pensamento e Linguagem</i>. São Paulo: Martins Fontes, 1934 (Ed. brasileira 1987).
+              </div>
+            </div>
+          </div>
+
+          <!-- DADOS ABERTOS, LICENÇA E CRÉDITOS FINAIS -->
+          <div class="bg-slate-950 p-2.5 rounded border border-slate-800 mt-2 flex items-center justify-between text-[8.5px] font-mono">
+            <div>
+              <span class="text-amber-300 font-bold block">RECURSO EDUCACIONAL ABERTO (REA) · CC BY-SA 4.0</span>
+              <span class="text-slate-400">Universidade Federal Rural de Pernambuco · Departamento de Educação</span>
+            </div>
+            <div class="text-right">
+              <span class="text-cyan-400 font-bold block">REPOSITÓRIO: github.com/lira-labs/workspace</span>
+              <span class="text-slate-400">PORTAL DO PROJETO: projeto-ead-caua.vercel.app</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {make_footer(14, 14, "FIM DA EDIÇÃO DELUXE · UFRPE · DEPARTAMENTO DE EDUCAÇÃO · 2026.2")}
     </section>
 """)
 
@@ -1374,7 +1573,7 @@ HTML_FOOTER = """
 
   <script>
     let currentPage = 1;
-    const totalPages = 12;
+    const totalPages = 14;
     let isWebtoonMode = false;
 
     function updateReaderUI() {
@@ -1445,4 +1644,4 @@ with open(OUT_HTML, "w", encoding="utf-8") as out_f:
     out_f.write(full_html)
 
 sz_mb = os.path.getsize(OUT_HTML) / (1024 * 1024)
-print(f"Sucesso! {OUT_HTML} gerado com 12 páginas 100% HQ! Tamanho final: {sz_mb:.2f} MB")
+print(f"Sucesso! {OUT_HTML} gerado com 14 páginas de puro luxo editorial! Tamanho final: {sz_mb:.2f} MB")
