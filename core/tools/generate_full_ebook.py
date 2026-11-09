@@ -17,6 +17,7 @@ print("Carregando 16 imagens...")
 b64 = {
     "cover": get_b64("p1_cover_v2.jpg"),
     "p2_caua": get_b64("p2_panel1_caua.jpg"),
+    "p2_clara": get_b64("p2_panel2_clara.jpg"),
     "p2_byte": get_b64("p2_panel3_byte.jpg"),
     "p3_1": get_b64("p3_panel1.jpg"),
     "p3_2": get_b64("p3_panel2.jpg"),
@@ -165,7 +166,7 @@ pages.append(f"""
         <!-- ROW 2: CLARA -->
         <div class="hq-row" style="height: 68mm;">
           <div class="hq-panel" style="width: 44%;">
-            <img src="data:image/jpeg;base64,{b64['p3_2']}" class="panel-art">
+            <img src="data:image/jpeg;base64,{b64['p2_clara']}" class="panel-art">
             <div class="caption-box" style="top: 5px; left: 5px;">PROTAGONISTA #02</div>
           </div>
           <div class="hq-panel" style="width: 56%; background: #0F172A; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #FACC15;">
