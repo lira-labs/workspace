@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 08/11/2026 22:52
+- **Última Atualização:** 08/11/2026 23:06
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -131,6 +131,12 @@
       - *Diagnóstico do PC:* Windows Location API retornou `NoData`, confirmando ausência de chip de satélite físico e dependência do roteador/GeoIP da DTEL Telecom (`177.200.245.197`), que causava desvio de ~70 km para Japaratinga/AL.
       - *Túnel Seguro e Validação Mobile:* Servidor local conectado via HTTPS seguro (`https://icy-oranges-think.loca.lt`) com liberação de permissão W3C e confirmação de IP.
       - *Resultado:* Celular ativou o sensor GNSS real e capturou as coordenadas exatas do usuário em Camela (Ipojuca - PE), comprovando a detecção das paradas da PE-60 com raio de proximidade perfeito e sem distorções.
+    - **Arquitetura Nativa de App de Transporte (Padrão Uber / Moovit / Citymapper) + Fluxo de Usuário do Zero (08/11/2026 · 23:05)**:
+      - *Mobile-First Viewport:* Viewport travada em `100dvh`, eliminando o aspecto de site desktop espremido com rolagem de página.
+      - *Mapa Imersivo:* Leaflet ocupando 100% da tela do celular, com barra de busca flutuante no topo, chip de acesso rápido `📍 Camela` e Floating Action Button (FAB) circular para recentralizar o GPS com 1 toque.
+      - *Gaveta Deslizante (Bottom Sheet):* Padrão nativo de transporte. Em modo compacto (peek), exibe parada atual, contagem regressiva da Linha 178 e botão de fone no bolso; ao puxar pra cima, expande suavemente exibindo paradas próximas e rotas seguras; ao tocar no mapa, recolhe automaticamente.
+      - *Barra de Navegação Inferior:* 3 abas acessíveis pelo polegar (Mapa & Ônibus, Segurança & Fone, IA da Frota).
+      - *Fluxo Completo de Onboarding & Autenticação:* Tela de boas-vindas com pilares da tecnologia, cadastro guiado em 2 etapas (dados, linha de ônibus habitual e parada de Camela/Ipojuca), configuração da voz neural (`Francisca / Antônio`), login com PIN e botão de logout/reset para recomeçar o teste do zero.
 
 ### 2. Entregas da VA1 no Painel do Professor (`arn·c`, `arn·p`, `mlp·p`, `arq·p`)
 - [x] **`arn·c` (Arena Git Repo — 10 pts)**:
