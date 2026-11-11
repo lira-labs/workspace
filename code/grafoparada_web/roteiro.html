@@ -3,31 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Roteiro Descomplicado · Seminário 2 (Hoje) — Cauã Lira</title>
+  <title>Roteiro de Fala · Seminário 2 (Hoje) — Cauã Lira</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --blue: #0284c7;
-      --blue-bg: #f0f9ff;
-      --blue-border: #bae6fd;
-      --green: #059669;
-      --green-bg: #ecfdf5;
-      --green-border: #a7f3d0;
-      --red: #e11d48;
-      --red-bg: #fff1f2;
-      --red-border: #fecdd3;
-      --amber: #d97706;
-      --amber-bg: #fffbeb;
-      --amber-border: #fde68a;
-      --purple: #7c3aed;
-      --purple-bg: #f5f3ff;
-      --purple-border: #ddd6fe;
+      --bg: #ffffff;
+      --card-bg: #f8fafc;
+      --text-main: #0a0a0a;
+      --text-dark: #374151;
+      --text-muted: #6b7280;
+      --border: #e2e8f0;
+      --blue: #002fa7;         /* Azul Klein */
+      --green: #008751;        /* Verde Bottega */
+      --crimson: #c00000;      /* Vermelho Sóbrio */
+      --amber: #b45309;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -40,12 +31,11 @@
       margin: 0 auto;
     }
     header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: #ffffff;
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
       border-radius: 20px;
       padding: 24px 20px;
       margin-bottom: 20px;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
     }
     .badge-top {
       display: inline-block;
@@ -53,23 +43,23 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      background: rgba(56, 189, 248, 0.2);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: #e0f2fe;
+      color: var(--blue);
       padding: 4px 10px;
       border-radius: 999px;
       margin-bottom: 10px;
     }
     h1 {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.2;
+      color: var(--text-main);
       margin-bottom: 6px;
     }
     .header-sub {
-      font-size: 13px;
-      color: #94a3b8;
-      line-height: 1.4;
+      font-size: 13.5px;
+      color: var(--text-dark);
+      line-height: 1.45;
     }
     .quick-stats {
       display: grid;
@@ -78,26 +68,27 @@
       margin-top: 16px;
     }
     .stat-pill {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #ffffff;
+      border: 1px solid var(--border);
       padding: 8px 12px;
       border-radius: 12px;
       text-align: center;
     }
     .stat-pill strong {
       display: block;
-      font-size: 15px;
-      color: #38bdf8;
+      font-size: 16px;
+      color: var(--blue);
+      font-weight: 800;
     }
     .stat-pill span {
-      font-size: 10.5px;
-      color: #cbd5e1;
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
     /* CARD DE PREPARAÇÃO */
     .prep-box {
-      background: var(--amber-bg);
-      border: 1.5px solid var(--amber-border);
+      background: #fffbeb;
+      border: 1.5px solid #fde68a;
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 24px;
@@ -125,12 +116,12 @@
 
     /* BLOCOS DE SLIDES */
     .slide-section {
-      background: var(--card-bg);
-      border: 1.5px solid #e2e8f0;
+      background: #ffffff;
+      border: 1.5px solid var(--border);
       border-radius: 18px;
-      padding: 20px 18px;
-      margin-bottom: 22px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      padding: 22px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     }
     .slide-tag-row {
       display: flex;
@@ -144,56 +135,83 @@
       text-transform: uppercase;
       padding: 3px 9px;
       border-radius: 6px;
+      background: #f1f5f9;
+      color: var(--text-dark);
     }
+    .slide-pill.blue { background: #e0f2fe; color: var(--blue); }
+    .slide-pill.crimson { background: #ffe4e6; color: var(--crimson); }
+    .slide-pill.green { background: #dcfce7; color: var(--green); }
+
     .slide-timer {
       font-size: 12px;
       font-weight: 800;
       color: var(--blue);
-      background: var(--blue-bg);
+      background: #f0f9ff;
       padding: 3px 9px;
       border-radius: 999px;
-      border: 1px solid var(--blue-border);
+      border: 1px solid #bae6fd;
     }
     .slide-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: var(--text-main);
       margin-bottom: 12px;
-      line-height: 1.3;
+      line-height: 1.25;
     }
 
-    .action-box {
-      background: #f1f5f9;
-      border-left: 4px solid var(--blue);
-      padding: 10px 12px;
-      border-radius: 0 10px 10px 0;
-      font-size: 12px;
-      color: #334155;
+    .slide-screen-look {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
       margin-bottom: 14px;
+      font-size: 12.5px;
+      color: var(--text-dark);
     }
-    .action-box strong { color: var(--blue); }
+    .slide-screen-look strong {
+      color: var(--text-main);
+    }
+    .slide-screen-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 11.5px;
+    }
+    .col-preview {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .col-preview .num {
+      font-size: 14px;
+      font-weight: 800;
+      display: block;
+      margin-bottom: 2px;
+    }
 
     .speech-box {
       background: #fafafa;
       border: 1.5px dashed #cbd5e1;
       border-radius: 14px;
-      padding: 14px 16px;
+      padding: 16px 18px;
       margin-bottom: 14px;
     }
     .speech-label {
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      color: var(--green);
+      color: var(--blue);
       margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
     .speech-text {
-      font-size: 14.5px;
-      line-height: 1.6;
-      color: #1e293b;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #111827;
     }
     .speech-text mark {
       background: #fef08a;
@@ -203,8 +221,8 @@
     }
 
     .tip-box {
-      background: var(--green-bg);
-      border: 1px solid var(--green-border);
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
       border-radius: 10px;
       padding: 10px 12px;
       font-size: 12px;
@@ -214,21 +232,21 @@
     /* SEÇÃO DE PERGUNTAS E RESPOSTAS */
     .qa-card {
       background: #ffffff;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid var(--border);
       border-radius: 14px;
-      padding: 14px;
+      padding: 16px;
       margin-bottom: 12px;
     }
     .qa-q {
       font-size: 13.5px;
       font-weight: 800;
-      color: var(--red);
+      color: var(--crimson);
       margin-bottom: 6px;
     }
     .qa-a {
-      font-size: 12.5px;
+      font-size: 13px;
       color: #334155;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .footer-actions {
@@ -246,7 +264,7 @@
       border-radius: 999px;
       font-size: 14px;
       font-weight: 800;
-      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+      box-shadow: 0 4px 14px rgba(0, 47, 167, 0.25);
     }
   </style>
 </head>
@@ -268,7 +286,7 @@
       </div>
       <div class="stat-pill">
         <strong>5 slides</strong>
-        <span>Deck Canva</span>
+        <span>Design Suíço</span>
       </div>
       <div class="stat-pill">
         <strong>Ao Vivo</strong>
@@ -285,22 +303,36 @@
   <div class="prep-box">
     <h3>⚡ 3 Coisas Rápidas Antes de Subir para Falar</h3>
     <ul class="prep-list">
-      <li>✅ <strong>Celular em Mãos com a Tela Aberta:</strong> Deixe o app aberto em <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:#b45309; font-weight:800;">grafoparadaweb.vercel.app</a>. Se a internet da sala oscilar, o mapa e os dados estão salvos em cache.</li>
-      <li>✅ <strong>Não leia slide:</strong> O professor odeia quem fica de costas lendo texto na parede. O slide só tem número e imagem; a história sai da sua boca.</li>
-      <li>✅ <strong>Fale como um engenheiro que resolveu um problema real:</strong> Você não inventou uma tese teórica; você mapeou a rotina dos trabalhadores de Camela e Suape para acabar com ônibus rodando vazio.</li>
+      <li>✅ <strong>Celular em Mãos com a Tela Aberta:</strong> Deixe o app aberto em <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:#b45309; font-weight:800;">grafoparadaweb.vercel.app</a>.</li>
+      <li>✅ <strong>Olhe para o Professor, Não para a Parede:</strong> O slide agora é minimalista (fundo branco, 3 colunas e números gigantes). Ele serve para a banca bater o olho no dado enquanto você conta a história.</li>
+      <li>✅ <strong>Fale com Firmeza e Simplicidade:</strong> Você não está vendendo aplicativo; você está apresentando uma solução de engenharia que resolveu o problema real dos trabalhadores de Camela e do consórcio CTM.</li>
     </ul>
   </div>
 
   <!-- SLIDE 1 -->
   <div class="slide-section">
     <div class="slide-tag-row">
-      <span class="slide-pill" style="background:#dcfce7; color:#15803d;">Slide 1 · A Demo ao Vivo</span>
+      <span class="slide-pill blue">Slide 1 · Abertura & Demo ao Vivo</span>
       <span class="slide-timer">⏱️ 80 segundos</span>
     </div>
-    <div class="slide-title">A Rotina dos Passageiros Orientando a Realocação da Frota</div>
+    <div class="slide-title">A rotina das pessoas orientando o ônibus no vazio.</div>
 
-    <div class="action-box">
-      <strong>📱 O QUE MOSTRAR NA TELA:</strong> Abra o app no celular. Toque no card verde <em>"Minha Rotina (Turno Suape 05h45)"</em> para mostrar o cálculo da saída (06h08). Mostre o letreiro LED âmbar e, se quiser, aperte o botão <em>"🔊 Ouvir"</em> para o áudio falar a chegada em 4 minutos.
+    <div class="slide-screen-look">
+      <strong>🖼️ O QUE ESTÁ PROJETADO NO SLIDE (Fundo Branco · 3 Colunas):</strong>
+      <div class="slide-screen-cols">
+        <div class="col-preview">
+          <span class="num" style="color:#0a0a0a;">06h10</span>
+          <strong>O Usuário Real:</strong> Trabalhador em Camela indo para Suape. Janela: saia às 06h08.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#0a0a0a;">68 anos</span>
+          <strong>Acessibilidade:</strong> Dona Severina · Letreiro LED âmbar idêntico ao ônibus + voz alta.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#002fa7;">48 Pessoas</span>
+          <strong>Tese Central:</strong> Demanda no CTM remaneja ônibus vazio da 178 para a 199.
+        </div>
+      </div>
     </div>
 
     <div class="speech-box">
@@ -308,33 +340,47 @@
       <div class="speech-text">
         "Bom dia, professor. Este é o <strong>GrafoParada rodando ao vivo</strong> do nosso repositório. O passageiro comum não pega ônibus por acaso: ele tem uma rotina diária de trabalho ou estudo. Com um único toque no celular, o operário que mora em Camela ativa o seu <mark>Turno das 05h45 para Suape</mark>. O app calcula a janela segura: como a caminhada até o ponto leva 6 minutos e o ônibus 199 passa às 06h14, ele avisa para sair de casa exatamente às <mark>06h08</mark>, evitando que a pessoa fique mofando no acostamento escuro e perigoso da rodovia PE-60.
         <br><br>
-        E para uma senhora de 68 anos, como a Dona Severina, que tem dificuldade de ler letrinhas pequenas, o app exibe na tela o <strong>Letreiro LED idêntico ao letreiro da frente do ônibus</strong> e fala alto no fone: <em>'O 199 chega em 4 minutos, tem 14 bancos livres'</em>.
+        E para uma senhora de 68 anos, como a Dona Severina, que tem dificuldade de ler letrinhas pequenas, o app exibe na tela o <strong>Letreiro LED âmbar idêntico ao letreiro da frente do ônibus</strong> e fala alto no fone: <em>'O 199 chega em 4 minutos, tem 14 bancos livres'</em>.
         <br><br>
         Mas a nossa grande tese está aqui: <mark>48 trabalhadores</mark> ativaram essa mesma rotina. A Central do CTM percebe que o ônibus regular vai superlotar e que a Linha 178 de Suape está voltando vazia na contramão — queimando 14 litros de diesel por hora no que chamamos de <em>deadheading</em>. Com um comando na central, o ônibus ocioso é transferido para socorrer a Linha 199. A espera cai de 18 para 4 minutos e ninguém fica na chuva."
       </div>
     </div>
 
     <div class="tip-box">
-      💡 <strong>O Pulo do Gato:</strong> O professor quer ver um <em>usuário concreto</em> (o trabalhador do turno das 07h e a Dona Severina) e uma <em>saída que muda a vida deles</em> (não mofar no ponto e ônibus reforçado).
+      💡 <strong>O Pulo do Gato:</strong> Toque no card de rotina do celular enquanto fala para a banca ver a tela viva reagindo ao seu toque.
     </div>
   </div>
 
   <!-- SLIDE 2 -->
   <div class="slide-section">
     <div class="slide-tag-row">
-      <span class="slide-pill" style="background:#e0f2fe; color:#0369a1;">Slide 2 · Quanto Custa</span>
+      <span class="slide-pill blue">Slide 2 · Quanto Custa (Medido vs flx)</span>
       <span class="slide-timer">⏱️ 50 segundos</span>
     </div>
-    <div class="slide-title">Inferência em Menos de 1 ms e Custo Zero em Nuvem</div>
+    <div class="slide-title">Inferência em 0,77 ms e custo zero de infraestrutura.</div>
 
-    <div class="action-box">
-      <strong>📊 O QUE MOSTRAR NA TELA:</strong> O slide exibe o dashboard com os três números medidos pelo script <code>medir_custo_sem2.py</code>: Celular (4,98 ms / 12 KB), Servidor (0,77 ms / 358 MB) e Custo Financeiro (R$ 0,00).
+    <div class="slide-screen-look">
+      <strong>📊 O QUE ESTÁ PROJETADO NO SLIDE (3 Números Gigantes):</strong>
+      <div class="slide-screen-cols">
+        <div class="col-preview">
+          <span class="num" style="color:#002fa7; font-size:18px;">4,98 ms</span>
+          <strong>No Celular:</strong> 12,0 KB de RAM · Cinemática com Soft-Voting · Bateria intacta.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#002fa7; font-size:18px;">0,77 ms</span>
+          <strong>No Servidor:</strong> 358 MB no SO · STGCN 20 nós da PE-60 (tensores: 84 KB).
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#008751; font-size:18px;">R$ 0,00</span>
+          <strong>Custo Nuvem:</strong> 34.627 parâmetros · Roda em CPU comum de escritório do CTM.
+        </div>
+      </div>
     </div>
 
     <div class="speech-box">
       <div class="speech-label">🗣️ O QUE VOCÊ DEVE FALAR (PALAVRAS SUAS):</div>
       <div class="speech-text">
-        "Esses números que estão na tela <strong>não são estimativas teóricas</strong>: eles saíram de uma execução de verdade que rodou no meu computador com o script <code>medir_custo_sem2.py</code>.
+        "Esses três números que estão projetados no slide <strong>não são estimativas teóricas</strong>: eles saíram de uma execução de verdade que rodou no meu computador com o script <code>medir_custo_sem2.py</code>.
         <br><br>
         No celular do passageiro, a cinemática com filtro de votação suave levou <mark>4,98 milissegundos</mark> e gastou apenas <mark>12 kilobytes de RAM</mark>. É instantâneo e não drena bateria.
         <br><br>
@@ -345,20 +391,34 @@
     </div>
 
     <div class="tip-box">
-      💡 <strong>O Pulo do Gato:</strong> Quando você explica por que a estimativa do <em>flx</em> errou (500 ms vs 0,77 ms e 300 MB vs 358 MB), você ganha total credibilidade com o professor, porque mostra que você realmente mediu no código.
+      💡 <strong>O Pulo do Gato:</strong> Explique a diferença do flx com segurança: <em>"o flx superestimou o tempo porque a CPU executa a STGCN no cache L2 em microssegundos; e subestimou a memória porque o runtime do PyTorch aloca as DLLs do sistema operacional."</em>
     </div>
   </div>
 
   <!-- SLIDE 3 -->
   <div class="slide-section">
     <div class="slide-tag-row">
-      <span class="slide-pill" style="background:#ffe4e6; color:#9f1239;">Slide 3 · A Falha Mostrada de Propósito</span>
+      <span class="slide-pill crimson">Slide 3 · A Falha Mostrada de Propósito</span>
       <span class="slide-timer">⏱️ 65 segundos</span>
     </div>
-    <div class="slide-title">Onde a IA Mente: Super-Suavização no Bloqueio da PE-60</div>
+    <div class="slide-title">Bloqueio na PE-60: a STGCN espalha e suaviza o atraso.</div>
 
-    <div class="action-box">
-      <strong>🧪 O QUE MOSTRAR NA TELA:</strong> O slide exibe o gráfico do Trevo de Ipojuca: a linha vermelha do GPS saltando para 45 minutos enquanto a curva amarela da STGCN mente dizendo que o ônibus está a 18 minutos. No celular, você pode tocar no botão <em>"Simular Interdição PE-60"</em> para mostrar o alerta amarelo acendendo.
+    <div class="slide-screen-look">
+      <strong>🧪 O QUE ESTÁ PROJETADO NO SLIDE (O Erro vs A Realidade):</strong>
+      <div class="slide-screen-cols">
+        <div class="col-preview">
+          <span class="num" style="color:#c00000; font-size:18px;">18 min [?]</span>
+          <strong>A Saída da IA:</strong> Previsão atenuada falsa difundida pela matriz Laplaciana.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#0a0a0a; font-size:18px;">45 min</span>
+          <strong>O GPS do Satélite:</strong> Ônibus travado no bloqueio. Operário perde o turno.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#002fa7; font-size:18px;">Trava [?]</span>
+          <strong>Defesa Híbrida:</strong> Se |STGCN - GPS| > 15 min, corta a IA e avisa interdição por voz.
+        </div>
+      </div>
     </div>
 
     <div class="speech-box">
@@ -375,20 +435,34 @@
     </div>
 
     <div class="tip-box">
-      💡 <strong>O Pulo do Gato:</strong> Não tente defender que a IA é infalível. O professor Lucas ama quando o aluno mostra a falha de cabeça erguida e diz exatamente <em>quem sofre</em> e <em>o que o erro revela</em>.
+      💡 <strong>O Pulo do Gato:</strong> Não tenha medo de falar que a IA errou. O professor quer ver se você domina a falha e sabe proteger o ser humano dela.
     </div>
   </div>
 
   <!-- SLIDE 4 -->
   <div class="slide-section">
     <div class="slide-tag-row">
-      <span class="slide-pill" style="background:#f3e8ff; color:#6b21a8;">Slide 4 · O que Mudou desde o Sem1</span>
+      <span class="slide-pill blue">Slide 4 · O que Mudou desde o Sem1</span>
       <span class="slide-timer">⏱️ 50 segundos</span>
     </div>
-    <div class="slide-title">De 5 para 20 Paradas: A STGCN Virou o Jogo</div>
+    <div class="slide-title">De 5 para 20 paradas: a STGCN virou o jogo e se pagou.</div>
 
-    <div class="action-box">
-      <strong>📈 O QUE MOSTRAR NA TELA:</strong> O slide exibe o gráfico de barras comparativo: no Sem1 a regressão linear venceu a STGCN (2,46 vs 4,42 min), mas no Sem2 a STGCN venceu com folga (1,51 min vs 1,93 min linear e 7,13 min da persistência).
+    <div class="slide-screen-look">
+      <strong>📈 O QUE ESTÁ PROJETADO NO SLIDE (Sem1 vs Sem2):</strong>
+      <div class="slide-screen-cols">
+        <div class="col-preview">
+          <span class="num" style="color:#6b7280; font-size:18px;">2,46 min</span>
+          <strong>Sem1 (5 Paradas):</strong> Regressão linear simples superou a STGCN (4,42 min).
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#008751; font-size:18px;">1,51 min</span>
+          <strong>Sem2 (20 Paradas):</strong> STGCN venceu linear (1,93 min) com -78% de erro.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#002fa7; font-size:18px;">Frota Ativa</span>
+          <strong>Mudança Conceitual:</strong> De rastreador passivo a balanceamento no vazio.
+        </div>
+      </div>
     </div>
 
     <div class="speech-box">
@@ -401,22 +475,32 @@
         Mas a maior mudança foi de conceito: o GrafoParada deixou de ser um simples aplicativo rastreador passivo, como o Cittamobi. Ele passou a entender a rotina diária das pessoas para acabar com o <em>deadheading</em> — que é o desperdício de ônibus rodando vazios pelo Grande Recife enquanto os trabalhadores mofam no acostamento da PE-60."
       </div>
     </div>
-
-    <div class="tip-box">
-      💡 <strong>O Pulo do Gato:</strong> Mudar de opinião ou confirmar uma tese com dados empíricos é o ápice do método científico. Diga com orgulho que no Sem1 a regressão venceu, mas na malha real de 20 paradas a STGCN dominou.
-    </div>
   </div>
 
   <!-- SLIDE 5 -->
   <div class="slide-section">
     <div class="slide-tag-row">
-      <span class="slide-pill" style="background:#ecfdf5; color:#047857;">Slide 5 · Fecho & Sem3</span>
+      <span class="slide-pill green">Slide 5 · Fecho & Conexão Sem3</span>
       <span class="slide-timer">⏱️ 20 segundos</span>
     </div>
-    <div class="slide-title">A Desistência na Parada Financia o Ônibus no Pico</div>
+    <div class="slide-title">A desistência na parada financia o ônibus no pico.</div>
 
-    <div class="action-box">
-      <strong>🎯 O QUE MOSTRAR NA TELA:</strong> Os 4 cartões de impacto real: 14 L de Diesel poupados, R$ 155,80 de receita preservada, R$ 4,10 do VEM protegido e 166 bytes locais.
+    <div class="slide-screen-look">
+      <strong>🎯 O QUE ESTÁ PROJETADO NO SLIDE (Os 3 Pilares de Fecho):</strong>
+      <div class="slide-screen-cols">
+        <div class="col-preview">
+          <span class="num" style="color:#008751; font-size:18px;">14 L / h</span>
+          <strong>Diesel Poupado:</strong> R$ 155,80 de receita preservada contra clandestinos.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#002fa7; font-size:18px;">R$ 4,10</span>
+          <strong>VEM Blindado:</strong> Janela de 120 min protegida · 166 bytes locais no celular.
+        </div>
+        <div class="col-preview">
+          <span class="num" style="color:#0a0a0a; font-size:18px;">25 / 11</span>
+          <strong>Seminário 3:</strong> Experimento na PE-60 testando a trava híbrida na prática.
+        </div>
+      </div>
     </div>
 
     <div class="speech-box">
@@ -429,9 +513,9 @@
     </div>
   </div>
 
-  <!-- SEÇÃO DE RESPOSTAS PARA PERGUNTAS DIFÍCEIS (ENSAIO CÉTICO) -->
+  <!-- GABARITO PARA AS 5 PERGUNTAS MAIS DIFÍCEIS -->
   <h2 style="font-size:18px; font-weight:800; color:var(--text-main); margin:32px 0 16px;">
-    🎯 As 5 Perguntas Mais Difíceis da Banca (e Como Responder)
+    🎯 Gabarito para as 5 Perguntas da Banca (Ensaio Cético)
   </h2>
 
   <div class="qa-card">
@@ -469,7 +553,7 @@
     </div>
   </div>
 
-  <!-- LINKS E AÇÕES -->
+  <!-- AÇÃO RÁPIDA -->
   <div class="footer-actions">
     <a href="https://grafoparadaweb.vercel.app" target="_blank" class="btn-main">
       <span>📱</span> Abrir GrafoParada ao Vivo na Web

@@ -3,22 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seminário 2 · GrafoParada: Demonstração e Falha Real — Cauã Lira</title>
+  <title>Seminário 2 · GrafoParada — Cauã Lira (Design Minimalista Suíço)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0f1d;
-      --card: #111827;
-      --card-border: #1f2937;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --blue-accent: #0284c7;
-      --green: #10b981;
-      --danger: #f43f5e;
-      --warn: #f59e0b;
+      --bg: #ffffff;
+      --text: #0a0a0a;
+      --text-dark: #374151;
+      --text-muted: #6b7280;
+      --line: #e5e7eb;
+      --blue: #002fa7;       /* Azul Klein Clássico */
+      --green: #008751;      /* Verde Bottega */
+      --crimson: #c00000;    /* Vermelho Carmim Sóbrio */
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -37,286 +35,377 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 28px 48px 20px;
+      padding: 32px 56px 24px;
     }
-    .top-deck-bar {
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding-bottom: 12px;
-      border-bottom: 1px solid var(--card-border);
+      border-bottom: 1.5px solid var(--line);
     }
     .tag {
-      display: inline-block;
       font-size: 0.8rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--accent);
-      background: rgba(56, 189, 248, 0.12);
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--blue);
     }
+    .tag.crimson { color: var(--crimson); }
+    .tag.green { color: var(--green); }
+
     .btn-download-pptx {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      background: var(--text);
       color: #ffffff;
       padding: 6px 14px;
       border-radius: 999px;
       font-size: 0.85rem;
       font-weight: 700;
       text-decoration: none;
-      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
-      transition: transform 0.15s ease;
+      transition: background 0.15s ease;
     }
-    .btn-download-pptx:hover {
-      transform: translateY(-1px);
-    }
+    .btn-download-pptx:hover { background: var(--blue); }
+
     .slide {
       display: none;
       flex-direction: column;
       justify-content: center;
       height: 100%;
-      gap: 16px;
-      animation: fadeIn 0.25s ease;
+      gap: 20px;
+      animation: fadeIn 0.2s ease;
     }
     .slide.active { display: flex; }
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
     h1 {
-      font-size: 1.85rem;
+      font-size: 2.35rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
       color: var(--text);
+      max-width: 95%;
     }
     .subtitle {
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-top: -8px;
+      font-size: 1.05rem;
+      color: var(--text-dark);
+      margin-top: -6px;
+      line-height: 1.4;
     }
 
-    /* SLIDE 1 SPLIT LAYOUT */
-    .slide1-container {
+    /* REGRA DOS TERÇOS - 3 COLUNAS LIMPAS */
+    .grid-thirds {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 24px;
-      align-items: center;
-      height: 100%;
-      max-height: calc(100vh - 180px);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 36px;
+      margin-top: 16px;
+      align-items: flex-start;
     }
-    .slide1-left {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+    .col-header-line {
+      width: 40px;
+      height: 3px;
+      background: var(--text-muted);
+      margin-bottom: 12px;
     }
-    .card-story {
-      background: var(--card);
-      border: 1.5px solid var(--card-border);
-      border-radius: 14px;
-      padding: 16px 18px;
-    }
-    .card-story-title {
+    .col-header-line.blue { background: var(--blue); }
+    .col-header-line.green { background: var(--green); }
+    .col-header-line.crimson { background: var(--crimson); }
+
+    .col-tag {
       font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--accent);
+      color: var(--text-muted);
       margin-bottom: 4px;
     }
-    .card-story-heading {
+    .giant-number {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .giant-number.blue { color: var(--blue); }
+    .giant-number.green { color: var(--green); }
+    .giant-number.crimson { color: var(--crimson); }
+
+    .col-sub {
       font-size: 1.05rem;
       font-weight: 800;
-      color: #ffffff;
-      margin-bottom: 6px;
+      color: var(--text);
+      margin-bottom: 12px;
     }
-    .card-story-desc {
-      font-size: 0.85rem;
-      color: #cbd5e1;
-      line-height: 1.45;
-    }
-    .slide1-right {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .mockup-img {
-      max-height: 480px;
-      width: auto;
-      object-fit: contain;
-      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
-    }
-
-    /* FULL WIDTH MEDIA SLIDES */
-    .slide-media-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      max-height: calc(100vh - 180px);
-    }
-    .slide-media-img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    .col-body {
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      line-height: 1.55;
     }
 
     .footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 1px solid var(--card-border);
-      padding-top: 10px;
+      border-top: 1.5px solid var(--line);
+      padding-top: 12px;
       font-size: 0.85rem;
-      color: var(--muted);
+      color: var(--text-muted);
     }
     .btn-nav {
-      background: #1f2937;
+      background: #f3f4f6;
       color: var(--text);
-      border: 1px solid #374151;
+      border: 1px solid var(--line);
       padding: 6px 14px;
       border-radius: 8px;
       font-weight: 700;
       cursor: pointer;
     }
-    .btn-nav:hover { background: #374151; }
+    .btn-nav:hover { background: #e5e7eb; }
   </style>
 </head>
 <body>
   <div class="deck">
-    <!-- TOP DECK BAR -->
-    <div class="top-deck-bar">
+    <!-- TOP BAR -->
+    <div class="top-bar">
       <div style="display:flex; align-items:center; gap:12px;">
         <span style="font-size:18px;">🚌</span>
-        <strong style="font-size:13.5px; color:#ffffff;">GrafoParada · Seminário 2</strong>
-        <span style="font-size:11.5px; color:var(--muted);">AI4Good · UFRPE</span>
+        <strong style="font-size:13.5px; color:var(--text);">GrafoParada · Seminário 2</strong>
+        <span style="font-size:11.5px; color:var(--text-muted);">AI4Good · UFRPE</span>
       </div>
-      <div style="display:flex; align-items:center; gap:10px;">
+      <div style="display:flex; align-items:center; gap:12px;">
         <a href="GrafoParada_Seminario2_CauaLira.pptx" download class="btn-download-pptx">
-          <span>📥</span> Baixar Slides (.pptx)
+          <span>📥</span> Baixar PPTX Minimalista (.pptx)
         </a>
-        <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--accent); font-size:12.5px; font-weight:700; text-decoration:none;">
+        <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--blue); font-size:12.5px; font-weight:700; text-decoration:none;">
           Abrir App ao Vivo ➔
         </a>
       </div>
     </div>
 
-    <!-- SLIDE 1: PONTA A PONTA (DEMO AO VIVO) -->
+    <!-- SLIDE 1: PONTA A PONTA, AO VIVO -->
     <div class="slide active" id="slide-1">
-      <div class="tag" style="color:var(--green); background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3);">
-        Slide 1 · Ponta a Ponta ao Vivo · 80 s
-      </div>
-      <h1>A Rotina dos Passageiros Orientando a Realocação da Frota no Vazio</h1>
+      <div class="tag">01 / DEMONSTRAÇÃO AO VIVO · LINHA 199 (CAMELA ➔ TI CABO)</div>
+      <h1>A rotina das pessoas orientando o ônibus no vazio.</h1>
       <div class="subtitle">
-        Demo viva: <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--accent);">grafoparadaweb.vercel.app</a> · Commit <code>565321f</code> · Linha 199 (Camela ➔ TI Cabo)
+        GrafoParada: Mapeamento de rotina pendular e despacho dinâmico contra o deadheading na rodovia PE-60.
       </div>
 
-      <div class="slide1-container">
-        <div class="slide1-left">
-          <div class="card-story" style="border-color:var(--green);">
-            <div class="card-story-title" style="color:var(--green);">1. O Usuário Concreto & A Entrada Real</div>
-            <div class="card-story-heading">Trabalhador em Camela às 06h10 com destino ao Polo Suape</div>
-            <div class="card-story-desc">
-              1 toque no card 'Minha Rotina': Turno Suape 05h45. O GrafoParada calcula a <strong>Janela Segura de Saída (saia às 06h08)</strong> baseada na caminhada de 6 min até a parada, evitando que o passageiro fique exposto no acostamento escuro da rodovia PE-60.
-            </div>
-          </div>
-
-          <div class="card-story">
-            <div class="card-story-title" style="color:var(--accent);">2. A Saída na Tela e no Fone (Acessibilidade Universal)</div>
-            <div class="card-story-heading">Previsão exata: Linha 199 chega em 4 min (06:14) · Plat. 04</div>
-            <div class="card-story-desc">
-              Para idosos (Dona Severina, 68 anos): <strong>Letreiro LED âmbar idêntico ao ônibus</strong> + voz alta e acolhedora no fone. Para jovens: <strong>Modo Bolso Seguro (0 nits OLED)</strong> com alerta háptico discreto.
-            </div>
-          </div>
-
-          <div class="card-story" style="border-color:var(--blue-accent);">
-            <div class="card-story-title" style="color:var(--accent);">3. A Tese Central: Realocação da Frota no Vazio</div>
-            <div class="card-story-heading">48 trabalhadores cadastrados alimentam a Central CTM</div>
-            <div class="card-story-desc">
-              O despachante detecta que a Linha 178 Suape roda no vazio (3 passageiros, queima de 14 L/h de diesel) e desvia o veículo ocioso para reforçar a Linha 199: <strong>a espera em Camela cai de 18 para 4 minutos!</strong>
-            </div>
+      <div class="grid-thirds">
+        <div>
+          <div class="col-header-line"></div>
+          <div class="col-tag">O Usuário Real</div>
+          <div class="col-sub" style="font-size:1.35rem; margin-top:6px;">Trabalhador às 06h10</div>
+          <div class="col-body">
+            Morador de Camela em direção ao polo industrial Suape / TI Cabo. Janela segura calculada: saia de casa às <strong>06h08</strong> (caminhada de 6 min) para não mofar no acostamento escuro da rodovia.
           </div>
         </div>
 
-        <div class="slide1-right">
-          <img src="img/mockup_app_sem2.png" alt="Mockup GrafoParada" class="mockup-img" />
-          <div style="font-size:0.75rem; color:var(--muted); margin-top:6px;">Interface real rodando em tempo real na PE-60</div>
+        <div>
+          <div class="col-header-line"></div>
+          <div class="col-tag">Acessibilidade Real</div>
+          <div class="col-sub" style="font-size:1.35rem; margin-top:6px;">Dona Severina, 68 anos</div>
+          <div class="col-body">
+            Letreiro LED âmbar idêntico à frente do coletivo (<strong>199 CAMELA/CABO</strong>) e leitura em voz alta no fone. Para jovens: Modo Bolso Seguro (0 nits OLED) com vibração oculta na aproximação.
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line blue"></div>
+          <div class="col-tag" style="color:var(--blue);">A Tese Central</div>
+          <div class="giant-number blue" style="font-size:2.2rem; margin-bottom:8px;">48 Trabalhadores</div>
+          <div class="col-body">
+            Demanda agregada aciona a Central CTM: ônibus ocioso da Linha 178 no vazio (deadheading) é remanejado para reforço da Linha 199. <strong>A espera em Camela cai de 18 para 4 minutos.</strong>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SLIDE 2: QUANTO CUSTA (MEDIDO VS FLX) -->
+    <!-- SLIDE 2: QUANTO CUSTA -->
     <div class="slide" id="slide-2">
-      <div class="tag">Slide 2 · Quanto Custa · Medido vs flx · 50 s</div>
-      <h1>Inferência em Menos de 1 ms e Custo Zero de Infraestrutura</h1>
+      <div class="tag">02 / QUANTO CUSTA · MEDIÇÃO REAL NO REPOSITÓRIO VS FLX.MD</div>
+      <h1>Inferência em 0,77 ms e custo zero de infraestrutura.</h1>
       <div class="subtitle">
-        Medição real no repositório com <code>medir_custo_sem2.py</code> · Intel Core CPU · Windows 11 · PyTorch
+        Medição real no repositório com <code>medir_custo_sem2.py</code> em CPU comum vs estimativa teórica do flx.md.
       </div>
 
-      <div class="slide-media-container">
-        <img src="img/card_custo_medido.png" alt="Quadro de Custo Medido" class="slide-media-img" />
+      <div class="grid-thirds">
+        <div>
+          <div class="col-header-line blue"></div>
+          <div class="col-tag">No Aparelho (Celular)</div>
+          <div class="giant-number blue">4,98 ms</div>
+          <div class="col-sub">12,0 KB de Memória RAM</div>
+          <div class="col-body">
+            FSM cinemática v3 com Soft-Voting em tempo real. Execução instantânea com zero dreno de bateria.<br><br>
+            <em>flx estimava: 14,29 µs (passo de rotina) e 8,92 KB de RAM.</em>
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line blue"></div>
+          <div class="col-tag">No Servidor Local (CTM)</div>
+          <div class="giant-number blue">0,77 ms</div>
+          <div class="col-sub">358 MB no Processo</div>
+          <div class="col-body">
+            Inferência pura da STGCN em 20 nós da PE-60. Tensores ativos consom apenas 84 KB.<br><br>
+            <em>flx estimava: &lt; 500 ms e 300 MB. A diferença: o PyTorch segura as libs dinâmicas no SO.</em>
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line green"></div>
+          <div class="col-tag">Custo Financeiro Total</div>
+          <div class="giant-number green">R$ 0,00</div>
+          <div class="col-sub">34.627 Parâmetros</div>
+          <div class="col-body">
+            Roda em computador comum de escritório do consórcio CTM.<br><br>
+            Zero dependência de APIs pagas em dólar, sem servidores caros em nuvem e 100% soberano.
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- SLIDE 3: A FALHA MOSTRADA (OVER-SMOOTHING) -->
+    <!-- SLIDE 3: A FALHA REAL -->
     <div class="slide" id="slide-3">
-      <div class="tag" style="color:var(--danger); background:rgba(244,63,94,0.12); border-color:rgba(244,63,94,0.3);">
-        Slide 3 · A Falha Mostrada de Propósito · 65 s
-      </div>
-      <h1>Onde a Rede Neural Mente: Super-Suavização no Bloqueio da PE-60</h1>
+      <div class="tag crimson">03 / A FALHA REAL · SUPER-SUAVIZAÇÃO ESPACIAL NA RODOVIA</div>
+      <h1>Bloqueio na PE-60: a STGCN espalha e suaviza o atraso.</h1>
       <div class="subtitle">
-        Simulação real no Trevo de Ipojuca (Km 14) · Botão interativo de simulação no app
+        Acidente no Trevo de Ipojuca (Km 14): GPS bruto salta para 45 minutos; a IA difunde e prevê apenas 18.
       </div>
 
-      <div class="slide-media-container">
-        <img src="img/grafico_falha_oversmoothing.png" alt="Gráfico da Falha de Over-smoothing" class="slide-media-img" />
+      <div class="grid-thirds">
+        <div>
+          <div class="col-header-line crimson"></div>
+          <div class="col-tag" style="color:var(--crimson);">A Saída da IA (Como Saiu)</div>
+          <div class="giant-number crimson">18 min [?]</div>
+          <div class="col-sub">Previsão Atenuada e Falsa</div>
+          <div class="col-body">
+            A convolução espacial difunde o atraso brusco pela matriz Laplaciana para as paradas vizinhas.<br><br>
+            O app mostrava "18 min", mas a rodovia estava completamente travada há 45 min.
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line"></div>
+          <div class="col-tag">O Dado Bruto do Satélite</div>
+          <div class="giant-number">45 min</div>
+          <div class="col-sub">Ônibus Travado no Ponto</div>
+          <div class="col-body">
+            O atraso no satélite GPS salta de 5 para 45 minutos.<br><br>
+            <strong>QUEM SOFRE:</strong> O operário em Camela confia nos 18 min, espera 45, perde o turno em Suape e toma advertência.
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line blue"></div>
+          <div class="col-tag" style="color:var(--blue);">A Solução Híbrida do App</div>
+          <div class="giant-number blue" style="font-size:2.4rem;">Trava [?]</div>
+          <div class="col-sub">Selo de Interdição na Tela</div>
+          <div class="col-body">
+            Se <code>|STGCN - GPS| &gt; 15 min</code>, o GrafoParada corta a IA, acende o selo amarelo de interdição [?] e avisa por voz no fone que a via travou. Protegendo a vida real da falha da IA.
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- SLIDE 4: O QUE MUDOU DESDE O SEM1 -->
     <div class="slide" id="slide-4">
-      <div class="tag" style="color:var(--accent); background:rgba(56,189,248,0.12); border-color:rgba(56,189,248,0.3);">
-        Slide 4 · O que Mudou desde o Sem1 · 50 s
-      </div>
-      <h1>De 5 para 20 Paradas: A STGCN Virou o Jogo e Provou seu Custo</h1>
+      <div class="tag">04 / O QUE MUDOU DESDE O SEM1 · DECISÃO TÉCNICA E ESCALA</div>
+      <h1>De 5 para 20 paradas: a STGCN virou o jogo e se pagou.</h1>
       <div class="subtitle">
-        Validação empírica com 43 paradas e dados de telemetria do GTFS do Grande Recife
+        No Sem1 o cálculo simples venceu; com escala e dados reais da PE-60, a IA em grafo dominou.
       </div>
 
-      <div class="slide-media-container">
-        <img src="img/grafico_evolucao_mae.png" alt="Evolução Sem1 vs Sem2" class="slide-media-img" />
+      <div class="grid-thirds">
+        <div>
+          <div class="col-header-line"></div>
+          <div class="col-tag">Sem1 · Corredor Curto (5 Paradas)</div>
+          <div class="giant-number" style="color:var(--text-muted);">2,46 min</div>
+          <div class="col-sub">Regressão Venceu a STGCN</div>
+          <div class="col-body">
+            No trecho simples de 5 paradas, uma conta básica de padaria deu 2,46 min contra 4,42 min da STGCN.<br><br>
+            Dúvida honesta levada à banca: a complexidade da rede de grafos se justificava?
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line green"></div>
+          <div class="col-tag" style="color:var(--green);">Sem2 · Malha Real (20 Paradas PE-60)</div>
+          <div class="giant-number green">1,51 min</div>
+          <div class="col-sub">-78% de Erro Absoluto</div>
+          <div class="col-body">
+            Na malha real, a STGCN virou o jogo: cravou 1,51 min contra 1,93 min da linear e 7,13 min da persistência cega.<br><br>
+            Com escala e atrasos propagados, a IA espacial se paga plenamente.
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line blue"></div>
+          <div class="col-tag" style="color:var(--blue);">A Mudança Conceitual</div>
+          <div class="giant-number blue" style="font-size:2.2rem;">Frota Ativa</div>
+          <div class="col-sub">De Rastreador à Realocação</div>
+          <div class="col-body">
+            O app deixou de ser um mero rastreador passivo como o Cittamobi.<br><br>
+            Passou a aprender a rotina das pessoas para balancear a frota no vazio e combater o deadheading de coletivos.
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- SLIDE 5: O FECHO & EXPERIMENTO SEM3 -->
+    <!-- SLIDE 5: O FECHO -->
     <div class="slide" id="slide-5">
-      <div class="tag" style="color:var(--green); background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3);">
-        Slide 5 · Fecho & Experimento de Campo · 20 s
-      </div>
-      <h1>A Desistência na Parada Financia o Ônibus no Horário de Pico</h1>
+      <div class="tag green">05 / FECHO · IMPACTO NA MOBILIDADE E EXPERIMENTO DO SEM3</div>
+      <h1>A desistência na parada financia o ônibus no horário de pico.</h1>
       <div class="subtitle">
-        No dia 25/11 (Sem3): Validação de campo na PE-60 com passageiros reais testando a trava híbrida
+        Balanço financeiro e operacional da Linha 199 e conexão com o Seminário 3 (25 de Novembro).
       </div>
 
-      <div class="slide-media-container">
-        <img src="img/card_realocacao_ctm.png" alt="Balanço Final e Conexão Sem3" class="slide-media-img" />
+      <div class="grid-thirds">
+        <div>
+          <div class="col-header-line green"></div>
+          <div class="col-tag">Combustível e Diesel</div>
+          <div class="giant-number green">14 L / h</div>
+          <div class="col-sub">Diesel Poupado por Ciclo</div>
+          <div class="col-body">
+            Economia direta ao evitar que o veículo da Linha 178 circule vazio na contramão.<br><br>
+            R$ 155,80 de receita preservada ao evitar a fuga de 48 passageiros para clandestinos.
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line blue"></div>
+          <div class="col-tag">Bolso do Trabalhador</div>
+          <div class="giant-number blue">R$ 4,10</div>
+          <div class="col-sub">VEM com Janela Blindada</div>
+          <div class="col-body">
+            Guardião da integração temporal de 120 minutos no TI Cabo contra cobrança em duplicidade.<br><br>
+            Privacidade total: rotina do passageiro gravada no próprio aparelho em 166 bytes.
+          </div>
+        </div>
+
+        <div>
+          <div class="col-header-line"></div>
+          <div class="col-tag">Seminário 3 · 25/11</div>
+          <div class="giant-number">25 / 11</div>
+          <div class="col-sub">Validação de Campo na PE-60</div>
+          <div class="col-body">
+            A falha mostrada hoje (over-smoothing) vira a métrica de teste do Sem3:<br><br>
+            Quantas vezes a trava híbrida de discrepância protegeu o trabalhador real no ponto em Camela antes da catraca.
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- FOOTER NAV -->
     <div class="footer">
-      <div>Cauã da Cunha Lira · Tópicos Avançados em IA (AI4Good · UFRPE)</div>
+      <div>AI4Good (UFRPE) · Prof. Lucas Silva Figueiredo | Cauã da Cunha Lira</div>
       <div style="display:flex; align-items:center; gap:12px;">
         <button class="btn-nav" id="btn-prev" onclick="prevSlide()">◀ Anterior</button>
-        <span id="slide-indicator" style="font-weight:800; color:#ffffff;">1 / 5</span>
+        <span id="slide-indicator" style="font-weight:800; color:var(--text);">1 / 5</span>
         <button class="btn-nav" id="btn-next" onclick="nextSlide()">Próximo ▶</button>
       </div>
     </div>

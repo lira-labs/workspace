@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 08:30
+- **Última Atualização:** 11/11/2026 08:35
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -12,9 +12,9 @@
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
-  - *Google Drive*: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\`
+  - *Google Drive (Celular/Web)*: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
-  - *Slides Sem2 Web (Canva Style)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+  - *Slides Sem2 Web (Minimalista Suíço)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
@@ -22,28 +22,25 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Roteiro Descomplicado da Apresentação (Disponível no Google Drive)
-- [x] **Documento HTML Educativo e Direto para o Celular**:
-  - Salvo em: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` (raiz do Drive) e `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html`.
-  - Versionado no repositório: `va2/roteiro_fala_aula_hoje_sem2.html` e `code/grafoparada_web/roteiro.html`.
-  - *Conteúdo Prático*: Guia passo a passo com minutagem de cada slide (total 4 min 15 s), o que mostrar no celular ao vivo, as 4 frases em linguagem simples e humana, e respostas prontas na ponta da língua para as 5 perguntas mais difíceis da banca.
+### 1. Transformação Minimalista Suíça dos Slides (Zero AI Slop · Regra dos Terços)
+- [x] **Eliminação Total de Estilos Robotizados e Clichês de IA**:
+  - *Design Minimalista Brutalista/Suíço*: Fundo branco puro (`#FFFFFF`), tipografia forte e legível em preto e cinza industrial, regra dos terços (3 colunas estruturadas), números gigantes (54pt) em Azul Klein (`#002FA7`), Vermelho Carmesim (`#C00000`) e Verde Bottega (`#008751`), e mais de 50% de espaço negativo para respirar.
+  - *Sem Decorações Vazias*: Zero ícones coloridos dentro de círculos, zero degradês de neon, zero caixas flutuantes genéricas.
+  - *Arquivos Gerados e Sincronizados*:
+    - `va2/GrafoParada_Seminario2_CauaLira.pptx` (38 KB): Compilado nativamente via `python-pptx` com `va2/gerar_pptx_minimalista_sem2.py`.
+    - Disponível no Google Drive: `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`.
+    - Versão Web interativa: `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html`.
 
-### 2. Transformação Completa dos Slides: Padrão Canva/Keynote (Zero AI Slop)
-- [x] **Eliminação Total da Repetição Robótica de 3 Cards**:
-  - *Diagnóstico do Usuário/Banca*: A versão anterior repetia o mesmo layout de 3 caixas cinzas arredondadas em todos os 5 slides, denunciando geração mecânica/IA automatizada sem alma.
-  - *Novo Padrão Editorial Canva*: Cada slide agora possui uma diagramação visual única, personalizada para a sua mensagem específica, com proporção widescreen 16:9 (`13.333` x `7.5` pol.), tipografia moderna (*Segoe UI / Plus Jakarta Sans*), contraste nítido em Deep Navy (`#0A0F1D`) e zero parágrafos densos (apenas frases de impacto, números e gráficos).
-- [x] **Geração de 6 Ativos Visuais em Alta Fidelidade (Pillow)**:
-  - `va2/img/mockup_app_sem2.png`: Smartphone em titânio com a interface real do GrafoParada em Camela, mapa da PE-60, ETA de 4 min, letreiro LED âmbar e banner da Central CTM.
-  - `va2/img/card_custo_medido.png`: Dashboard visual de custos reais medidos com `medir_custo_sem2.py` (4,98 ms / 12 KB no celular; 0,77 ms / 358 MB no servidor; R$ 0,00 na nuvem).
-  - `va2/img/grafico_falha_oversmoothing.png`: Gráfico do bloqueio no Trevo de Ipojuca contrastando o salto brusco de 45 min no satélite GPS contra a curva atenuada de 18 min da STGCN, expondo o over-smoothing e a trava híbrida com selo `[?]`.
-  - `va2/img/grafico_evolucao_mae.png`: Gráfico de barras comparativo mostrando a derrota no Sem1 (5 paradas: linear 2,46 min vs STGCN 4,42 min) e a virada no Sem2 (20 paradas: STGCN 1,51 min vs linear 1,93 min e persistência 7,13 min, -78% de erro).
-  - `va2/img/card_realocacao_ctm.png`: Scorecard de impacto real com os 4 pilares (14 L diesel, R$ 155,80 receita, R$ 4,10 VEM protegido, 166 bytes de rotina local privada) e ponte para o Sem3 (25/11).
-  - `va2/img/badge_linha199_ctm.png`: Identidade visual oficial da Linha 199 SJT no Consórcio Grande Recife.
-- [x] **PowerPoint (.pptx) Pronto para Apresentação**:
-  - `va2/GrafoParada_Seminario2_CauaLira.pptx` (297 KB): Arquivo nativo do PowerPoint compilado com `python-pptx`, perfeitamente alinhado com as 4 frases do aluno sem IA do roteiro `va2/sem2.md`.
-- [x] **Slides Web Interativos Sincronizados**:
-  - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html` atualizados com a mesma diagramação Canva, imagens em alta resolução, navegação suave e botão de download direto do PPTX.
-  - Deploy em produção concluído na Vercel: `https://grafoparadaweb.vercel.app`.
+### 2. Roteiro Descomplicado da Fala da Aula de Hoje (Google Drive & Celular)
+- [x] **Documento HTML Educativo e Direto para Apresentação Oral**:
+  - Sincronizado em: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` (raiz do Drive para abrir no app do celular), `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html`, `va2/roteiro_fala_aula_hoje_sem2.html` e `code/grafoparada_web/roteiro.html`.
+  - *Alinhamento 1:1 com os 5 Slides Minimalistas*:
+    - **Slide 1 (06h10 / Dona Severina / 48 Passageiros)**: Abertura e demonstração ao vivo do celular em Camela, Modo Fácil e Linha 178 transferida da ociosidade para a 199.
+    - **Slide 2 (4,98 ms / 0,77 ms / R$ 0,00)**: Custos medidos na prática vs estimativa do `flx.md`.
+    - **Slide 3 (18 min [?] / 45 min / Trava Híbrida)**: Falha honesta do over-smoothing no Trevo de Ipojuca e trava de corte para proteção do passageiro.
+    - **Slide 4 (2,46 min / 1,51 min / Frota Ativa)**: O que mudou desde o Sem1 (STGCN bateu modelos lineares em 20 paradas com -78% de erro).
+    - **Slide 5 (14 L/h / R$ 4,10 / 25/11 Sem3)**: Fecho com o ganho prático e a chamada para os experimentos de campo do Sem3.
+  - *Gabarito da Banca*: Respostas simples e convictas para as 5 perguntas céticas mais difíceis.
 
 ### 1. Rodada de Usabilidade, Geografia Autêntica e Correção de Interface (Anti-Tela Preta)
 - [x] **Diagnóstico e Correção da Tela Escura no Desktop/Mobile**:
