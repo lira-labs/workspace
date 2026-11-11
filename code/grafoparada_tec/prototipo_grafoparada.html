@@ -886,6 +886,149 @@
       margin-top: 6px;
     }
 
+
+    /* BOTOES DE DESEMBARQUE SEGURO E ALAGAMENTO */
+    .btn-safe-disembark {
+      width: 100%;
+      min-height: 40px;
+      background: #fdf4ff;
+      color: #9333ea;
+      border: 1.5px solid #f0abfc;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.15s;
+    }
+    .btn-safe-disembark:active {
+      background: #fae8ff;
+    }
+
+    .btn-flood-radar {
+      width: 100%;
+      min-height: 38px;
+      background: #ecfeff;
+      color: #0891b2;
+      border: 1.5px solid #a5f3fc;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    /* BANNER ALAGAMENTO */
+    .flood-alert-banner {
+      display: none;
+      background: #0891b2;
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 10px;
+      border: 1.5px solid #67e8f9;
+      animation: pulseCyan 2s infinite;
+    }
+    @keyframes pulseCyan {
+      0% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.6); }
+      70% { box-shadow: 0 0 0 8px rgba(8, 145, 178, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0); }
+    }
+
+
+    /* CARD ROTINA PENDULAR INTELIGENTE */
+    .routine-commute-card {
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .routine-commute-card:active {
+      transform: scale(0.98);
+      background: #dcfce7;
+    }
+
+    /* LETREIRO DE LED FRONTAL DO COLETIVO (ACESSIBILIDADE SÊNIOR) */
+    .bus-led-sign-box {
+      background: #000000;
+      border: 2px solid #334155;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .bus-led-sign-header {
+      font-size: 10px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .bus-led-sign-display {
+      font-family: 'JetBrains Mono', monospace;
+      color: #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    }
+    .led-line-number {
+      font-size: 24px;
+      font-weight: 900;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .led-line-dest {
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+    .bus-led-sign-hint {
+      font-size: 10.5px;
+      color: #cbd5e1;
+      margin-top: 5px;
+    }
+
+    .btn-senior-voice-big {
+      width: 100%;
+      min-height: 48px;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 2px solid #334155;
+      border-radius: 14px;
+      font-size: 13.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.15s;
+    }
+    .btn-senior-voice-big:active {
+      background: #1e293b;
+    }
+
   </style>
 </head>
 <body>
@@ -898,7 +1041,10 @@
       <span style="font-size:11px; background:rgba(5,150,105,0.25); color:#34d399; padding:2px 8px; border-radius:999px; border:1px solid rgba(5,150,105,0.4);">Seminário 2 Live</span>
     </div>
     <div style="display:flex; gap:8px;">
-      <button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
+            <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
+        <span>📅</span> Minha Rotina (Turnos)
+      </button>
+<button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
         <span>🏛️</span> Central CTM (Realocação de Frota)
       </button>
       <button class="btn-desktop-action" onclick="openAuditModal()" style="background:rgba(16,185,129,0.25); border-color:#34d399;">
@@ -909,6 +1055,12 @@
       </button>
       <button class="btn-desktop-action" onclick="openVemModal()" style="background:rgba(14,165,233,0.2); border-color:#38bdf8;">
         <span>⏱️</span> Integração VEM (2h)
+      </button>
+      <button class="btn-desktop-action" onclick="openSafeDisembarkModal()" style="background:rgba(168,85,247,0.2); border-color:#c084fc; color:#f3e8ff;">
+        <span>🌙</span> Lei Parada Segura (22h)
+      </button>
+      <button class="btn-desktop-action" onclick="toggleFloodAlertSimulation()" style="background:rgba(6,182,212,0.2); border-color:#67e8f9; color:#cffafe;">
+        <span>🌊</span> Radar Alagamento & Desvios
       </button>
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
         <span>🔄</span> Testar do Zero
@@ -937,7 +1089,12 @@
           <span id="top-user-name">Cauã</span>
         </div>
 
-        <div class="top-pill" id="senior-pill-btn" onclick="toggleSeniorMode()" title="Ativar Modo Fácil / Letras Grandes para Idosos" style="font-weight:800;">
+                <div class="top-pill" id="routine-pill-btn" onclick="openRoutineModal()" title="Configurar Minha Rotina Pendular" style="color:#059669; font-weight:800;">
+          <span style="font-size:14px;">📅</span>
+          <span id="label-routine-pill">Rotina: 05h45</span>
+        </div>
+
+<div class="top-pill" id="senior-pill-btn" onclick="toggleSeniorMode()" title="Ativar Modo Fácil / Letras Grandes para Idosos" style="font-weight:800;">
           <span style="font-size:14px;">👁️</span>
           <span id="label-senior-pill">Aa Fácil</span>
         </div>
@@ -997,6 +1154,26 @@
           </div>
           <div style="font-size:15.5px; font-weight:800; margin-bottom:10px; color:var(--text-main);" id="current-stop-name">
             Parada 030613 · Terminal de Camela
+          </div>
+
+                    <!-- CARD ROTINA PENDULAR INTELIGENTE -->
+          <div class="routine-commute-card" onclick="openRoutineModal()">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:15px;">📅</span>
+                <span style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Pendular</span>
+              </div>
+              <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">Turno Ativo · 05h45</span>
+            </div>
+            <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:5px;" id="routine-title-desc">
+              Indústria Suape (Camela ➔ TI Cabo) · Entrada 07h00
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:3px; line-height:1.35;" id="routine-advice-desc">
+              💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia de casa às <strong>06:08</strong> para pegar o 199 das 06:14 sem mofar no ponto.
+            </div>
+            <div style="font-size:10.5px; color:#059669; font-weight:700; margin-top:4px;">
+              👥 48 trabalhadores nesta rota · Demanda alimenta a Central CTM.
+            </div>
           </div>
 
           <!-- 2 GIANT 1-TAP CARDS -->
@@ -1073,6 +1250,33 @@
             </div>
           </div>
 
+                    <!-- LETREIRO AMIGO IDENTICO AO ÔNIBUS (ACESSIBILIDADE SÊNIOR) -->
+          <div class="bus-led-sign-box" onclick="speakSeniorDirections()">
+            <div class="bus-led-sign-header">LETREIRO FRONTAL DO COLETIVO:</div>
+            <div class="bus-led-sign-display">
+              <span class="led-line-number">199</span>
+              <span class="led-line-dest">CAMELA / TI CABO VIA PE-60</span>
+            </div>
+            <div class="bus-led-sign-hint">
+              👁️ Compare este visor com o letreiro do ônibus chegando na pista.
+            </div>
+          </div>
+
+          <!-- BOTÃO GIGANTE DE CONFIRMAÇÃO POR VOZ PARA IDOSOS -->
+          <button class="btn-senior-voice-big" onclick="speakSeniorDirections()">
+            <span>🔊</span> OUVIR EM VOZ ALTA (CONFIRMAR EMBARQUE)
+          </button>
+
+          <!-- BANNER MODO OFFLINE INERCIAL -->
+          <div id="offline-inertial-banner" style="display:none; background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:10px; margin-bottom:8px; font-size:11.5px; color:#92400e; line-height:1.4;">
+            📶 <strong>MODO OFFLINE INERCIAL ATIVO:</strong> Sem cobertura 4G no Km 12 (Engenho Mercês). Estimativa mantida pelo histórico local do grafo (STGCN).
+          </div>
+
+          <!-- BOTÃO SIMULAR OFFLINE NA PE-60 -->
+          <button class="btn-demo-failure" onclick="toggleOfflineInertialSimulation()" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">
+            <span>📶</span> Simular Queda de Sinal 4G (Modo Offline Inercial)
+          </button>
+
           <!-- BOTÃO FAROL NOTURNO DE EMBARQUE (ANTI-QUEIMA DE PARADA) -->
           <button class="btn-night-beacon" onclick="activateNightBeacon()">
             <span>💡</span> ATIVAR FAROL NOTURNO (SINAL PRO MOTORISTA)
@@ -1081,6 +1285,19 @@
           <!-- BOTÃO SIMULAR QUEIMA DE PARADA -->
           <button class="btn-demo-queima" onclick="simulateQueimaDeParada()">
             <span>🚨</span> Simular Queima de Parada (Motorista Passou Direto)
+          </button>
+
+          <!-- BANNER DE ALAGAMENTO PE-60 -->
+          <div id="flood-alert-banner" class="flood-alert-banner"></div>
+
+          <!-- BOTÃO DESEMBARQUE SEGURO NOTURNO (LEI ESTADUAL 15.878) -->
+          <button class="btn-safe-disembark" onclick="openSafeDisembarkModal()">
+            <span>🌙</span> Desembarque Noturno (Lei Estadual nº 15.878)
+          </button>
+
+          <!-- BOTÃO RADAR DE ALAGAMENTO & DESVIOS PE-60 -->
+          <button class="btn-flood-radar" onclick="toggleFloodAlertSimulation()">
+            <span>🌊</span> Radar Alagamento & Pane (Desvios na Rodovia)
           </button>
 
           <!-- BUTTON TO SIMULATE THE SLIDE 3 FAILURE REAL -->
@@ -1479,6 +1696,70 @@
     </div>
 
 
+    <!-- 14. MODAL: MINHA ROTINA PENDULAR (MAPEADOR DE TURNO SEM BUROCRACIA) -->
+    <div id="modal-routine" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #059669; max-width:400px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">📅</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#059669; margin:0;">Minha Rotina Pendular</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Mapeador de Turno com Zero Burocracia</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeRoutineModal()">✕</button>
+        </div>
+
+        <p style="font-size:12px; color:#475569; margin-bottom:12px; line-height:1.4;">
+          Escolha seu turno habitual com 1 toque. O GrafoParada calcula quando sair de casa e comunica sua demanda anonimamente à Central CTM:
+        </p>
+
+        <!-- 4 BOTOES DE TURNO -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+          <button class="routine-choice-btn" id="btn-routine-suape" onclick="selectRoutinePreset('suape')" style="background:#ecfdf5; border:1.5px solid #059669; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:13px; color:#065f46;">🏭 Turno Indústria Suape</strong>
+              <span style="font-size:11px; font-weight:800; background:#059669; color:#ffffff; padding:2px 8px; border-radius:999px;">05h45</span>
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ TI Cabo / Suape · Entrada no posto às 07h00. 48 passageiros.</div>
+          </button>
+
+          <button class="routine-choice-btn" id="btn-routine-comercio" onclick="selectRoutinePreset('comercio')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:13px; color:#0f172a;">🛍️ Turno Comércio / Centro</strong>
+              <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">07h30</span>
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ Centro do Cabo / Shopping Costa Dourada · Entrada às 08h30.</div>
+          </button>
+
+          <button class="routine-choice-btn" id="btn-routine-noturno" onclick="selectRoutinePreset('noturno')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:13px; color:#0f172a;">🎓 Estudante Universitário / Noite</strong>
+              <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">17h40</span>
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ TI Cabo / Fachuca / UFRPE · Volta às 22h30.</div>
+          </button>
+
+          <button class="routine-choice-btn" id="btn-routine-saude" onclick="selectRoutinePreset('saude')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="font-size:13px; color:#0f172a;">🏥 Turno Plantão Saúde (12x36)</strong>
+              <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">06h30</span>
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ UPA Ipojuca / Hosp. Mendo Sampaio · Plantão das 07h às 19h.</div>
+          </button>
+        </div>
+
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px; margin-bottom:12px; font-size:11.5px; color:#0369a1; line-height:1.4;">
+          ⚡ <strong>Previsão de Demanda para a Central CTM:</strong> Ao salvar seu turno, a Central sabe exatamente quantas pessoas precisam embarcar na sua parada sem você precisar abrir o app com antecedência!
+        </div>
+
+        <button class="btn-primary" onclick="confirmRoutineChoice()" style="background:#059669; margin-bottom:8px;">
+          Salvar Minha Rotina
+        </button>
+        <button class="btn-secondary" onclick="closeRoutineModal()">Cancelar</button>
+      </div>
+    </div>
+
     <!-- 8. MODAL: CENTRAL CTM DE REALOCAÇÃO DE FROTA NO VAZIO -->
     <div id="modal-dispatch" class="modal-overlay">
       <div class="modal-card" style="border:2px solid #0284c7; max-width:400px;">
@@ -1661,6 +1942,75 @@
         </div>
 
         <button class="btn-primary" onclick="closeVemModal()" style="background:#0284c7;">Entendido</button>
+      </div>
+    </div>
+
+
+    <!-- 13. MODAL: DESEMBARQUE SEGURO NOTURNO (LEI ESTADUAL 15.878/2016) -->
+    <div id="modal-safe-disembark" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #9333ea; max-width:400px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:24px;">🌙</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#9333ea; margin:0;">Parada Segura Noturna</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Lei Estadual nº 15.878/2016 (PE)</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeSafeDisembarkModal()">✕</button>
+        </div>
+
+        <div style="background:#fdf4ff; border:1px solid #f0abfc; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5; color:#581c87;">
+          <strong>Seu Direito Legal:</strong> Entre <strong>22h e 05h</strong> (e em qualquer horário para PcD/idosos), você tem o direito garantido de desembarcar em qualquer local mais iluminado e seguro no itinerário do ônibus, mesmo fora do ponto oficial.
+        </div>
+
+        <!-- CARTÃO VISUAL PARA MOSTRAR AO MOTORISTA -->
+        <div style="background:#000000; color:#facc15; border-radius:12px; padding:16px; text-align:center; margin-bottom:12px; border:2px solid #facc15;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#e2e8f0; margin-bottom:4px;">
+            Mostre esta tela ao motorista / cobrador:
+          </div>
+          <div style="font-size:18px; font-weight:900; line-height:1.25;">
+            "MOTORISTA, PEÇO DESEMBARQUE SEGURO NESTE PONTO ILUMINADO (LEI ESTADUAL Nº 15.878/2016). OBRIGADO!"
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="speakDriverCourtesyAudio()" style="background:#9333ea; margin-bottom:8px;">
+          🔊 Avisar Motorista com Áudio Cortês
+        </button>
+        <button class="btn-secondary" onclick="closeSafeDisembarkModal()">Fechar</button>
+      </div>
+    </div>
+
+    <!-- 14. MODAL: RADAR DE ALAGAMENTO & SOCORRO DE TRANSBORDO -->
+    <div id="modal-flood" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #0891b2; max-width:400px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:24px;">🌊</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#0891b2; margin:0;">Radar Alagamento & Pane</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Monitoramento Crítico PE-60 / Cabo</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeFloodModal()">✕</button>
+        </div>
+
+        <div style="background:#ecfeff; border:1px solid #a5f3fc; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5; color:#164e63;">
+          <div><strong>• Trecho Crítico:</strong> PE-60 (km 14 · Próximo ao Trevo de Suape)</div>
+          <div><strong>• Lâmina d'Água Detectada:</strong> 35 cm (Impassível para coletivos baixos)</div>
+          <div><strong>• Desvio Automático:</strong> Linha 199 desviada 800m via via marginal asfaltada.</div>
+          <div><strong>• Parada Provisória:</strong> Em frente à UPA de Ipojuca com iluminação.</div>
+        </div>
+
+        <!-- PROTOCOLO DE SOCORRO DE TRANSBORDO -->
+        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:10px; margin-bottom:12px; font-size:11.5px; color:#991b1b; line-height:1.4;">
+          <strong>🚨 Protocolo Anti-Abandono (Crise da Frota):</strong> Em caso de pane mecânica no meio da rodovia, o GrafoParada despacha automaticamente o veículo reserva do TI Cabo para resgate imediato dos passageiros.
+        </div>
+
+        <button class="btn-primary" onclick="simulateTransbordoRescue()" style="background:#0891b2; margin-bottom:8px;">
+          🔧 Simular Pane & Resgate por Transbordo
+        </button>
+        <button class="btn-secondary" onclick="closeFloodModal()">Fechar</button>
       </div>
     </div>
 
@@ -2341,7 +2691,160 @@
       document.getElementById("modal-vem").style.display = "none";
     }
 
-    function playNaturalVoice(text) {
+
+    // ==========================================
+    // DESEMBARQUE SEGURO NOTURNO (LEI 15.878/2016)
+    // ==========================================
+    function openSafeDisembarkModal() {
+      document.getElementById("modal-safe-disembark").style.display = "flex";
+      playNaturalVoice("Modo Desembarque Seguro Noturno. Pela Lei Estadual 15.878, você tem direito de desembarcar em qualquer local mais iluminado após as 22 horas.");
+    }
+    function closeSafeDisembarkModal() {
+      document.getElementById("modal-safe-disembark").style.display = "none";
+    }
+    function speakDriverCourtesyAudio() {
+      playNaturalVoice("Motorista, boa noite! Por favor, gostaria de desembarcar aqui no ponto iluminado, conforme a Lei Estadual 15.878. Muito obrigado pela cortesia!");
+    }
+
+    // ==========================================
+    // RADAR DE ALAGAMENTO & SOCORRO DE TRANSBORDO
+    // ==========================================
+    let isFloodActive = false;
+    function openFloodModal() {
+      document.getElementById("modal-flood").style.display = "flex";
+    }
+    function closeFloodModal() {
+      document.getElementById("modal-flood").style.display = "none";
+    }
+    function toggleFloodAlertSimulation() {
+      isFloodActive = !isFloodActive;
+      const banner = document.getElementById("flood-alert-banner");
+      if (isFloodActive) {
+        if (banner) {
+          banner.innerHTML = "🌊 <strong>ALAGAMENTO NA PE-60 (KM 14):</strong> Linha 199 desviada 800m pela marginal. Embarque temporário na UPA de Ipojuca.";
+          banner.style.display = "block";
+        }
+        playSimpleChime();
+        playNaturalVoice("Atenção: Alagamento detectado na Rodovia PE-60 no quilômetro 14. O ônibus da Linha 199 fez um desvio de 800 metros pela via marginal e atenderá temporariamente no ponto da UPA de Ipojuca.");
+      } else {
+        if (banner) banner.style.display = "none";
+        playNaturalVoice("Alerta de alagamento encerrado. Rodovia PE-60 liberada no itinerário normal.");
+      }
+    }
+    function simulateTransbordoRescue() {
+      closeFloodModal();
+      const banner = document.getElementById("flood-alert-banner");
+      if (banner) {
+        banner.innerHTML = "🔧 <strong>PANE NO VEÍCULO 199-04:</strong> Carro reserva do TI Cabo despachado para transbordo. Chegada estimada em 7 minutos.";
+        banner.style.background = "#ea580c";
+        banner.style.borderColor = "#fdba74";
+        banner.style.display = "block";
+      }
+      if ("vibrate" in navigator) {
+        navigator.vibrate([200, 100, 200, 100, 400]);
+      }
+      playSimpleChime();
+      playNaturalVoice("Atenção: Pane mecânica registrada no coletivo. O socorro mecânico e o veículo reserva foram despachados pelo TI Cabo e chegam em 7 minutos para transbordo seguro.");
+    }
+
+
+    // ==========================================
+    // MINHA ROTINA PENDULAR (MAPEADOR DE TURNO)
+    // ==========================================
+    let currentRoutineType = "suape";
+    const routineData = {
+      suape: {
+        title: "Indústria Suape (Camela ➔ TI Cabo) · Entrada 07h00",
+        pill: "Rotina: 05h45",
+        tag: "Turno Ativo · 05h45",
+        advice: "💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia de casa às <strong>06:08</strong> para pegar o 199 das 06:14 sem mofar no ponto.",
+        demand: "48 trabalhadores",
+        audio: "Rotina do turno de Suape selecionada. O ônibus 199 passa na sua parada às 06h14. Saia de casa às 06h08 para não ficar esperando na beira da pista."
+      },
+      comercio: {
+        title: "Comércio / Centro Cabo · Entrada 08h30",
+        pill: "Rotina: 07h30",
+        tag: "Turno Ativo · 07h30",
+        advice: "💡 <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia de casa às <strong>07:42</strong> para pegar o 199 das 07:48 no ponto.",
+        demand: "35 trabalhadores",
+        audio: "Rotina do comércio selecionada. Saia de casa às 07h42 para embarcar com tranquilidade."
+      },
+      noturno: {
+        title: "Universitário / Noite (Camela ➔ Fachuca / UFRPE)",
+        pill: "Rotina: 17h40",
+        tag: "Turno Ativo · 17h40",
+        advice: "💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia de casa às <strong>17:50</strong>. Modo Bolso Seguro recomendado na volta.",
+        demand: "29 estudantes",
+        audio: "Rotina universitária selecionada. Na volta às 22 horas, lembre de ativar o Modo Bolso Seguro e a Parada Segura."
+      },
+      saude: {
+        title: "Plantão Saúde 12x36 (Camela ➔ UPA Ipojuca)",
+        pill: "Rotina: 06h30",
+        tag: "Turno Ativo · 06h30",
+        advice: "💡 <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia às <strong>06h40</strong>. Previsão de chegada na UPA às 06h54.",
+        demand: "22 profissionais",
+        audio: "Rotina de plantão de saúde selecionada. Bom plantão!"
+      }
+    };
+
+    function openRoutineModal() {
+      document.getElementById("modal-routine").style.display = "flex";
+    }
+    function closeRoutineModal() {
+      document.getElementById("modal-routine").style.display = "none";
+    }
+    function selectRoutinePreset(type) {
+      currentRoutineType = type;
+      ["suape", "comercio", "noturno", "saude"].forEach(function(key) {
+        const btn = document.getElementById("btn-routine-" + key);
+        if (btn) {
+          if (key === type) {
+            btn.style.background = "#ecfdf5";
+            btn.style.borderColor = "#059669";
+          } else {
+            btn.style.background = "#f8fafc";
+            btn.style.borderColor = "#e2e8f0";
+          }
+        }
+      });
+    }
+    function confirmRoutineChoice() {
+      const data = routineData[currentRoutineType];
+      if (data) {
+        const titleEl = document.getElementById("routine-title-desc");
+        const adviceEl = document.getElementById("routine-advice-desc");
+        const tagEl = document.getElementById("routine-tag-pill");
+        const pillEl = document.getElementById("label-routine-pill");
+
+        if (titleEl) titleEl.textContent = data.title;
+        if (adviceEl) adviceEl.innerHTML = data.advice;
+        if (tagEl) tagEl.textContent = data.tag;
+        if (pillEl) pillEl.textContent = data.pill;
+
+        playSimpleChime();
+        playNaturalVoice(data.audio);
+      }
+      closeRoutineModal();
+    }
+
+    // ==========================================
+    // MODO OFFLINE INERCIAL NA PE-60
+    // ==========================================
+    let isOfflineInertial = false;
+    function toggleOfflineInertialSimulation() {
+      isOfflineInertial = !isOfflineInertial;
+      const banner = document.getElementById("offline-inertial-banner");
+      if (isOfflineInertial) {
+        if (banner) banner.style.display = "block";
+        playSimpleChime();
+        playNaturalVoice("Sinal 4G indisponível no quilômetro 12 da PE-60. Modo Offline Inercial ativado: a previsão do ônibus está sendo calculada pela memória local do grafo sem travar o aplicativo.");
+      } else {
+        if (banner) banner.style.display = "none";
+        playNaturalVoice("Conexão 4G restabelecida. Telemetria em tempo real sincronizada.");
+      }
+    }
+
+        function playNaturalVoice(text) {
       if (!text) return;
       try {
         if (currentAudioPlayer) {

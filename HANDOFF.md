@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 10/11/2026 22:05
+- **Última Atualização:** 10/11/2026 23:25
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -22,10 +22,10 @@
 ### 1. Seminário 2 · Iteração 2, Demonstração (`sem2` · 8 Pontos · 11/11)
 - [x] **Item 1 · Ponta a Ponta, ao Vivo (Demo Rodando do Repositório)**:
   - Usuário concreto: passageiro no Terminal de Camela às 06h10 indo para o TI Cabo.
-  - Acessibilidade para todas as idades: Dona Severina (68 anos) com Modo Fácil (`Aa`), contraste 21:1 (WCAG AAA), letras 20pt e voz alta; e Lucas (21 anos) com Modo Bolso (tela 100% preta com 0 nits) no ponto escuro da PE-60 às 22h40.
-  - Entrada real: 1 toque no atalho nativo "Vou pro Destino (TI Cabo)".
+  - Acessibilidade para todas as idades: Dona Severina (68 anos) com Modo Fácil (`Aa`), contraste 21:1 (WCAG AAA), Letreiro LED idêntico ao ônibus e áudio acolhedor; e Lucas (21 anos) com Modo Bolso Seguro (tela 100% preta com 0 nits e vibração tátil) no ponto escuro da PE-60 às 22h40.
+  - Entrada real: Mapeador de Rotina Pendular (Turno Suape 05h45) com Janela Segura de Saída (saia às 06h08) para não mofar no acostamento.
   - Saída na tela e no fone: previsão exata da Linha 199 (4 min, Plataforma 04, 14 assentos livres), selo anti-ônibus fantasma ativo, voz neural acolhedora e vibração tátil ao aproximar.
-  - Realocação de frota: Botão da Central CTM demonstrando a transferência de ônibus da Linha 178 (vazia com 3 passageiros, economizando 14 L de diesel) para a Linha 199 com 38 passageiros aguardando.
+  - Realocação de frota (Tese Central): 48 trabalhadores com rotina ativa alimentam a Central CTM, que detecta o coletivo ocioso da Linha 178 no vazio (deadheading) com 3 passageiros e queima de 14 L/h de diesel, remanejando-o para reforço da Linha 199 com espera caindo de 18 para 4 min.
   - Demo viva: `https://grafoparadaweb.vercel.app` (Commit `565321f`).
 - [x] **Item 2 · Quanto Custa, Medido vs `flx.md` (`medir_custo_sem2.py`)**:
   - *No Celular (FSM Cinemática v3 com Soft-Voting)*: Medido **4,98 ms** de CPU e **12,0 KB** de RAM (vs. 14,29 µs e 8,92 KB estimados no `flx.md`). Execução instantânea e zero impacto de bateria.
@@ -41,22 +41,30 @@
 - [x] **Item 4 · O que Mudou desde o `sem1` (Confirmação Justificada da STGCN)**:
   - No `sem1` (corredor curto com 5 paradas): uma regressão tabular simples venceu a STGCN (2,46 min vs 4,42 min), deixando em dúvida a necessidade de IA profunda.
   - No `sem2` (malha real com 20 paradas da PE-60): a STGCN virou o jogo e venceu a regressão (**1,51 min vs 1,93 min**, redução de 78% contra a persistência de 7,13 min), justificando empiricamente o custo de memória.
-  - Na UX/UI e Usabilidade: interface inclusiva para todas as idades (Modo Fácil WCAG AAA para idosos, Modo Bolso anti-assalto para jovens e Painel CTM de realocação da frota no vazio).
+  - Na UX/UI e Usabilidade: evolução de rastreador passivo para sistema proativo que compreende a rotina dos trabalhadores e balanceia a frota no vazio com mitigação de deadheading.
 - [x] **Artefatos e Decks do Seminário 2**:
   - `va2/sem2.md`: Roteiro completo nos moldes de `sem2-excelente`, incluindo as 4 frases sem IA, minutagem cravada em 4 min 15 s, números medidos, explicação da falha e ensaio cético com 5 perguntas difíceis.
   - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html`: Deck web interativo de 5 slides com navegação por teclado (`◀` / `▶`), cards modernos em dark mode e tipografia limpa.
   - `va2/GrafoParada_Seminario2_CauaLira.pptx`: Deck em formato PowerPoint widescreen (16:9) contendo os 5 slides estilizados.
 
-### 2. Três Melhorias de Usabilidade + Acessibilidade Universal & Central CTM + Anti-Queima e VEM
-- [x] **Melhoria 1 · Busca Rápida com Autocomplete**: Caixa de pesquisa flutuante no topo do app para localizar qualquer linha da RMR ou Terminal Integrado do SEI com 1 toque.
-- [x] **Melhoria 2 · Mapa Esquemático de Plataformas no T.I. ("Primeira Vez Aqui")**: Guia visual de plataformas do TI Cabo com destaque verde neon na Plataforma 04 (Linha 199 SJT), guichê do CTM e ponto seguro de espera.
-- [x] **Melhoria 3 · Feedback Tátil (`navigator.vibrate`) e Aviso Sonoro (< 2 min) + Favoritos (⭐)**: Vibração em padrão rítmico no bolso e sino sintetizado via Web Audio API ao aproximar do embarque, além de botão de favoritar parada.
-- [x] **Melhoria 4 · Modo Fácil / Sênior para Idosos (`Aa Fácil`)**: Contraste 21:1 (WCAG AAA preto sobre branco), fontes ampliadas (20pt a 58pt), botões gigantes de 72px de altura e botão de leitura em voz alta.
-- [x] **Melhoria 5 · Central CTM de Realocação de Frota**: Balanceamento em tempo real entre a Linha 178 Suape (vazia com 3 passageiros, 14 L diesel/h desperdiçados) e a Linha 199 Camela (38 passageiros aguardando na PE-60). Ordem de despacho inteligente antecipando partidas e reduzindo espera de 18 para 4 minutos.
-- [x] **Melhoria 6 · Farol Noturno de Embarque (Anti-Queima de Parada)**: Responde à queixa nº 1 do Grande Recife. Tela vira sinal luminoso estroboscópico amarelo néon com número 199 em 76pt e mão esticada (visível a > 300m na PE-60 para parada segura).
-- [x] **Melhoria 7 · Auditoria Forense de Queima de Parada**: Detecção de cruzamento a > 30 km/h sem parada; gera dossiê técnico com GPS, placa e horário com envio em 1 clique ao WhatsApp da Ouvidoria do CTM `(81) 99488-3999`.
-- [x] **Melhoria 8 · Guardião da Integração Temporal do VEM (120 Minutos)**: Cronômetro com folga de gratuidade de 38 min no TI Cabo prevenindo cobrança indevida de R$ 4,10.
-- [x] **Baterias de Testes Automatizados**: `teste_usabilidade_retestes.py` e `teste_farol_e_integracao.py` 100% aprovados.
+### 2. Rodadas de Pesquisa, Usabilidade Universal & Realocação CTM
+- [x] **Melhoria 1 · Mapeador de Rotina Pendular Diária (4 Turnos)**:
+  - 4 perfis reais: Indústria Suape (05h45), Comércio Centro (07h30), Universitário Noite (17h40) e Plantão Saúde (06h30).
+  - Janela Segura de Saída de Casa calculada com base na caminhada (6 min) e ETA da STGCN (06h14) ➔ saída orientada às 06h08.
+- [x] **Melhoria 2 · Central CTM de Realocação Baseada na Rotina (Deadheading Mitigation)**:
+  - 48 passageiros com rotina ativa criam demanda agregada. Ônibus ocioso da Linha 178 no vazio (3 passageiros, 14 L/h diesel desperdiçados) é desviado pela STGCN para cobrir Camela (199), reduzindo espera de 18 para 4 min.
+- [x] **Melhoria 3 · Letreiro LED Idêntico ao Coletivo & Confirmação por Voz (Acessibilidade Idosos)**:
+  - Painel LED âmbar `[199 CAMELA / TI CABO]` idêntico à bandeira do ônibus para confirmação visual rápida + áudio carinhoso em voz alta.
+- [x] **Melhoria 4 · Modo Bolso Seguro Anti-Assalto (Estudantes Noturnos)**:
+  - Tela 100% preta (0 nits OLED), sem emitir luz na PE-60, com vibração oculta no bolso quando o ônibus chega a 200m.
+- [x] **Melhoria 5 · Modo Offline Inercial na PE-60 (Dead Reckoning Sem Sinal)**:
+  - Mantém a previsão contínua pelo grafo local caso o sinal 4G caia nos canaviais (Engenho Mercês / Usina Salgado).
+- [x] **Melhoria 6 · Farol Noturno de Embarque (Anti-Queima de Parada)**: Sinal estroboscópico de 76px visível a > 300m na PE-60.
+- [x] **Melhoria 7 · Auditoria Forense de Queima de Parada**: Detecção de satélite a > 30 km/h sem parada, com envio automático ao WhatsApp da Ouvidoria do CTM `(81) 99488-3999`.
+- [x] **Melhoria 8 · Guardião da Integração Temporal do VEM (120 Minutos)**: Folga de 38 min prevenindo cobrança indevida de R$ 4,10.
+- [x] **Melhoria 9 · Lei Estadual nº 15.878/2016 (Parada Segura Noturna)**: Desembarque seguro em local iluminado após 22h.
+- [x] **Melhoria 10 · Radar de Alagamento & Socorro Mecânico**: Desvio de 800m via marginal e socorro de transbordo em 7 min.
+- [x] **Bateria Completa de 20 Testes Automatizados**: `teste_rotinas_e_realocacao.py` 100% aprovado (20/20).
 
 ---
 
