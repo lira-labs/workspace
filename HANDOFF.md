@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 08:35
+- **Última Atualização:** 11/11/2026 08:47
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -14,33 +14,36 @@
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
-  - *Slides Sem2 Web (Minimalista Suíço)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
-  - *Download Direto PPTX*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
+  - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+  - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Transformação Minimalista Suíça dos Slides (Zero AI Slop · Regra dos Terços)
-- [x] **Eliminação Total de Estilos Robotizados e Clichês de IA**:
-  - *Design Minimalista Brutalista/Suíço*: Fundo branco puro (`#FFFFFF`), tipografia forte e legível em preto e cinza industrial, regra dos terços (3 colunas estruturadas), números gigantes (54pt) em Azul Klein (`#002FA7`), Vermelho Carmesim (`#C00000`) e Verde Bottega (`#008751`), e mais de 50% de espaço negativo para respirar.
-  - *Sem Decorações Vazias*: Zero ícones coloridos dentro de círculos, zero degradês de neon, zero caixas flutuantes genéricas.
-  - *Arquivos Gerados e Sincronizados*:
-    - `va2/GrafoParada_Seminario2_CauaLira.pptx` (38 KB): Compilado nativamente via `python-pptx` com `va2/gerar_pptx_minimalista_sem2.py`.
-    - Disponível no Google Drive: `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`.
-    - Versão Web interativa: `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html`.
+### 1. Correção Definitiva dos Slides PPTX: Padrão Oficial do Prof. Lucas (Zero Sobreposição & Zero AI Slop)
+- [x] **Eliminação Total de Textos Sobrepostos**:
+  - *Correção Mecânica no Python-PPTX*: Refatoração com `va2/gerar_pptx_clean.py` garantindo caixas de texto com espaçamentos verticais rigorosos, sem sobreposição entre títulos, subtítulos e corpos.
+  - *Validação Visual por Imagem*: Exportação real das lâminas para JPG via PowerPoint COM (`va2/slides_preview/Slide1.JPG` a `Slide5.JPG`) e conferência visual de 100% de legibilidade e respiro.
+- [x] **Alinhamento Rigoroso ao sem2-excelente e sem2/modelo.md**:
+  - *Sem Parágrafos Densos / Sem Invenções*: Cada slide carrega rigorosamente UMA única ideia principal, servindo apenas de apoio para a fala direta do aluno:
+    - **Slide 1**: Demo ao vivo · Quem usa, entrada real, saída na tela e o que deixa fazer + box do repositório.
+    - **Slide 2**: Quanto custa · Medição real no repositório (4,98 ms / 12 KB no celular | 0,77 ms / 358 MB no servidor) ao lado do estimado no `flx.md` (&lt; 500 ms / ~300 MB).
+    - **Slide 3**: A falha real · Over-smoothing da STGCN no Trevo de Ipojuca: IA previu 18 min (em vermelho), GPS real deu 45 min (em verde), quem sofre (trabalhador) e a trava híbrida com selo [?].
+    - **Slide 4**: O que mudou · Apenas duas linhas claras comparando o Sem1 (linear bateu rede em 5 paradas) com o Sem2 (STGCN bateu linear e persistência em 20 paradas da PE-60 com -78% de erro).
+    - **Slide 5**: Fecho & Sem3 · Ponte direta para o experimento formal de campo em 25/11.
 
-### 2. Roteiro Descomplicado da Fala da Aula de Hoje (Google Drive & Celular)
-- [x] **Documento HTML Educativo e Direto para Apresentação Oral**:
-  - Sincronizado em: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` (raiz do Drive para abrir no app do celular), `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html`, `va2/roteiro_fala_aula_hoje_sem2.html` e `code/grafoparada_web/roteiro.html`.
-  - *Alinhamento 1:1 com os 5 Slides Minimalistas*:
-    - **Slide 1 (06h10 / Dona Severina / 48 Passageiros)**: Abertura e demonstração ao vivo do celular em Camela, Modo Fácil e Linha 178 transferida da ociosidade para a 199.
-    - **Slide 2 (4,98 ms / 0,77 ms / R$ 0,00)**: Custos medidos na prática vs estimativa do `flx.md`.
-    - **Slide 3 (18 min [?] / 45 min / Trava Híbrida)**: Falha honesta do over-smoothing no Trevo de Ipojuca e trava de corte para proteção do passageiro.
-    - **Slide 4 (2,46 min / 1,51 min / Frota Ativa)**: O que mudou desde o Sem1 (STGCN bateu modelos lineares em 20 paradas com -78% de erro).
-    - **Slide 5 (14 L/h / R$ 4,10 / 25/11 Sem3)**: Fecho com o ganho prático e a chamada para os experimentos de campo do Sem3.
-  - *Gabarito da Banca*: Respostas simples e convictas para as 5 perguntas céticas mais difíceis.
+### 2. As Quatro Frases Sem IA e Roteiro de Fala 100% Humano no Google Drive
+- [x] **As 4 Frases Enxutas (Decore para falar de cabeça em menos de 1 minuto)**:
+  1. *A Demo*: O passageiro em Camela abre o app às 06h10, vê a previsão da Linha 199 chegando em 4 minutos e a indicação de sair às 06h08 para não mofar no acostamento escuro da PE-60.
+  2. *O Custo*: No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch. O flx estimava 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
+  3. *A Falha*: No bloqueio do Trevo de Ipojuca com 45 minutos de atraso real no GPS, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde o turno na fábrica, e o erro ensina que choques pontuais exigem uma trava que corte a IA.
+  4. *O Que Mudou*: No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real de 20 paradas da PE-60 ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
+- [x] **Sincronização Total**:
+  - Salvo e pronto para celular em: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx`.
+  - Versionado no repositório em: `va2/sem2.md`, `va2/roteiro_fala_aula_hoje_sem2.html` e `va2/slides_sem2.html`.
+  - Publicado na Vercel: `https://grafoparadaweb.vercel.app/slides_sem2.html` e `https://grafoparadaweb.vercel.app/roteiro.html`.
 
 ### 1. Rodada de Usabilidade, Geografia Autêntica e Correção de Interface (Anti-Tela Preta)
 - [x] **Diagnóstico e Correção da Tela Escura no Desktop/Mobile**:

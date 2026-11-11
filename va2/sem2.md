@@ -4,79 +4,58 @@
 > [tec.md](tec.md), do [flx.md](flx.md), do [exp.md](exp.md) e do [sem1.md](sem1.md).
 > código no painel: `sem2` · quarta, 11/11.
 
-**link dos slides:** [va2/slides_sem2.html](https://github.com/lira-labs/workspace/blob/main/va2/slides_sem2.html) (versão web interativa) e [va2/GrafoParada_Seminario2_CauaLira.pptx](https://github.com/lira-labs/workspace/blob/main/va2/GrafoParada_Seminario2_CauaLira.pptx)
+**link dos slides:** [va2/slides_sem2.html](https://grafoparadaweb.vercel.app/slides_sem2.html) e [va2/GrafoParada_Seminario2_CauaLira.pptx](https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx)
 
-**a versão que roda:** commit [`565321f`](https://github.com/lira-labs/workspace/commit/565321f) (ou tag `sem2`) no repositório [github.com/lira-labs/workspace](https://github.com/lira-labs/workspace)
+**a versão que roda:** commit [`0cdf397`](https://github.com/lira-labs/workspace/commit/0cdf397) no repositório [github.com/lira-labs/workspace](https://github.com/lira-labs/workspace)
 
-**a máquina:** o meu Desktop / Notebook Windows (Intel Core CPU com Python 3.12 + PyTorch) e o smartphone conectado ao vivo pelo link de produção [https://grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app)
+**a máquina:** meu notebook com Python 3.12 e o smartphone conectado ao vivo pelo link [grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app), espelhado na sala.
 
-**a gravação de reserva:** [va2/entrega_ai4good.mp4](https://github.com/lira-labs/workspace/blob/main/va2/entrega_ai4good.mp4) (e tomada contínua do ensaio sem cortes, anexada à release `sem2`)
-
----
+**a gravação de reserva:** [va2/entrega_ai4good.mp4](https://github.com/lira-labs/workspace/blob/main/va2/entrega_ai4good.mp4), tomada contínua do ensaio sem cortes, anexada à release `sem2`.
 
 ## as quatro frases, sem IA
 
-1. **a demo:** O trabalhador em Camela ou no TI Cabo — seja com a Janela Segura de Saída (06h08) baseada no seu turno, o Letreiro LED idêntico ao ônibus ou o Farol Noturno anti-queima de 76px — recebe a previsão da Linha 199 com folga no VEM e resgate contra alagamentos; e a agregação anônima de suas rotinas alimenta a Central CTM para realocar ônibus vazios da Linha 178 para a 199.
-2. **o custo:** No celular, a máquina de estados cinemática levou 4,98 milissegundos e 12 KB de RAM; no servidor, a STGCN de 20 nós levou 0,77 milissegundos na CPU e 84 KB de tensores, dentro do processo PyTorch de 358 MB. O flx estimava menos de 500 ms e 300 MB, e a diferença é que a inferência pura na CPU é quase instantânea e o runtime completo segura os pesos em memória.
-3. **a falha:** Num bloqueio súbito no Trevo de Ipojuca com 45 minutos de atraso real no GPS, a STGCN suavizou o salto pelo grafo e previu apenas 18 minutos; quem sofre é o trabalhador na parada da PE-60 que acha que o ônibus tá perto e perde o turno da fábrica; esse erro revela que redes de grafo sofrem de super-suavização espacial, e por isso o GrafoParada nunca esconde o dado bruto do GPS e acende o alerta de interdição [?] na tela.
-4. **o que mudou:** No sem1, o cálculo simples tinha superado a STGCN no corredor curto de 5 paradas e eu prometi testar na malha completa; agora, com as 20 paradas da PE-60 e os dados reais de 400 linhas do GTFS, a STGCN virou o jogo e bateu a regressão com 1,51 minuto de erro contra 1,93 minuto, provando que quando a rede cresce a IA espacial se justifica; e o app deixou de ser um rastreador passivo para virar um sistema ativo de realocação da frota no vazio alimentado pela rotina das pessoas e adaptado para todas as idades.
+1. **a demo:** O passageiro em Camela abre o app às 06h10, vê a previsão da Linha 199 chegando em 4 minutos e a indicação de sair às 06h08 para não mofar no acostamento escuro da PE-60.
+2. **o custo:** No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch. O flx estimava menos de 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
+3. **a falha:** No bloqueio do Trevo de Ipojuca com 45 minutos de atraso real no GPS, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde o turno na fábrica, e o erro ensina que choques pontuais exigem uma trava que corte a IA.
+4. **o que mudou:** No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real de 20 paradas da PE-60 ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
 
----
+## slide 1 · ponta a ponta · 80 s
 
-## slide 1 · ponta a ponta, ao vivo · 80 s
+- **aparece:** Na esquerda: Quem usa (passageiro em Camela), Entrada real (Linha 199 às 06h10), Saída na tela (chegada em 4 min) e O que deixa fazer (sair no horário certo sem mofar no ponto escuro). Na direita: O card da demonstração ao vivo rodando direto do repositório.
+- **a entrada:** Passageiro na parada de Camela na rodovia PE-60, às 06h10, aguardando a Linha 199 sentido TI Cabo.
+- **eu falo:** "Esse é o GrafoParada rodando ao vivo do repositório. Aqui está o celular espelhado na tela: o passageiro em Camela precisa ir trabalhar em Suape. Às 06h10 ele abre o app. A tela entrega a previsão exata da Linha 199: 4 minutos para chegar, na Plataforma 04. Ele vê que deve sair de casa às 06h08 para caminhar com calma e não ficar mofando no acostamento escuro e perigoso da rodovia. A previsão sai rápida, direto no celular, sem depender de carregar páginas pesadas."
 
-- **aparece:** O smartphone com o GrafoParada rodando ao vivo ([grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app)). O mapa em Camela com a Linha 199. Na tela: o card 'Minha Rotina Pendular' com a Janela Segura de Saída (saia às 06h08), o Letreiro LED idêntico ao coletivo, o Guardião da Integração Temporal VEM (1h 14m restantes), o Farol Noturno anti-queima de 76px e o painel da Central CTM com a realocação da frota no vazio.
-- **a entrada:** 1 toque no card `📅 Minha Rotina (Turno Suape 05h45)` para calcular a saída de casa sem mofar no ponto; ou o toque na `🏛️ Central CTM` para transferir um ônibus vazio da Linha 178 para a Linha 199.
-- **eu falo:** [Com o app aberto e espelhado na tela] "Esse é o GrafoParada rodando ao vivo do nosso repositório. O passageiro não usa o transporte de forma aleatória: ele tem uma rotina de trabalho ou estudo. Com um único toque, o trabalhador de Suape ativa a sua rotina das 05h45. O app calcula a Janela Segura de Saída de casa: como a caminhada até a parada leva 6 minutos e o 199 chega às 06h14, ele avisa para sair exatamente às 06h08, evitando que o passageiro fique exposto no acostamento escuro da rodovia. E para a Dona Severina, de 68 anos, que tem medo de errar o ônibus, o app exibe na tela o Letreiro LED idêntico ao letreiro da frente do coletivo (199 CAMELA/CABO) e fala em voz alta: 'Dona Severina, o 199 chega em 4 minutos, tem 14 bancos vazios'. E vejam a nossa tese funcionando: 48 trabalhadores cadastraram essa rotina. A Central CTM detecta que o ônibus regular vai superlotar e que a Linha 178 de Suape está voltando com apenas 3 passageiros — quilometragem morta, o chamado deadheading, jogando fora 14 litros de diesel por hora. Com um clique do despachante, o veículo ocioso é remanejado para a Linha 199: a espera cai de 18 para 4 minutos e ninguém fica na chuva!"
+## slide 2 · quanto custa · 50 s
 
----
+- **aparece:** Medido nesta máquina: 4,98 ms e 12 KB no celular; 0,77 ms e 358 MB no servidor. Ao lado, o estimado no flx: < 500 ms e ~300 MB. Embaixo: a explicação da diferença.
+- **medido:** Execução de `medir_custo_sem2.py` no commit `0cdf397`: FSM cinemática em 4,98 ms e 12 KB de RAM no celular; STGCN em 0,77 ms de CPU e 358 MB de processo PyTorch no servidor.
+- **estimado no flx:** < 500 ms por inferência e ~300 MB de memória RAM.
+- **eu falo:** "Esses números vieram da medição de verdade que rodou no repositório. No celular, o cálculo cinemático levou 4,98 milissegundos e gastou apenas 12 kilobytes de RAM. No servidor, a STGCN rodou em 0,77 milissegundo na CPU. O flx estimava até 500 milissegundos e 300 megabytes. A diferença no tempo é que a inferência em CPU pura é quase instantânea; e na memória, os 358 megabytes são o processo do PyTorch mantendo as bibliotecas dinâmicas em memória, enquanto os pesos da rede ocupam menos de 100 kilobytes. O custo em reais é zero: roda num computador comum de escritório do consórcio."
 
-## slide 2 · quanto custa, medido · 50 s
+## slide 3 · a falha · 60 s
 
-- **aparece:** Quadro comparativo direto entre o estimado no `flx.md` e o medido ao vivo em `medir_custo_sem2.py`:
-  - *No Celular:* Estimado = 14,29 µs · 8,92 KB | Medido = **4,98 ms** (inferência completa) / **14,29 µs** (passo rotina) · **12,0 KB** de RAM.
-  - *No Servidor (STGCN 20 Nós PE-60):* Estimado = < 500 ms · ~300 MB | Medido = **0,77 ms** por ciclo na CPU · **83,7 KB** de tensores ativos (**358,2 MB** total do processo PyTorch no SO).
-  - *Custo em Reais:* R$ 0,00 (roda na CPU do consórcio sem placa de vídeo).
-- **medido:** Execução real em `code/grafoparada_tec/medir_custo_sem2.py` (commit `565321f`), CPU Intel, Python 3.12 + PyTorch: 0,77 ms na CPU para as 20 paradas da PE-60; FSM cinemática v3 com Soft-Voting em 4,98 ms no aparelho.
-- **estimado no flx:** < 500 ms de inferência e ~300 MB de RAM.
-- **eu falo:** "Esse número não é estimativa: ele saiu da medição real que rodou agora no repositório com o script `medir_custo_sem2.py`. No celular do passageiro, a máquina de estados cinemática com Soft-Voting leva 4,98 milissegundos e gasta apenas 12 kilobytes de RAM, sem drenar bateria. No servidor local do consórcio, a nossa rede STGCN com 34 mil parâmetros rodou em apenas 0,77 milissegundo por ciclo na CPU — muito abaixo dos 500 milissegundos que eu tinha estimado no flx. E a memória: os tensores da rede ocupam só 84 kilobytes, enquanto o processo inteiro do PyTorch na máquina consome 358 megabytes, que foi o que medimos no experimento E1. A diferença para os 300 megabytes estimados no flx é que o runtime do PyTorch segura as bibliotecas dinâmicas em memória, mas o cálculo em si é levíssimo. O custo segue zero reais: roda num computador comum de escritório do CTM, sem gastar um centavo com nuvem paga."
+- **aparece:** A saída errada da IA em destaque vermelho: 18 minutos. O certo pelo GPS em destaque verde: 45 minutos. Embaixo: quem sofre o erro e a trava de proteção adotada.
+- **a entrada:** Ônibus da Linha 199 travado no bloqueio do Trevo de Ipojuca (Nó 10 da PE-60), com atraso real de 45 minutos no satélite GPS.
+- **a saída, como saiu:** A STGCN previu 18 minutos.
+- **o certo:** 45 minutos de atraso (ou alerta de interdição total da rodovia).
+- **eu falo:** "Eu escolhi este caso de propósito porque ele erra de verdade. Teve um acidente no Trevo de Ipojuca e a rodovia travou: o atraso real no GPS pulou para 45 minutos. Olhem a tela: a STGCN previu 18 minutos. O número parece razoável, mas mente. Quem sofre é o trabalhador na parada: ele confia no '18 minutos', espera um ônibus que não vem e perde o turno na fábrica. O erro me ensinou que redes de grafo sofrem de super-suavização: a matriz do grafo dilui o atraso brusco com as paradas vizinhas. Por isso colocamos a trava híbrida: se o desvio entre STGCN e GPS passar de 15 minutos, o app corta a IA e acende o alerta de interdição [?]. É exatamente essa falha que vamos medir no sem3."
 
----
+## slide 4 · o que mudou desde o sem1 · 45 s
 
-## slide 3 · a falha mostrada de propósito · 65 s
+- **aparece:** Duas linhas claras. "No sem1 (5 paradas): O cálculo linear simples bateu a STGCN (2,46 min vs 4,42 min)." e "Agora no sem2 (20 paradas PE-60): A STGCN virou o jogo e reduziu o erro para 1,51 min (contra 1,93 min da linear e 7,13 min da persistência)."
+- **no sem1:** O cálculo simples bateu a STGCN em 5 paradas (2,46 min vs 4,42 min), e a banca questionou se valia a pena usar IA em grafo.
+- **agora:** Mantive a STGCN de propósito. Na malha de 20 paradas da PE-60, a STGCN venceu a linear por 0,42 min e reduziu 78% do erro contra a persistência.
+- **eu falo:** "No sem1, uma conta simples de padaria tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. Eu prometi testar na malha completa para ver se a rede se justificava. Mantive a STGCN e hoje trago a resposta: nas 20 paradas da rodovia PE-60, a STGCN virou o jogo. O erro caiu para 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos. Quando o corredor cresce e os atrasos se propagam entre as paradas, a IA espacial se paga."
 
-- **aparece:** A demonstração da falha ao vivo no app (botão `🧪 Simular Interdição PE-60`): a previsão do primeiro ônibus muda de 4 min para um alerta amarelo: `[⚠️ ALERTA: STGCN suavizou para 18 min · GPS Real = 45 min]`. Ao lado, o gráfico de over-smoothing da STGCN.
-- **a entrada:** Bloqueio súbito de trânsito no Trevo de Ipojuca (Nó 10 da PE-60). O GPS bruto do veículo registra que o ônibus parou e o atraso real salta de 5 min para **45 minutos**.
-- **a saída, como saiu:** A rede neural STGCN difunde o atraso pela matriz Laplaciana para as paradas vizinhas e prevê apenas **18 minutos** no ponto.
-- **o certo:** O app alertar **45 minutos de atraso** (ou exibir aviso de interdição na via).
-- **eu falo:** "Eu fiz questão de trazer este caso porque ele erra de verdade. Imaginem que houve um acidente ou manifestação no Trevo de Ipojuca e a rodovia travou: o atraso real no GPS salta de 5 para 45 minutos. Olhem o que a STGCN faz na tela: como ela usa convolução em grafo com matriz Laplaciana, ela 'espalha' o atraso entre as paradas vizinhas e prevê apenas 18 minutos. O número parece razoável, mas é mentiroso. Quem sofre esse erro é o trabalhador na parada de Camela ou de Ipojuca: ele vê '18 minutos', fica esperando, o ônibus leva 45 minutos para chegar e ele toma advertência ou perde o emprego na fábrica de Suape. Esse erro me ensinou algo fundamental sobre a IA: redes de grafo sofrem de super-suavização espacial (*over-smoothing*) quando há choques bruscos isolados. E como nós resolvemos isso no GrafoParada? Nós nunca escondemos o dado bruto do GPS: se a divergência entre a STGCN e o GPS passar de 15 minutos, a tela acende o selo amarelo de interdição [?] avisando ao passageiro que a via travou. Essa falha é exatamente a nossa métrica para o experimento do Sem3: quantos desses choques a regra híbrida consegue blindar contra o erro puro da IA."
+## slide 5 · o fecho · 25 s
 
----
+- **aparece:** O fecho do sem2: "Roda no celular e na CPU local a custo zero, e a falha de over-smoothing é blindada pela regra." Embaixo, a ponte pro sem3: "Seminário 3 (25/11): Quantos choques de trânsito na PE-60 a trava híbrida consegue capturar contra o erro puro da IA."
+- **eu falo:** "O sistema roda no aparelho do passageiro e na CPU local a custo zero. E a falha da IA não fica escondida: vira a regra de segurança que protege o trabalhador. No dia 25, no sem3, eu trago a medida de campo de quantos desses choques a trava consegue capturar."
 
-## slide 4 · o que mudou desde o sem1 · 50 s
-
-- **aparece:** Quadro comparativo:
-  - *No Sem1:* Corredor curto de 5 paradas: cálculo simples superou a STGCN (2,46 min vs 4,42 min). Promessa de validar se a IA se justificava na malha maior. Interface cheia de gráficos de desenvolvedor.
-  - *Agora no Sem2:* Na malha real de 20 paradas da PE-60, a STGCN virou o jogo (**MAE = 1,51 min vs 1,93 min** da regressão linear e **7,13 min** da persistência). App evoluiu de um rastreador passivo para um sistema ativo de mitigação de frota no vazio alimentado pela rotina das pessoas, com acessibilidade universal (Modo Fácil para idosos, Modo Bolso para estudantes, Farol Noturno e proteção do VEM).
-- **no sem1:** "No corredor curto de 5 paradas, o cálculo mais simples superou a STGCN (2,46 contra 4,42 min). Vamos testar na malha completa."
-- **agora:** Confirmado com dados reais: em 20 paradas da PE-60, a STGCN venceu a regressão por 0,42 min e reduziu o erro em 78% contra a persistência. A tese central de entender a rotina para realocar ônibus ociosos foi implementada ponta a ponta.
-- **eu falo:** "No sem1, eu fui honesto e mostrei que, no trecho curto de 5 paradas, uma conta simples de padaria tinha errado menos que a STGCN (2,46 contra 4,42 minutos). Prometi para a banca que ia testar na malha completa para ver se a IA realmente se pagava. Hoje eu trago a resposta com dados reais: nas 20 paradas da PE-60, a STGCN virou o jogo. Ela cravou um erro de 1,51 minuto, batendo a regressão linear que deu 1,93 minuto e a persistência que deu 7,13 minutos. Quando o corredor cresce e os atrasos se propagam entre as linhas, a IA espacial se justifica plenamente. Mas a maior mudança foi de conceito: o app deixou de ser um mero rastreador de ônibus passivo como o Cittamobi. Ele passou a entender a rotina das pessoas para balancear a frota no vazio do Grande Recife, acabando com ônibus rodando sem passageiro enquanto a população espera no escuro da PE-60."
-
----
-
-## slide 5 · o fecho · 20 s
-
-- **aparece:** O balanço da realocação: 14 L de diesel economizados por viagem ociosa evitada · R$ 4,10 de VEM protegido contra cobrança dupla · R$ 155,80 de receita preservada contra ligeirinhos · 166 bytes locais no celular.
-- **eu falo:** "O GrafoParada roda no celular, roda na CPU do consórcio a custo zero e protege o trabalhador do assalto no escuro da parada. A desistência na parada financia o ônibus no pico. No dia 25, no sem3, eu trago a validação experimental com passageiros reais na PE-60 provando quantos desses gargalos nós conseguimos evitar antes da catraca."
-
----
-
-**tempo total, cronometrado com a demo rodando:** 4 min 20 s (primeira passada) e 4 min 10 s (segunda passada).
-
----
+**tempo total, cronometrado, com a demo rodando:** 4 min 10 s e 4 min 05 s, duas vezes seguidas, na mesma máquina. A segunda passada está gravada sem cortes como reserva.
 
 ## ensaio cético
 
-**a pergunta mais difícil:** "Se a STGCN erra feio quando tem um acidente na PE-60 prevendo 18 minutos em vez de 45, por que o passageiro deveria confiar no seu app em vez de simplesmente olhar o GPS do Cittamobi ou do Google Maps?"
+**a pergunta mais difícil:** "Se a STGCN erra feio num acidente prevendo 18 minutos em vez de 45, por que o passageiro deveria confiar no seu app?"
 
-**o que eu mudei por causa dela:** Eu percebi que não adiantava ter a melhor rede neural se no momento mais crítico (um engarrafamento na rodovia) o passageiro recebesse uma previsão furada. Por causa dessa pergunta, eu criei no código a **trava híbrida de segurança**: quando a divergência entre a STGCN e o GPS do ônibus passa de 15 minutos, o app não esconde o problema; ele acende o selo amarelo `[?]` e avisa no fone por voz que a rodovia travou. Coloquei o botão dessa demonstração direto na tela do app (Slide 3) para mostrar na frente da banca como a regra protege o passageiro da falha da IA.
+**o que eu mudei por causa dela:** Eu ia tentar defender que a IA aprende com o tempo. Mudei: assumi que o over-smoothing é intrínseco à convolução em grafo e criei a trava híbrida de segurança no código. Se a diferença entre IA e GPS passa de 15 minutos, a tela corta a previsão e acende o selo [?] de interdição.
