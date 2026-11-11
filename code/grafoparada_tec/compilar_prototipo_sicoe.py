@@ -105,6 +105,10 @@ template = """<!DOCTYPE html>
       --blue-bg: #f0f9ff;
       --blue-border: #bae6fd;
 
+      --warning-amber: #d97706;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+
       --danger-red: #dc2626;
       --danger-bg: #fef2f2;
       --danger-border: #fecaca;
@@ -271,21 +275,27 @@ template = """<!DOCTYPE html>
       position: absolute;
       inset: 0;
       z-index: 1;
-      background: #e2e8f0; /* Map neutral gray, never black */
+      background: #e2e8f0;
     }
 
     /* FLOATING TOP BAR (SLEEK PILL) */
     .top-floating-bar {
       position: absolute;
-      top: 42px;
+      top: 40px;
       left: 14px;
       right: 14px;
       z-index: 1000;
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .top-pills-row {
+      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      pointer-events: none;
     }
 
     .top-pill {
@@ -320,6 +330,65 @@ template = """<!DOCTYPE html>
       gap: 6px;
       box-shadow: var(--shadow-floating);
       cursor: pointer;
+    }
+
+    /* SEARCH BAR (MELHORIA 1: AUTOCOMPLETE RÁPIDO) */
+    .search-pill-wrapper {
+      pointer-events: auto;
+      position: relative;
+      width: 100%;
+    }
+
+    .search-pill {
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-floating);
+    }
+
+    .search-input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: var(--text-main);
+      width: 100%;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: 44px;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+      z-index: 2000;
+      flex-direction: column;
+    }
+
+    .search-item {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-item:hover {
+      background: var(--bg-page);
     }
 
     .pulse-dot {
@@ -506,12 +575,12 @@ template = """<!DOCTYPE html>
 
     .hero-btn-pocket {
       width: 100%;
-      min-height: 52px;
+      min-height: 50px;
       background: var(--brand-green);
       color: #ffffff;
       border: none;
       border-radius: 16px;
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -520,12 +589,30 @@ template = """<!DOCTYPE html>
       cursor: pointer;
       box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
       transition: all 0.15s ease;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .hero-btn-pocket:active {
       transform: scale(0.98);
       background: var(--brand-green-dark);
+    }
+
+    /* BUTTON TO DEMO THE SLIDE 3 FAILURE REAL */
+    .btn-demo-failure {
+      width: 100%;
+      min-height: 38px;
+      background: var(--warning-bg);
+      color: var(--warning-amber);
+      border: 1.5px dashed var(--warning-border);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-bottom: 10px;
     }
 
     /* OLED BLACK SCREEN SHIELD */
@@ -567,6 +654,35 @@ template = """<!DOCTYPE html>
       padding: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       border: 1px solid var(--border-color);
+    }
+
+    /* SCHEMATIC TERMINAL DIAGRAM (MELHORIA 2) */
+    .terminal-schematic {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 12px;
+      color: #ffffff;
+      margin-bottom: 14px;
+      border: 1px solid #334155;
+    }
+
+    .schematic-bay {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 11.5px;
+      background: #1e293b;
+      border: 1px solid #334155;
+    }
+
+    .schematic-bay.highlight-bay {
+      background: rgba(5, 150, 105, 0.25);
+      border: 1.5px solid var(--brand-green);
+      color: #34d399;
+      font-weight: 800;
     }
 
     /* FORM ELEMENTS */
@@ -676,11 +792,11 @@ template = """<!DOCTYPE html>
     <div class="badge-title">
       <span>📱</span>
       <span>Simulador Mobile · GrafoParada Grande Recife</span>
-      <span style="font-size:11px; background:rgba(5,150,105,0.25); color:#34d399; padding:2px 8px; border-radius:999px; border:1px solid rgba(5,150,105,0.4);">SEI Integrado</span>
+      <span style="font-size:11px; background:rgba(5,150,105,0.25); color:#34d399; padding:2px 8px; border-radius:999px; border:1px solid rgba(5,150,105,0.4);">Seminário 2 Live</span>
     </div>
     <div style="display:flex; gap:8px;">
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
-        <span>🔄</span> Testar do Zero (Novo Cadastro)
+        <span>🔄</span> Testar do Zero
       </button>
       <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()">
         <span>⛶</span> Alternar Tela
@@ -700,14 +816,26 @@ template = """<!DOCTYPE html>
 
     <!-- 2. MINIMALIST FLOATING TOP BAR -->
     <div class="top-floating-bar">
-      <div class="top-pill" onclick="openProfileModal()">
-        <span style="font-size:15px;">👤</span>
-        <span id="top-user-name">Cauã</span>
+      <div class="top-pills-row">
+        <div class="top-pill" onclick="openProfileModal()">
+          <span style="font-size:15px;">👤</span>
+          <span id="top-user-name">Cauã</span>
+        </div>
+
+        <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
+          <div class="pulse-dot"></div>
+          <span id="top-line-label">199 · Camela / Cabo</span>
+        </div>
       </div>
 
-      <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
-        <div class="pulse-dot"></div>
-        <span id="top-line-label">199 · Camela / Cabo</span>
+      <!-- SEARCH BAR AUTOCOMPLETE (MELHORIA 1) -->
+      <div class="search-pill-wrapper">
+        <div class="search-pill">
+          <span style="font-size:14px; color:var(--text-muted);">🔍</span>
+          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar linha (ex: 199, 178) ou Terminal..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
+          <button id="search-clear-btn" onclick="clearQuickSearch()" style="display:none; border:none; background:none; color:var(--text-muted); cursor:pointer;">✕</button>
+        </div>
+        <div id="search-results-dropdown" class="search-dropdown"></div>
       </div>
     </div>
 
@@ -733,7 +861,10 @@ template = """<!DOCTYPE html>
         <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
         <div id="view-sheet-resting">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <span style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual</span>
+              <button id="btn-fav-star" onclick="toggleFavoriteCurrentStop()" style="border:none; background:none; cursor:pointer; font-size:14px;" title="Favoritar parada">⭐</button>
+            </div>
             <button style="border:none; background:none; color:var(--blue-accent); font-weight:700; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Paradas ▲</button>
           </div>
           <div style="font-size:15.5px; font-weight:800; margin-bottom:10px; color:var(--text-main);" id="current-stop-name">
@@ -790,14 +921,19 @@ template = """<!DOCTYPE html>
           </div>
 
           <!-- TRUST BADGES -->
-          <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
-            <div style="font-size:11.5px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+          <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+            <div id="badge-gps-status" style="font-size:11.5px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
               <span>🛰️</span> GPS Satélite Ativo · 42 km/h na PE-60 (Zero Ônibus Fantasma)
             </div>
             <div style="font-size:11.5px; background:var(--blue-bg); color:var(--blue-accent); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
               <span>💺</span> 14 assentos livres · Embarque Sentado Garantido
             </div>
           </div>
+
+          <!-- BUTTON TO SIMULATE THE SLIDE 3 FAILURE REAL -->
+          <button class="btn-demo-failure" onclick="simulateSlide3Failure()">
+            <span>🧪</span> Simular Interdição PE-60 (Demonstração da Falha · Sem2)
+          </button>
 
           <!-- HERO ACTION: POCKET MODE AUDIO -->
           <button class="hero-btn-pocket" onclick="activatePocketShield()">
@@ -827,7 +963,7 @@ template = """<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- 6. MODAL: "ESTOU PERDIDO / PRIMEIRA VEZ AQUI" -->
+    <!-- 6. MODAL: "ESTOU PERDIDO / PRIMEIRA VEZ AQUI" COM MAPA ESQUEMÁTICO DO T.I. -->
     <div id="modal-lost" class="modal-overlay">
       <div class="modal-card" style="border:2px solid var(--brand-green);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -835,38 +971,58 @@ template = """<!DOCTYPE html>
             <span style="font-size:26px;">🧭</span>
             <div>
               <h3 style="font-size:17px; font-weight:800; color:var(--brand-green-dark); margin:0;">Você está seguro</h3>
-              <span style="font-size:11.5px; color:var(--text-secondary);">Guia anti-pânico de orientação no terminal</span>
+              <span style="font-size:11.5px; color:var(--text-secondary);">Guia anti-pânico com mapa de plataformas</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeLostModal()">✕</button>
         </div>
 
-        <div style="background:var(--brand-green-bg); border:1px solid var(--brand-green-border); border-radius:14px; padding:11px; font-size:12.5px; color:var(--brand-green-dark); line-height:1.45; margin-bottom:14px;">
-          <strong>💚 Fique calmo:</strong> Deixe o celular guardado para não chamar atenção. Siga os 3 passos abaixo:
+        <!-- ESQUEMA VISUAL DO TERMINAL INTEGRADO DO CABO (MELHORIA 2) -->
+        <div class="terminal-schematic">
+          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#94a3b8; margin-bottom:8px; text-transform:uppercase;">
+            <span>🏛️ Terminal Integrado do Cabo</span>
+            <span>Área Interna</span>
+          </div>
+
+          <div class="schematic-bay">
+            <span>Plat. 01 / 02 · Linhas de Bairro (Centro)</span>
+            <span style="color:#94a3b8;">Baia A</span>
+          </div>
+          <div class="schematic-bay">
+            <span>Plat. 03 · Linha 178 (Porto de Suape)</span>
+            <span style="color:#94a3b8;">Baia B</span>
+          </div>
+          <div class="schematic-bay highlight-bay">
+            <span>📍 Plat. 04 · LINHA 199 (CAMELA / SJT)</span>
+            <span>SEU EMBARQUE</span>
+          </div>
+          <div class="schematic-bay">
+            <span>Plat. 05 / 06 · Troncais Recife / Conexão Metrô</span>
+            <span style="color:#94a3b8;">Baia C</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:10.5px; color:#cbd5e1; border-top:1px dashed #334155; padding-top:6px;">
+            <span>👮 Cabine Fiscal CTM: 15m à frente</span>
+            <span>💡 Iluminação 100%</span>
+          </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
-          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:11px;">
-            <div style="font-size:11px; font-weight:800; color:var(--blue-accent); text-transform:uppercase;">1️⃣ Onde você está agora:</div>
-            <div style="font-size:13.5px; font-weight:800; margin-top:2px;" id="lost-step-loc">🏛️ Terminal Integrado do Cabo (Área Interna)</div>
-            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Área coberta iluminada, próximo à cabine de fiscalização do CTM.</div>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px;">
+            <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">🚶 Instrução de Caminhada:</div>
+            <div style="font-size:13px; font-weight:800; margin-top:2px;">Caminhe 20 passos até a Plataforma 04 (Lado Sul).</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Ônibus azul da São Judas Tadeu (SJT). Embarque coberto e seguro.</div>
           </div>
 
-          <div style="background:var(--bg-page); border:1.5px solid var(--brand-green); border-radius:14px; padding:11px;">
-            <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">2️⃣ Para onde caminhar:</div>
-            <div style="font-size:13.5px; font-weight:800; margin-top:2px;" id="lost-step-plat">🚶 Vá até a Plataforma 04 (Linha 199 Camela)</div>
-            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Ônibus da São Judas Tadeu (SJT). Não precisa sair para a rodovia externa.</div>
-          </div>
-
-          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:11px;">
-            <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">3️⃣ Primeiro ônibus & Horário:</div>
-            <div style="font-size:13.5px; font-weight:800; margin-top:2px;" id="lost-step-bus">🚌 Chega em 4 minutos (às 06:14)</div>
-            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">14 assentos livres · Embarque sentado garantido.</div>
+          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px;">
+            <div style="font-size:11px; font-weight:800; color:var(--blue-accent); text-transform:uppercase;">🚌 Horário Previsto:</div>
+            <div style="font-size:13px; font-weight:800; margin-top:2px;">Chega em 4 minutos (às 06:14)</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">14 assentos livres. Fique perto da fila organizada.</div>
           </div>
         </div>
 
         <button class="btn-primary" onclick="playLostVoiceAudio()" style="margin-bottom:8px;">
-          <span>🎧</span> Ouvir Instruções no Fone
+          <span>🎧</span> Ouvir Instruções Calmas no Fone
         </button>
 
         <button class="btn-secondary" onclick="closeLostModal()">
@@ -1002,6 +1158,7 @@ __ROUTE_OPTIONS__
     let userMarker = null;
     let currentAudioPlayer = null;
     let busAnimIndex = 0;
+    let isSlide3FailureActive = false;
 
     // INIT APP ON LOAD
     window.addEventListener("DOMContentLoaded", function() {
@@ -1051,7 +1208,6 @@ __ROUTE_OPTIONS__
         drawRoute(TELEMETRIA);
         selectStop(1, false);
 
-        // Multiple size updates to ensure map renders smoothly inside the phone frame
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 150);
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 500);
       } catch (err) {
@@ -1065,9 +1221,7 @@ __ROUTE_OPTIONS__
       stopsMarkersLayer.clearLayers();
 
       if (telemetria.polyline && telemetria.polyline.length > 1) {
-        // Road shadow line
         L.polyline(telemetria.polyline, { color: "#0284c7", weight: 8, opacity: 0.25 }).addTo(routePolylineLayer);
-        // Vibrant transit line
         L.polyline(telemetria.polyline, { color: "#0284c7", weight: 4.5, opacity: 0.95 }).addTo(routePolylineLayer);
       }
 
@@ -1098,7 +1252,13 @@ __ROUTE_OPTIONS__
 
       // Update ETA
       const etaNum = document.getElementById("live-eta-num");
-      if (etaNum) etaNum.textContent = st.stgcn_horizon_min[1].toFixed(0);
+      const etaVal = st.stgcn_horizon_min[1].toFixed(0);
+      if (etaNum) etaNum.textContent = etaVal;
+
+      // Trigger Haptic and audio if <= 2 min
+      if (parseInt(etaVal) <= 2) {
+        triggerArrivalAlert();
+      }
 
       if (pan && leafletMap) {
         leafletMap.panTo([st.lat, st.lon], { animate: true, duration: 0.4 });
@@ -1149,24 +1309,174 @@ __ROUTE_OPTIONS__
       }, 3000);
     }
 
+    // SEARCH AUTOCOMPLETE LOGIC (MELHORIA 1)
+    function handleQuickSearch(query) {
+      const q = (query || "").trim().toLowerCase();
+      const drop = document.getElementById("search-results-dropdown");
+      const clearBtn = document.getElementById("search-clear-btn");
+
+      if (!q) {
+        drop.style.display = "none";
+        clearBtn.style.display = "none";
+        return;
+      }
+
+      clearBtn.style.display = "block";
+      const results = [];
+
+      // 1. Check terminals
+      SEI_TERMINALS.forEach(function(t) {
+        if (t.ti_name.toLowerCase().includes(q) || t.municipio.toLowerCase().includes(q)) {
+          results.push({ type: "terminal", title: t.ti_name, sub: t.municipio, lat: t.lat, lon: t.lon });
+        }
+      });
+
+      // 2. Check lines
+      if (q.includes("199") || "camela".includes(q) || "cabo".includes(q)) {
+        results.push({ type: "route", title: "Linha 199", sub: "Camela / TI Cabo (via PE-60)", code: "199" });
+      }
+      if (q.includes("178") || "suape".includes(q)) {
+        results.push({ type: "route", title: "Linha 178", sub: "Porto de Suape / TI Cabo", code: "178" });
+      }
+      if (q.includes("191") || "galinhas".includes(q)) {
+        results.push({ type: "route", title: "Linha 191", sub: "Recife / Porto de Galinhas", code: "191" });
+      }
+
+      if (results.length === 0) {
+        drop.innerHTML = '<div style="padding:10px; font-size:12px; color:var(--text-muted); text-align:center;">Nenhum terminal ou linha prioritária encontrado.</div>';
+        drop.style.display = "flex";
+        return;
+      }
+
+      let html = "";
+      results.slice(0, 6).forEach(function(r) {
+        if (r.type === "terminal") {
+          html += '<div class="search-item" onclick="selectSearchedTerminal(' + r.lat + ', ' + r.lon + ', \\'' + r.title + '\\')">' +
+            '<div><strong>🏛️ ' + r.title + '</strong><div style="font-size:11px; color:var(--text-muted);">' + r.sub + '</div></div>' +
+            '<span style="font-size:12px; color:var(--blue-accent);">Ver ➔</span>' +
+          '</div>';
+        } else {
+          html += '<div class="search-item" onclick="selectSearchedRoute(\\'' + r.code + '\\')">' +
+            '<div><strong>🚌 ' + r.title + '</strong><div style="font-size:11px; color:var(--text-muted);">' + r.sub + '</div></div>' +
+            '<span style="font-size:12px; color:var(--brand-green);">Ativar ➔</span>' +
+          '</div>';
+        }
+      });
+
+      drop.innerHTML = html;
+      drop.style.display = "flex";
+    }
+
+    function clearQuickSearch() {
+      const inp = document.getElementById("quick-search-input");
+      if (inp) inp.value = "";
+      document.getElementById("search-results-dropdown").style.display = "none";
+      document.getElementById("search-clear-btn").style.display = "none";
+    }
+
+    function selectSearchedTerminal(lat, lon, title) {
+      clearQuickSearch();
+      if (leafletMap) {
+        leafletMap.flyTo([lat, lon], 16, { animate: true });
+        L.popup().setLatLng([lat, lon]).setContent("<strong>🏛️ " + title + "</strong><br>Terminal Integrado do SEI").openOn(leafletMap);
+      }
+    }
+
+    function selectSearchedRoute(code) {
+      clearQuickSearch();
+      if (code === "178") {
+        activeRouteCode = "178";
+        TELEMETRIA = TELEMETRIA_178;
+        document.getElementById("top-line-label").textContent = "178 · Suape / Cabo";
+        drawRoute(TELEMETRIA);
+        selectStop(1, true);
+        playNaturalVoice("Linha 178 Suape ativada.");
+      } else {
+        activeRouteCode = "199";
+        TELEMETRIA = TELEMETRIA_199;
+        document.getElementById("top-line-label").textContent = "199 · Camela / Cabo";
+        drawRoute(TELEMETRIA);
+        selectStop(1, true);
+        playNaturalVoice("Linha 199 Camela Cabo ativada.");
+      }
+    }
+
+    // FAVORITES (MELHORIA 2)
+    function toggleFavoriteCurrentStop() {
+      const btn = document.getElementById("btn-fav-star");
+      const isFav = localStorage.getItem("grafoparada_fav_stop") === String(activeStopSeq);
+      if (isFav) {
+        localStorage.removeItem("grafoparada_fav_stop");
+        btn.textContent = "☆";
+        playNaturalVoice("Parada removida dos favoritos.");
+      } else {
+        localStorage.setItem("grafoparada_fav_stop", String(activeStopSeq));
+        btn.textContent = "⭐";
+        playNaturalVoice("Parada salva como favorita.");
+      }
+    }
+
+    // HAPTIC & ARRIVAL CHIME (MELHORIA 1)
+    function triggerArrivalAlert() {
+      if ("vibrate" in navigator) {
+        try { navigator.vibrate([200, 100, 200, 100, 400]); } catch(e){}
+      }
+      playSimpleChime();
+    }
+
+    function playSimpleChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } catch(e){}
+    }
+
+    // SIMULATE SLIDE 3 FAILURE REAL (DEMO DO SEMINÁRIO 2)
+    function simulateSlide3Failure() {
+      isSlide3FailureActive = !isSlide3FailureActive;
+      const etaNum = document.getElementById("live-eta-num");
+      const badgeGps = document.getElementById("badge-gps-status");
+
+      if (isSlide3FailureActive) {
+        etaNum.innerHTML = '<span style="color:var(--danger-red);">18*</span>';
+        badgeGps.style.background = "var(--warning-bg)";
+        badgeGps.style.color = "var(--warning-amber)";
+        badgeGps.innerHTML = '<span>⚠️</span> <strong>ALERTA DE FALHA (Slide 3):</strong> STGCN suavizou para 18 min · GPS Bruto = 45 min (Bloqueio Trevo Ipojuca)';
+
+        playNaturalVoice("Atenção: Demonstração da falha do Seminário 2 ativa. A rede neural STGCN suavizou o atraso para 18 minutos devido à difusão espacial, mas o GPS bruto detectou bloqueio na PE-60 com 45 minutos. O GrafoParada alerta a divergência na tela para proteger o passageiro.");
+      } else {
+        etaNum.textContent = "4";
+        badgeGps.style.background = "var(--brand-green-bg)";
+        badgeGps.style.color = "var(--brand-green-dark)";
+        badgeGps.innerHTML = '<span>🛰️</span> GPS Satélite Ativo · 42 km/h na PE-60 (Zero Ônibus Fantasma)';
+        playNaturalVoice("Simulação finalizada. Retornando ao fluxo padrão da Linha 199.");
+      }
+    }
+
     // TRIP ACTIONS (1-TAP)
     function triggerTripAction(target) {
       const isHome = target === "home";
       const u = getUserData();
 
-      // Ensure Linha 199 is active
       if (activeRouteCode !== "199") {
         activeRouteCode = "199";
         TELEMETRIA = TELEMETRIA_199;
         drawRoute(TELEMETRIA);
       }
 
-      // Show Active Trip View
       document.getElementById("view-sheet-resting").style.display = "none";
       const activeView = document.getElementById("view-sheet-active");
       activeView.classList.add("visible");
 
-      // Expand sheet to show active trip clearly
       const sheet = document.getElementById("main-bottom-sheet");
       sheet.style.maxHeight = "360px";
 
@@ -1397,7 +1707,6 @@ __ROUTE_OPTIONS__
         const audio = new Audio(url);
         currentAudioPlayer = audio;
         audio.play().catch(function(e) {
-          // Fallback to browser SpeechSynthesis if backend audio is blocked or offline
           if ('speechSynthesis' in window) {
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'pt-BR';
