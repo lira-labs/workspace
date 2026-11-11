@@ -178,6 +178,27 @@
     body.is-fullscreen .fab-gps {
       right: calc(50% - 215px);
     }
+    .btn-exit-fullscreen {
+      display: none;
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 99999;
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid #334155;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    body.is-fullscreen .btn-exit-fullscreen {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
     /* DYNAMIC ISLAND NOTCH ON DESKTOP */
     .phone-notch-island {
@@ -1074,10 +1095,15 @@
 </head>
 <body>
 
+  <!-- BOTÃO FLUTUANTE DE RETORNO (VISÍVEL APENAS EM TELA CHEIA PC) -->
+  <button class="btn-exit-fullscreen" onclick="toggleFullscreenDesktop()">
+    <span>📱</span> Voltar ao Modo Celular
+  </button>
+
   <!-- DESKTOP TOP BAR (OUTSIDE SMARTPHONE FRAME) -->
   <div class="desktop-outer-bar">
     <div class="badge-title">
-      <img src="img/logo_grafoparada.svg" alt="GrafoParada" style="height:26px; vertical-align:middle; margin-right:6px;" />
+      <img src="img/logo_pc_horizontal.svg" alt="GrafoParada · Menos Espera, Mais Cidade" style="height:30px; vertical-align:middle; margin-right:8px;" />
       <span style="font-size:11px; background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:999px; border:1px solid #fde68a; font-weight:800;">🔬 Protótipo Acadêmico · Malha GTFS Real + Modelo ST-GCN</span>
     </div>
     <div style="display:flex; gap:8px;">
@@ -1102,8 +1128,8 @@
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
         <span>🔄</span> Testar do Zero
       </button>
-      <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()">
-        <span>⛶</span> Alternar Tela
+      <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()" title="Alternar entre modo smartphone e modo monitor de PC em tela cheia">
+        <span>🖥️</span> Modo PC / Celular
       </button>
     </div>
   </div>
@@ -1497,7 +1523,7 @@
       <!-- STEP 1: SPLASH SCREEN -->
       <div id="onboarding-step-splash" class="modal-card" style="max-width:360px; padding:24px; text-align:center;">
         <div style="margin-bottom:12px;">
-          <img src="img/logo_grafoparada.svg" alt="GrafoParada · Menos Espera, Mais Cidade" style="height:52px; max-width:85%;" />
+          <img src="img/logo_mobile_compact.svg" alt="GrafoParada · Grande Recife" style="height:48px; max-width:85%;" />
         </div>
         <div style="font-size:12px; font-weight:700; color:var(--brand-green); margin-bottom:14px;">Grande Recife · Inteligência Artificial CTM</div>
 

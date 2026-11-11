@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 15:06
+- **Última Atualização:** 11/11/2026 15:16
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -13,16 +13,27 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_2sJT4vpr1fFeTMAzpMMdf2uKXgGT` em Produção)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_DrrLg7Bpg7boZLsXFGky4Xf8Zc5c` em Produção)
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
-  - *Identidade Visual & Logo*: `code/grafoparada_web/img/logo_grafoparada.svg`, `icon_grafoparada.png`
+  - *Versões de Identidade Visual*:
+    - **Versão PC (Widescreen / Slides)**: `logo_pc_horizontal.svg` e `.png` (560x140) com slogan *"Menos espera · Mais cidade"*
+    - **Versão Celular (Mobile / Compacto)**: `logo_mobile_compact.svg` e `.png` (320x80)
+    - **Ícone de Aplicativo (PWA)**: `icon_grafoparada.png` (512x512)
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Duas Versões Especializadas: PC e Celular (Logo & Interface)
+- [x] **Duas Versões Oficiais do Logo**:
+  - *PC / Desktop / Slides*: Formato horizontal amplo (560x140) com o isotipo de grafo em 3 nós, tipografia Segoe e o slogan *"Menos espera · Mais cidade"*.
+  - *Celular / Smartphone*: Formato compacto otimizado (320x80) com o subtítulo *"Grande Recife · IA Preditiva"*, para não cortar nem poluir a barra de status de celulares.
+- [x] **Duas Versões de Interface Web (Desktop vs. Mobile)**:
+  - *No Celular*: Carrega automaticamente a experiência de app móvel em tela cheia (100dvh), sem moldura, com gaveta sanfonada e botão tátil.
+  - *No PC*: Carrega o painel com barra de controle rápido e simulador, permitindo alternar instantaneamente para o **Modo Monitor de PC em Tela Cheia** (`body.is-fullscreen`) com um clique, e retornar via botão flutuante.
 
 ### 1. Identidade Visual Minimalista (Logo & Slogan)
 - [x] **Criação do Slogan Oficial**:
