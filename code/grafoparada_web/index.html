@@ -2507,33 +2507,41 @@
       document.getElementById("onboarding-step-form").style.display = "block";
     }
 
-    // MAP TILE STYLES (100% LIVRES · ZERO CHAVES · ALTA PERFORMANCE)
+    // MAP TILE STYLES (100% LIVRES · ZERO CHAVES · ZERO WATERMARK · ALTA PERFORMANCE ESRI)
     let currentMapTileLayer = null;
     let currentTileStyleIndex = 0;
     const tileStyles = [
       {
-        name: "clean",
+        name: "streets",
         icon: "🗺️",
-        url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-        subdomains: "abcd",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         maxZoom: 19,
-        label: "Modo Trânsito Clean"
-      },
-      {
-        name: "dark",
-        icon: "🌙",
-        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-        subdomains: "abcd",
-        maxZoom: 19,
-        label: "Modo Noturno Neon"
+        maxNativeZoom: 18,
+        label: "Modo Ruas & Trânsito (Esri)"
       },
       {
         name: "sat",
         icon: "🛰️",
         url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        subdomains: "abcd",
-        maxZoom: 18,
+        maxZoom: 19,
+        maxNativeZoom: 18,
         label: "Modo Satélite Real (Esri)"
+      },
+      {
+        name: "dark",
+        icon: "🌙",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        maxZoom: 18,
+        maxNativeZoom: 16,
+        label: "Modo Noturno Neon (Esri)"
+      },
+      {
+        name: "clean",
+        icon: "🏙️",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        maxZoom: 18,
+        maxNativeZoom: 16,
+        label: "Modo Clean Minimalista (Esri)"
       }
     ];
 
@@ -2545,8 +2553,8 @@
         leafletMap.removeLayer(currentMapTileLayer);
       }
       currentMapTileLayer = L.tileLayer(s.url, {
-        subdomains: s.subdomains || "abcd",
         maxZoom: s.maxZoom || 19,
+        maxNativeZoom: s.maxNativeZoom || 18,
         attribution: false
       }).addTo(leafletMap);
 
@@ -2557,6 +2565,10 @@
     function cycleMapStyle() {
       setMapTileStyle(currentTileStyleIndex + 1);
       playSimpleChime();
+      const s = tileStyles[currentTileStyleIndex];
+      if (typeof playNaturalVoice === "function") {
+        playNaturalVoice("Estilo do mapa: " + s.label);
+      }
     }
 
     function zoomMapIn() {
