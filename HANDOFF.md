@@ -4,8 +4,8 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 16:00
-- **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
+- **Última Atualização:** 11/11/2026 16:10
+- **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -27,7 +27,20 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Diagnóstico e Resolução Definitiva do Bug do Mapa (PC e Mobile)
+### 1. Novo Fluxo Blindado de Deploy & Desacoplamento de Branches
+- [x] **Adoção Integral da Arquitetura Vercel + GitHub + Main Protegida**:
+  - Abandonada a branch com nome legado de outra matéria (`feature/if-2va-pqc-telessaude`).
+  - Criada a branch canônica `feature/grafoparada-dev` sincronizada com `origin/feature/grafoparada-dev`.
+  - Regra de ouro estabelecida: a `main` é a versão oficial de produção, que permanece 100% estável para a banca e professores. Toda modificação ocorre na branch de feature, é testada, e só vai para a `main` após aprovação.
+- [x] **Script Gatekeeper Pré-Flight Automatizado (`pre_flight_check.py`)**:
+  - Criado [`code/grafoparada_tec/pre_flight_check.py`](code/grafoparada_tec/pre_flight_check.py) que audita em <1s:
+    1. Existência e integridade dos arquivos core.
+    2. Validade do JSON GTFS metropolitano.
+    3. Sintaxe JavaScript de todos os scripts inline e módulos via motor V8/Node VM.
+    4. Suíte completa de 20 testes de conformidade operacional e pedagógica.
+  - Bloqueia automaticamente merges acidentais com erros sintáticos ou quebras de tela.
+
+### 2. Diagnóstico e Resolução Definitiva do Bug do Mapa (PC e Mobile)
 - [x] **Causa Raiz Identificada e Corrigida**:
   - Na linha 3205 de `index.html`, uma expressão ternária órfã (`? "Traçando rota..." : "Traçando rota..."`) sem o identificador `const voiceMsg = isHome` provocava um erro de sintaxe fatal (`Uncaught SyntaxError: Unexpected token '?'`) durante o carregamento inicial.
   - No motor JavaScript (V8 / WebKit), erros de sintaxe no bloco inline abortam a interpretação de todo o script: a função `initMap()` e o listener `DOMContentLoaded` nunca chegavam a ser executados, deixando a `div#mobile-map` vazia e cinzenta.

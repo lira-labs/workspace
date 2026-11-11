@@ -14,10 +14,10 @@
   - `code/`: Todo o desenvolvimento de modelos, scripts de treino, pipelines de dados e visualizações de IA.
   - `papers/`: Toda a produção de artigos científicos, relatórios técnicos, seções `.tex`, figuras e referências `.bib`.
   - `core/`: Utilitários, scripts de automação, documentações de harness e ferramentas de suporte.
-- **GIT FLOW OBRIGATÓRIO**:
-  - `main`: Versão estável (entregas finais de código e artigo compilado).
-  - `develop`: Branch de integração ativa.
-  - `feature/*`: Novas funcionalidades, seções de texto ou experimentos específicos.
+- **GIT FLOW OBRIGATÓRIO & BLINDAGEM DE PRODUÇÃO**:
+  - `main`: Versão oficial estável de produção (o que o professor, a banca e o público veem em `grafoparadaweb.vercel.app`). NUNCA editar diretamente nem commitar código experimental sem teste prévio.
+  - `feature/grafoparada-*` ou `develop`: Laboratório de desenvolvimento, iteração e testes. Descontinuado o uso de branches legadas de outras matérias (como `feature/if-2va-pqc-telessaude`).
+  - *Gatekeeper Pré-Deploy Obrigatório*: Antes de qualquer merge ou promoção para a `main`, executar obrigatoriamente `uv run python code/grafoparada_tec/pre_flight_check.py` (valida sintaxe JS via Node VM, integridade física do GTFS e 20/20 na suíte de testes). Se houver qualquer falha, o merge para a `main` é terminantemente bloqueado.
 - **ARMAZENAMENTO PESADO NO GOOGLE DRIVE (5 TB)**: Datasets volumosos, vídeos, checkpoints e pesos de modelos de IA (`.pt`, `.ckpt`, `.safetensors`, `.onnx`) NUNCA são commitados no Git nem consom o SSD local. Ficam sempre em `G:\Meu Drive\IA_Projetos\` (`datasets/`, `checkpoints/`, `outputs/`), compartilhados instantaneamente entre o Notebook e o Desktop.
 - **LIMPEZA E HIGIENE**: Arquivos de build (LaTeX `.aux`, `.log`, caches Python `__pycache__`) nunca são commitados.
 - **DIRETRIZ DE SEQUENTIAL ART & HQ/EBOOK (ANTI-AI-SLOP)**:
