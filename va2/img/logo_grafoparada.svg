@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente da Aresta do Grafo -->
+    <linearGradient id="edgeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#002FA7" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <!-- Pulso do Nó Central -->
+    <radialGradient id="pulseGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#059669" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#059669" stop-opacity="0.0" />
+    </radialGradient>
+  </defs>
+
+  <!-- SÍMBOLO: GRAFO ESPAÇO-TEMPORAL -->
+  <g id="symbol">
+    <!-- Aresta curva contínua conectando as 3 paradas -->
+    <path d="M 36 88 Q 50 48, 72 44 T 108 80" 
+          fill="none" 
+          stroke="url(#edgeGrad)" 
+          stroke-width="6" 
+          stroke-linecap="round" />
+
+    <!-- Pulso da Parada Inteligente Central -->
+    <circle cx="72" cy="44" r="26" fill="url(#pulseGrad)" />
+
+    <!-- Nó 1 (Parada Anterior / Origem) -->
+    <circle cx="36" cy="88" r="12" fill="#002FA7" />
+    <circle cx="36" cy="88" r="5" fill="#ffffff" />
+
+    <!-- Nó 3 (Parada Posterior / Destino) -->
+    <circle cx="108" cy="80" r="10" fill="#002FA7" />
+    <circle cx="108" cy="80" r="4" fill="#ffffff" />
+
+    <!-- Nó 2 (Parada Atual Inteligente - Foco do Algoritmo) -->
+    <circle cx="72" cy="44" r="17" fill="#059669" />
+    <circle cx="72" cy="44" r="7" fill="#ffffff" />
+  </g>
+
+  <!-- LOGOTIPO: TIPOGRAFIA SEGURADA -->
+  <g id="wordmark" transform="translate(138, 0)">
+    <!-- Nome da Marca -->
+    <text y="72" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+      <tspan font-size="42" font-weight="400" fill="#0f172a">Grafo</tspan>
+      <tspan dx="4" font-size="42" font-weight="800" fill="#002FA7">Parada</tspan>
+    </text>
+
+    <!-- Slogan Minimalista com Tracking Amplo -->
+    <text y="100" 
+          font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+          font-size="11" 
+          font-weight="700" 
+          letter-spacing="0.22em" 
+          fill="#64748b">
+      MENOS ESPERA · MAIS CIDADE
+    </text>
+  </g>
+</svg>

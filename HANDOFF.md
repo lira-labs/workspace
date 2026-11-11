@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 15:00
+- **Última Atualização:** 11/11/2026 15:06
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -13,15 +13,25 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_k6x5SgKP1jxziA1aKZ6P12pckagn` em Produção)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_2sJT4vpr1fFeTMAzpMMdf2uKXgGT` em Produção)
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
+  - *Identidade Visual & Logo*: `code/grafoparada_web/img/logo_grafoparada.svg`, `icon_grafoparada.png`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Identidade Visual Minimalista (Logo & Slogan)
+- [x] **Criação do Slogan Oficial**:
+  - *Principal*: **"Menos espera. Mais cidade."**
+  - *Técnico*: **"Conectando paradas, antecipando caminhos."**
+- [x] **Criação do Isotipo & Logotipo em SVG e PNG Ultra-HD**:
+  - Símbolo: 3 nós de grafo interligados por aresta contínua suave, com o nó central destacado por anel de pulso em Verde Esmeralda (`#059669`) e Azul Klein (`#002FA7`), representando a parada inteligente.
+  - Tipografia: "Grafo" em regular Slate e "Parada" em negrito Klein, acompanhado do slogan em small caps espaçado.
+  - Integrado à barra desktop, splash screen do app mobile e cabeçalho do Slide 1 no PowerPoint.
 
 ### 1. Blindagem Conceitual Final para a Apresentação Oral
 - [x] **Ajuste Técnico nas Variáveis Tabulares (120 Features Colineares)**:

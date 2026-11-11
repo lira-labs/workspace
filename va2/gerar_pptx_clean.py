@@ -7,6 +7,8 @@ Sem parágrafos densos, sem caixas sobrepostas (fluxo de parágrafos unificado).
 Dados 100% Reais do Grande Recife (400 Linhas GTFS CTM + Cittamobi Live).
 """
 
+import os
+from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
@@ -101,6 +103,11 @@ add_header(s1, "01 / Ponta a Ponta · Demonstração ao Vivo",
            "GrafoParada: Mobilidade Inteligente no Grande Recife",
            "Malha GTFS Oficial CTM Grande Recife + Protótipo Preditivo ST-GCN.")
 add_footer(s1, 1)
+
+# Inserir Logo Minimalista no canto superior direito
+logo_file = "va2/img/logo_grafoparada.png"
+if os.path.exists(logo_file):
+    s1.shapes.add_picture(logo_file, Inches(9.8), Inches(0.55), width=Inches(2.5))
 
 # Coluna 1: O Caso Concreto em 4 pontos
 tb1 = s1.shapes.add_textbox(Inches(1.0), Inches(2.6), Inches(6.4), Inches(3.9))
