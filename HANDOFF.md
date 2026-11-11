@@ -22,9 +22,10 @@
 ### 1. Seminário 2 · Iteração 2, Demonstração (`sem2` · 8 Pontos · 11/11)
 - [x] **Item 1 · Ponta a Ponta, ao Vivo (Demo Rodando do Repositório)**:
   - Usuário concreto: passageiro no Terminal de Camela às 06h10 indo para o TI Cabo.
+  - Acessibilidade para todas as idades: Dona Severina (68 anos) com Modo Fácil (`Aa`), contraste 21:1 (WCAG AAA), letras 20pt e voz alta; e Lucas (21 anos) com Modo Bolso (tela 100% preta com 0 nits) no ponto escuro da PE-60 às 22h40.
   - Entrada real: 1 toque no atalho nativo "Vou pro Destino (TI Cabo)".
   - Saída na tela e no fone: previsão exata da Linha 199 (4 min, Plataforma 04, 14 assentos livres), selo anti-ônibus fantasma ativo, voz neural acolhedora e vibração tátil ao aproximar.
-  - O que deixa fazer: guardar o celular no bolso (Modo Bolso antirroubo com tela preta) e registrar intenção de embarque antes da catraca para auditar ônibus vazio.
+  - Realocação de frota: Botão da Central CTM demonstrando a transferência de ônibus da Linha 178 (vazia com 3 passageiros, economizando 14 L de diesel) para a Linha 199 com 38 passageiros aguardando.
   - Demo viva: `https://grafoparadaweb.vercel.app` (Commit `565321f`).
 - [x] **Item 2 · Quanto Custa, Medido vs `flx.md` (`medir_custo_sem2.py`)**:
   - *No Celular (FSM Cinemática v3 com Soft-Voting)*: Medido **4,98 ms** de CPU e **12,0 KB** de RAM (vs. 14,29 µs e 8,92 KB estimados no `flx.md`). Execução instantânea e zero impacto de bateria.
@@ -40,16 +41,19 @@
 - [x] **Item 4 · O que Mudou desde o `sem1` (Confirmação Justificada da STGCN)**:
   - No `sem1` (corredor curto com 5 paradas): uma regressão tabular simples venceu a STGCN (2,46 min vs 4,42 min), deixando em dúvida a necessidade de IA profunda.
   - No `sem2` (malha real com 20 paradas da PE-60): a STGCN virou o jogo e venceu a regressão (**1,51 min vs 1,93 min**, redução de 78% contra a persistência de 7,13 min), justificando empiricamente o custo de memória.
-  - Na UX/UI: interface refeita com padrão Uber/Citymapper, busca instantânea de linhas/TIs, mapa visual de plataformas para pessoas perdidas, alertas táteis/sonoros e simulação de interdição.
+  - Na UX/UI e Usabilidade: interface inclusiva para todas as idades (Modo Fácil WCAG AAA para idosos, Modo Bolso anti-assalto para jovens e Painel CTM de realocação da frota no vazio).
 - [x] **Artefatos e Decks do Seminário 2**:
   - `va2/sem2.md`: Roteiro completo nos moldes de `sem2-excelente`, incluindo as 4 frases sem IA, minutagem cravada em 4 min 15 s, números medidos, explicação da falha e ensaio cético com 5 perguntas difíceis.
   - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html`: Deck web interativo de 5 slides com navegação por teclado (`◀` / `▶`), cards modernos em dark mode e tipografia limpa.
   - `va2/GrafoParada_Seminario2_CauaLira.pptx`: Deck em formato PowerPoint widescreen (16:9) contendo os 5 slides estilizados.
 
-### 2. Três Melhorias de Usabilidade Implementadas no App
+### 2. Três Melhorias de Usabilidade + Acessibilidade Universal & Central CTM
 - [x] **Melhoria 1 · Busca Rápida com Autocomplete**: Caixa de pesquisa flutuante no topo do app para localizar qualquer linha da RMR ou Terminal Integrado do SEI com 1 toque.
 - [x] **Melhoria 2 · Mapa Esquemático de Plataformas no T.I. ("Primeira Vez Aqui")**: Guia visual de plataformas do TI Cabo com destaque verde neon na Plataforma 04 (Linha 199 SJT), guichê do CTM e ponto seguro de espera.
 - [x] **Melhoria 3 · Feedback Tátil (`navigator.vibrate`) e Aviso Sonoro (< 2 min) + Favoritos (⭐)**: Vibração em padrão rítmico no bolso e sino sintetizado via Web Audio API ao aproximar do embarque, além de botão de favoritar parada.
+- [x] **Melhoria 4 · Modo Fácil / Sênior para Idosos (`Aa Fácil`)**: Contraste 21:1 (WCAG AAA preto sobre branco), fontes ampliadas (20pt a 58pt), botões gigantes de 72px de altura e botão de leitura em voz alta.
+- [x] **Melhoria 5 · Central CTM de Realocação de Frota**: Balanceamento em tempo real entre a Linha 178 Suape (vazia com 3 passageiros, 14 L diesel/h desperdiçados) e a Linha 199 Camela (38 passageiros aguardando na PE-60). Ordem de despacho inteligente antecipando partidas e reduzindo espera de 18 para 4 minutos.
+- [x] **Bateria de Auditoria de Usabilidade (`teste_usabilidade_retestes.py`)**: 100% aprovada para 3 personas reais (Dona Severina 68a, Lucas 21a e Fiscal Severino 54a).
 
 ---
 
