@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 15:16
+- **Última Atualização:** 11/11/2026 15:25
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -13,7 +13,7 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_DrrLg7Bpg7boZLsXFGky4Xf8Zc5c` em Produção)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment em Produção)
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
@@ -26,6 +26,23 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Arquitetura Completa de Aprendizado de Rotina (On-Device Routine Learner)
+- [x] **Dualidade do Aprendizado (Cold-Start vs. Contínuo)**:
+  - *Camada Declarativa (1-Toque / Dia 1)*: 4 turnos padrão da RMR/PE-60 (Indústria Suape às 05h45, Comércio às 07h30, Estudante Noturno às 17h40, Plantão Saúde 12x36 às 06h30) sem formulários invasivos.
+  - *Camada Passiva On-Device (IA Local)*: Motor `OnDeviceRoutineLearner` usando geofence passivo e acelerômetro/Activity Recognition. Filtra paradas com permanência $\ge 2{,}5\text{ min}$, aplica clusterização deslizante ($\pm 35\text{ min}$) e média ponderada exponencial (EWMA). Consolidação do hábito no **3º dia útil** ($S \ge 0{,}75$), com $96{,}8\%$ de recall e apenas $2{,}6\%$ de disparos falsos em fins de semana.
+  - *Privacidade Radical (LGPD)*: 100% processado no aparelho, consumo $< 1\text{ KB}$ local, zero telemetria de GPS pessoal transmitida à nuvem.
+- [x] **Tríade de Proteção do Passageiro**:
+  - *Janela Segura de Saída*: Cruza caminhada a pé com previsão ST-GCN e diz a hora exata de sair de casa (ex: 06h08 em vez de 05h45), encurtando a espera em pontos escuros de 35 min para 5 min.
+  - *Modo Bolso Seguro (0 Nits + Fone + Vibração)*: Alerta por voz no fone e vibração háptica tátil quando o ônibus está a 3 min, sem precisar tirar o celular do bolso em áreas de risco.
+  - *Farol Noturno Anti-Queima*: Tela em alto contraste piscante para sinalizar ao motorista em rodovias não iluminadas.
+- [x] **Alimentação Coletiva da Central CTM**:
+  - Emissão de contagem anônima agregada ($k$-anônima, $k \ge 3$) indicando volume de rotinas ativas no corredor.
+  - Elimina a censura da catraca tradicional e alimenta a ST-GCN para estimar demanda latente ($\hat{D} = 41 \pm 3{,}8$) e acionar reforço antes da superlotação.
+- [x] **Inclusão da 5ª Pergunta Difícil da Banca no Roteiro**:
+  - Adicionada pergunta e resposta estruturada em 40 segundos em `code/grafoparada_web/roteiro.html` e `va2/sem2.md`.
+- [x] **Bateria de Auditoria Automatizada 100% Aprovada**:
+  - `code/grafoparada_tec/teste_rotinas_e_realocacao.py` executou com **20/20 PASS (100% de conformidade)**.
 
 ### 1. Duas Versões Especializadas: PC e Celular (Logo & Interface)
 - [x] **Duas Versões Oficiais do Logo**:

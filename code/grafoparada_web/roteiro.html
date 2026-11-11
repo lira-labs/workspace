@@ -385,6 +385,11 @@
       <div class="qa-q">4. "O que exatamente o projeto consegue afirmar hoje e o que ainda é hipótese?"</div>
       <div class="qa-a"><strong>Resposta:</strong> "O que afirmamos com dados concretos hoje: (1) Que é viável processar a malha metropolitana oficial inteira do Grande Recife (393 linhas, 15.239 paradas) com inferência ultrarrápida (0,77 ms na CPU e 4,98 ms on-device); (2) Que convoluções espaciais em grafo sofrem de super-suavização (over-smoothing) em choques bruscos de trânsito, exigindo obrigatoriamente uma trava híbrida que corte a IA se o desvio ultrapassar 15 min; (3) Que a formulação de despacho deve ser probabilística, baseada em P(Demanda > Capacidade). O que ainda é hipótese: A magnitude exata da redução do erro de previsão em tráfego metropolitano real, que depende do acesso a dados contínuos de GPS da frota."</div>
     </div>
+
+    <div class="qa-item">
+      <div class="qa-q">5. "Como o app aprende a rotina do passageiro e o que usamos para ajudá-lo na prática?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "O aprendizado opera em duas camadas com privacidade radical (100% on-device, LGPD). Para o primeiro dia (cold start), o usuário escolhe seu turno em 1 toque (ex: Indústria Suape às 05h45). Para o uso contínuo, o motor local (<code>OnDeviceRoutineLearner</code>) monitora eventos onde o usuário permanece na parada por mais de 2,5 minutos via geofence passivo e acelerômetro; em 3 dias úteis, a clusterização temporal deslizante consolida o hábito (&lt; 1 KB local, 0 bytes na nuvem). Na prática, usamos essa rotina para três apoios concretos: (1) <strong>Janela Segura de Saída</strong> ('saia às 06h08 e não às 05h45'), reduzindo a espera exposta no ponto escuro de 35 min para 5 min; (2) <strong>Modo Bolso Seguro</strong>, disparando alertas por voz no fone e vibração tátil para que o celular nunca precise sair do bolso em áreas de risco; e (3) <strong>Alimentação Coletiva</strong>, enviando apenas uma contagem anônima agregada à Central CTM para estimar demanda não-censurada na ST-GCN."</div>
+    </div>
   </div>
 
 </body>
