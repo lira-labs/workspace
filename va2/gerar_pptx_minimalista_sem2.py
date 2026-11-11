@@ -339,14 +339,14 @@ for idx, col in enumerate(cols_s3):
     p4.font.color.rgb = TEXT_DARK
 
 # ==============================================================================
-# SLIDE 4: O QUE MUDOU DESDE O SEM1 · CONFIRMAÇÃO EMPÍRICA
+# SLIDE 4: O QUE MUDOU DESDE O SEM1 · DECISÃO TÉCNICA E ESCALA
 # ==============================================================================
 slide4 = create_slide_base(
     prs=prs,
     tag_text="04 / O QUE MUDOU DESDE O SEM1 · DECISÃO TÉCNICA E ESCALA",
     tag_color=KLEIN_BLUE,
-    title_text="De 5 para 20 paradas: a STGCN virou o jogo e se pagou.",
-    subtitle_text="No Sem1 o cálculo simples venceu; com escala e dados reais da PE-60, a IA em grafo dominou.",
+    title_text="Por que mantivemos a STGCN: escala e esparsidade viária.",
+    subtitle_text="No Sem1 a linear venceu em 5 paradas; em 20 nós simulados, a GNN mitigou a explosão de 120 features da OLS.",
     slide_index=4
 )
 
@@ -356,21 +356,21 @@ cols_s4 = [
         "number": "2,46 min",
         "num_color": TEXT_MUTED,
         "sub": "Regressão Venceu a STGCN",
-        "body": "No trecho simples de 5 paradas, uma conta básica de padaria deu 2,46 min contra 4,42 min da STGCN.\n\nDúvida honesta levada à banca: a complexidade da rede de grafos se justificava?"
+        "body": "No trecho simples de 5 paradas, uma conta básica deu 2,46 min contra 4,42 min da STGCN.\n\nDúvida honesta levada à banca: a complexidade da rede de grafos se justificava naquele escopo reduzido?"
     },
     {
-        "tag": "SEM2 · MALHA REAL (20 PARADAS PE-60)",
+        "tag": "SEM2 · MALHA DE 20 NÓS (DADOS SIMULADOS)",
         "number": "1,51 min",
         "num_color": BOTTEGA_GREEN,
-        "sub": "-78% de Erro Absoluto",
-        "body": "Na malha real, a STGCN virou o jogo: cravou 1,51 min contra 1,93 min da linear e 7,13 min da persistência cega.\n\nCom escala e atrasos propagados, a IA espacial se paga plenamente."
+        "sub": "vs 1,93 min da Linear (OLS)",
+        "body": "Em dados sintéticos de difusão por rede (70 treino / 50 teste, 5 seeds), a STGCN cravou 1,51 min.\n\nA OLS sofreu com 120 variáveis achatadas colineares (20 paradas x 6 lags). A GNN preserva a topologia da via."
     },
     {
-        "tag": "A MUDANÇA CONCEITUAL",
-        "number": "Frota Ativa",
+        "tag": "TRANSPARÊNCIA METODOLÓGICA",
+        "number": "Validação",
         "num_color": KLEIN_BLUE,
-        "sub": "De Rastreador à Realocação",
-        "body": "O app deixou de ser um mero rastreador passivo como o Cittamobi.\n\nPassou a aprender a rotina das pessoas para balancear a frota no vazio e combater o deadheading de coletivos."
+        "sub": "GTFS Real vs Atraso Sintético",
+        "body": "Infraestrutura espacial e paradas são 100% reais do GTFS CTM.\n\nComo atrasos são simulados, a vitória demonstra eficiência topológica da GNN. Validação final requer convênio de telemetria."
     }
 ]
 

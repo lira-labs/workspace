@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 16:18
+- **Última Atualização:** 11/11/2026 16:25
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -27,7 +27,16 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Eliminação Definitiva da Marca d'Água "API KEY REQUIRED" (Substituição por Esri)
+### 1. Atualização do Roteiro de Fala Mobile e Slides PPTX (Pré-Apresentação Aula)
+- [x] **Roteiro de Fala Mobile Atualizado (`roteiro.html`)**:
+  - Incorporadas menções diretas à suíte cartográfica Esri com radar em tempo real e marcadores de ônibus ao vivo com tag dinâmica.
+  - Sincronizado instantaneamente no Google Drive (`G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html`) para leitura confortável no smartphone durante o trajeto/ônibus.
+  - Mantidas as 4 frases mestras, os 5 blocos de fala cronometrados (4 min) e as respostas prontas para as 6 perguntas difíceis da banca.
+- [x] **Regeneração da Apresentação PPTX (`GrafoParada_Seminario2_CauaLira.pptx`)**:
+  - Atualizado [`va2/gerar_pptx_minimalista_sem2.py`](va2/gerar_pptx_minimalista_sem2.py) com a redação metodologicamente blindada do Slide 4 (120 features colineares na OLS vs preservação de topologia viária na GNN).
+  - Arquivo binário recompilado e copiado para a raiz web (`code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx`) e para o Google Drive (`G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`).
+
+### 2. Eliminação Definitiva da Marca d'Água "API KEY REQUIRED" (Substituição por Esri)
 - [x] **Diagnóstico da Marca d'Água Carto**:
   - A opção anterior de modo claro/escuro utilizava o CDN da Carto (`basemaps.cartocdn.com`), que recentemente passou a estampar marcas d'água "API KEY REQUIRED" sobre as imagens do mapa caso nenhuma credencial paga seja informada.
   - O modo satélite funcionava perfeitamente porque já utilizava os servidores abertos da Esri ArcGIS (`server.arcgisonline.com`).
