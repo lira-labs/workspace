@@ -387,7 +387,7 @@
     /* MODERN MAP FLOATING CONTROLS (GLASS ISLAND) */
     .map-floating-controls {
       position: absolute;
-      bottom: 235px;
+      bottom: 295px;
       right: 12px;
       z-index: 999;
       display: flex;
@@ -548,7 +548,7 @@
     /* BOTTOM SHEET (MOBILE-FIRST RIDE-HAILING CARD) */
     .mobile-bottom-sheet {
       position: absolute;
-      bottom: 0;
+      bottom: 60px;
       left: 0;
       right: 0;
       z-index: 1000;
@@ -564,7 +564,139 @@
     }
 
     .mobile-bottom-sheet.expanded {
-      max-height: calc(100% - 75px);
+      max-height: calc(100% - 135px);
+    }
+
+    /* PROFESSIONAL BOTTOM TAB NAVIGATION (iOS/Android Style) */
+    .mobile-tab-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 1005;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+    }
+    .mobile-tab-btn {
+      flex: 1;
+      height: 100%;
+      border: none;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .mobile-tab-btn.active {
+      color: #059669;
+    }
+    .mobile-tab-btn.active .mobile-tab-label {
+      color: #047857;
+      font-weight: 800;
+    }
+    .mobile-tab-icon {
+      font-size: 19px;
+      line-height: 1;
+    }
+    .mobile-tab-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* ROUTE TRAJECTORY INDICATOR CHIP */
+    .route-indicator-chip {
+      display: none;
+      position: absolute;
+      top: 110px;
+      left: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      padding: 6px 12px;
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      z-index: 998;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .route-chip-btn {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .route-chip-btn:hover {
+      background: #047857;
+    }
+
+    /* FLOATING VOICE SUBTITLE PILL */
+    .floating-voice-pill {
+      position: absolute;
+      top: 60px;
+      left: 12px;
+      right: 12px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.35;
+      animation: voiceSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: auto;
+    }
+    @keyframes voiceSlideIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .voice-soundwave-icon {
+      font-size: 18px;
+      animation: soundwaveBounce 0.8s infinite ease-in-out alternate;
+    }
+    @keyframes soundwaveBounce {
+      0% { transform: scale(0.9); }
+      100% { transform: scale(1.15); color: #34d399; }
+    }
+
+    /* ROUTINE AUTOCOMPLETE DROPDOWN */
+    .routine-autocomplete-dropdown {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 160px;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      z-index: 50;
     }
 
     .sheet-handle-zone {
@@ -1338,6 +1470,25 @@
       </div>
     </div>
 
+    <!-- SUBTITLE VOICE PILL (TRANSCRIÇÃO VISUAL DA VOZ DE IA) -->
+    <div id="floating-voice-pill" class="floating-voice-pill" style="display:none;">
+      <span class="voice-soundwave-icon">🔊</span>
+      <div id="floating-voice-text" style="flex:1;">GrafoParada: monitorando aproximação.</div>
+      <button onclick="dismissFloatingVoicePill()" style="border:none; background:none; color:#94a3b8; font-size:14px; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- ROUTE TRAJECTORY INDICATOR CHIP -->
+    <div id="route-indicator-chip" class="route-indicator-chip">
+      <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
+        <span style="font-size:14px;">🚌</span>
+        <span id="route-chip-label" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:180px;">Linha 522 · Dois Irmãos</span>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button class="route-chip-btn" onclick="fitActiveRouteBounds()" title="Enquadrar todo o trajeto no mapa">👁️ Trajeto</button>
+        <button class="route-chip-btn" style="background:#0284c7;" onclick="toggleRouteStopsList()" title="Ver lista de paradas">🚏 Paradas</button>
+      </div>
+    </div>
+
     <!-- 3. MODERN FLOATING MAP CONTROLS (INNOVATIVE CONTROL BAR) -->
     <div class="map-floating-controls">
       <!-- 1. Centralizar em Mim (Pulsing User Location) -->
@@ -1974,11 +2125,12 @@
         <!-- FORMULÁRIO PERSONALIZADO DO USUÁRIO -->
         <div style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:14px; padding:12px; margin-bottom:12px;">
           <!-- 1. ONDE VOCÊ TRABALHA OU ESTUDA -->
-          <div style="margin-bottom:10px;">
+          <div style="margin-bottom:10px; position:relative;">
             <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
               🏢 1. Onde você trabalha ou estuda?
             </label>
-            <input type="text" id="inp-custom-dest" class="field-input" placeholder="Ex: UFRPE Dois Irmãos, UFPE, Derby, Porto Digital..." value="UFRPE · Campus Dois Irmãos" style="background:#ffffff; border-color:#86efac; font-weight:700;" />
+            <input type="text" id="inp-custom-dest" class="field-input" placeholder="Ex: UFRPE Dois Irmãos, UFPE, Derby, Porto Digital..." value="UFRPE · Campus Dois Irmãos" style="background:#ffffff; border-color:#86efac; font-weight:700;" oninput="handleRoutineDestSearch(this.value)" onfocus="handleRoutineDestSearch(this.value)" autocomplete="off" />
+            <div id="routine-dest-dropdown" class="routine-autocomplete-dropdown" style="display:none;"></div>
             <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;">
               <button type="button" class="routine-quick-chip" onclick="setQuickDest('UFRPE · Campus Dois Irmãos', '07:30', 'Seg a Sex', 'Derby / Rui Barbosa')">🎓 UFRPE (Dois Irmãos)</button>
               <button type="button" class="routine-quick-chip" onclick="setQuickDest('UFPE · Campus Recife', '07:45', 'Seg a Sex', 'TI CDU / Várzea')">🏛️ UFPE (CDU)</button>
@@ -2017,11 +2169,15 @@
               </label>
               <input type="time" id="inp-custom-time" class="field-input" value="07:30" style="background:#ffffff; border-color:#86efac; font-weight:800;" />
             </div>
-            <div>
+            <div style="position:relative;">
               <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
-                📍 4. Onde você embarca:
+                📍 4. Onde você embarca (Parada):
               </label>
-              <input type="text" id="inp-custom-origin" class="field-input" placeholder="Seu bairro/parada" value="Derby / Rui Barbosa" style="background:#ffffff; border-color:#86efac; font-weight:700;" />
+              <input type="text" id="inp-custom-origin" class="field-input" placeholder="Seu bairro/parada" value="Derby / Rui Barbosa" style="background:#ffffff; border-color:#86efac; font-weight:700;" oninput="handleRoutineOriginSearch(this.value)" onfocus="handleRoutineOriginSearch(this.value)" autocomplete="off" />
+              <div id="routine-origin-dropdown" class="routine-autocomplete-dropdown" style="display:none;"></div>
+              <button type="button" onclick="useCurrentStopAsOrigin()" style="margin-top:5px; width:100%; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:8px; font-size:10.5px; font-weight:800; padding:5px 6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                📍 Usar Minha Parada Atual
+              </button>
             </div>
           </div>
 
@@ -2455,6 +2611,22 @@
         <button class="btn-secondary" onclick="closeFloodModal()">Fechar</button>
       </div>
     </div>
+
+    <!-- 16. MOBILE BOTTOM TAB NAVIGATION (PROFESSIONAL 3-TAB SYSTEM) -->
+    <nav class="mobile-tab-nav" id="main-tab-nav">
+      <button class="mobile-tab-btn active" id="tab-nav-map" onclick="switchMainTab('map')" title="Mapa e Linhas Metropolitanas">
+        <span class="mobile-tab-icon">🗺️</span>
+        <span class="mobile-tab-label">Mapa & Linhas</span>
+      </button>
+      <button class="mobile-tab-btn" id="tab-nav-routine" onclick="switchMainTab('routine')" title="Minha Parada e Rotina">
+        <span class="mobile-tab-icon">🚏</span>
+        <span class="mobile-tab-label">Minha Parada</span>
+      </button>
+      <button class="mobile-tab-btn" id="tab-nav-dispatch" onclick="switchMainTab('dispatch')" title="Central CTM de Frota e Demanda Latente">
+        <span class="mobile-tab-icon">🏛️</span>
+        <span class="mobile-tab-label">Central CTM</span>
+      </button>
+    </nav>
 
     <!-- HOME INDICATOR -->
     <div class="phone-home-indicator"></div>
@@ -3894,26 +4066,321 @@
       }
     }
 
-        function playNaturalVoice(text) {
-      if (!text) return;
-      try {
-        if (currentAudioPlayer) {
-          currentAudioPlayer.pause();
-          currentAudioPlayer = null;
+    // ==========================================
+    // ABAS DE NAVEGAÇÃO MOBILE (MAPA, MINHA PARADA, CTM)
+    // ==========================================
+    let activeMainTab = "map";
+    function switchMainTab(tab) {
+      activeMainTab = tab;
+      ["map", "routine", "dispatch"].forEach(function(t) {
+        const btn = document.getElementById("tab-nav-" + t);
+        if (btn) {
+          if (t === tab) btn.classList.add("active");
+          else btn.classList.remove("active");
         }
-        const url = "/api/live/tts?voice=pt-BR-FranciscaNeural&text=" + encodeURIComponent(text);
-        const audio = new Audio(url);
-        currentAudioPlayer = audio;
-        audio.play().catch(function(e) {
-          if ('speechSynthesis' in window) {
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'pt-BR';
-            utter.rate = 1.05;
-            window.speechSynthesis.speak(utter);
+      });
+
+      if (tab === "map") {
+        closeRoutineModal();
+        closeDispatchModal();
+        const sheet = document.getElementById("main-bottom-sheet");
+        if (sheet) sheet.classList.remove("expanded");
+        if (leafletMap) {
+          if (window.RealTransit && window.RealTransit.polylineLayer) {
+            try {
+              leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { padding: [50, 50], animate: true });
+            } catch(e) {}
+          } else {
+            recenterOnUser(false);
+          }
+        }
+      } else if (tab === "routine") {
+        closeDispatchModal();
+        const sheet = document.getElementById("main-bottom-sheet");
+        if (sheet) sheet.classList.add("expanded");
+        const routineCard = document.querySelector(".routine-commute-card");
+        if (routineCard) {
+          routineCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      } else if (tab === "dispatch") {
+        openDispatchModal();
+      }
+    }
+
+    // ==========================================
+    // CHIP INDICADOR DE TRAJETO DA LINHA
+    // ==========================================
+    function showRouteIndicatorChip(code, name) {
+      const chip = document.getElementById("route-indicator-chip");
+      const label = document.getElementById("route-chip-label");
+      if (!chip || !label) return;
+      label.textContent = "Linha " + code + " · " + (name || "Trajeto Ativo");
+      chip.style.display = "flex";
+    }
+
+    function fitActiveRouteBounds() {
+      if (!leafletMap) return;
+      if (window.RealTransit && window.RealTransit.polylineLayer) {
+        try {
+          leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { padding: [40, 40], animate: true });
+          playSimpleChime();
+          showFloatingVoicePill("Enquadrando o trajeto completo da linha no mapa.");
+        } catch(e) {
+          console.warn(e);
+        }
+      } else if (routePolylineLayer) {
+        leafletMap.fitBounds(routePolylineLayer.getBounds(), { padding: [40, 40], animate: true });
+      }
+    }
+
+    function toggleRouteStopsList() {
+      const sheet = document.getElementById("main-bottom-sheet");
+      if (sheet) sheet.classList.add("expanded");
+      const stopsSection = document.getElementById("sheet-stops-list");
+      if (stopsSection) {
+        stopsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    // ==========================================
+    // DEFINIR PARADA DO USUÁRIO & ALERTA 5 MIN
+    // ==========================================
+    function setMyBoardingStop(stopName, coords) {
+      localStorage.setItem("grafoparada_saved_stop", stopName);
+      if (coords && coords.length === 2) {
+        localStorage.setItem("grafoparada_saved_stop_coords", JSON.stringify(coords));
+        if (typeof connectUserToActiveStop === "function") {
+          connectUserToActiveStop(coords[0], coords[1]);
+        }
+      }
+
+      const inpOrigin = document.getElementById("inp-custom-origin");
+      if (inpOrigin) inpOrigin.value = stopName;
+
+      playSimpleChime();
+      const feedback = "Parada confirmada: " + stopName + ". Vamos monitorar o ônibus e avisar 5 minutos antes da chegada.";
+      playNaturalVoice(feedback);
+      showFloatingVoicePill("🔔 " + feedback);
+
+      const restingBanner = document.getElementById("resting-reallocation-banner");
+      if (restingBanner) {
+        restingBanner.style.display = "block";
+        restingBanner.style.background = "#059669";
+        restingBanner.style.borderColor = "#34d399";
+        restingBanner.innerHTML = "📍 <strong>Sua Parada Fixada:</strong> " + stopName + " · Alerta ativo 5 min antes no bolso.";
+        setTimeout(function() { restingBanner.style.display = "none"; }, 8000);
+      }
+    }
+
+    function useCurrentStopAsOrigin() {
+      let currentName = "Parada Atual";
+      if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
+        const idx = window.RealTransit.activeStopIndex || 0;
+        const st = window.RealTransit.activeRoute.stops[idx];
+        if (st) currentName = st.name;
+      } else if (TELEMETRIA && TELEMETRIA.stops) {
+        currentName = TELEMETRIA.stops[0].name;
+      }
+      const inp = document.getElementById("inp-custom-origin");
+      if (inp) inp.value = currentName;
+      playSimpleChime();
+      showFloatingVoicePill("📍 Parada selecionada como sua origem: " + currentName);
+    }
+
+    // ==========================================
+    // AUTOCOMPLETE INTELIGENTE DE ROTINAS (LINHAS, PARADAS, PONTOS TURÍSTICOS/UNIVERSITÁRIOS)
+    // ==========================================
+    function searchCatalogPlaces(q) {
+      const query = (q || "").trim().toLowerCase();
+      if (!query) return [];
+      const results = [];
+
+      // 1. Polos Universitários & Referências
+      const landmarks = [
+        { label: "UFRPE · Campus Dois Irmãos", sub: "Universidade Federal Rural · Dois Irmãos", type: "Campus", icon: "🎓" },
+        { label: "UFPE · Campus Recife (CDU)", sub: "Universidade Federal · Cidade Universitária", type: "Campus", icon: "🏛️" },
+        { label: "Porto Digital · Bairro do Recife", sub: "Polo Tecnológico · Recife Antigo", type: "Polo TI", icon: "💻" },
+        { label: "Hosp. da Restauração · Derby", sub: "Complexo Hospitalar · Derby", type: "Saúde", icon: "🏥" },
+        { label: "IMIP · Coelhos / Boa Vista", sub: "Instituto de Medicina Integral · Recife", type: "Saúde", icon: "🏥" },
+        { label: "Complexo Suape · Porto & Refinaria", sub: "Polo Industrial e Portuário de Suape", type: "Indústria", icon: "🏭" },
+        { label: "Shopping Costa Dourada · Cabo", sub: "Rodovia PE-60 Km 2,5 · Cabo", type: "Comércio", icon: "🛍️" },
+        { label: "Derby · Praça do Derby", sub: "Conexão Agamenon / Rui Barbosa", type: "Polo Central", icon: "📍" },
+        { label: "Boa Viagem · Domingos Ferreira", sub: "Polo Sul · Boa Viagem", type: "Bairro", icon: "🏖️" },
+        { label: "Camela · Centro (Rua do Comércio)", sub: "Distrito de Ipojuca · PE-60", type: "Origem", icon: "🏠" },
+        { label: "Ipojuca · Centro (UPA PE-60)", sub: "Centro Administrativo Ipojuca", type: "Bairro", icon: "🏠" }
+      ];
+
+      landmarks.forEach(function(item) {
+        if (item.label.toLowerCase().includes(query) || item.sub.toLowerCase().includes(query)) {
+          results.push(item);
+        }
+      });
+
+      // 2. Terminais SEI (26 TIs)
+      if (typeof SEI_TERMINALS !== "undefined" && SEI_TERMINALS) {
+        SEI_TERMINALS.forEach(function(t) {
+          if (t.ti_name.toLowerCase().includes(query) || (t.municipio || "").toLowerCase().includes(query)) {
+            results.push({
+              label: t.ti_name,
+              sub: t.municipio + " (" + (t.bairro || "SEI") + ") · Integração VEM",
+              type: "Terminal SEI",
+              icon: "🏛️"
+            });
           }
         });
+      }
+
+      // 3. Linhas GTFS (393 Linhas)
+      if (window.RealTransit && window.RealTransit.networkData && window.RealTransit.networkData.routes_catalog) {
+        window.RealTransit.networkData.routes_catalog.forEach(function(r) {
+          if (r.code.toLowerCase().includes(query) || r.label.toLowerCase().includes(query) || r.name.toLowerCase().includes(query)) {
+            results.push({
+              label: "Linha " + r.label,
+              sub: "Linha Oficial GTFS · CTM Grande Recife",
+              type: "Linha",
+              icon: "🚌"
+            });
+          }
+        });
+      }
+
+      // 4. Paradas da Linha Ativa
+      if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
+        window.RealTransit.activeRoute.stops.forEach(function(st) {
+          if (st.name.toLowerCase().includes(query) || String(st.stop_id).includes(query)) {
+            results.push({
+              label: st.name,
+              sub: "Parada Cód " + st.stop_id + " · Linha " + window.RealTransit.activeRouteCode,
+              type: "Parada",
+              icon: "🚏"
+            });
+          }
+        });
+      }
+
+      return results.slice(0, 8);
+    }
+
+    function handleRoutineDestSearch(query) {
+      const drop = document.getElementById("routine-dest-dropdown");
+      if (!drop) return;
+      const q = (query || "").trim();
+      if (!q) { drop.style.display = "none"; return; }
+
+      const matches = searchCatalogPlaces(q);
+      if (matches.length === 0) {
+        drop.innerHTML = '<div style="padding:8px 10px; font-size:11px; color:#64748b;">Nenhuma sugestão automática. Salve para usar o destino digitado.</div>';
+        drop.style.display = "block";
+        return;
+      }
+
+      let html = "";
+      matches.forEach(function(m) {
+        const cleanLabel = m.label.replace(/'/g, "\\'");
+        html += '<div onclick="selectRoutineDest(\'' + cleanLabel + '\')" style="padding:7px 10px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:11.5px; display:flex; justify-content:space-between; align-items:center;">' +
+          '<div><strong style="color:#0f172a;">' + m.icon + ' ' + m.label + '</strong><div style="font-size:10px; color:#64748b;">' + m.sub + '</div></div>' +
+          '<span style="font-size:10px; background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:4px;">' + m.type + '</span>' +
+        '</div>';
+      });
+      drop.innerHTML = html;
+      drop.style.display = "block";
+    }
+
+    function handleRoutineOriginSearch(query) {
+      const drop = document.getElementById("routine-origin-dropdown");
+      if (!drop) return;
+      const q = (query || "").trim();
+      if (!q) { drop.style.display = "none"; return; }
+
+      const matches = searchCatalogPlaces(q);
+      if (matches.length === 0) {
+        drop.innerHTML = '<div style="padding:8px 10px; font-size:11px; color:#64748b;">Nenhuma sugestão automática. Salve para usar a parada digitada.</div>';
+        drop.style.display = "block";
+        return;
+      }
+
+      let html = "";
+      matches.forEach(function(m) {
+        const cleanLabel = m.label.replace(/'/g, "\\'");
+        html += '<div onclick="selectRoutineOrigin(\'' + cleanLabel + '\')" style="padding:7px 10px; border-bottom:1px solid #f1f5f9; cursor:pointer; font-size:11.5px; display:flex; justify-content:space-between; align-items:center;">' +
+          '<div><strong style="color:#0f172a;">' + m.icon + ' ' + m.label + '</strong><div style="font-size:10px; color:#64748b;">' + m.sub + '</div></div>' +
+          '<span style="font-size:10px; background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:4px;">' + m.type + '</span>' +
+        '</div>';
+      });
+      drop.innerHTML = html;
+      drop.style.display = "block";
+    }
+
+    function selectRoutineDest(name) {
+      const inp = document.getElementById("inp-custom-dest");
+      if (inp) inp.value = name;
+      const drop = document.getElementById("routine-dest-dropdown");
+      if (drop) drop.style.display = "none";
+    }
+
+    function selectRoutineOrigin(name) {
+      const inp = document.getElementById("inp-custom-origin");
+      if (inp) inp.value = name;
+      const drop = document.getElementById("routine-origin-dropdown");
+      if (drop) drop.style.display = "none";
+    }
+
+    // ==========================================
+    // TRANSCRIÇÃO VISUAL DA VOZ & VOZ NEURAL HUMANA
+    // ==========================================
+    let voicePillTimer = null;
+    function showFloatingVoicePill(text) {
+      const pill = document.getElementById("floating-voice-pill");
+      const textEl = document.getElementById("floating-voice-text");
+      if (!pill || !textEl) return;
+      textEl.textContent = text;
+      pill.style.display = "flex";
+      pill.style.opacity = "1";
+      if (voicePillTimer) clearTimeout(voicePillTimer);
+      voicePillTimer = setTimeout(function() {
+        dismissFloatingVoicePill();
+      }, 5000);
+    }
+
+    function dismissFloatingVoicePill() {
+      const pill = document.getElementById("floating-voice-pill");
+      if (!pill) return;
+      pill.style.opacity = "0";
+      setTimeout(function() {
+        pill.style.display = "none";
+      }, 300);
+    }
+
+    // Síntese de voz com seleção de vozes neurais brasileiras naturais
+    function playNaturalVoice(text) {
+      if (!text) return;
+      showFloatingVoicePill(text);
+
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'pt-BR';
+          utter.rate = 0.96; // Cadência natural, humana e acolhedora
+          utter.pitch = 1.0;
+
+          // Busca vozes de alta qualidade (Google português do Brasil, Microsoft Francisca/Antonio, Luciana)
+          const voices = window.speechSynthesis.getVoices() || [];
+          let bestVoice = voices.find(function(v) {
+            const name = (v.name || "").toLowerCase();
+            return (v.lang === "pt-BR" || v.lang === "pt_BR") && (name.includes("natural") || name.includes("neural") || name.includes("google") || name.includes("francisca") || name.includes("antonio") || name.includes("luciana"));
+          });
+          if (!bestVoice) {
+            bestVoice = voices.find(function(v) { return v.lang === "pt-BR" || v.lang === "pt_BR"; });
+          }
+          if (bestVoice) {
+            utter.voice = bestVoice;
+          }
+
+          window.speechSynthesis.speak(utter);
+        }
       } catch (e) {
-        console.warn(e);
+        console.warn("Audio synthesis error:", e);
       }
     }
   </script>

@@ -140,6 +140,9 @@
 
       // 3. Atualiza Elementos do DOM
       this.updateUIForLine(lineData);
+      if (typeof window.showRouteIndicatorChip === 'function') {
+        window.showRouteIndicatorChip(code, lineData.name || lineData.label);
+      }
 
       // 4. Consulta API ao Vivo do Cittamobi para Dados em Tempo Real da Frota
       this.fetchCittamobiLiveData(code);
@@ -176,6 +179,9 @@
             <button onclick="window.RealTransit.selectStop(${idx}, true); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#059669; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">
               Selecionar Parada ➔
             </button>
+            <button onclick="window.setMyBoardingStop('${st.name.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}]); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#0284c7; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer; margin-top:4px;">
+              🔔 Me avisar quando o ônibus estiver perto (Minha Parada)
+            </button>
           </div>
         `;
 
@@ -203,6 +209,9 @@
             </div>
             <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:2px;">${st.name}</div>
             <div style="font-size:11px; color:var(--text-secondary);">Sentido: ${this.activeRoute.headsign || this.activeRoute.name}</div>
+            <button onclick="window.setMyBoardingStop('${st.name.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}])" style="margin-top:6px; background:#f0fdf4; color:#047857; border:1.5px solid #86efac; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:5px;">
+              🔔 Me avisar quando o ônibus estiver perto desta parada
+            </button>
           </div>
         `;
       }
