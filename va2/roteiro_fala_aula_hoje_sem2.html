@@ -214,13 +214,13 @@
       <strong>1. A Demo:</strong> O estudante ou passageiro no Grande Recife abre o app, consulta qualquer uma das 400 linhas reais do GTFS (como a Linha 522 da UFRPE ou a Linha 060), vê a previsão em 4 minutos e sai de casa no horário exato sem mofar no ponto de ônibus.
     </div>
     <div class="frase-item">
-      <strong>2. O Custo:</strong> No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch. O flx estimava menos de 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
+      <strong>2. O Custo:</strong> No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch na CPU. A estimativa inicial de arquitetura previa menos de 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
     </div>
     <div class="frase-item">
-      <strong>3. A Falha:</strong> Num congestionamento severo com 45 minutos de atraso real no GPS satélite, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde a prova ou o turno, e o erro ensina que choques pontuais exigem uma trava híbrida que corte a IA.
+      <strong>3. A Falha:</strong> Num choque súbito com 45 minutos de retenção simulada na via, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde a prova ou o turno, e o erro ensina que choques pontuais exigem uma trava híbrida que corte a IA.
     </div>
     <div class="frase-item">
-      <strong>4. O Que Mudou:</strong> No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real expandida de 20 paradas ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
+      <strong>4. O Que Mudou:</strong> No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN para testar em escala: na malha expandida de 20 paradas, em dados simulados por difusão espaço-temporal, a STGCN obteve 1,51 minuto de erro contra 1,93 minuto da regressão linear e 7,13 da persistência, mostrando que o grafo mitiga a explosão dimensional quando a rede cresce.
     </div>
   </div>
 
@@ -252,14 +252,14 @@
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Três colunas limpas: <strong>4,98 ms · 12 KB</strong> no celular (on-device) | <strong>0,77 ms · 358 MB</strong> no servidor (CPU pura) | <strong>R$ 0,00</strong> de custo vs <strong>&lt; 500 ms · ~300 MB</strong> estimados no flx.</p>
+      <p style="font-size:0.9rem;">Três colunas limpas: <strong>4,98 ms · 12 KB</strong> no celular (on-device) | <strong>0,77 ms · 358 MB</strong> no servidor (CPU pura) | <strong>R$ 0,00</strong> de custo vs <strong>&lt; 500 ms · ~300 MB</strong> da estimativa inicial de arquitetura.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"Esses números vieram da medição de verdade que rodou no repositório com o script <code>medir_custo_sem2.py</code>."</p>
-        <p>"No celular do passageiro, a máquina cinemática levou 4,98 milissegundos e gastou apenas 12 kilobytes de RAM, sem consumir bateria. No servidor, a STGCN rodou em 0,77 milissegundo na CPU comum."</p>
-        <p>"O flx estimava até 500 milissegundos e 300 megabytes. A diferença no tempo é que a inferência em CPU pura é 650 vezes mais rápida do que o teto estimado; e na memória, os 358 megabytes são o processo do PyTorch mantendo as bibliotecas dinâmicas em memória, enquanto os pesos da rede ocupam menos de 100 kilobytes. O custo em dinheiro é zero reais: roda na infraestrutura comum que o consórcio já tem, sem nuvem paga."</p>
+        <p>"Esses números vieram da medição que rodou no repositório com o script <code>medir_custo_sem2.py</code>."</p>
+        <p>"No celular do passageiro, a máquina cinemática levou 4,98 milissegundos e gastou apenas 12 kilobytes de RAM, sem consumir bateria. No servidor de desenvolvimento, a STGCN rodou em 0,77 milissegundo na CPU comum (Python 3.12 / PyTorch)."</p>
+        <p>"A estimativa inicial de arquitetura previa até 500 milissegundos e 300 megabytes. A diferença no tempo é que a inferência em CPU pura é centenas de vezes mais rápida do que o teto estimado; e na memória, os 358 megabytes são o processo do PyTorch mantendo as bibliotecas dinâmicas em memória, enquanto os pesos da rede ocupam menos de 100 kilobytes. O custo no ambiente de desenvolvimento é zero reais; para escala metropolitana com centenas de milhares de requisições, o dimensionamento prevê contêineres de borda rodando inferências a cada ciclo de 30 segundos."</p>
       </div>
     </div>
   </div>
@@ -267,20 +267,20 @@
   <!-- SLIDE 3 -->
   <div class="slide-card">
     <div class="slide-header">
-      <div class="slide-title">Slide 3 · A Falha Real (Over-smoothing na STGCN)</div>
+      <div class="slide-title">Slide 3 · A Falha (Over-smoothing na STGCN)</div>
       <div class="slide-time">⏱️ 60 segundos</div>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Saída errada da IA: <strong>18 min</strong> (em vermelho). Realidade do GPS: <strong>45 min</strong> (em verde). Quem sofre o erro e a trava de segurança adotada.</p>
+      <p style="font-size:0.9rem;">Saída da IA sob super-suavização: <strong>18 min</strong> (em vermelho). Choque de referência: <strong>45 min</strong> (em verde). Quem sofre o erro e a trava híbrida de segurança adotada.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
         <p>"Eu escolhi trazer este caso de propósito porque ele erra de verdade."</p>
-        <p>"Houve um bloqueio na pista e o trânsito travou: o atraso real no GPS pulou para 45 minutos. Olhem a tela: a STGCN previu 18 minutos. O número parece razoável, mas mente."</p>
+        <p>"Simulamos um bloqueio severo de via no trecho e o atraso de referência pulou para 45 minutos. Olhem a tela: a STGCN previu apenas 18 minutos. O número parece razoável, mas mente."</p>
         <p>"Quem sofre é o trabalhador ou estudante: ele confia no '18 minutos', espera um ônibus que não vem e perde o turno ou a prova na universidade. O erro me ensinou que redes de grafo sofrem de super-suavização (over-smoothing): a matriz Laplaciana dilui o atraso brusco com as paradas vizinhas desimpedidas."</p>
-        <p>"Como nós resolvemos? Colocamos uma trava híbrida: se o desvio entre a STGCN e o GPS bruto passar de 15 minutos, o sistema corta a previsão da IA e acende o alerta de interdição [?]. É exatamente essa falha que vira a medida do sem3."</p>
+        <p>"Como nós resolvemos? Colocamos uma trava híbrida: se o desvio entre a STGCN e a referência passar de 15 minutos, o sistema corta a previsão da IA e acende o alerta de interdição [?]. É exatamente essa falha que vira a medida do sem3."</p>
       </div>
     </div>
   </div>
@@ -293,14 +293,14 @@
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Sem1 (5 paradas): Linear bateu STGCN (2,46 min vs 4,42 min). Sem2 (malha real expandida · 20+ paradas): STGCN virou o jogo (1,51 min vs 1,93 min linear e 7,13 min persistência).</p>
+      <p style="font-size:0.9rem;">Sem1 (5 paradas): Linear bateu STGCN (2,46 min vs 4,42 min). Sem2 (malha GTFS expandida · 20 paradas): STGCN obteve 1,51 min vs 1,93 min linear e 7,13 min persistência em dados simulados de difusão.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"No sem1, uma conta simples de padaria tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. A banca questionou se valia a pena usar IA pesada."</p>
-        <p>"Eu prometi testar na malha completa. Mantive a STGCN de propósito e hoje trago a resposta: na malha expandida com mais de 20 paradas, a STGCN virou o jogo. O erro caiu para 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos."</p>
-        <p>"Quando a malha cresce e os atrasos se propagam entre as paradas vizinhas, a IA espacial se paga."</p>
+        <p>"No sem1, uma conta simples de padaria tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. A banca questionou com razão se valia a pena usar IA pesada."</p>
+        <p>"Eu prometi testar na malha completa. Mantive a STGCN para avaliar em escala: na malha expandida com 20 paradas da PE-60, em dados simulados por difusão espaço-temporal, a STGCN obteve 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos."</p>
+        <p>"A regressão linear sofre ao tentar ajustar 120 variáveis achatadas, enquanto o grafo preserva a esparsidade física da via. Como os dados de atraso foram simulados por difusão em rede, a validação empírica definitiva dependerá de dados contínuos de telemetria da frota que o consórcio ainda não abre publicamente."</p>
       </div>
     </div>
   </div>

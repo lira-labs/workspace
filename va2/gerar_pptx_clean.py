@@ -167,13 +167,13 @@ p3.font.color.rgb = TEXT_MUTED
 
 
 # ==============================================================================
-# SLIDE 2: QUANTO CUSTA (MEDIDO VS FLX.MD)
+# SLIDE 2: QUANTO CUSTA (MEDIDO VS ESTIMATIVA INICIAL)
 # ==============================================================================
 s2 = prs.slides.add_slide(blank_layout)
 set_slide_background(s2)
 add_header(s2, "02 / Quanto Custa, Medido",
-           "Medição Real na Máquina vs Estimativa do flx.md",
-           "Medido com medir_custo_sem2.py identificado por tempo e pico de memória.")
+           "Medição em CPU Local vs Estimativa Inicial de Arquitetura",
+           "Medido com medir_custo_sem2.py (Python 3.12 / PyTorch na CPU; FSM no dispositivo).")
 add_footer(s2, 2)
 
 # Regra dos Terços: 3 Colunas Limpas
@@ -233,14 +233,14 @@ p_sub2.font.name = FONT_FAMILY
 p_sub2.font.size = Pt(13)
 p_sub2.font.color.rgb = TEXT_MUTED
 
-# Coluna 3: Estimado no flx & Custo Financeiro
+# Coluna 3: Estimativa Inicial & Custo
 tb2_c3 = s2.shapes.add_textbox(Inches(8.8), Inches(2.6), col_w, Inches(3.9))
 tf2_c3 = tb2_c3.text_frame
 tf2_c3.word_wrap = True
 tf2_c3.margin_top = tf2_c3.margin_bottom = tf2_c3.margin_left = tf2_c3.margin_right = 0
 
 p = tf2_c3.paragraphs[0]
-p.text = "ESTIMADO NO FLX & CUSTO"
+p.text = "ESTIMATIVA INICIAL & CUSTO"
 p.font.name = FONT_FAMILY
 p.font.size = Pt(11)
 p.font.bold = True
@@ -255,20 +255,20 @@ p_num3.font.bold = True
 p_num3.font.color.rgb = ACCENT_BLUE
 
 p_sub3 = tf2_c3.add_paragraph()
-p_sub3.text = "flx previa < 500 ms e ~300 MB.\nExecuta 650x mais rápido que o previsto. Custo zero em nuvem paga."
+p_sub3.text = "Projeto previa < 500 ms e ~300 MB.\nCusto zero em máquina local; escala metropolitana requer backend dedicado."
 p_sub3.font.name = FONT_FAMILY
 p_sub3.font.size = Pt(13)
 p_sub3.font.color.rgb = TEXT_MUTED
 
 
 # ==============================================================================
-# SLIDE 3: A FALHA REAL (MOSTRADA DE PROPÓSITO)
+# SLIDE 3: A FALHA (MOSTRADA DE PROPÓSITO)
 # ==============================================================================
 s3 = prs.slides.add_slide(blank_layout)
 set_slide_background(s3)
 add_header(s3, "03 / A Falha Mostrada de Propósito",
-           "A Falha Real: Over-smoothing na STGCN",
-           "A saída errada como saiu, o certo pelo GPS real e a trava de segurança adotada.")
+           "A Falha: Over-smoothing na STGCN",
+           "A saída da rede sob retenção severa vs valor de referência e a trava adotada.")
 add_footer(s3, 3)
 
 # Duas Colunas de Alto Contraste
@@ -315,14 +315,14 @@ p_who_txt.font.name = FONT_FAMILY
 p_who_txt.font.size = Pt(13)
 p_who_txt.font.color.rgb = TEXT_MUTED
 
-# Coluna 2: O Certo (GPS Real) e a Trava
+# Coluna 2: Referência e Trava
 tb3_c2 = s3.shapes.add_textbox(Inches(7.0), Inches(2.6), col_w3, Inches(3.9))
 tf3_c2 = tb3_c2.text_frame
 tf3_c2.word_wrap = True
 tf3_c2.margin_top = tf3_c2.margin_bottom = tf3_c2.margin_left = tf3_c2.margin_right = 0
 
 p = tf3_c2.paragraphs[0]
-p.text = "O CERTO (REALIDADE DO GPS SATÉLITE)"
+p.text = "RETENÇÃO DE REFERÊNCIA (CHOQUE SÚBITO)"
 p.font.name = FONT_FAMILY
 p.font.size = Pt(11)
 p.font.bold = True
@@ -337,7 +337,7 @@ p_cor.font.bold = True
 p_cor.font.color.rgb = ACCENT_GREEN
 
 p_cor_txt = tf3_c2.add_paragraph()
-p_cor_txt.text = "O coletivo travou fisicamente num bloqueio/acidente da via com retenção severa detectada no satélite."
+p_cor_txt.text = "Simulação de retenção severa ou bloqueio físico da via no nó do corredor com atraso abrupto."
 p_cor_txt.font.name = FONT_FAMILY
 p_cor_txt.font.size = Pt(14)
 p_cor_txt.font.color.rgb = TEXT_BLACK
@@ -351,7 +351,7 @@ p_trava.font.bold = True
 p_trava.font.color.rgb = ACCENT_BLUE
 
 p_trava_txt = tf3_c2.add_paragraph()
-p_trava_txt.text = "Corte Híbrido: se |STGCN - GPS| > 15 min, o sistema corta a previsão da IA e acende o alerta de interdição [?]."
+p_trava_txt.text = "Corte Híbrido: se |STGCN - Referência| > 15 min, o sistema corta a previsão da IA e acende o alerta de interdição [?]."
 p_trava_txt.font.name = FONT_FAMILY
 p_trava_txt.font.size = Pt(13)
 p_trava_txt.font.color.rgb = TEXT_MUTED
@@ -364,7 +364,7 @@ s4 = prs.slides.add_slide(blank_layout)
 set_slide_background(s4)
 add_header(s4, "04 / O Que Mudou desde o Sem1",
            "Decisão Justificada: Por Que Mantivemos a STGCN",
-           "O que valia no sem1, o que vale agora e o porquê comprovado na malha real.")
+           "O que valia no sem1, o que vale agora e o teste em dados simulados por difusão.")
 add_footer(s4, 4)
 
 tb4 = s4.shapes.add_textbox(Inches(1.0), Inches(2.6), Inches(11.333), Inches(3.9))
@@ -396,21 +396,21 @@ p1_sub.space_after = Pt(36)
 
 # Linha 2: Sem 2
 p2_tag = tf4.add_paragraph()
-p2_tag.text = "AGORA NO SEM2 (MALHA METROPOLITANA REAL · 20+ PARADAS):"
+p2_tag.text = "AGORA NO SEM2 (MALHA GTFS EXPANDIDA · DADOS SINTÉTICOS DE DIFUSÃO):"
 p2_tag.font.name = FONT_FAMILY
 p2_tag.font.size = Pt(11)
 p2_tag.font.bold = True
 p2_tag.font.color.rgb = ACCENT_BLUE
 
 p2_main = tf4.add_paragraph()
-p2_main.text = "A STGCN virou o jogo: erro caiu para 1,51 min (contra 1,93 min da linear e 7,13 min da persistência)."
+p2_main.text = "A STGCN reduziu o erro para 1,51 min (contra 1,93 min da linear e 7,13 min da persistência)."
 p2_main.font.name = FONT_FAMILY
 p2_main.font.size = Pt(22)
 p2_main.font.bold = True
 p2_main.font.color.rgb = ACCENT_BLUE
 
 p2_sub = tf4.add_paragraph()
-p2_sub.text = "Decisão: Fica a STGCN. Na malha metropolitana, a propagação espacial de atrasos justifica a IA (-78% de erro)."
+p2_sub.text = "Decisão: Fica a STGCN. A GNN mitiga a explosão dimensional da linear (120 variáveis). Validação final requer telemetria contínua."
 p2_sub.font.name = FONT_FAMILY
 p2_sub.font.size = Pt(14)
 p2_sub.font.color.rgb = TEXT_BLACK

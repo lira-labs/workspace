@@ -4,8 +4,8 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 14:30
-- **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
+- **Última Atualização:** 11/11/2026 14:40
+- **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -13,7 +13,7 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_BoWXNT7KUn7Ax6AqN1MdHS3aYYMU` em Produção)
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Roteiro de Fala Mobile*: `https://grafoparadaweb.vercel.app/roteiro.html`
@@ -22,6 +22,27 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Refinamento de Substância e Rigor Científico (Audit Claude 2ª Rodada)
+- [x] **Confirmação e Deploy em Produção (Vercel)**:
+  - Branch `main` sincronizada com fast-forward a partir do commit de trabalho.
+  - Deploy em produção forçado e aliadado com sucesso via CLI (`vercel --prod`) para `grafoparadaweb.vercel.app`.
+  - Verificação HTTP direta confirmando presença dos novos selos e ausência de cache.
+- [x] **Ajuste da Central CTM (Demanda Não-Linear & Eliminação de Dupla Contagem)**:
+  - Superada a soma ingênua ($12 + 26 = 38$):
+    - *Catraca/SBE (Histórico)*: 14 embarques médios observados (dado censurado).
+    - *Rotinas Pendulares On-Device*: 19 passageiros com alarme ativo (~42% de adesão amostral; 8 coincidem com a catraca, sem dupla contagem).
+    - *Previsão ST-GCN ($\hat{D}$)*: $41 \pm 3{,}8$ passageiros aguardando (Intervalo de Incerteza IC 90% via calibração conformal: $[37, 45]$).
+  - *Regra Operacional Probabilística*: Despacho acionado quando $P(D > 36 \text{ assentos}) \ge 80\%$ (calculado em $98{,}4\%$) associado a linha concorrente ociosa ($\le 15\%$). Rotulado expressamente como exemplo ilustrativo.
+- [x] **Transparência Absoluta na Origem dos Dados (Sintético vs Real)**:
+  - Reconhecimento explícito de que a malha, rotas e paradas são **100% REAIS e OFICIAIS** (GTFS CTM), mas os **atrasos temporais foram gerados por simulação sintética de difusão espaço-temporal**.
+  - Evitada qualquer alegação de que $1{,}51$ min vs $1{,}93$ min "prova em dados reais" a superioridade do grafo: o ganho decorre da parcimônia estrutural da convolução de Chebyshev frente à explosão dimensional da regressão tabular linear (120 parâmetros), ressalvando que a validação final requer abertura de telemetria contínua pelo consórcio.
+- [x] **Precisão nos Custos Medidos e Escala**:
+  - Detalhado o ambiente de medição: CPU Core i7 / Python 3.12 / PyTorch para servidor; FSM on-device no celular do passageiro.
+  - Substituída a menção a "flx" por "estimativa inicial de arquitetura".
+  - Esclarecido que "custo R$ 0,00" aplica-se ao ambiente local de desenvolvimento/escritório; escala metropolitana requer instâncias em contêiner com inferência a cada ciclo de 30 segundos.
+- [x] **Conformidade Estrita com a Lei Estadual nº 15.878/2016 (ALEPE)**:
+  - O direito ao desembarque seguro entre 22h e 05h no STPP/RMR aplica-se a **qualquer passageiro**, em conformidade com o texto original da lei.
 
 ### 1. Adequação Rigorosa ao Peer Review Acadêmico (Revisão Claude · 7 Pontos Críticos)
 - [x] **Ponto 1 · Rótulos Honestos de Protótipo e Simulação**:

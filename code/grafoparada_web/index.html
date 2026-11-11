@@ -1473,7 +1473,7 @@
 
         <div style="background:var(--bg-page); border-radius:14px; padding:12px; margin-bottom:14px; font-size:13px; line-height:1.6;">
           <div><strong>Nome:</strong> <span id="prof-name">Cauã Cunha</span></div>
-          <div><strong>CPF:</strong> <span id="prof-cpf">084.721.904-12</span></div>
+          <div><strong>Identificador Acadêmico (Simulado):</strong> <span id="prof-cpf">UFRPE-TESTE-2026</span></div>
           <div><strong>Celular:</strong> <span id="prof-phone">(81) 98888-7766</span></div>
           <div><strong>Casa:</strong> <span id="prof-home">Camela (Rua do Comércio)</span></div>
           <div><strong>Destino:</strong> <span id="prof-work">TI Cabo</span></div>
@@ -1854,13 +1854,13 @@
 
     <!-- 8. MODAL: CENTRAL CTM DE REALOCAÇÃO DE FROTA NO VAZIO -->
     <div id="modal-dispatch" class="modal-overlay">
-      <div class="modal-card" style="border:2px solid #0284c7; max-width:400px;">
+      <div class="modal-card" style="border:2px solid #0284c7; max-width:410px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:22px;">🏛️</span>
             <div>
-              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Central CTM · Despacho Operacional</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Proposta de Integração · Algoritmo ST-GCN</span>
+              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Central CTM · Apoio à Decisão</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Proposta de Integração · Exemplo Ilustrativo</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeDispatchModal()">✕</button>
@@ -1868,11 +1868,11 @@
 
         <!-- O MÉTODO: DEMANDA OBSERVADA VS DEMANDA LATENTE ESTIMADA -->
         <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:10px;">
-          <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo do Método: Demanda Não-Censurada</div>
+          <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo do Método: Demanda Não-Censurada & ST-GCN</div>
           <div style="font-size:11px; color:#334155; line-height:1.45;">
-            • <strong>Catraca / SBE (Observada):</strong> 12 embarques no ciclo anterior (dado censurado: quem desiste no ponto escuro não passa na catraca).<br>
-            • <strong>Minha Rotina Pendular:</strong> 26 passageiros com rotina ativa para esta janela horária.<br>
-            • <strong>Demanda Latente ST-GCN:</strong> <strong>38 ± 4 passageiros</strong> aguardando ao longo das paradas (demanda supera a capacidade sentada de 36).
+            • <strong>Catraca / SBE (Observada):</strong> 14 embarques médios históricos (dado censurado: ignora passageiros que desistem antes ou evadem).<br>
+            • <strong>Rotina Pendular On-Device:</strong> 19 passageiros com alarme ativo no corredor (~42% de adesão amostral; 8 coincidem com a catraca, sem dupla contagem).<br>
+            • <strong>Demanda Latente ST-GCN (D̂):</strong> <strong>41 ± 3,8 passageiros</strong> aguardando (IC 90% via calibração conformal: [37, 45] passageiros).
           </div>
         </div>
 
@@ -1884,18 +1884,18 @@
           </div>
 
           <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px;">
-            <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha Sobrecarregada</div>
-            <div style="font-size:17px; font-weight:800; color:#059669; margin:3px 0;">38 estimados</div>
-            <div style="font-size:10.5px; color:#475569; line-height:1.3;">Demanda latente reprimida. Risco de evasão para transporte clandestino.</div>
+            <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha Sobrecarga</div>
+            <div style="font-size:17px; font-weight:800; color:#059669; margin:3px 0;">41 estimados</div>
+            <div style="font-size:10.5px; color:#475569; line-height:1.3;">P(D > 36 assentos) = <strong>98,4%</strong>. Superlotação iminente.</div>
           </div>
         </div>
 
         <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:12px; padding:10px; margin-bottom:12px;">
           <div style="font-size:10.5px; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:3px;">
-            ⚡ Regra de Decisão do Despacho Operacional:
+            ⚡ Regra Operacional de Despacho (Probabilística):
           </div>
-          <div style="font-size:11.5px; font-weight:700; color:#0f172a; line-height:1.4;">
-            Se Demanda Latente > Capacidade Sentada E Linha Ociosa < 15% Ocupação ➔ Sugerir remanejamento de coletivo para reforço da rota.
+          <div style="font-size:11px; font-weight:600; color:#0f172a; line-height:1.4;">
+            Se P(Demanda Latente > Capacidade Sentada) ≥ 80% E Ocupação Linha Concorrente ≤ 15% ➔ Sugerir remanejamento preventivo de coletivo de suporte.
           </div>
         </div>
 
@@ -2067,7 +2067,7 @@
         </div>
 
         <div style="background:#fdf4ff; border:1px solid #f0abfc; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5; color:#581c87;">
-          <strong>Direito Assegurado:</strong> Conforme a Lei Estadual nº 15.878/2016 (PE), mulheres e pessoas com deficiência ou mobilidade reduzida têm o direito de solicitar desembarque em local seguro e iluminado ao longo do itinerário, entre <strong>22h e 05h</strong>, nas linhas do Sistema Metropolitano (STPP/RMR).
+          <strong>Direito Assegurado:</strong> Conforme a Lei Estadual nº 15.878/2016 (PE), qualquer passageiro tem o direito de solicitar desembarque em local mais iluminado ou seguro ao longo do itinerário da linha, entre <strong>22h e 05h</strong>, nas linhas do Sistema Metropolitano (STPP/RMR).
         </div>
 
         <!-- CARTÃO VISUAL PARA MOSTRAR AO MOTORISTA -->
@@ -2671,7 +2671,7 @@
     function openProfileModal() {
       const u = getUserData();
       document.getElementById("prof-name").textContent = u.name || "Cauã Cunha";
-      document.getElementById("prof-cpf").textContent = u.cpf || "084.721.904-12";
+      document.getElementById("prof-cpf").textContent = u.cpf || "UFRPE-TESTE-2026";
       document.getElementById("prof-phone").textContent = u.phone || "(81) 98888-7766";
       document.getElementById("prof-home").textContent = (u.home || "Camela").split("·")[0];
       document.getElementById("prof-work").textContent = (u.work || "TI Cabo").split("·")[0];
@@ -2689,22 +2689,14 @@
 
     // ONBOARDING & STORAGE
     function formatCpf(input) {
-      let v = input.value.replace(/[^0-9]/g, "");
-      if (v.length > 11) v = v.substring(0, 11);
-      if (v.length > 9) {
-        v = v.replace(/^([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{1,2})$/, "$1.$2.$3-$4");
-      } else if (v.length > 6) {
-        v = v.replace(/^([0-9]{3})([0-9]{3})([0-9]{1,3})$/, "$1.$2.$3");
-      } else if (v.length > 3) {
-        v = v.replace(/^([0-9]{3})([0-9]{1,3})$/, "$1.$2");
-      }
-      input.value = v;
+      // Identificador simulado alfanumérico para protótipo de teste (LGPD)
+      input.value = input.value.toUpperCase();
     }
 
     function handleOnboardingSubmit(e) {
       e.preventDefault();
       const name = document.getElementById("inp-name").value.trim() || "Cauã Cunha";
-      const cpf = document.getElementById("inp-cpf").value.trim() || "084.721.904-12";
+      const cpf = document.getElementById("inp-cpf").value.trim() || "UFRPE-TESTE-2026";
       const home = document.getElementById("inp-home").value;
       const work = document.getElementById("inp-work").value;
       const line = document.getElementById("inp-line").value;
@@ -2716,7 +2708,7 @@
     function enterAsQuickGuest() {
       const userData = {
         name: "Cauã Cunha",
-        cpf: "084.721.904-12",
+        cpf: "UFRPE-TESTE-2026",
         phone: "(81) 98888-7766",
         home: "Camela · Centro (Rua do Comércio / Linha 199)",
         work: "TI Cabo (Terminal Integrado do Cabo)",
