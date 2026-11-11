@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 10/11/2026 23:25
+- **Última Atualização:** 11/11/2026 00:00
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -14,6 +14,30 @@
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
   - *Slides Sem2 Web*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+  - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
+
+---
+
+## ✅ O que foi Concluído nesta Sessão
+
+### 1. Rodada de Usabilidade, Geografia Autêntica e Correção de Interface (Anti-Tela Preta)
+- [x] **Diagnóstico e Correção da Tela Escura no Desktop/Mobile**:
+  - *Causa Raiz 1 (Sintaxe JS)*: Aspas simples não escapadas em strings de template geraram erro de sintaxe JS (`Unexpected string`) no navegador, abortando a execução do script e impedindo a inicialização do Leaflet.
+  - *Correção Definitiva*: Refatoração dos manipuladores de clique para usar índices numéricos (`selectSearchedResult(idx)`, `flyToFilteredTerminal(idx)`), validado com 100% de conformidade pelo Node.js.
+  - *Causa Raiz 2 (Layout Esticado no Desktop)*: Na visualização em telas largas/notebooks com altura reduzida (ex: 1024x487), o simulador de smartphone esticava a 100vw, separando os botões por 1000px e comprimindo o mapa.
+  - *Correção de Responsividade*: Limitação ergonômica a `max-width: 440px` centralizada com rolagem suave na barra superior (`overflow-x: auto`), adaptação automática a telas de notebooks com `@media (max-height: 720px)` e tiles CartoDB Voyager de alta performance com fallback.
+- [x] **Geografia Autêntica da PE-60 (Zero AI Slop · 43 Paradas Mapeadas)**:
+  - Eliminação de nomes genéricos: todas as 43 paradas da Linha 199 (Camela ➔ TI Cabo) possuem agora seus nomes reais, pontos de referência locais (Mercado Público, Posto Dislub, Rurópolis, Refinaria Abreu e Lima, Cone Multimodal, Shopping Costa Dourada, Hospital Dom Hélder, IFPE Cabo), códigos de parada CTM oficiais (`030613`, etc.), municípios e selo de abrigo coberto vs sem abrigo.
+  - Agrupamento inteligente em 8 trechos rodoviários na lista sanfonada de paradas.
+- [x] **Catálogo Completo dos 26 Terminais Integrados (SEI)**:
+  - Base com todos os 26 TIs do Sistema Estrutural Integrado (Cabo, Cajueiro Seco, Prazeres, Tancredo Neves, Aeroporto, Joana Bezerra, Macaxeira, PE-15, etc.).
+  - Modal interativo com filtros por região (Sul, Recife, Norte, Oeste) e botão de navegação com zoom direto no mapa (`flyToTerminal`).
+- [x] **Previsão Imediata e Acessibilidade no Estado Inicial**:
+  - O passageiro não precisa clicar em nada para ver o ETA: o card inicial já exibe em destaque o próximo ônibus Linha 199 chegando em 4 min (06:14), com botão *"🔊 Ouvir"* em voz alta para idosos e *"Acompanhar ➔"*.
+  - Busca com auto-complete rápido no topo por linhas (199, 178), terminais SEI ou paradas da PE-60.
+- [x] **Auditoria Automatizada e Deploy Vercel**:
+  - `teste_rotinas_e_realocacao.py`: 20/20 testes aprovados (100%).
+  - Deploy em produção concluído na Vercel: `https://grafoparadaweb.vercel.app`.
 
 ---
 

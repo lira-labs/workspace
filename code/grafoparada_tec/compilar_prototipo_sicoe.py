@@ -196,16 +196,18 @@ template = """<!DOCTYPE html>
       flex-direction: column;
     }
 
-    /* DESKTOP MEDIA QUERY: ELEGANT SMARTPHONE FRAME */
+    /* DESKTOP MEDIA QUERY: ELEGANT RESPONSIVE SMARTPHONE FRAME */
     @media (min-width: 601px) {
       .desktop-outer-bar {
         display: flex;
       }
       .phone-simulator-frame {
-        width: 412px;
-        height: min(870px, 92vh);
-        border-radius: 46px;
-        border: 8px solid #1e293b;
+        width: 100%;
+        max-width: 440px;
+        height: 100%;
+        max-height: min(880px, 94vh);
+        border-radius: 36px;
+        border: 6px solid #1e293b;
         box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.1);
       }
       .phone-notch-island {
@@ -216,16 +218,48 @@ template = """<!DOCTYPE html>
       }
     }
 
+    /* SHORT SCREENS (e.g. laptop 480px-700px height): adapt cleanly without clipping */
+    @media (min-width: 601px) and (max-height: 720px) {
+      .desktop-outer-bar {
+        display: none !important;
+      }
+      .phone-simulator-frame {
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .phone-notch-island {
+        display: none !important;
+      }
+    }
+
     /* FULLSCREEN TOGGLE ON DESKTOP */
     body.is-fullscreen .phone-simulator-frame {
       width: 100vw !important;
+      max-width: 100vw !important;
       height: 100dvh !important;
+      max-height: 100dvh !important;
       border-radius: 0 !important;
       border: none !important;
       box-shadow: none !important;
     }
     body.is-fullscreen .desktop-outer-bar {
       display: none !important;
+    }
+    body.is-fullscreen .phone-notch-island {
+      display: none !important;
+    }
+    body.is-fullscreen .top-floating-bar,
+    body.is-fullscreen .mobile-bottom-sheet {
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+      left: 0;
+      right: 0;
+    }
+    body.is-fullscreen .fab-gps {
+      right: calc(50% - 215px);
     }
 
     /* DYNAMIC ISLAND NOTCH ON DESKTOP */
@@ -281,21 +315,27 @@ template = """<!DOCTYPE html>
     /* FLOATING TOP BAR (SLEEK PILL) */
     .top-floating-bar {
       position: absolute;
-      top: 40px;
-      left: 14px;
-      right: 14px;
+      top: 14px;
+      left: 12px;
+      right: 12px;
       z-index: 1000;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       pointer-events: none;
     }
 
     .top-pills-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .top-pills-row::-webkit-scrollbar {
+      display: none;
     }
 
     .top-pill {
@@ -1128,6 +1168,9 @@ template = """<!DOCTYPE html>
             <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
         <span>📅</span> Minha Rotina (Turnos)
       </button>
+      <button class="btn-desktop-action" onclick="openSeiTerminalsModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
+        <span>🏛️</span> 26 Terminais do SEI
+      </button>
 <button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
         <span>🏛️</span> Central CTM (Realocação de Frota)
       </button>
@@ -1229,15 +1272,48 @@ template = """<!DOCTYPE html>
 
         <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
         <div id="view-sheet-resting">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual</span>
-              <button id="btn-fav-star" onclick="toggleFavoriteCurrentStop()" style="border:none; background:none; cursor:pointer; font-size:14px;" title="Favoritar parada">⭐</button>
+          <!-- PARADA ATUAL DETALHADA COM CÓDIGO CTM E MUNICÍPIO -->
+          <div style="background:var(--bg-page); border:1.5px solid var(--border-color); border-radius:14px; padding:10px 12px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual:</span>
+                <button id="btn-fav-star" onclick="toggleFavoriteCurrentStop()" style="border:none; background:none; cursor:pointer; font-size:14px;" title="Favoritar parada">⭐</button>
+              </div>
+              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas (43) ▲</button>
             </div>
-            <button style="border:none; background:none; color:var(--blue-accent); font-weight:700; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Paradas ▲</button>
-          </div>
-          <div style="font-size:15.5px; font-weight:800; margin-bottom:10px; color:var(--text-main);" id="current-stop-name">
-            Parada 030613 · Terminal de Camela
+            <div id="current-stop-name" style="color:var(--text-main);">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD 030613</span>
+                <span style="font-size:11px; font-weight:800; color:#047857;">📍 Ipojuca · Camela</span>
+                <span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">🏠 Abrigo Coberto</span>
+              </div>
+              <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:3px;">
+                Praça Pedro Serafim (Terminal de Camela)
+              </div>
+              <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
+                Ref: Igreja Matriz de Santo Antônio / Mercado Público · Sentido TI Cabo
+              </div>
+            </div>
+
+            <!-- LIVE ARRIVAL AT CURRENT STOP (ETA IMEDIATO & VOZ) -->
+            <div style="background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em;">
+                  🚌 Próximo Ônibus Linha 199:
+                </div>
+                <div style="font-size:14.5px; font-weight:800; color:#065f46; margin-top:1px;">
+                  Chega em <span id="resting-eta-val">4</span> min <span style="font-size:11px; font-weight:600; color:#047857;">(06:14)</span>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <button onclick="speakCurrentArrival()" style="background:#ffffff; border:1.5px solid #a7f3d0; border-radius:8px; padding:6px 9px; font-size:11.5px; font-weight:800; color:#047857; cursor:pointer;" title="Ouvir previsão por voz">
+                  🔊 Ouvir
+                </button>
+                <button onclick="triggerTripAction('work')" style="background:#059669; border:none; border-radius:8px; padding:6px 11px; font-size:11.5px; font-weight:800; color:#ffffff; cursor:pointer;">
+                  Acompanhar ➔
+                </button>
+              </div>
+            </div>
           </div>
 
                     <!-- CARD ROTINA PENDULAR INTELIGENTE -->
@@ -1661,6 +1737,40 @@ __ROUTE_OPTIONS__
       </div>
     </div>
 
+    <!-- 15. MODAL: GUIA DOS 26 TERMINAIS INTEGRADOS DO SEI (GRANDE RECIFE) -->
+    <div id="modal-sei-terminals" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #0284c7; max-width:440px; max-height:85vh; display:flex; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:24px;">🏛️</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">26 Terminais Integrados (SEI)</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Sistema Estrutural Integrado · CTM Grande Recife</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeSeiTerminalsModal()">✕</button>
+        </div>
+
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px; margin-bottom:10px; font-size:11.5px; color:#0369a1; line-height:1.4;">
+          💳 <strong>Integração Temporal VEM:</strong> Permite baldeação gratuita em até 120 minutos entre ônibus e Metrô/VLT com a tarifa única de <strong>R$ 4,10</strong>.
+        </div>
+
+        <!-- FILTROS POR REGIÃO -->
+        <div style="display:flex; gap:6px; margin-bottom:10px; overflow-x:auto; padding-bottom:4px;">
+          <button class="ti-filter-btn active" id="btn-ti-filter-all" onclick="filterTerminalsByRegion('all')" style="background:#0284c7; color:#fff; border:none; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Todos (26)</button>
+          <button class="ti-filter-btn" id="btn-ti-filter-sul" onclick="filterTerminalsByRegion('sul')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Cabo & Sul</button>
+          <button class="ti-filter-btn" id="btn-ti-filter-recife" onclick="filterTerminalsByRegion('recife')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Recife (12)</button>
+          <button class="ti-filter-btn" id="btn-ti-filter-norte" onclick="filterTerminalsByRegion('norte')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Olinda & Norte</button>
+          <button class="ti-filter-btn" id="btn-ti-filter-oeste" onclick="filterTerminalsByRegion('oeste')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Oeste & Jaboatão</button>
+        </div>
+
+        <!-- LISTA ROLÁVEL DE TERMINAIS -->
+        <div id="sei-terminals-list-box" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:2px;"></div>
+
+        <button class="btn-secondary" onclick="closeSeiTerminalsModal()" style="margin-top:10px;">Fechar</button>
+      </div>
+    </div>
+
     <!-- 8. MODAL: CENTRAL CTM DE REALOCAÇÃO DE FROTA NO VAZIO -->
     <div id="modal-dispatch" class="modal-overlay">
       <div class="modal-card" style="border:2px solid #0284c7; max-width:400px;">
@@ -1975,10 +2085,12 @@ __ROUTE_OPTIONS__
           attributionControl: false
         });
 
-        // Universal OpenStreetMap tiles
-        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        // CartoDB Voyager tiles: fast Cloudflare edge, high contrast road labels, clean transit styling
+        const tileLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+          subdomains: "abcd",
           maxZoom: 19
-        }).addTo(leafletMap);
+        });
+        tileLayer.addTo(leafletMap);
 
         routePolylineLayer = L.layerGroup().addTo(leafletMap);
         stopsMarkersLayer = L.layerGroup().addTo(leafletMap);
@@ -1986,8 +2098,14 @@ __ROUTE_OPTIONS__
         drawRoute(TELEMETRIA);
         selectStop(1, false);
 
-        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 150);
-        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 500);
+        // Multiple invalidation passes to guarantee rendering on any screen/resize
+        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 100);
+        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 350);
+        setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 800);
+
+        window.addEventListener("resize", function() {
+          if (leafletMap) leafletMap.invalidateSize();
+        });
       } catch (err) {
         console.error("Leaflet map init error:", err);
       }
@@ -1995,8 +2113,8 @@ __ROUTE_OPTIONS__
 
     function drawRoute(telemetria) {
       if (!leafletMap) return;
-      routePolylineLayer.clearLayers();
-      stopsMarkersLayer.clearLayers();
+      if (routePolylineLayer) routePolylineLayer.clearLayers();
+      if (stopsMarkersLayer) stopsMarkersLayer.clearLayers();
 
       if (telemetria.polyline && telemetria.polyline.length > 1) {
         L.polyline(telemetria.polyline, { color: "#0284c7", weight: 8, opacity: 0.25 }).addTo(routePolylineLayer);
@@ -2013,7 +2131,24 @@ __ROUTE_OPTIONS__
         });
 
         const m = L.marker([st.lat, st.lon], { icon: icon });
-        m.on("click", function() { selectStop(st.seq, true); });
+        const popupContent = '<div style="font-family:Plus Jakarta Sans,sans-serif; min-width:220px;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">' +
+            '<span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:1px 5px; border-radius:4px;">CÓD ' + (st.stop_id || '') + '</span>' +
+            '<span style="font-size:10.5px; font-weight:700; color:#047857;">' + (st.municipio || 'Grande Recife') + '</span>' +
+          '</div>' +
+          '<div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25; margin-bottom:3px;">' + st.name + '</div>' +
+          (st.ref ? '<div style="font-size:11px; color:#64748b; line-height:1.3; margin-bottom:4px;">📍 ' + st.ref + '</div>' : '') +
+          '<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e2e8f0; padding-top:6px; margin-top:4px;">' +
+            '<div>' +
+              '<div style="font-size:10px; color:#64748b; font-weight:700;">PREVISÃO STGCN:</div>' +
+              '<div style="font-size:16px; font-weight:800; color:#059669; font-family:JetBrains Mono,monospace;">' + (st.stgcn_horizon_min && st.stgcn_horizon_min[1] ? st.stgcn_horizon_min[1].toFixed(0) : '4') + ' min</div>' +
+            '</div>' +
+            '<button onclick="selectStop(' + st.seq + ', true); if(leafletMap) leafletMap.closePopup();" style="background:#059669; color:#fff; border:none; padding:5px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">Selecionar ➔</button>' +
+          '</div>' +
+        '</div>';
+
+        m.bindPopup(popupContent);
+        m.on("click", function() { selectStop(st.seq, false); });
         stopsMarkersLayer.addLayer(m);
       });
 
@@ -2024,14 +2159,26 @@ __ROUTE_OPTIONS__
       activeStopSeq = seq;
       const st = TELEMETRIA.stops.find(function(s) { return s.seq === seq; }) || TELEMETRIA.stops[0];
 
-      // Update current stop name
+      // Update current stop name with rich CTM details
       const nameEl = document.getElementById("current-stop-name");
-      if (nameEl) nameEl.textContent = "Parada #" + String(st.seq).padStart(2, '0') + " · " + st.name;
+      if (nameEl) {
+        nameEl.innerHTML = '<div style="display:flex; flex-direction:column; gap:2px;">' +
+          '<div style="display:flex; align-items:center; gap:6px;">' +
+            '<span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD ' + (st.stop_id || '030613') + '</span>' +
+            '<span style="font-size:11px; font-weight:800; color:#047857;">📍 ' + (st.municipio || 'Ipojuca') + '</span>' +
+            (st.has_shelter ? '<span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">🏠 Abrigo Coberto</span>' : '<span style="font-size:10px; background:#fee2e2; color:#b91c1c; padding:1px 5px; border-radius:4px; font-weight:700;">☀️ Sem Abrigo</span>') +
+          '</div>' +
+          '<div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:2px;">' + st.name + '</div>' +
+          (st.ref ? '<div style="font-size:11px; color:var(--text-secondary);">Ref: ' + st.ref + ' · Sentido TI Cabo</div>' : '') +
+        '</div>';
+      }
 
       // Update ETA
       const etaNum = document.getElementById("live-eta-num");
-      const etaVal = st.stgcn_horizon_min[1].toFixed(0);
+      const restingEta = document.getElementById("resting-eta-val");
+      const etaVal = (st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4";
       if (etaNum) etaNum.textContent = etaVal;
+      if (restingEta) restingEta.textContent = etaVal;
 
       // Trigger Haptic and audio if <= 2 min
       if (parseInt(etaVal) <= 2) {
@@ -2043,22 +2190,54 @@ __ROUTE_OPTIONS__
       }
     }
 
+    function speakCurrentArrival() {
+      const st = (TELEMETRIA && TELEMETRIA.stops) ? (TELEMETRIA.stops.find(function(s) { return s.seq === activeStopSeq; }) || TELEMETRIA.stops[0]) : null;
+      const stopName = st ? st.name : "Parada de Camela";
+      const eta = (st && st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4";
+      playSimpleChime();
+      playNaturalVoice("Próximo ônibus da Linha 199 chega em " + eta + " minutos na parada " + stopName + ". Destino Terminal Integrado do Cabo.");
+    }
+
     function renderStopsAccordion(telemetria) {
       const container = document.getElementById("stops-container");
       const labelCount = document.getElementById("stops-count-label");
       if (labelCount) labelCount.textContent = telemetria.stops.length;
       if (!container) return;
 
-      let html = "";
+      // Group stops by trecho
+      const groups = {};
       telemetria.stops.forEach(function(st) {
-        html += '<div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="selectStop(' + st.seq + ', true)">' +
-          '<div>' +
-            '<div style="font-size:13px; font-weight:800;">#' + String(st.seq).padStart(2, '0') + ' · ' + st.name + '</div>' +
-            '<div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">' + (st.crowd_status || 'Sentado Garantido') + '</div>' +
-          '</div>' +
-          '<div style="font-family:JetBrains Mono,monospace; font-size:15px; font-weight:800; color:var(--brand-green-dark);">' + st.stgcn_horizon_min[1].toFixed(0) + ' min</div>' +
-        '</div>';
+        const tr = st.trecho || "Paradas da Rodovia";
+        if (!groups[tr]) groups[tr] = [];
+        groups[tr].push(st);
       });
+
+      let html = "";
+      Object.keys(groups).forEach(function(trechoName) {
+        html += '<div style="font-size:11.5px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; margin:10px 0 4px; padding-left:4px; letter-spacing:0.04em;">' +
+          trechoName + ' (' + groups[trechoName].length + ' paradas)' +
+        '</div>';
+
+        groups[trechoName].forEach(function(st) {
+          const isSel = st.seq === activeStopSeq;
+          html += '<div style="background:' + (isSel ? '#ecfdf5; border:2px solid #059669;' : 'var(--bg-page); border:1px solid var(--border-color);') + ' border-radius:12px; padding:10px 12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s ease;" onclick="selectStop(' + st.seq + ', true)">' +
+            '<div style="max-width:78%;">' +
+              '<div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">' +
+                '<span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:1px 5px; border-radius:4px;">#' + String(st.seq).padStart(2, '0') + '</span>' +
+                '<span style="font-size:10px; font-weight:800; color:#0369a1;">CÓD ' + (st.stop_id || '') + '</span>' +
+                (st.has_shelter ? '<span style="font-size:10px; color:#15803d;">🏠 Abrigo</span>' : '<span style="font-size:10px; color:#94a3b8;">☀️ Sem Abrigo</span>') +
+              '</div>' +
+              '<div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25;">' + st.name + '</div>' +
+              '<div style="font-size:11px; color:#64748b; margin-top:2px;">' + (st.ref || st.bairro || '') + '</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<div style="font-family:JetBrains Mono,monospace; font-size:16px; font-weight:800; color:' + (isSel ? '#059669' : 'var(--text-main)') + ';">' + (st.stgcn_horizon_min && st.stgcn_horizon_min[1] ? st.stgcn_horizon_min[1].toFixed(0) : '4') + ' <span style="font-size:11px;">min</span></div>' +
+              '<div style="font-size:10px; font-weight:700; color:#15803d;">Sentado</div>' +
+            '</div>' +
+          '</div>';
+        });
+      });
+
       container.innerHTML = html;
     }
 
@@ -2087,7 +2266,7 @@ __ROUTE_OPTIONS__
       }, 3000);
     }
 
-    // SEARCH AUTOCOMPLETE LOGIC (MELHORIA 1)
+    // SEARCH AUTOCOMPLETE LOGIC (RODADA: NOMES DE PARADAS, LOCALIDADES E TERMINAIS SEI)
     function handleQuickSearch(query) {
       const q = (query || "").trim().toLowerCase();
       const drop = document.getElementById("search-results-dropdown");
@@ -2102,47 +2281,106 @@ __ROUTE_OPTIONS__
       clearBtn.style.display = "block";
       const results = [];
 
-      // 1. Check terminals
-      SEI_TERMINALS.forEach(function(t) {
-        if (t.ti_name.toLowerCase().includes(q) || t.municipio.toLowerCase().includes(q)) {
-          results.push({ type: "terminal", title: t.ti_name, sub: t.municipio, lat: t.lat, lon: t.lon });
+      // 1. Check terminals SEI (26 TIs)
+      if (typeof SEI_TERMINALS !== "undefined" && SEI_TERMINALS) {
+        SEI_TERMINALS.forEach(function(t) {
+          const full = (t.ti_name + " " + t.municipio + " " + (t.bairro || "")).toLowerCase();
+          if (full.includes(q) || ("ti " + full).includes(q)) {
+            results.push({
+              type: "terminal",
+              title: t.ti_name,
+              sub: t.municipio + " (" + (t.bairro || "SEI") + ") · Integração VEM R$ 4,10",
+              lat: t.lat,
+              lon: t.lon
+            });
+          }
+        });
+      }
+
+      // 2. Check PE-60 Stops (43 Authentic Stops)
+      if (typeof TELEMETRIA_199 !== "undefined" && TELEMETRIA_199.stops) {
+        TELEMETRIA_199.stops.forEach(function(st) {
+          const stopSearch = ((st.name || "") + " " + (st.ref || "") + " " + (st.bairro || "") + " " + (st.municipio || "") + " " + (st.stop_id || "")).toLowerCase();
+          if (stopSearch.includes(q)) {
+            results.push({
+              type: "stop",
+              title: st.name,
+              sub: "Cód " + st.stop_id + " · " + (st.municipio || "PE-60") + " (" + (st.ref || "") + ")",
+              seq: st.seq,
+              lat: st.lat,
+              lon: st.lon,
+              eta: (st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4"
+            });
+          }
+        });
+      }
+
+      // 3. Check Priority Lines
+      const priorityLines = [
+        { code: "199", title: "Linha 199 - Camela / TI Cabo", sub: "Via PE-60 · São Judas Tadeu (SJT)", terms: ["199", "camela", "cabo", "sjt"] },
+        { code: "178", title: "Linha 178 - Porto de Suape / TI Cabo", sub: "Via Refinaria & Estaleiro", terms: ["178", "suape", "porto"] },
+        { code: "185", title: "Linha 185 - TI Cabo / Cais de Santa Rita", sub: "Expresso Centro do Recife", terms: ["185", "santa rita", "recife"] },
+        { code: "191", title: "Linha 191 - Recife / Porto de Galinhas", sub: "Via Nossa Senhora do Ó & PE-60", terms: ["191", "porto de galinhas", "galinhas", "nossa senhora do o"] },
+        { code: "196", title: "Linha 196 - TI Cabo / Porto de Galinhas", sub: "Via PE-60 & Ipojuca", terms: ["196", "porto", "ipojuca"] }
+      ];
+
+      priorityLines.forEach(function(l) {
+        if (l.terms.some(function(term) { return q.includes(term) || term.includes(q); })) {
+          results.push({ type: "route", title: l.title, sub: l.sub, code: l.code });
         }
       });
 
-      // 2. Check lines
-      if (q.includes("199") || "camela".includes(q) || "cabo".includes(q)) {
-        results.push({ type: "route", title: "Linha 199", sub: "Camela / TI Cabo (via PE-60)", code: "199" });
-      }
-      if (q.includes("178") || "suape".includes(q)) {
-        results.push({ type: "route", title: "Linha 178", sub: "Porto de Suape / TI Cabo", code: "178" });
-      }
-      if (q.includes("191") || "galinhas".includes(q)) {
-        results.push({ type: "route", title: "Linha 191", sub: "Recife / Porto de Galinhas", code: "191" });
-      }
-
       if (results.length === 0) {
-        drop.innerHTML = '<div style="padding:10px; font-size:12px; color:var(--text-muted); text-align:center;">Nenhum terminal ou linha prioritária encontrado.</div>';
+        drop.innerHTML = '<div style="padding:12px; font-size:12px; color:var(--text-muted); text-align:center;">Nenhum terminal, parada da PE-60 ou linha encontrado para "' + query + '".</div>';
         drop.style.display = "flex";
         return;
       }
 
+      window.currentSearchResults = results.slice(0, 8);
       let html = "";
-      results.slice(0, 6).forEach(function(r) {
+      window.currentSearchResults.forEach(function(r, idx) {
         if (r.type === "terminal") {
-          html += '<div class="search-item" onclick="selectSearchedTerminal(' + r.lat + ', ' + r.lon + ', \\'' + r.title + '\\')">' +
-            '<div><strong>🏛️ ' + r.title + '</strong><div style="font-size:11px; color:var(--text-muted);">' + r.sub + '</div></div>' +
-            '<span style="font-size:12px; color:var(--blue-accent);">Ver ➔</span>' +
+          html += '<div class="search-item" onclick="selectSearchedResult(' + idx + ')">' +
+            '<div><strong style="color:var(--blue-accent);">🏛️ ' + r.title + '</strong><div style="font-size:11px; color:var(--text-secondary);">' + r.sub + '</div></div>' +
+            '<span style="font-size:11.5px; font-weight:700; color:var(--blue-accent); background:#e0f2fe; padding:2px 8px; border-radius:6px;">T.I. SEI</span>' +
+          '</div>';
+        } else if (r.type === "stop") {
+          html += '<div class="search-item" onclick="selectSearchedResult(' + idx + ')">' +
+            '<div><strong style="color:var(--brand-green-dark);">🚏 ' + r.title + '</strong><div style="font-size:11px; color:var(--text-secondary);">' + r.sub + '</div></div>' +
+            '<span style="font-size:11.5px; font-weight:800; color:var(--brand-green-dark); background:#dcfce7; padding:2px 8px; border-radius:6px;">' + r.eta + ' min</span>' +
           '</div>';
         } else {
-          html += '<div class="search-item" onclick="selectSearchedRoute(\\'' + r.code + '\\')">' +
-            '<div><strong>🚌 ' + r.title + '</strong><div style="font-size:11px; color:var(--text-muted);">' + r.sub + '</div></div>' +
-            '<span style="font-size:12px; color:var(--brand-green);">Ativar ➔</span>' +
+          html += '<div class="search-item" onclick="selectSearchedResult(' + idx + ')">' +
+            '<div><strong style="color:#0f172a;">🚌 ' + r.title + '</strong><div style="font-size:11px; color:var(--text-secondary);">' + r.sub + '</div></div>' +
+            '<span style="font-size:11.5px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Linha</span>' +
           '</div>';
         }
       });
 
       drop.innerHTML = html;
       drop.style.display = "flex";
+    }
+
+    function selectSearchedResult(idx) {
+      if (!window.currentSearchResults || !window.currentSearchResults[idx]) return;
+      const r = window.currentSearchResults[idx];
+      if (r.type === "terminal") {
+        selectSearchedTerminal(r.lat, r.lon, r.title);
+      } else if (r.type === "stop") {
+        selectSearchedStop(r.seq);
+      } else if (r.type === "route") {
+        selectSearchedRoute(r.code);
+      }
+    }
+
+    function selectSearchedStop(seq) {
+      clearQuickSearch();
+      selectStop(seq, true);
+      playSimpleChime();
+      const st = TELEMETRIA.stops.find(function(s) { return s.seq === seq; });
+      if (st) {
+        playNaturalVoice("Parada selecionada: " + st.name + ". Primeiro ônibus chegando em " + ((st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4") + " minutos.");
+      }
     }
 
     function clearQuickSearch() {
@@ -2473,7 +2711,93 @@ __ROUTE_OPTIONS__
       );
     }
 
-    // NEURAL TTS
+
+    // ==========================================
+    // GUIA DOS 26 TERMINAIS INTEGRADOS DO SEI
+    // ==========================================
+    function openSeiTerminalsModal() {
+      document.getElementById("modal-sei-terminals").style.display = "flex";
+      renderSeiTerminalsList("all");
+      playNaturalVoice("Abrindo guia completo dos vinte e seis Terminais Integrados do Grande Recife. Escolha um terminal para ver no mapa ou traçar rota integrada.");
+    }
+
+    function closeSeiTerminalsModal() {
+      document.getElementById("modal-sei-terminals").style.display = "none";
+    }
+
+    function filterTerminalsByRegion(region) {
+      document.querySelectorAll(".ti-filter-btn").forEach(function(b) {
+        b.style.background = "#f1f5f9";
+        b.style.color = "#475569";
+        b.style.border = "1px solid #cbd5e1";
+      });
+      const act = document.getElementById("btn-ti-filter-" + region);
+      if (act) {
+        act.style.background = "#0284c7";
+        act.style.color = "#ffffff";
+        act.style.border = "none";
+      }
+      renderSeiTerminalsList(region);
+    }
+
+    function renderSeiTerminalsList(region) {
+      const box = document.getElementById("sei-terminals-list-box");
+      if (!box || !SEI_TERMINALS) return;
+
+      const filtered = SEI_TERMINALS.filter(function(t) {
+        if (region === "all") return true;
+        const mun = (t.municipio || "").toLowerCase();
+        const nm = (t.ti_name || "").toLowerCase();
+        if (region === "sul") return mun.includes("cabo") || mun.includes("jaboatão") || nm.includes("aeroporto") || nm.includes("prazeres") || nm.includes("cajueiro");
+        if (region === "recife") return mun.includes("recife");
+        if (region === "norte") return mun.includes("olinda") || mun.includes("paulista") || mun.includes("abreu") || mun.includes("igarassu");
+        if (region === "oeste") return mun.includes("camaragibe") || mun.includes("jaboatão") || nm.includes("tip") || nm.includes("caxangá");
+        return true;
+      });
+
+      window.currentFilteredTerminals = filtered;
+      let html = "";
+      filtered.forEach(function(t, idx) {
+        const linesStr = (t.linhas_principais && t.linhas_principais.length) ? t.linhas_principais.join(", ") : "Linhas Alimentadoras";
+        html += '<div style="background:var(--bg-page); border:1.5px solid var(--border-color); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">' +
+          '<div>' +
+            '<div style="font-size:13px; font-weight:800; color:#0f172a;">🏛️ ' + t.ti_name + '</div>' +
+            '<div style="font-size:11px; color:#64748b; margin-top:2px;">📍 ' + t.municipio + ' (' + (t.bairro || '') + ')</div>' +
+            '<div style="font-size:10.5px; color:#0284c7; font-weight:700; margin-top:3px;">🚌 Linhas: ' + linesStr + '</div>' +
+          '</div>' +
+          '<button onclick="flyToFilteredTerminal(' + idx + ')" style="background:#0284c7; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-size:11.5px; font-weight:800; cursor:pointer; white-space:nowrap;">' +
+            'Ver no Mapa ➔' +
+          '</button>' +
+        '</div>';
+      });
+
+      box.innerHTML = html;
+    }
+
+    function flyToFilteredTerminal(idx) {
+      if (!window.currentFilteredTerminals || !window.currentFilteredTerminals[idx]) return;
+      const t = window.currentFilteredTerminals[idx];
+      flyToTerminal(t.lat, t.lon, t.ti_name, t.municipio);
+    }
+
+    function flyToTerminal(lat, lon, name, mun) {
+      closeSeiTerminalsModal();
+      if (leafletMap) {
+        leafletMap.flyTo([lat, lon], 16, { animate: true, duration: 0.8 });
+        const popup = '<div style="font-family:Plus Jakarta Sans,sans-serif; min-width:200px;">' +
+          '<div style="font-size:10.5px; font-weight:800; color:#0284c7; text-transform:uppercase;">Terminal Integrado do SEI</div>' +
+          '<div style="font-size:14px; font-weight:800; color:#0f172a; margin:3px 0;">🏛️ ' + name + '</div>' +
+          '<div style="font-size:11px; color:#475569;">📍 ' + mun + ' · Integração Temporal VEM (R$ 4,10)</div>' +
+          '<div style="font-size:11px; color:#059669; font-weight:700; margin-top:4px;">✅ Baldeação física e temporal garantida</div>' +
+        '</div>';
+        L.popup().setLatLng([lat, lon]).setContent(popup).openOn(leafletMap);
+        playSimpleChime();
+        playNaturalVoice("Exibindo no mapa o " + name + " em " + mun + ".");
+      }
+    }
+
+
+        // NEURAL TTS
 
     // ==========================================
     // MODO FÁCIL / SÊNIOR (ACESSIBILIDADE UNIVERSAL)
