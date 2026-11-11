@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seminário 2 · GrafoParada: Demonstração e Falha Real — Cauã Lira</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #111827;
+      --card-border: #1f2937;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #10b981;
+      --danger: #f43f5e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    .deck {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 60px 24px;
+    }
+    .slide {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      gap: 24px;
+      animation: fadeIn 0.25s ease;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 5px 12px;
+      border-radius: 999px;
+      width: fit-content;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .card-val.green { color: var(--green); }
+    .card-val.danger { color: var(--danger); }
+    .card-val.warn { color: var(--warn); }
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--card-border);
+      padding-top: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .btn-nav {
+      background: #1f2937;
+      color: var(--text);
+      border: 1px solid #374151;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-nav:hover { background: #374151; }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <!-- SLIDE 1: PONTA A PONTA (DEMO AO VIVO) -->
+    <div class="slide active" id="slide-1">
+      <div class="tag">Slide 1 · Ponta a Ponta ao Vivo · 80 s</div>
+      <h1>O passageiro no escuro da PE-60: voz no bolso e registro antes da catraca</h1>
+      <div class="grid">
+        <div class="card" style="border-color: rgba(16, 185, 129, 0.4);">
+          <div class="card-title">1. Entrada Real (Camela · 06h10)</div>
+          <div class="card-val green">1 Toque</div>
+          <div class="card-desc">Botão "Vou pro Destino (TI Cabo)". Sem telas confusas de site. Previsão imediata da Linha 199.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">2. Saída na Tela e no Fone</div>
+          <div class="card-val">4 min · Plat. 04</div>
+          <div class="card-desc">14 assentos livres. Selo de satélite ativo (zero ônibus fantasma). Voz neural avisa no fone de ouvido.</div>
+        </div>
+        <div class="card" style="border-color: rgba(56, 189, 248, 0.4);">
+          <div class="card-title">3. O que Deixa Fazer</div>
+          <div class="card-val" style="color:var(--accent);">Modo Bolso</div>
+          <div class="card-desc">Tela preta antirroubo. Se pegar ligeirinho/moto-táxi, o app detecta a desistência e alerta o CTM.</div>
+        </div>
+      </div>
+      <div style="font-size:0.9rem; color:var(--muted); background:var(--card); padding:10px 16px; border-radius:10px;">
+        📱 <strong>Demo rodando do repositório:</strong> <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--accent);">grafoparadaweb.vercel.app</a> · Commit <code>565321f</code>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: QUANTO CUSTA (MEDIDO) -->
+    <div class="slide" id="slide-2">
+      <div class="tag">Slide 2 · Quanto Custa · Medido vs flx · 50 s</div>
+      <h1>Tempo e memória medidos no repositório com <code>medir_custo_sem2.py</code></h1>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">No Celular (FSM Cinemática v3)</div>
+          <div class="card-val green">4,98 ms · 12 KB</div>
+          <div class="card-desc">flx estimava 14,29 µs (passo simples) e 8,92 KB de RAM. Soft-Voting + cinemática rodam em < 5 ms. Zero impacto de bateria.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">No Servidor (STGCN 20 Nós PE-60)</div>
+          <div class="card-val" style="color:var(--accent);">0,77 ms · 84 KB</div>
+          <div class="card-desc">flx estimava < 500 ms e ~300 MB. Inferência pura na CPU é instantânea. O processo total do PyTorch consome 358 MB.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Custo Financeiro na Escala</div>
+          <div class="card-val green">R$ 0,00</div>
+          <div class="card-desc">34.627 parâmetros. Roda em computador comum de escritório do consórcio, sem gastar nada com nuvem paga.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: A FALHA MOSTRADA (OVER-SMOOTHING) -->
+    <div class="slide" id="slide-3">
+      <div class="tag" style="color:var(--danger); background:rgba(244,63,94,0.12); border-color:rgba(244,63,94,0.3);">Slide 3 · A Falha Mostrada de Propósito · 65 s</div>
+      <h1>Bloqueio no Trevo de Ipojuca: a STGCN espalha e suaviza o atraso</h1>
+      <div class="grid">
+        <div class="card" style="border-color:rgba(244,63,94,0.4);">
+          <div class="card-title">A Entrada Real (GPS Bruto)</div>
+          <div class="card-val danger">45 min</div>
+          <div class="card-desc">Ônibus travou no bloqueio da rodovia PE-60. O atraso no satélite salta de 5 para 45 minutos.</div>
+        </div>
+        <div class="card" style="border-color:rgba(245,158,11,0.4);">
+          <div class="card-title">A Saída da IA (Como Saiu)</div>
+          <div class="card-val warn">18 min [?]</div>
+          <div class="card-desc">Convolução espacial difunde o choque para as paradas vizinhas. Previsão mente dizendo que o ônibus tá perto.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Quem Sofre & O que Revela</div>
+          <div class="card-val">O Passageiro</div>
+          <div class="card-desc">Trabalhador perde o turno. Mostra o <em>over-smoothing</em> da GNN. Solução: selo de alerta [?] quando STGCN difere > 15 min do GPS.</div>
+        </div>
+      </div>
+      <div style="font-size:0.9rem; color:var(--muted); background:var(--card); padding:10px 16px; border-radius:10px;">
+        🧪 <strong>Demonstração ao vivo no app:</strong> Botão <em>"Simular Interdição PE-60"</em> acende o alerta de falha na tela.
+      </div>
+    </div>
+
+    <!-- SLIDE 4: O QUE MUDOU DESDE O SEM1 -->
+    <div class="slide" id="slide-4">
+      <div class="tag">Slide 4 · O que Mudou desde o Sem1 · 50 s</div>
+      <h1>De 5 para 20 paradas: a STGCN virou o jogo e a tela virou produto</h1>
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">No Sem1 (Corredor Curto 5 Paradas)</div>
+          <div class="card-val muted" style="color:var(--muted);">2,46 vs 4,42 min</div>
+          <div class="card-desc">Cálculo simples bateu a STGCN. Prometemos testar se a IA se justificava quando o sistema crescesse.</div>
+        </div>
+        <div class="card" style="border-color:rgba(16, 185, 129, 0.4);">
+          <div class="card-title">Agora no Sem2 (Malha Real 20 Paradas)</div>
+          <div class="card-val green">1,51 vs 1,93 min</div>
+          <div class="card-desc">STGCN venceu a regressão linear (1,51 vs 1,93) e reduziu 78% do erro contra a persistência (7,13 min). Confirmado!</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Na Usabilidade & Segurança</div>
+          <div class="card-val" style="color:var(--accent);">Mobile-First</div>
+          <div class="card-desc">Zero gráficos de engenheiro. Atalhos 1-toque, mapa de plataformas no T.I. para perdidos e selo anti-ônibus fantasma.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: FECHO -->
+    <div class="slide" id="slide-5">
+      <div class="tag">Slide 5 · Fecho · 20 s</div>
+      <h1>A desistência na parada financia o ônibus no horário de pico</h1>
+      <div class="grid">
+        <div class="card" style="border-color:rgba(16, 185, 129, 0.4);">
+          <div class="card-title">No Aparelho do Usuário</div>
+          <div class="card-val green">Privado & Seguro</div>
+          <div class="card-desc">Rotina gravada no celular (166 bytes). Alerta calmo por voz no fone. Tela preta anti-assalto.</div>
+        </div>
+        <div class="card" style="border-color:rgba(56, 189, 248, 0.4);">
+          <div class="card-title">No Consórcio Grande Recife</div>
+          <div class="card-val" style="color:var(--accent);">Zero Vazio</div>
+          <div class="card-desc">Aponta as viagens que rodam vazias para remanejar combustível onde o passageiro realmente precisa.</div>
+        </div>
+      </div>
+      <div style="font-size:0.95rem; color:var(--text); text-align:center; margin-top:10px;">
+        No dia 25/11 (Sem3): validação experimental de campo com passageiros reais na PE-60.
+      </div>
+    </div>
+
+    <!-- CONTROLS & FOOTER -->
+    <div class="footer">
+      <div>Cauã Lira · Tópicos Avançados em IA (AI4Good · UFRPE)</div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-nav" onclick="prevSlide()">◀ Anterior</button>
+        <span id="slide-counter" style="font-family:'JetBrains Mono',monospace; font-weight:700;">1 / 5</span>
+        <button class="btn-nav" onclick="nextSlide()">Próximo ▶</button>
+      </div>
+      <div>Commit: <code>565321f</code></div>
+    </div>
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 5;
+
+    function showSlide(n) {
+      if (n < 1) n = 1;
+      if (n > totalSlides) n = totalSlides;
+      currentSlide = n;
+
+      for (let i = 1; i <= totalSlides; i++) {
+        const el = document.getElementById("slide-" + i);
+        if (el) el.classList.toggle("active", i === currentSlide);
+      }
+      document.getElementById("slide-counter").textContent = currentSlide + " / " + totalSlides;
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+
+    window.addEventListener("keydown", function(e) {
+      if (e.key === "ArrowRight" || e.key === "Space" || e.key === "PageDown") nextSlide();
+      if (e.key === "ArrowLeft" || e.key === "PageUp") prevSlide();
+    });
+  </script>
+</body>
+</html>

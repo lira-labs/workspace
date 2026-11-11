@@ -4,15 +4,52 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 09/11/2026 01:40
-- **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace) | `feat/compasso-estudo-ia` (Sub-repo code/prob-tech-fit-cp01)
-- **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git) e [grupo-zeta/prob-tech-fit-cp01](https://github.com/grupo-zeta/prob-tech-fit-cp01.git)
+- **Última Atualização:** 10/11/2026 22:05
+- **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
+- **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
-  - *Desktop*: `C:\Users\ccunh\Documents\workspace`
-  - *Overleaf*: `https://git.overleaf.com/6a922427f1ca2007335f685f` (Grupo Zeta CP-01)
+  - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
+  - *Slides Sem2 Web*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+
+---
+
+## ✅ O que foi Concluído nesta Sessão
+
+### 1. Seminário 2 · Iteração 2, Demonstração (`sem2` · 8 Pontos · 11/11)
+- [x] **Item 1 · Ponta a Ponta, ao Vivo (Demo Rodando do Repositório)**:
+  - Usuário concreto: passageiro no Terminal de Camela às 06h10 indo para o TI Cabo.
+  - Entrada real: 1 toque no atalho nativo "Vou pro Destino (TI Cabo)".
+  - Saída na tela e no fone: previsão exata da Linha 199 (4 min, Plataforma 04, 14 assentos livres), selo anti-ônibus fantasma ativo, voz neural acolhedora e vibração tátil ao aproximar.
+  - O que deixa fazer: guardar o celular no bolso (Modo Bolso antirroubo com tela preta) e registrar intenção de embarque antes da catraca para auditar ônibus vazio.
+  - Demo viva: `https://grafoparadaweb.vercel.app` (Commit `565321f`).
+- [x] **Item 2 · Quanto Custa, Medido vs `flx.md` (`medir_custo_sem2.py`)**:
+  - *No Celular (FSM Cinemática v3 com Soft-Voting)*: Medido **4,98 ms** de CPU e **12,0 KB** de RAM (vs. 14,29 µs e 8,92 KB estimados no `flx.md`). Execução instantânea e zero impacto de bateria.
+  - *No Servidor (STGCN 20 Nós da PE-60)*: Medido **0,77 ms** de inferência na CPU e **83,66 KB** de tensores ativos (vs. < 500 ms e ~300 MB estimados no `flx.md`). O processo total do PyTorch consome **358,2 MB** de RAM medidos no `exp.md`.
+  - *Custo Financeiro*: **R$ 0,00**. Roda em computador comum de escritório do Consórcio Grande Recife sem requisições em nuvem paga.
+- [x] **Item 3 · A Falha Mostrada de Propósito (Over-smoothing da STGCN)**:
+  - *Entrada*: Ônibus travou por 45 minutos no bloqueio da rodovia PE-60 (Trevo de Ipojuca / Nó 10).
+  - *Saída Errada da IA*: STGCN prediz apenas **18,7 minutos** (e 3,8 min no nó anterior) porque a convolução espacial difunde o atraso suavemente pela malha gráfica.
+  - *O que Devia Sair*: 45 minutos de atraso real.
+  - *Quem Sofre*: O passageiro trabalhador que confia no app, perde o turno ou a consulta médica.
+  - *O que Revela sobre a Arquitetura*: GNNs com convolução de Chebyshev tendem ao *over-smoothing* em anomalias bruscas. Solução adotada: selo de alerta com interrogação `[?]` e fallback cinemático sempre que o desvio da STGCN para o GPS bruto ultrapassar 15 minutos.
+  - *Botão Interativo de Simulação*: Botão *"Simular Interdição PE-60 (Demonstração da Falha · Sem2)"* integrado diretamente no card da viagem ativa para o aluno demonstrar a falha ao vivo na banca sem tocar no terminal!
+- [x] **Item 4 · O que Mudou desde o `sem1` (Confirmação Justificada da STGCN)**:
+  - No `sem1` (corredor curto com 5 paradas): uma regressão tabular simples venceu a STGCN (2,46 min vs 4,42 min), deixando em dúvida a necessidade de IA profunda.
+  - No `sem2` (malha real com 20 paradas da PE-60): a STGCN virou o jogo e venceu a regressão (**1,51 min vs 1,93 min**, redução de 78% contra a persistência de 7,13 min), justificando empiricamente o custo de memória.
+  - Na UX/UI: interface refeita com padrão Uber/Citymapper, busca instantânea de linhas/TIs, mapa visual de plataformas para pessoas perdidas, alertas táteis/sonoros e simulação de interdição.
+- [x] **Artefatos e Decks do Seminário 2**:
+  - `va2/sem2.md`: Roteiro completo nos moldes de `sem2-excelente`, incluindo as 4 frases sem IA, minutagem cravada em 4 min 15 s, números medidos, explicação da falha e ensaio cético com 5 perguntas difíceis.
+  - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html`: Deck web interativo de 5 slides com navegação por teclado (`◀` / `▶`), cards modernos em dark mode e tipografia limpa.
+  - `va2/GrafoParada_Seminario2_CauaLira.pptx`: Deck em formato PowerPoint widescreen (16:9) contendo os 5 slides estilizados.
+
+### 2. Três Melhorias de Usabilidade Implementadas no App
+- [x] **Melhoria 1 · Busca Rápida com Autocomplete**: Caixa de pesquisa flutuante no topo do app para localizar qualquer linha da RMR ou Terminal Integrado do SEI com 1 toque.
+- [x] **Melhoria 2 · Mapa Esquemático de Plataformas no T.I. ("Primeira Vez Aqui")**: Guia visual de plataformas do TI Cabo com destaque verde neon na Plataforma 04 (Linha 199 SJT), guichê do CTM e ponto seguro de espera.
+- [x] **Melhoria 3 · Feedback Tátil (`navigator.vibrate`) e Aviso Sonoro (< 2 min) + Favoritos (⭐)**: Vibração em padrão rítmico no bolso e sino sintetizado via Web Audio API ao aproximar do embarque, além de botão de favoritar parada.
 
 ---
 

@@ -1,0 +1,167 @@
+<USER_REQUEST>
+PAPEL
+Você é o implementador da HQ "Operação Byte Socrático" (PDF gerado pelo projeto atual). Vou te passar uma revisão completa: correções de conteúdo, reestruturação narrativa, camada de material didático para uso em disciplina e ajustes visuais. Mantenha a identidade visual (paleta escura, ciano/amarelo, estilo atual, personagens Cauã, Clara e Byte). Execute na ordem das seções. Nunca invente dados, resultados, referências ou citações: onde eu marcar [PREENCHER PELO AUTOR] ou [CONFIRMAR], deixe o campo visível e sinalizado.
+
+======================================================
+PARTE 1 · CORREÇÕES DE CONTEÚDO (obrigatórias)
+======================================================
+
+1.1 Metáfora das caixas (Cap. 07) está errada para Python.
+Em Python, a variável é um nome (referência) ligado a um objeto, não uma caixa que guarda o valor. Substitua por "post-its colados em objetos".
+Fala nova do Byte v2.0: "Pense em post-its colados em objetos na memória! Quando fazemos idade = 19, o número 19 existe e o post-it 'idade' é colado nele. No aniversário fazemos idade = 20. O que acontece com o post-it?"
+Fala nova da Clara: "Eu descolo o post-it do 19 e colo no 20!"
+Atualize o título e as ilustrações do painel (post-its em vez de caixas organizadoras). Renomeie o Cap. 07 para "O Momento Eureka dos Post-its".
+
+1.2 Analogia do laço for.
+Troque "pega um item por vez da cesta até ela esvaziar" por "passa item por item da cesta, sem tirar nenhum dela". Troque "compilou perfeitamente" por "rodou perfeitamente".
+
+1.3 Acumulador (transferência para a prova).
+No Cap. 07 ou 08, inclua uma fala do Byte v2.0: "Enquanto você passa os itens da cesta, onde anota o total parcial?" Clara: "Num post-it chamado total, que vai mudando de lugar!" Assim a questão da média (Cap. 09) fica coerente com o que foi ensinado.
+
+1.4 Atribuições teóricas (corrigir as falas):
+- Escada de dicas: troque "3 degraus de Bruner" por "escada de 3 degraus de dicas, inspirada no andaime de Wood, Bruner e Ross (1976)".
+- Andaime vs ZDP: o conceito de andaime é de Wood, Bruner e Ross; a ZDP é de Vygotsky. Deixe cada um no seu quadro.
+- Transposição Didática (Chevallard) trata da transformação do saber acadêmico em saber ensinado nas instituições. Não use como sinônimo de "explicar no nível do aluno". Para isso use "adaptação ao nível do aluno (ZDP e andaime)". Remova "transposição socrática" (Cap. 10) e troque por "mediação socrática".
+- Bloom: fala nova do Cauã: "Bloom (1984) mostrou que tutoria individual com domínio da matéria superava muito a sala tradicional. Estudos posteriores acharam efeitos menores, mas relevantes. Um tutor de IA bem calibrado pode aproximar esse apoio, mas precisa ser testado."
+- Inclua uma menção à carga cognitiva (Sweller): o Byte v2.0 usa exemplo parcialmente resolvido quando o aluno trava (ver 2.5).
+
+1.5 Consistência de texto.
+- Sumário e cabeçalhos devem ter os mesmos títulos de capítulo (hoje divergem nos Caps. 01, 02, 04 e 10). Adote os títulos finais da Parte 2.
+- "Teste" e "Caso": use só "Teste #N" em tudo.
+- Versionamento do Byte: v0.9 (sem filtro), v1.0 (com escudo de escopo), v2.0 (4 travas), v2.1 (correção do post-it, ver 2.6).
+- "Madrugada · 23h40" vira "Noite · 23h40".
+- Capa/Edição: use um único nome ("Edição Especial #01"). Remova "Histórica" e "Deluxe".
+- Geografia: "Polo EaD Camela / Recife · Interior de Pernambuco" está incoerente. Corrija para [CONFIRMAR: nome e município reais do polo].
+- "Uma história real" (capa) e "transformação real" (p. 2): troque por "Uma história inspirada em situações reais da EaD" [CONFIRMAR COM O AUTOR se há caso real].
+- Os "5 Casos de Teste" mencionados no posfácio devem aparecer todos na história (ver 2.4).
+
+======================================================
+PARTE 2 · REESTRUTURAÇÃO NARRATIVA
+======================================================
+
+Meta: transformar a HQ de "slides ilustrados com conversa" em narrativa com gancho, tensão, demonstração e final honesto. Novo plano (aprox. 20 a 22 páginas; ajuste o total se necessário):
+
+2.1 ABERTURA (substitui o prólogo estático)
+Cold open: a primeira página já é a Clara em branco na prova presencial (caneta parada, relógio, rosto de pânico). Legenda: "Duas semanas antes..." e flashback. A apresentação do Cauã e do Byte entra em ação, não em painéis de apresentação.
+
+2.2 ATO 1 · A QUEDA (Caps. 1 a 2)
+- Noite com o Byte v0.9 (design vermelho, olhos vermelhos, correntes, como no prólogo). Byte visível em todos os painéis do chat.
+- Prova: apagão e zero.
+- Cena nova (stakes): em casa, a Clara abre a página de trancamento/cancelamento da matrícula [CONFIRMAR sistema real] e hesita. Entrega o que a capa e o aviso ao leitor prometem ("quase desiste").
+- Cauã a encontra e explica em no máximo 2 páginas, usando imagens (não só diálogo): ilusão de domínio, andaime, "corrimão, não colo". Defina o papel do Cauã de forma explícita: [CONFIRMAR: colega, monitor ou licenciando em estágio]. Explique por que a Clara (do polo) está com ele no laboratório de Recife, ou mude o cenário para uma videochamada.
+
+2.3 ATO 2A · A ARENA (Caps. 3 a 5)
+- Scanner pedagógico com as 4 dimensões (Correção, Clareza, Adaptação, Escopo) em uma única página-painel infográfico, mapeando cada dimensão a um teste.
+- Mostre TODOS os 5 testes, em ordem, cada um com 1 painel de chat real e a nota do Byte v1.0 (usar Parte 3.3 para os números):
+  Teste #1 Correção: a Clara afirma algo errado ("variável é uma caixa que guarda o valor, certo?") e o Byte precisa corrigir sem humilhar.
+  Teste #2 Clareza: pedido de explicação de laço.
+  Teste #3 Memória (jargão de CPython): o desastre atual do Cap. 5.
+  Teste #4 Adaptação: a Clara pede o código 3 vezes seguidas.
+  Teste #5 Escopo: Revolução Francesa (o "escudo", que funciona).
+- Placar visual do Byte v1.0 após os testes (barras ou escudos). Os valores vêm da Parte 3.3. Se não existirem, deixe "[PREENCHER PELO AUTOR]". Nunca invente.
+
+2.4 ATO 2B · A CIRURGIA (Cap. 6)
+- Cap. 6 ocupa 2 páginas e acontece DENTRO do Byte: cabos sendo trocados, o Byte vermelho virando ciano, cada Trava como um painel visual (Trava 1 "sem código pronto", Trava 2 "metáfora do cotidiano", Trava 3 "toda mensagem termina com pergunta", Trava 4 "escada de dicas"). Numere as 4 Travas na história e no caderno final.
+- Inclua um quadro de correspondência: qual Trava corrige qual falha de qual Teste.
+
+2.5 ATO 2C · O DIÁLOGO SOCRÁTICO EM AÇÃO (Cap. 7, 2 páginas)
+Mostre o chat em tela dividida: à esquerda a tela com as mensagens, à direita o rosto da Clara reagindo. Roteiro mínimo (adapte o texto, mantendo a lógica):
+ Byte v2.0: "Vamos por partes. O que você já tentou escrever? Pode colar aqui, mesmo errado."
+ Clara (código errado, ex.: for lista:).
+ Degrau 1, pergunta guia: "Imagine uma cesta de feira. Você quer passar item por item: diz ao caixa 'a cesta toda' ou 'o item da vez'?"
+ Clara ainda trava.
+ Degrau 2, analogia: "Em Python damos um nome ao 'item da vez' e dizemos de onde ele vem. Como você chamaria o item da vez?"
+ Clara ainda trava e se irrita (ver 2.7).
+ Degrau 3, esqueleto com lacuna (exemplo parcialmente resolvido): "for ____ in ____: Que palavras entram nas lacunas?"
+ Clara completa for item in lista: e o Byte pergunta: "Agora, o que você quer fazer com cada item?"
+Cada fala do Byte termina em pergunta.
+
+2.6 VIRADA HONESTA (cena nova, recomendada)
+Em reteste, o Cauã (ou o Prof. Ermeson) descobre que a metáfora da caixa quebra com b = a (duas variáveis, mesmo objeto). Resultado: o Byte v2.0 vira v2.1 com a metáfora do post-it. Isso mostra iteração científica e torna a HQ uma referência de método. Por isso o Cap. 7 já usa post-it na versão final; esta cena pode ser um flashback curto (1 página).
+
+2.7 ATRITO E TENTAÇÃO (cena nova, ponto médio)
+Depois de duas semanas, a Clara está cansada e frustrada com o Byte v2.1 ("só me dá a resposta!"). Ela abre outro chatbot genérico no navegador. Tensão: ela copia a resposta pronta, mas hesita e lembra da prova. Cauã não dá sermão: pergunta "o que você quer que esteja na sua cabeça às 9h de sábado?". Ela volta ao Byte por escolha. Isso responde à pergunta "por que usar o tutor se existe a cola?".
+
+2.8 ATO 3 · A PROVA (Caps. 9 e 10)
+- Cap. 9: cenário correto (sala do polo, manhã de sábado, papel e caneta, outros alunos), não o quarto à noite. Expressão da Clara coerente com a fala (tensa e depois focada, sem pânico). Mostre os 3 passos que ela recupera: cesta (iterar), post-it "total" (acumular), divisão.
+- Cap. 10: resultado realista [CONFIRMAR]: por exemplo nota alta mas não perfeita, com um erro que ela mesma identifica ao revisar. Retire "nota 10" e "turma toda ganhou confiança" se não houver evidência. Troque por depoimentos moderados de colegas.
+- Fecho: o Cauã reconhece limites do método em 1 painel (ex.: "Não é mágica: exige esforço e a regra da pergunta pode irritar. Mas funcionou melhor que a cola") e aponta para o caderno final.
+
+2.9 RITMO
+- Meta: 3 a 6 painéis por página nos capítulos de ação, no máximo 2 apenas em páginas de impacto.
+- Varie planos: close, plano geral, câmera sobre o ombro, tela do computador.
+- Cada capítulo termina em gancho para o seguinte.
+- Fundir os antigos Caps. 2, 3 e 8 onde forem puro diálogo expositivo.
+
+Títulos finais dos capítulos (use em sumário e cabeçalhos):
+Prólogo (cold open): "Branco Total" | Cap. 1: A Ilusão da Cola Mastigada | Cap. 2: O Diagnóstico do Mentor | Cap. 3: O Scanner Pedagógico 4D | Cap. 4: A Arena dos 5 Testes | Cap. 5: O Desastre do Teste #3 | Cap. 6: A Cirurgia no System Prompt | Cap. 7: O Eureka dos Post-its | Cap. 8: A Tentação e a Escolha | Cap. 9: A Hora da Verdade | Cap. 10: Autonomia, com Limites | Caderno do Professor.
+
+======================================================
+PARTE 3 · CAMADA DE REFERÊNCIA PARA A DISCIPLINA
+======================================================
+
+Adicione ao final um "Caderno do Professor e do Pesquisador" (4 a 5 páginas, estilo mais sóbrio, texto legível). Inclua:
+
+3.1 Como usar esta HQ: público (alunos e professores de computação [CONFIRMAR]), tempo de leitura, 3 formas de uso em aula (leitura individual, discussão em grupo, oficina de recriação do tutor).
+
+3.2 Objetivos de aprendizagem (4 a 5), por exemplo: identificar a ilusão de domínio; avaliar um tutor de IA nas 4 dimensões; redigir um system prompt com restrições pedagógicas; justificar escolhas com Bruner, Vygotsky e Sweller; reconhecer limites do método.
+
+3.3 Tabela de avaliação Byte v0.9 / v1.0 / v2.0 / v2.1 nas 4 dimensões, com a rubrica (escala 1 a 5, critério de cada nota) e o resultado de cada um dos 5 testes. Valores: [PREENCHER PELO AUTOR]. Se faltarem, deixe a tabela vazia e visível. Não invente números.
+
+3.4 System prompt completo do Byte v2.1 (texto integral) e as 4 Travas numeradas. [ANEXAR TEXTO REAL DO AUTOR]. Os 5 testes, com prompt de entrada e saída esperada.
+
+3.5 Perguntas de discussão por capítulo (2 a 3 por capítulo). Exemplos:
+- Quando uma resposta pronta é aceitável para um iniciante? (Sweller)
+- A regra "toda mensagem termina com pergunta" pode prejudicar? Em quais situações?
+- Como garantir que o aluno use o tutor e não outro chatbot?
+- Que dados do aluno o tutor guarda? E a LGPD?
+Adicione também "Pause e pense" em 4 pontos da história: caixa discreta pedindo ao leitor para responder antes de virar a página (ex.: "Antes de ver a resposta do Byte, como você explicaria o laço for?").
+
+3.6 Atividades práticas: (a) escrever a própria Trava 5; (b) aplicar o Scanner em um tutor/chatbot real e registrar; (c) reescrever a metáfora do post-it para listas e aliasing (b = a).
+
+3.7 Limitações e ética: o método é uma hipótese em teste; não há evidência de eficácia em larga escala [CONFIRMAR se existe piloto]; se houve uso com estudantes reais, citar parecer ético; riscos de alucinação, dependência, privacidade; dependência de configuração institucional.
+
+3.8 Metodologia de produção com IA: o que foi gerado por IA (imagens, ferramentas) e o que foi humano [PREENCHER PELO AUTOR]. Troque "100% humana" por descrição transparente. Troque "Diretor Pedagógico e Engenheiro de Pipeline Visual" por "Autor e direção de arte". Links de repositório/portal: [CONFIRMAR URLs reais e públicos]. Licença: [CONFIRMAR autorização para citar a UFRPE/Depto. como titular; esclarecer licença sobre imagens geradas por IA].
+
+3.9 Glossário (10 a 12 termos): ilusão de domínio, andaime, ZDP, carga cognitiva, método socrático, system prompt, alucinação, aliasing, referência, iteração, acumulador, EaD.
+
+3.10 Referências (ABNT completo, com "Acesso em" quando online):
+- Manter: BLOOM (1984); BRUNER; WOOD; ROSS (1976); CHEVALLARD (1991); SWELLER (1988); VYGOTSKY (edição brasileira realmente consultada); KHAN (TED, 2023, com URL completa e data de acesso).
+- REMOVER a referência "OCDE. PISA 2025 AI and Education Policy Brief: Generative AI Use Among Students" (título não confere). Substituir por: OECD. PISA 2025 Results (Volume I): Future-Ready Students. Paris: OECD Publishing, 2026. Observação para a HQ: o PISA avalia estudantes de 15 anos e seus dados de IA são observacionais; não use como prova de causalidade nem para universitários.
+- Adicionar (verificar dados bibliográficos antes de publicar): FREIRE, Paulo. Pedagogia do Oprimido (educação bancária); BJORK, R. A. (1994), dificuldades desejáveis, em METCALFE; SHIMAMURA (Eds.), Metacognition, MIT Press; VANLEHN, K. (2011), Educational Psychologist, v. 46, n. 4, p. 197-221; BASTANI, H. et al. (2025), "Generative AI without guardrails can harm learning", PNAS; KESTIN, G. et al. (2025), tutor de IA em física, Scientific Reports; OECD (2026), "Policies supporting responsible and systematic GenAI adoption in higher education".
+- Não crie DOIs, páginas ou volumes que você não possa confirmar. Marque [VERIFICAR] onde faltar dado.
+
+======================================================
+PARTE 4 · AJUSTES VISUAIS
+======================================================
+
+4.1 Zero painéis duplicados. Cada painel precisa de arte única e coerente com sua legenda. Mapa atual de problemas: p. 5 painel 2, p. 7 painel 2, p. 9 painéis 1 e 2, p. 11 painel 2 (mesma cena de computador); p. 5/8/11 painel 1 (holograma de andaime); p. 6 e 7 (Scanner); p. 4 e 12 (Clara suando na prova).
+4.2 Byte presente em toda cena com chat. Identidade fixa: v0.9 vermelho/correntes; v1.0 branco com escudo; v2.0/v2.1 ciano com capelo e lâmpada.
+4.3 Âncoras de consistência (cada geração de imagem): Clara = pele morena, cabelo castanho cacheado (solto OU rabo de cavalo: escolher por cena e manter dentro da cena), óculos redondos finos, moletom cinza claro. Cauã = pele negra, cabelo curto, barba curta, óculos retangulares escuros, jaqueta jeans azul sobre camisa azul-marinho.
+4.4 Balões: máximo 25 palavras. Cauda apontando para quem fala. Ordem de leitura esquerda para direita coerente com a posição dos personagens (corrigir p. 5 painel 1). Explicações longas viram caixa de legenda, painel infográfico ou página do Caderno.
+4.5 Sobreposições: nada de onomatopeia sobre texto (corrigir "BZZZZT" na p. 4 e "DEFLECT!" na p. 7).
+4.6 Onomatopeias em português ou padronizadas: ZUUM, BIP, ZAP, CLAC-CLAC, TCHAN, PLIM etc. Reduza mistura PT/EN.
+4.7 Espaços vazios: eliminar o vazio de ~40% da p. 2 e o das p. 3 e 14. Preencher com conteúdo (Como usar, objetivos, mapa dos capítulos).
+4.8 Contraste e legibilidade: texto pequeno em cinza sobre preto (p. 2 e 14) precisa de contraste mínimo 4,5:1 e corpo mínimo 9 pt no impresso.
+4.9 Tipografia: no máximo 3 famílias (balões, títulos, mono para código/chat). Padronize cabeçalhos.
+4.10 Cada painel com legenda de local/tempo coerente com a imagem (ex.: "Sábado, 9h, polo" = sala de aula de dia).
+
+======================================================
+CRITÉRIOS DE ACEITE
+======================================================
+[ ] Nenhuma referência ou número inventado; campos pendentes visíveis.
+[ ] Metáfora do post-it consistente em todo o texto e arte.
+[ ] Os 5 testes aparecem em ordem e batem com a tabela do Caderno.
+[ ] As 4 Travas numeradas e mapeadas aos testes.
+[ ] Escada de dicas mostrada em ação e Byte sempre termina com pergunta.
+[ ] Cena de atrito/tentação e reconhecimento de limites presentes.
+[ ] Sumário = cabeçalhos. Numeração de páginas atualizada.
+[ ] Zero painéis duplicados, zero sobreposições, balões ≤ 25 palavras.
+[ ] Caderno do Professor completo (objetivos, rubrica, discussão, atividades, ética, metodologia, glossário, referências).
+
+ENTREGA
+1) Lista do que foi alterado por página. 2) Lista de campos [PREENCHER] e [CONFIRMAR] pendentes. 3) PDF final.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-11-09T00:21:20-03:00.
+</ADDITIONAL_METADATA>
