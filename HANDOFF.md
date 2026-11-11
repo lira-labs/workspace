@@ -47,13 +47,16 @@
   - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html`: Deck web interativo de 5 slides com navegação por teclado (`◀` / `▶`), cards modernos em dark mode e tipografia limpa.
   - `va2/GrafoParada_Seminario2_CauaLira.pptx`: Deck em formato PowerPoint widescreen (16:9) contendo os 5 slides estilizados.
 
-### 2. Três Melhorias de Usabilidade + Acessibilidade Universal & Central CTM
+### 2. Três Melhorias de Usabilidade + Acessibilidade Universal & Central CTM + Anti-Queima e VEM
 - [x] **Melhoria 1 · Busca Rápida com Autocomplete**: Caixa de pesquisa flutuante no topo do app para localizar qualquer linha da RMR ou Terminal Integrado do SEI com 1 toque.
 - [x] **Melhoria 2 · Mapa Esquemático de Plataformas no T.I. ("Primeira Vez Aqui")**: Guia visual de plataformas do TI Cabo com destaque verde neon na Plataforma 04 (Linha 199 SJT), guichê do CTM e ponto seguro de espera.
 - [x] **Melhoria 3 · Feedback Tátil (`navigator.vibrate`) e Aviso Sonoro (< 2 min) + Favoritos (⭐)**: Vibração em padrão rítmico no bolso e sino sintetizado via Web Audio API ao aproximar do embarque, além de botão de favoritar parada.
 - [x] **Melhoria 4 · Modo Fácil / Sênior para Idosos (`Aa Fácil`)**: Contraste 21:1 (WCAG AAA preto sobre branco), fontes ampliadas (20pt a 58pt), botões gigantes de 72px de altura e botão de leitura em voz alta.
 - [x] **Melhoria 5 · Central CTM de Realocação de Frota**: Balanceamento em tempo real entre a Linha 178 Suape (vazia com 3 passageiros, 14 L diesel/h desperdiçados) e a Linha 199 Camela (38 passageiros aguardando na PE-60). Ordem de despacho inteligente antecipando partidas e reduzindo espera de 18 para 4 minutos.
-- [x] **Bateria de Auditoria de Usabilidade (`teste_usabilidade_retestes.py`)**: 100% aprovada para 3 personas reais (Dona Severina 68a, Lucas 21a e Fiscal Severino 54a).
+- [x] **Melhoria 6 · Farol Noturno de Embarque (Anti-Queima de Parada)**: Responde à queixa nº 1 do Grande Recife. Tela vira sinal luminoso estroboscópico amarelo néon com número 199 em 76pt e mão esticada (visível a > 300m na PE-60 para parada segura).
+- [x] **Melhoria 7 · Auditoria Forense de Queima de Parada**: Detecção de cruzamento a > 30 km/h sem parada; gera dossiê técnico com GPS, placa e horário com envio em 1 clique ao WhatsApp da Ouvidoria do CTM `(81) 99488-3999`.
+- [x] **Melhoria 8 · Guardião da Integração Temporal do VEM (120 Minutos)**: Cronômetro com folga de gratuidade de 38 min no TI Cabo prevenindo cobrança indevida de R$ 4,10.
+- [x] **Baterias de Testes Automatizados**: `teste_usabilidade_retestes.py` e `teste_farol_e_integracao.py` 100% aprovados.
 
 ---
 

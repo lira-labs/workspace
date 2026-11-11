@@ -886,6 +886,90 @@ template = """<!DOCTYPE html>
       100% { box-shadow: 0 0 0 0 rgba(4, 120, 87, 0); }
     }
 
+
+    /* FAROL NOTURNO DE EMBARQUE (SINAL LUMINOSO CONTRA QUEIMA DE PARADA) */
+    #night-beacon-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 100000;
+      background: #facc15;
+      color: #000000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 20px 48px;
+      cursor: pointer;
+      text-align: center;
+      animation: strobeYellowWhite 0.8s infinite alternate;
+    }
+    @keyframes strobeYellowWhite {
+      0% { background: #facc15; }
+      100% { background: #ffffff; }
+    }
+    .beacon-line-big {
+      font-size: 76px;
+      font-weight: 900;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.04em;
+    }
+    .beacon-hand-pulse {
+      font-size: 86px;
+      animation: bounceHand 0.75s infinite alternate;
+    }
+    @keyframes bounceHand {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-20px); }
+    }
+    .btn-night-beacon {
+      width: 100%;
+      min-height: 42px;
+      background: #fef08a;
+      color: #854d0e;
+      border: 1.5px solid #facc15;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.15s;
+    }
+    .btn-night-beacon:active {
+      background: #fde047;
+    }
+
+    /* CARD GUARDIÃO DA INTEGRAÇÃO TEMPORAL (VEM) */
+    .vem-guard-card {
+      background: #f0f9ff;
+      border: 1.5px solid #bae6fd;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    /* BOTAO SIMULAR QUEIMA DE PARADA */
+    .btn-demo-queima {
+      width: 100%;
+      min-height: 38px;
+      background: #fff1f2;
+      color: #e11d48;
+      border: 1.5px dashed #fda4af;
+      border-radius: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
   </style>
 </head>
 <body>
@@ -902,7 +986,13 @@ template = """<!DOCTYPE html>
         <span>🏛️</span> Central CTM (Realocação de Frota)
       </button>
       <button class="btn-desktop-action" onclick="openAuditModal()" style="background:rgba(16,185,129,0.25); border-color:#34d399;">
-        <span>🧪</span> Auditoria de Usabilidade (Idosos vs Jovens)
+        <span>🧪</span> Auditoria (Idosos vs Jovens)
+      </button>
+      <button class="btn-desktop-action" onclick="activateNightBeacon()" style="background:rgba(250,204,21,0.2); border-color:#facc15; color:#fef08a;">
+        <span>💡</span> Farol Noturno (Anti-Queima)
+      </button>
+      <button class="btn-desktop-action" onclick="openVemModal()" style="background:rgba(14,165,233,0.2); border-color:#38bdf8;">
+        <span>⏱️</span> Integração VEM (2h)
       </button>
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
         <span>🔄</span> Testar do Zero
@@ -1052,6 +1142,30 @@ template = """<!DOCTYPE html>
               <span>💺</span> 14 assentos livres · Embarque Sentado Garantido
             </div>
           </div>
+
+          <!-- GUARDIÃO DA INTEGRAÇÃO TEMPORAL (VEM) -->
+          <div class="vem-guard-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:16px;">⏱️</span>
+                <span style="font-weight:800; font-size:11.5px; color:#0369a1; text-transform:uppercase;">Integração Temporal VEM (2h)</span>
+              </div>
+              <span style="font-size:11.5px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 14m restantes</span>
+            </div>
+            <div style="font-size:11px; color:#334155; margin-top:5px; line-height:1.35;" id="vem-status-desc">
+              ✅ <strong>Gratuidade Assegurada:</strong> Com o 199 chegando em 4 min, você desembarcará no TI Cabo com <strong>38 min de folga</strong> no cartão VEM. Tarifa na catraca: <strong>R$ 0,00</strong>.
+            </div>
+          </div>
+
+          <!-- BOTÃO FAROL NOTURNO DE EMBARQUE (ANTI-QUEIMA DE PARADA) -->
+          <button class="btn-night-beacon" onclick="activateNightBeacon()">
+            <span>💡</span> ATIVAR FAROL NOTURNO (SINAL PRO MOTORISTA)
+          </button>
+
+          <!-- BOTÃO SIMULAR QUEIMA DE PARADA -->
+          <button class="btn-demo-queima" onclick="simulateQueimaDeParada()">
+            <span>🚨</span> Simular Queima de Parada (Motorista Passou Direto)
+          </button>
 
           <!-- BUTTON TO SIMULATE THE SLIDE 3 FAILURE REAL -->
           <button class="btn-demo-failure" onclick="simulateSlide3Failure()">
@@ -1361,6 +1475,93 @@ __ROUTE_OPTIONS__
         </div>
 
         <button class="btn-primary" onclick="closeAuditModal()" style="background:#059669;">Concluir Inspeção</button>
+      </div>
+    </div>
+
+
+    <!-- 10. SCREEN: FAROL NOTURNO DE EMBARQUE (SINAL LUMINOSO PARA O MOTORISTA) -->
+    <div id="night-beacon-screen" onclick="deactivateNightBeacon()">
+      <div>
+        <div style="font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#713f12; margin-bottom:6px;">
+          Sinal Luminoso Noturno · Aponte para a Rodovia
+        </div>
+        <div class="beacon-line-big">199</div>
+        <div style="font-size:20px; font-weight:800; color:#000000; letter-spacing:-0.02em;">
+          CAMELA / TI CABO
+        </div>
+      </div>
+
+      <div class="beacon-hand-pulse">✋</div>
+
+      <div>
+        <div style="font-size:16px; font-weight:800; color:#000000; margin-bottom:4px;">
+          SÃO JUDAS TADEU (SJT)
+        </div>
+        <div style="font-size:12.5px; font-weight:700; color:#713f12; background:rgba(0,0,0,0.08); padding:6px 14px; border-radius:999px; display:inline-block;">
+          Toque em qualquer lugar da tela para fechar
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. MODAL: AUDITORIA FORENSE DE QUEIMA DE PARADA -->
+    <div id="modal-queima-parada" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #e11d48; max-width:400px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:24px;">🚨</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#e11d48; margin:0;">Queima de Parada Detectada!</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Telemetria Forense com Prova de GPS</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeQueimaModal()">✕</button>
+        </div>
+
+        <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.6; color:#881337;">
+          <div><strong>• Linha:</strong> 199 - Camela / Cabo (SJT)</div>
+          <div><strong>• Coletivo:</strong> Veículo CTM 199-04 (Placa PE-4912)</div>
+          <div><strong>• Local:</strong> Parada 030613 · Terminal de Camela</div>
+          <div><strong>• Velocidade no Ponto:</strong> 44 km/h (Passou direto sem parar)</div>
+          <div><strong>• Registro de Satélite:</strong> 10/11/2026 às 22h41m12s</div>
+        </div>
+
+        <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:14px;">
+          O motorista ignorou os passageiros no abrigo. O GrafoParada gerou a prova técnica completa para a Ouvidoria do CTM.
+        </p>
+
+        <button class="btn-primary" onclick="sendQueimaWhatsAppReport()" style="background:#e11d48; margin-bottom:8px;">
+          📲 Denunciar no WhatsApp CTM (81 99488-3999)
+        </button>
+        <button class="btn-secondary" onclick="closeQueimaModal()">Fechar</button>
+      </div>
+    </div>
+
+    <!-- 12. MODAL: DETALHES DA INTEGRAÇÃO TEMPORAL (VEM) -->
+    <div id="modal-vem" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #0284c7; max-width:400px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">⏱️</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Integração Temporal VEM</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Regulamento CTM · Janela de 120 Minutos</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeVemModal()">✕</button>
+        </div>
+
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5;">
+          <div style="font-weight:800; color:#0369a1; margin-bottom:4px;">Como funciona a proteção:</div>
+          <div>1. Seu cartão VEM foi debitado às <strong>21h35</strong> no primeiro embarque.</div>
+          <div>2. A gratuidade de baldeação no TI Cabo é válida até às <strong>23h35</strong>.</div>
+          <div>3. Previsão de chegada no TI Cabo pela STGCN: <strong>22h57</strong> (Folga de 38 minutos).</div>
+        </div>
+
+        <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px; margin-bottom:14px; font-size:11.5px; color:#065f46;">
+          🛡️ <strong>Seguro Contra Dupla Cobrança:</strong> Se o ônibus atrasar por culpa da rodovia e a janela expirar, o GrafoParada emite automaticamente o <em>Atestado Digital de Atraso</em> para reembolso do débito de R$ 4,10 na Central do CTM.
+        </div>
+
+        <button class="btn-primary" onclick="closeVemModal()" style="background:#0284c7;">Entendido</button>
       </div>
     </div>
 
@@ -1986,6 +2187,59 @@ __ROUTE_OPTIONS__
     }
     function closeAuditModal() {
       document.getElementById("modal-audit").style.display = "none";
+    }
+
+
+    // ==========================================
+    // FAROL NOTURNO DE EMBARQUE (ANTI-QUEIMA DE PARADA)
+    // ==========================================
+    function activateNightBeacon() {
+      document.getElementById("night-beacon-screen").style.display = "flex";
+      playNaturalVoice("Farol noturno ativado! Aponte a tela iluminada em direção à rodovia para sinalizar ao motorista da Linha 199 no escuro.");
+      if ("vibrate" in navigator) {
+        navigator.vibrate([100, 50, 100]);
+      }
+    }
+    function deactivateNightBeacon() {
+      document.getElementById("night-beacon-screen").style.display = "none";
+    }
+
+    // ==========================================
+    // AUDITORIA FORENSE DE QUEIMA DE PARADA
+    // ==========================================
+    function simulateQueimaDeParada() {
+      document.getElementById("modal-queima-parada").style.display = "flex";
+      if ("vibrate" in navigator) {
+        navigator.vibrate([400, 200, 400, 200, 800]);
+      }
+      playSimpleChime();
+      playNaturalVoice("Alerta urgente: Queima de parada detectada pelo satélite! O veículo 199-04 cruzou a Parada 030613 a 44 km por hora sem parar. A prova técnica foi gerada para denúncia no WhatsApp do CTM.");
+    }
+    function closeQueimaModal() {
+      document.getElementById("modal-queima-parada").style.display = "none";
+    }
+    function sendQueimaWhatsAppReport() {
+      const lines = [
+        "DENÚNCIA DE QUEIMA DE PARADA (CTM - Grande Recife)",
+        "Linha: 199 - Camela/Cabo (SJT)",
+        "Veículo: 199-04 (Placa PE-4912)",
+        "Parada: 030613 - Terminal Camela",
+        "Velocidade no ponto: 44 km/h (sem parada)",
+        "Data/Hora: 10/11/2026 22:41:12",
+        "Registrado via auditoria de satélite GrafoParada."
+      ];
+      const sep = String.fromCharCode(10);
+      window.open("https://api.whatsapp.com/send?phone=5581994883999&text=" + encodeURIComponent(lines.join(sep)), "_blank");
+    }
+
+    // ==========================================
+    // GUARDIÃO DA INTEGRAÇÃO TEMPORAL (VEM)
+    // ==========================================
+    function openVemModal() {
+      document.getElementById("modal-vem").style.display = "flex";
+    }
+    function closeVemModal() {
+      document.getElementById("modal-vem").style.display = "none";
     }
 
     function playNaturalVoice(text) {
