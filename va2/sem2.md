@@ -56,6 +56,8 @@
 
 ## ensaio cético · as 4 perguntas decisivas da banca
 
+> 💡 **Postura Mestra da Defesa:** *"A infraestrutura espacial é real. O experimento preditivo atual é sintético. Os resultados demonstram a viabilidade metodológica, não uma validação definitiva do trânsito real do Grande Recife."*
+
 | Componente | Origem |
 | :--- | :--- |
 | Paradas, linhas e trajetos | GTFS oficial do Grande Recife (393 linhas, 15.239 paradas) |
@@ -65,13 +67,13 @@
 | Telemetria contínua real | Não disponível publicamente pelo consórcio |
 
 ### 1. "Se os dados são sintéticos, por que a ST-GCN venceu a regressão linear?"
-**Resposta:** "A ST-GCN venceu porque resolve a maldição da dimensionalidade. Em 5 paradas (Sem1), uma reta simples tinha apenas 10 variáveis e aprendeu com facilidade. Ao expandir para 20 paradas no Sem2 com 6 lags temporais, a regressão tabular precisa estimar 120 pesos livres em matriz achatada, sofrendo com colinearidade severa. A ST-GCN compartilha pesos espaciais via convolução espectral de Chebyshev sobre a topologia física da rodovia. Reconheço, contudo, que parte dessa vantagem advém da hipótese de difusão em rede utilizada no gerador sintético, o que reforça que o resultado demonstra eficiência estrutural do grafo, mas não substitui a validação de campo."
+**Resposta:** "A ST-GCN venceu porque resolve a maldição da dimensionalidade. Em 5 paradas (Sem1), uma reta simples tinha poucas variáveis e aprendeu com facilidade. Ao expandir para 20 paradas no Sem2 com 6 lags temporais, na representação tabular o modelo recebe 120 variáveis de entrada (features) — 20 paradas por 6 defasagens temporais — e precisa aprender suas relações em uma estrutura achatada e altamente colinear. A ST-GCN, por sua vez, compartilha pesos espaciais via convolução espectral de Chebyshev sobre a topologia física da rodovia. Reconheço, contudo, que parte dessa vantagem advém da hipótese de difusão em rede utilizada no gerador sintético, o que reforça que o resultado demonstra eficiência estrutural do grafo, mas não substitui a validação de campo."
 
 ### 2. "Como você validaria esse modelo com dados reais?"
 **Resposta:** "A validação real requer um convênio de pesquisa operacional com o CTM Grande Recife ou uma das concessionárias operadoras para acesso ao streaming de telemetria AVL/GPS dos transponders da frota e aos logs com timestamp e validador da bilhetagem eletrônica (VEM). Com esse fluxo, mapearíamos o histórico real de tempos entre paradas consecutivas, separaríamos os dados por divisão temporal estrita (ex: 4 semanas de treino, 1 semana de teste) e testaríamos a capacidade preditiva da ST-GCN sem depender de gerador sintético."
 
 ### 3. "De onde vem a demanda latente da Central CTM?"
-**Resposta:** "A bilhetagem eletrônica da catraca registra apenas a demanda atendida e censurada: quem desiste na parada escura ou desiste da espera por superlotação não passa na catraca e vira invisível para o CTM. A demanda latente no GrafoParada é modelada combinando três fontes: (1) a série histórica censurada da catraca; (2) a declaração voluntária de rotina pendular no app pelo passageiro (amostragem on-device); e (3) a propagação espaço-temporal estimada pela ST-GCN ao longo dos nós adjacentes da malha, gerando uma distribuição probabilística N(μ, σ²) com intervalo de incerteza de 90% para apoiar a decisão operacional."
+**Resposta:** "A bilhetagem eletrônica da catraca registra apenas a demanda atendida e censurada: quem desiste na parada escura ou desiste da espera por superlotação não passa na catraca e vira invisível para o CTM. A demanda latente no GrafoParada é modelada combinando três fontes: (1) a série histórica censurada da catraca; (2) a declaração voluntária de rotina pendular no app pelo passageiro (amostragem on-device); e (3) a propagação espaço-temporal estimada pela ST-GCN ao longo dos nós adjacentes da malha. O modelo produz uma estimativa pontual da demanda, e a incerteza é calibrada (via calibração conformal) para gerar um intervalo de 90% usado na decisão operacional."
 
 ### 4. "O que exatamente o projeto consegue afirmar hoje e o que ainda é hipótese?"
 **Resposta:** "O que afirmamos com dados concretos hoje: (1) Que é viável processar a malha metropolitana oficial inteira do Grande Recife (393 linhas, 15.239 paradas) com inferência ultrarrápida (0,77 ms na CPU e 4,98 ms on-device); (2) Que convoluções espaciais em grafo sofrem de super-suavização (over-smoothing) em choques bruscos de trânsito, exigindo obrigatoriamente uma trava híbrida que corte a IA se o desvio ultrapassar 15 min; (3) Que a formulação de despacho deve ser probabilística, baseada em P(Demanda > Capacidade). O que ainda é hipótese: A magnitude exata da redução do erro de previsão em tráfego metropolitano real, que depende do acesso a dados contínuos de GPS da frota."

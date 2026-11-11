@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 14:50
+- **Última Atualização:** 11/11/2026 15:00
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -13,15 +13,25 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_2gktRWrc6ubteqSyQHCf5Qy1vxbt` em Produção)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_k6x5SgKP1jxziA1aKZ6P12pckagn` em Produção)
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
-  - *Roteiro de Fala Mobile com as 4 Perguntas da Banca*: `https://grafoparadaweb.vercel.app/roteiro.html`
+  - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Blindagem Conceitual Final para a Apresentação Oral
+- [x] **Ajuste Técnico nas Variáveis Tabulares (120 Features Colineares)**:
+  - Substituída a menção a "120 pesos" pela formulação matematicamente rigorosa: *"na representação tabular o modelo recebe 120 variáveis de entrada (features) — 20 paradas por 6 defasagens temporais — e precisa aprender suas relações em uma estrutura achatada e altamente colinear."*
+- [x] **Eliminação de Premissas Indevidas sobre Distribuição Normal de Contagem**:
+  - Removida menção a $N(\mu, \sigma^2)$ na demanda latente. Adotada a resposta blindada: *"o modelo produz uma estimativa pontual da demanda, e a incerteza é calibrada (via calibração conformal) para gerar um intervalo de 90% usado na decisão operacional."*
+- [x] **Postura Mestra da Defesa Integrada ao Roteiro Mobile**:
+  - Destaque no topo do roteiro: *“A infraestrutura espacial é real. O experimento preditivo atual é sintético. Os resultados demonstram a viabilidade metodológica, não uma validação definitiva do trânsito real do Grande Recife.”*
+- [x] **Deploy e Repositórios Sincronizados**:
+  - Deploy em produção atualizado na Vercel e branches `feature/if-2va-pqc-telessaude` e `main` sincronizadas.
 
 ### 1. Consolidação Científica Final & Defesa do Seminário 2
 - [x] **Tabela Visual Explícita da Origem dos Dados (Real vs Simulado)**:
