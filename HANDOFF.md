@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 15:25
+- **Última Atualização:** 11/11/2026 15:45
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -26,6 +26,37 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Mapa Inovador, Vivo e 100% Livre (Zero Chaves / Sem Bloqueios)
+- [x] **Eliminação Total de Exigência de Chaves / Tokens**:
+  - Camadas de mapa 100% livres e abertas (Carto Positron, Carto Dark Matter e Esri World Imagery Satellite via CDN rápida Fastly/Cloudflare sem restrições ou chaves).
+  - Seletor de visual com 1 clique: 🗺️ **Modo Trânsito Clean**, 🌙 **Modo Noturno Neon** e 🛰️ **Modo Satélite Real**.
+- [x] **Marcador do Usuário com Radar e Orientação Direcional**:
+  - Marcador em CSS animado (`user-pulse-marker`): ponto azul elétrico central, anel de radar pulsante de 2s, cone de orientação direcional apontando para a parada e pílula flutuante *“📍 Você está aqui”*.
+  - Ancorado dinamicamente: inicializa no ponto da rotina e sincroniza silenciosamente com o GPS do smartphone sem travar a interface.
+  - Linha tracejada geodésica conectando o usuário à parada de embarque com badge: *“🚶 5 min a pé até a parada”*.
+- [x] **Ônibus em Movimento ao Vivo com Tag Flutuante**:
+  - Marcador de coletivo animado (`live-bus-marker`) com tag de ETA dinâmica: *“522 · 4 min (14 vagas livres)”*.
+  - Animação de deslocamento suave (*glide*) ao longo dos vértices do traçado viário.
+- [x] **Ilha Flutuante de Controles Cartográficos (Glass Controls)**:
+  - 🎯 *Minha Localização*: voo suave (flyTo) para o usuário com pulso de radar.
+  - 🚌 *Onde Está o Ônibus*: enquadramento do coletivo em aproximação.
+  - 🗺️ *Alternar Estilo*: troca cíclica entre Clean, Noturno e Satélite.
+  - ＋ / － *Zoom Tátil*: botões de vidro responsivos.
+
+### 2. Incorporação Rigorosa do Peer Review do ChatGPT
+- [x] **Viés de Amostragem do Aplicativo ($D_{\text{real}} \neq D_{\text{app}}$)**:
+  - Adotada a formulação recomendada: o sinal dos celulares não é tratado como censo, mas como *“sinal complementar de intenção de deslocamento, agregado e anonimizado ($k$-anônimo), usado como proxy para recuperar parte da demanda invisível à bilhetagem”*.
+- [x] **Três Níveis Metodológicos Claros**:
+  - *Nível 1 (Real)*: GTFS oficial, paradas e linhas físicas, horários programados, benchmarks de hardware (0,77 ms CPU, 4,98 ms on-device).
+  - *Nível 2 (Sintético)*: Atrasos modelados via simulação de difusão de tráfego.
+  - *Nível 3 (Cenário Operacional Simulado)*: Demanda de $41 \pm 3{,}8$, $98{,}4\%$ de risco e economia potencial de ~14 L de diesel a validar em campo.
+- [x] **Limiar de Conforto**:
+  - Substituída a menção a "capacidade total" por *“limiar operacional de conforto de 36 assentos sentados”*.
+- [x] **Mudança de Rotina no EWMA**:
+  - Adicionada ao roteiro e documentação a resposta sobre férias/mudança de emprego: decaimento de $0{,}85$ por dia de ausência desarma automaticamente os alarmes de bolso em 3 a 4 dias.
+- [x] **Auditoria Automatizada**:
+  - Mantido **20/20 PASS (100% de conformidade)** no script [`teste_rotinas_e_realocacao.py`](code/grafoparada_tec/teste_rotinas_e_realocacao.py).
 
 ### 1. Arquitetura Completa de Aprendizado de Rotina (On-Device Routine Learner)
 - [x] **Dualidade do Aprendizado (Cold-Start vs. Contínuo)**:

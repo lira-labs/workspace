@@ -384,28 +384,165 @@
       100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
     }
 
-    /* FLOATING ACTION BUTTON (GPS RECENTER) */
-    .fab-gps {
+    /* MODERN MAP FLOATING CONTROLS (GLASS ISLAND) */
+    .map-floating-controls {
       position: absolute;
-      bottom: 240px;
-      right: 14px;
+      bottom: 235px;
+      right: 12px;
       z-index: 999;
-      width: 48px;
-      height: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .map-ctrl-btn {
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      background: var(--bg-surface);
-      border: 2px solid var(--border-color);
-      box-shadow: var(--shadow-floating);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid #cbd5e1;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: var(--blue-accent);
-      transition: transform 0.15s ease, background 0.2s ease;
+      font-size: 17px;
+      color: #0f172a;
+      transition: all 0.15s ease;
     }
-    .fab-gps:active {
+    .map-ctrl-btn:hover {
+      transform: scale(1.06);
+      background: #ffffff;
+      border-color: #059669;
+      box-shadow: 0 6px 18px rgba(5, 150, 105, 0.25);
+    }
+    .map-ctrl-btn:active {
       transform: scale(0.92);
-      background: var(--blue-bg);
+      background: #f1f5f9;
+    }
+    body.is-fullscreen .map-floating-controls {
+      right: calc(50% - 225px);
+    }
+
+    /* USER LOCATION MARKER WITH PULSING RADAR AND CONE */
+    .user-pulse-marker {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    .user-radar-wave {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(2, 132, 199, 0.35);
+      animation: userRadarPulse 2s infinite ease-out;
+    }
+    @keyframes userRadarPulse {
+      0% { transform: scale(0.4); opacity: 0.95; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .user-dot-core {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #0284c7;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      z-index: 2;
+      position: relative;
+    }
+    .user-heading-cone {
+      position: absolute;
+      top: -12px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 14px solid #0284c7;
+      transform-origin: center 20px;
+      z-index: 1;
+      opacity: 0.9;
+      animation: conePulse 2s infinite alternate;
+    }
+    @keyframes conePulse {
+      0% { transform: scaleY(0.9); opacity: 0.7; }
+      100% { transform: scaleY(1.2); opacity: 1; }
+    }
+    .user-tag-pill {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.02em;
+      z-index: 10;
+    }
+
+    /* LIVE BUS MARKER WITH ETA TAG */
+    .live-bus-marker {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .live-bus-icon-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #059669;
+      border: 2.5px solid #ffffff;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45);
+      animation: busFloat 2.5s infinite ease-in-out alternate;
+      z-index: 2;
+    }
+    @keyframes busFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+    .live-bus-eta-tag {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #064e3b;
+      color: #a7f3d0;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid #059669;
+      font-family: 'JetBrains Mono', monospace;
+      z-index: 10;
+    }
+
+    /* FLOATING ACTION BUTTON (LEGACY FALLBACK) */
+    .fab-gps {
+      display: none;
     }
 
     /* BOTTOM SHEET (MOBILE-FIRST RIDE-HAILING CARD) */
@@ -1201,17 +1338,33 @@
       </div>
     </div>
 
-    <!-- 3. FLOATING ACTION BUTTON (GPS RECENTER) -->
-    <button class="fab-gps" onclick="recenterGpsTarget()" title="Localizar meu GPS">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9"></circle>
-        <line x1="12" y1="1" x2="12" y2="4"></line>
-        <line x1="12" y1="20" x2="12" y2="23"></line>
-        <line x1="1" y1="12" x2="4" y2="12"></line>
-        <line x1="20" y1="12" x2="23" y2="12"></line>
-        <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
-      </svg>
-    </button>
+    <!-- 3. MODERN FLOATING MAP CONTROLS (INNOVATIVE CONTROL BAR) -->
+    <div class="map-floating-controls">
+      <!-- 1. Centralizar em Mim (Pulsing User Location) -->
+      <button class="map-ctrl-btn" onclick="recenterOnUser(true)" title="Onde Estou (Minha Posição)" id="btn-map-my-location">
+        <span style="font-size:18px;">🎯</span>
+      </button>
+
+      <!-- 2. Rastrear Ônibus ao Vivo -->
+      <button class="map-ctrl-btn" onclick="trackBusLocation(true)" title="Ver Ônibus em Aproximação" id="btn-map-track-bus">
+        <span style="font-size:18px;">🚌</span>
+      </button>
+
+      <!-- 3. Alternar Estilo do Mapa (Clean / Noturno / Satélite) -->
+      <button class="map-ctrl-btn" onclick="cycleMapStyle()" title="Alternar Visual do Mapa" id="btn-map-style-toggle">
+        <span id="map-style-icon" style="font-size:17px;">🗺️</span>
+      </button>
+
+      <!-- 4. Zoom Mais -->
+      <button class="map-ctrl-btn" onclick="zoomMapIn()" title="Aproximar Zoom">
+        <span style="font-size:16px; font-weight:800;">＋</span>
+      </button>
+
+      <!-- 5. Zoom Menos -->
+      <button class="map-ctrl-btn" onclick="zoomMapOut()" title="Afastar Zoom">
+        <span style="font-size:16px; font-weight:800;">－</span>
+      </button>
+    </div>
 
     <!-- 4. BOTTOM SHEET (RIDE-HAILING / TRANSIT EXPERIENCE) -->
     <div class="mobile-bottom-sheet" id="main-bottom-sheet">
@@ -1995,8 +2148,8 @@
         <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:8px;">
           <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo do Método: Demanda Não-Censurada & ST-GCN</div>
           <div style="font-size:11px; color:#334155; line-height:1.45;">
-            • <strong>Catraca / SBE (Observada):</strong> 14 embarques médios históricos (dado censurado: ignora passageiros que desistem antes ou evadem).<br>
-            • <strong>Rotina Pendular On-Device:</strong> 19 passageiros com alarme ativo no corredor (~42% de adesão amostral; 8 coincidem com a catraca, sem dupla contagem).<br>
+            • <strong>Catraca / SBE (Observada):</strong> 14 embarques médios históricos (dado censurado: quem desiste ou usa transporte alternativo não passa na catraca).<br>
+            • <strong>Sinal de Intenção On-Device (Proxy Amostral):</strong> 19 rotinas ativas no corredor (amostra voluntária agregada com k-anonimato; proxy que recupera a intenção antes da catraca, onde D<sub>real</sub> ≠ D<sub>app</sub>).<br>
             • <strong>Demanda Latente ST-GCN (D̂):</strong> <strong>41 ± 3,8 passageiros</strong> aguardando (IC 90% via calibração conformal: [37, 45] passageiros).
           </div>
         </div>
@@ -2010,13 +2163,13 @@
           <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:10px;">
             <div style="font-size:10.5px; font-weight:800; color:#dc2626; text-transform:uppercase;">Linha Ociosa (Ex: 178)</div>
             <div style="font-size:17px; font-weight:800; color:#dc2626; margin:3px 0;">3 passageiros</div>
-            <div style="font-size:10.5px; color:#475569; line-height:1.3;">6% ocupação (Deadheading no Vazio). Economia: ~14 L de diesel ao remanejar frota ociosa.</div>
+            <div style="font-size:10.5px; color:#475569; line-height:1.3;">6% ocupação (Deadheading no Vazio). Economia: ~14 L de diesel ao remanejar frota ociosa (potencial a validar em campo).</div>
           </div>
 
           <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px;">
             <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha Sobrecarga</div>
             <div style="font-size:17px; font-weight:800; color:#059669; margin:3px 0;">41 estimados</div>
-            <div style="font-size:10.5px; color:#475569; line-height:1.3;">P(D > 36 assentos) = <strong>98,4%</strong>. Superlotação iminente.</div>
+            <div style="font-size:10.5px; color:#475569; line-height:1.3;">P(D > 36 assentos sentados) = <strong>98,4%</strong>. Superlotação iminente no limiar de conforto.</div>
           </div>
         </div>
 
@@ -2025,7 +2178,7 @@
             ⚡ Regra Operacional de Despacho (Probabilística):
           </div>
           <div style="font-size:11px; font-weight:600; color:#0f172a; line-height:1.4;">
-            Se P(Demanda Latente > Capacidade Sentada) ≥ 80% E Ocupação Linha Concorrente ≤ 15% ➔ Sugerir remanejamento preventivo de coletivo de suporte.
+            Se P(Demanda Latente > Limiar de Conforto de 36 Assentos) ≥ 80% E Ocupação Linha Concorrente ≤ 15% ➔ Sugerir remanejamento preventivo de coletivo de suporte.
           </div>
         </div>
 
@@ -2354,21 +2507,264 @@
       document.getElementById("onboarding-step-form").style.display = "block";
     }
 
+    // MAP TILE STYLES (100% LIVRES · ZERO CHAVES · ALTA PERFORMANCE)
+    let currentMapTileLayer = null;
+    let currentTileStyleIndex = 0;
+    const tileStyles = [
+      {
+        name: "clean",
+        icon: "🗺️",
+        url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+        subdomains: "abcd",
+        maxZoom: 19,
+        label: "Modo Trânsito Clean"
+      },
+      {
+        name: "dark",
+        icon: "🌙",
+        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+        subdomains: "abcd",
+        maxZoom: 19,
+        label: "Modo Noturno Neon"
+      },
+      {
+        name: "sat",
+        icon: "🛰️",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        subdomains: "abcd",
+        maxZoom: 18,
+        label: "Modo Satélite Real (Esri)"
+      }
+    ];
+
+    function setMapTileStyle(index) {
+      if (!leafletMap) return;
+      currentTileStyleIndex = index % tileStyles.length;
+      const s = tileStyles[currentTileStyleIndex];
+      if (currentMapTileLayer) {
+        leafletMap.removeLayer(currentMapTileLayer);
+      }
+      currentMapTileLayer = L.tileLayer(s.url, {
+        subdomains: s.subdomains || "abcd",
+        maxZoom: s.maxZoom || 19,
+        attribution: false
+      }).addTo(leafletMap);
+
+      const iconEl = document.getElementById("map-style-icon");
+      if (iconEl) iconEl.textContent = s.icon;
+    }
+
+    function cycleMapStyle() {
+      setMapTileStyle(currentTileStyleIndex + 1);
+      playSimpleChime();
+    }
+
+    function zoomMapIn() {
+      if (leafletMap) leafletMap.zoomIn();
+    }
+    function zoomMapOut() {
+      if (leafletMap) leafletMap.zoomOut();
+    }
+
+    // USER LOCATION & LIVE BUS MARKERS
+    let userLocationMarker = null;
+    let userWalkPolyline = null;
+    let liveBusMarker = null;
+    let busAnimationTimer = null;
+    let userCurrentCoords = [-8.0475, -34.8980]; // Ponto de partida padrão: Derby / Recife
+
+    function updateUserLocationMarker(lat, lon, animate) {
+      if (!leafletMap) return;
+      userCurrentCoords = [lat, lon];
+
+      const userIcon = L.divIcon({
+        className: "user-leaflet-div",
+        html: `
+          <div class="user-pulse-marker">
+            <div class="user-radar-wave"></div>
+            <div class="user-heading-cone" id="user-heading-cone"></div>
+            <div class="user-dot-core"></div>
+            <div class="user-tag-pill">📍 Você está aqui</div>
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+
+      if (!userLocationMarker) {
+        userLocationMarker = L.marker([lat, lon], {
+          icon: userIcon,
+          zIndexOffset: 1000
+        }).addTo(leafletMap);
+
+        userLocationMarker.bindPopup(`
+          <div style="font-family:'Plus Jakarta Sans',sans-serif; padding:4px; text-align:center;">
+            <strong style="font-size:12.5px; color:#0284c7;">📍 Sua Posição Atual</strong>
+            <div style="font-size:11px; color:#64748b; margin-top:2px;">Monitoramento ativo On-Device com proteção de bolso.</div>
+          </div>
+        `);
+      } else {
+        userLocationMarker.setLatLng([lat, lon]);
+      }
+
+      connectUserToActiveStop(lat, lon);
+
+      if (animate && leafletMap) {
+        leafletMap.flyTo([lat, lon], 16, { animate: true, duration: 0.8 });
+      }
+    }
+
+    function connectUserToActiveStop(userLat, userLon) {
+      if (!leafletMap) return;
+      let targetStop = null;
+      if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
+        targetStop = window.RealTransit.activeRoute.stops[window.RealTransit.activeStopIndex || 0];
+      } else if (TELEMETRIA && TELEMETRIA.stops) {
+        targetStop = TELEMETRIA.stops.find(s => s.seq === activeStopSeq) || TELEMETRIA.stops[0];
+      }
+
+      if (targetStop && targetStop.lat && targetStop.lon) {
+        if (userWalkPolyline) leafletMap.removeLayer(userWalkPolyline);
+        userWalkPolyline = L.polyline([[userLat, userLon], [targetStop.lat, targetStop.lon]], {
+          color: "#0284c7",
+          weight: 2.5,
+          dashArray: "5, 8",
+          opacity: 0.85
+        }).addTo(leafletMap);
+      }
+    }
+
+    function recenterOnUser(animate) {
+      if (!userLocationMarker) {
+        initUserLocation();
+      }
+      if (userLocationMarker && leafletMap) {
+        const pos = userLocationMarker.getLatLng();
+        leafletMap.flyTo(pos, 16, { animate: true, duration: 0.7 });
+        playSimpleChime();
+        if (animate) {
+          playNaturalVoice("Centralizado na sua posição atual. Parada de embarque a poucos passos.");
+        }
+      }
+    }
+
+    function recenterGpsTarget() {
+      recenterOnUser(true);
+    }
+
+    function updateLiveBusMarker(lat, lon, lineCode, etaMin, seatsFree) {
+      if (!leafletMap) return;
+      const code = lineCode || (window.RealTransit ? window.RealTransit.activeRouteCode : "522");
+      const eta = etaMin || 4;
+      const seats = seatsFree || 14;
+
+      const busIcon = L.divIcon({
+        className: "bus-leaflet-div",
+        html: `
+          <div class="live-bus-marker">
+            <div class="live-bus-icon-circle">🚌</div>
+            <div class="live-bus-eta-tag" id="map-live-bus-tag">${code} · ${eta} min (${seats} vagas)</div>
+          </div>
+        `,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21]
+      });
+
+      if (!liveBusMarker) {
+        liveBusMarker = L.marker([lat, lon], {
+          icon: busIcon,
+          zIndexOffset: 900
+        }).addTo(leafletMap);
+
+        liveBusMarker.bindPopup(`
+          <div style="font-family:'Plus Jakarta Sans',sans-serif; padding:4px;">
+            <div style="font-size:12px; font-weight:800; color:#059669;">🚌 Coletivo em Deslocamento</div>
+            <div style="font-size:13px; font-weight:800; color:#0f172a; margin:2px 0;">Linha ${code}</div>
+            <div style="font-size:11px; color:#475569;">Chegada estimada: <strong>${eta} minutos</strong></div>
+            <div style="font-size:10.5px; color:#047857; font-weight:700;">💺 ${seats} assentos livres (Ocupação 61%)</div>
+          </div>
+        `);
+      } else {
+        liveBusMarker.setLatLng([lat, lon]);
+        const tag = document.getElementById("map-live-bus-tag");
+        if (tag) tag.textContent = `${code} · ${eta} min (${seats} vagas)`;
+      }
+    }
+
+    function trackBusLocation(animate) {
+      if (liveBusMarker && leafletMap) {
+        const pos = liveBusMarker.getLatLng();
+        leafletMap.flyTo(pos, 16, { animate: true, duration: 0.7 });
+        playSimpleChime();
+        if (animate) {
+          playNaturalVoice("Rastreando o ônibus em aproximação na linha. Chegando em 4 minutos.");
+        }
+      }
+    }
+
+    function startLiveBusGlideAnimation() {
+      if (busAnimationTimer) clearInterval(busAnimationTimer);
+      let stepIndex = 0;
+
+      busAnimationTimer = setInterval(function() {
+        if (!leafletMap) return;
+        let coords = [];
+        if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.polyline) {
+          coords = window.RealTransit.activeRoute.polyline;
+        } else if (TELEMETRIA && TELEMETRIA.polyline) {
+          coords = TELEMETRIA.polyline;
+        }
+
+        if (coords.length > 5) {
+          stepIndex = (stepIndex + 1) % Math.min(30, coords.length);
+          const p = coords[stepIndex];
+          if (p && p[0] && p[1]) {
+            const eta = Math.max(1, 5 - Math.floor(stepIndex / 6));
+            updateLiveBusMarker(p[0], p[1], null, eta, 14);
+          }
+        }
+      }, 3500);
+    }
+
+    function initUserLocation() {
+      let defaultLat = -8.0475;
+      let defaultLon = -34.8980;
+
+      const savedRoutine = localStorage.getItem("grafoparada_custom_routine");
+      if (savedRoutine) {
+        try {
+          const r = JSON.parse(savedRoutine);
+          if (r.origin && r.origin.includes("Camela")) {
+            defaultLat = -8.514931;
+            defaultLon = -35.123469;
+          }
+        } catch(e) {}
+      }
+
+      updateUserLocationMarker(defaultLat, defaultLon, false);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(pos) {
+            updateUserLocationMarker(pos.coords.latitude, pos.coords.longitude, false);
+          },
+          function() {},
+          { enableHighAccuracy: true, timeout: 6000 }
+        );
+      }
+    }
+
     function initMap() {
       try {
         leafletMap = L.map("mobile-map", {
-          center: [-8.514931, -35.123469],
+          center: [-8.0475, -34.8980],
           zoom: 14,
           zoomControl: false,
           attributionControl: false
         });
 
-        // CartoDB Voyager tiles: fast Cloudflare edge, high contrast road labels, clean transit styling
-        const tileLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-          subdomains: "abcd",
-          maxZoom: 19
-        });
-        tileLayer.addTo(leafletMap);
+        // Inicia com o estilo Trânsito Clean 100% livre (sem chaves)
+        setMapTileStyle(0);
 
         routePolylineLayer = L.layerGroup().addTo(leafletMap);
         stopsMarkersLayer = L.layerGroup().addTo(leafletMap);
@@ -2380,7 +2776,11 @@
           selectStop(1, false);
         }
 
-        // Multiple invalidation passes to guarantee rendering on any screen/resize
+        // Inicializa a bolinha pulsante do usuário e a animação do ônibus
+        initUserLocation();
+        startLiveBusGlideAnimation();
+
+        // Passagens de invalidação para garantir renderização perfeita
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 100);
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 350);
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 800);

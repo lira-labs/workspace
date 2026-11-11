@@ -129,6 +129,15 @@
       // 2. Plota as Paradas Reais no Mapa
       this.renderStopMarkers(lineData.stops);
 
+      // 2.1 Sincroniza Marcador do Usuário e Ônibus ao Vivo
+      if (typeof window.connectUserToActiveStop === 'function' && window.userCurrentCoords) {
+        window.connectUserToActiveStop(window.userCurrentCoords[0], window.userCurrentCoords[1]);
+      }
+      if (typeof window.updateLiveBusMarker === 'function' && coords.length > 2) {
+        const bp = coords[Math.min(5, coords.length - 1)];
+        window.updateLiveBusMarker(bp[0], bp[1], code, 4, 14);
+      }
+
       // 3. Atualiza Elementos do DOM
       this.updateUIForLine(lineData);
 
