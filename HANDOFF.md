@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 00:00
+- **Última Atualização:** 11/11/2026 01:25
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -13,12 +13,30 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
-  - *Slides Sem2 Web*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+  - *Slides Sem2 Web (Canva Style)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+  - *Download Direto PPTX*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Transformação Completa dos Slides: Padrão Canva/Keynote (Zero AI Slop)
+- [x] **Eliminação Total da Repetição Robótica de 3 Cards**:
+  - *Diagnóstico do Usuário/Banca*: A versão anterior repetia o mesmo layout de 3 caixas cinzas arredondadas em todos os 5 slides, denunciando geração mecânica/IA automatizada sem alma.
+  - *Novo Padrão Editorial Canva*: Cada slide agora possui uma diagramação visual única, personalizada para a sua mensagem específica, com proporção widescreen 16:9 (`13.333` x `7.5` pol.), tipografia moderna (*Segoe UI / Plus Jakarta Sans*), contraste nítido em Deep Navy (`#0A0F1D`) e zero parágrafos densos (apenas frases de impacto, números e gráficos).
+- [x] **Geração de 6 Ativos Visuais em Alta Fidelidade (Pillow)**:
+  - `va2/img/mockup_app_sem2.png`: Smartphone em titânio com a interface real do GrafoParada em Camela, mapa da PE-60, ETA de 4 min, letreiro LED âmbar e banner da Central CTM.
+  - `va2/img/card_custo_medido.png`: Dashboard visual de custos reais medidos com `medir_custo_sem2.py` (4,98 ms / 12 KB no celular; 0,77 ms / 358 MB no servidor; R$ 0,00 na nuvem).
+  - `va2/img/grafico_falha_oversmoothing.png`: Gráfico do bloqueio no Trevo de Ipojuca contrastando o salto brusco de 45 min no satélite GPS contra a curva atenuada de 18 min da STGCN, expondo o over-smoothing e a trava híbrida com selo `[?]`.
+  - `va2/img/grafico_evolucao_mae.png`: Gráfico de barras comparativo mostrando a derrota no Sem1 (5 paradas: linear 2,46 min vs STGCN 4,42 min) e a virada no Sem2 (20 paradas: STGCN 1,51 min vs linear 1,93 min e persistência 7,13 min, -78% de erro).
+  - `va2/img/card_realocacao_ctm.png`: Scorecard de impacto real com os 4 pilares (14 L diesel, R$ 155,80 receita, R$ 4,10 VEM protegido, 166 bytes de rotina local privada) e ponte para o Sem3 (25/11).
+  - `va2/img/badge_linha199_ctm.png`: Identidade visual oficial da Linha 199 SJT no Consórcio Grande Recife.
+- [x] **PowerPoint (.pptx) Pronto para Apresentação**:
+  - `va2/GrafoParada_Seminario2_CauaLira.pptx` (297 KB): Arquivo nativo do PowerPoint compilado com `python-pptx`, perfeitamente alinhado com as 4 frases do aluno sem IA do roteiro `va2/sem2.md`.
+- [x] **Slides Web Interativos Sincronizados**:
+  - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html` atualizados com a mesma diagramação Canva, imagens em alta resolução, navegação suave e botão de download direto do PPTX.
+  - Deploy em produção concluído na Vercel: `https://grafoparadaweb.vercel.app`.
 
 ### 1. Rodada de Usabilidade, Geografia Autêntica e Correção de Interface (Anti-Tela Preta)
 - [x] **Diagnóstico e Correção da Tela Escura no Desktop/Mobile**:

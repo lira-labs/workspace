@@ -9,12 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
+      --bg: #0a0f1d;
       --card: #111827;
       --card-border: #1f2937;
       --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #38bdf8;
+      --blue-accent: #0284c7;
       --green: #10b981;
       --danger: #f43f5e;
       --warn: #f59e0b;
@@ -27,6 +28,8 @@
       overflow: hidden;
       height: 100vh;
       width: 100vw;
+      display: flex;
+      flex-direction: column;
     }
     .deck {
       height: 100vh;
@@ -34,24 +37,18 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 40px 60px 24px;
+      padding: 28px 48px 20px;
     }
-    .slide {
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      height: 100%;
-      gap: 24px;
-      animation: fadeIn 0.25s ease;
-    }
-    .slide.active { display: flex; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+    .top-deck-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
     }
     .tag {
       display: inline-block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -59,56 +56,125 @@
       background: rgba(56, 189, 248, 0.12);
       padding: 5px 12px;
       border-radius: 999px;
-      width: fit-content;
       border: 1px solid rgba(56, 189, 248, 0.25);
     }
+    .btn-download-pptx {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: transform 0.15s ease;
+    }
+    .btn-download-pptx:hover {
+      transform: translateY(-1px);
+    }
+    .slide {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      gap: 16px;
+      animation: fadeIn 0.25s ease;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     h1 {
-      font-size: 2.15rem;
+      font-size: 1.85rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1.2;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .card-title {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .card-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 2.05rem;
-      font-weight: 800;
       color: var(--text);
     }
-    .card-val.green { color: var(--green); }
-    .card-val.danger { color: var(--danger); }
-    .card-val.warn { color: var(--warn); }
-    .card-desc {
+    .subtitle {
       font-size: 0.95rem;
       color: var(--muted);
+      margin-top: -8px;
+    }
+
+    /* SLIDE 1 SPLIT LAYOUT */
+    .slide1-container {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: center;
+      height: 100%;
+      max-height: calc(100vh - 180px);
+    }
+    .slide1-left {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-story {
+      background: var(--card);
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .card-story-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .card-story-heading {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .card-story-desc {
+      font-size: 0.85rem;
+      color: #cbd5e1;
       line-height: 1.45;
     }
+    .slide1-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .mockup-img {
+      max-height: 480px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
+    }
+
+    /* FULL WIDTH MEDIA SLIDES */
+    .slide-media-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      max-height: calc(100vh - 180px);
+    }
+    .slide-media-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
     .footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-top: 1px solid var(--card-border);
-      padding-top: 12px;
+      padding-top: 10px;
       font-size: 0.85rem;
       color: var(--muted);
     }
@@ -126,160 +192,161 @@
 </head>
 <body>
   <div class="deck">
-    <!-- SLIDE 1: PONTA A PONTA (DEMO AO VIVO) -->
-    <div class="slide active" id="slide-1">
-      <div class="tag">Slide 1 · Ponta a Ponta ao Vivo · 80 s</div>
-      <h1>Rotina mapeada em 1 toque, voz no fone e realocação da frota no vazio</h1>
-      <div class="grid">
-        <div class="card" style="border-color: rgba(16, 185, 129, 0.4);">
-          <div class="card-title">1. Entrada & Rotina Pendular</div>
-          <div class="card-val green">📅 Rotina · 05h45</div>
-          <div class="card-desc">Janela de Saída segura (saia às 06h08). Farol Noturno anti-queima de 76px e Modo Offline Inercial na PE-60.</div>
-        </div>
-        <div class="card">
-          <div class="card-title">2. Saída na Tela e no Fone</div>
-          <div class="card-val">4 min · Plat. 04</div>
-          <div class="card-desc">Letreiro LED idêntico ao ônibus, confirmação sonora para idosos (Dona Severina) ou Modo Bolso 0 nits para estudantes.</div>
-        </div>
-        <div class="card" style="border-color: rgba(56, 189, 248, 0.4);">
-          <div class="card-title">3. Realocação CTM & VEM</div>
-          <div class="card-val" style="color:var(--accent);">Frota 178 ➔ 199</div>
-          <div class="card-desc">Central CTM remaneja ônibus vazio da Linha 178 (poupa 14 L/h de diesel) para socorrer 48 passageiros de Camela com VEM protegido.</div>
-        </div>
+    <!-- TOP DECK BAR -->
+    <div class="top-deck-bar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:18px;">🚌</span>
+        <strong style="font-size:13.5px; color:#ffffff;">GrafoParada · Seminário 2</strong>
+        <span style="font-size:11.5px; color:var(--muted);">AI4Good · UFRPE</span>
       </div>
-      <div style="font-size:0.9rem; color:var(--muted); background:var(--card); padding:10px 16px; border-radius:10px;">
-        📱 <strong>Demo rodando do repositório:</strong> <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--accent);">grafoparadaweb.vercel.app</a> · Commit <code>565321f</code>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="GrafoParada_Seminario2_CauaLira.pptx" download class="btn-download-pptx">
+          <span>📥</span> Baixar Slides (.pptx)
+        </a>
+        <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--accent); font-size:12.5px; font-weight:700; text-decoration:none;">
+          Abrir App ao Vivo ➔
+        </a>
       </div>
     </div>
 
-    <!-- SLIDE 2: QUANTO CUSTA (MEDIDO) -->
+    <!-- SLIDE 1: PONTA A PONTA (DEMO AO VIVO) -->
+    <div class="slide active" id="slide-1">
+      <div class="tag" style="color:var(--green); background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3);">
+        Slide 1 · Ponta a Ponta ao Vivo · 80 s
+      </div>
+      <h1>A Rotina dos Passageiros Orientando a Realocação da Frota no Vazio</h1>
+      <div class="subtitle">
+        Demo viva: <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--accent);">grafoparadaweb.vercel.app</a> · Commit <code>565321f</code> · Linha 199 (Camela ➔ TI Cabo)
+      </div>
+
+      <div class="slide1-container">
+        <div class="slide1-left">
+          <div class="card-story" style="border-color:var(--green);">
+            <div class="card-story-title" style="color:var(--green);">1. O Usuário Concreto & A Entrada Real</div>
+            <div class="card-story-heading">Trabalhador em Camela às 06h10 com destino ao Polo Suape</div>
+            <div class="card-story-desc">
+              1 toque no card 'Minha Rotina': Turno Suape 05h45. O GrafoParada calcula a <strong>Janela Segura de Saída (saia às 06h08)</strong> baseada na caminhada de 6 min até a parada, evitando que o passageiro fique exposto no acostamento escuro da rodovia PE-60.
+            </div>
+          </div>
+
+          <div class="card-story">
+            <div class="card-story-title" style="color:var(--accent);">2. A Saída na Tela e no Fone (Acessibilidade Universal)</div>
+            <div class="card-story-heading">Previsão exata: Linha 199 chega em 4 min (06:14) · Plat. 04</div>
+            <div class="card-story-desc">
+              Para idosos (Dona Severina, 68 anos): <strong>Letreiro LED âmbar idêntico ao ônibus</strong> + voz alta e acolhedora no fone. Para jovens: <strong>Modo Bolso Seguro (0 nits OLED)</strong> com alerta háptico discreto.
+            </div>
+          </div>
+
+          <div class="card-story" style="border-color:var(--blue-accent);">
+            <div class="card-story-title" style="color:var(--accent);">3. A Tese Central: Realocação da Frota no Vazio</div>
+            <div class="card-story-heading">48 trabalhadores cadastrados alimentam a Central CTM</div>
+            <div class="card-story-desc">
+              O despachante detecta que a Linha 178 Suape roda no vazio (3 passageiros, queima de 14 L/h de diesel) e desvia o veículo ocioso para reforçar a Linha 199: <strong>a espera em Camela cai de 18 para 4 minutos!</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide1-right">
+          <img src="img/mockup_app_sem2.png" alt="Mockup GrafoParada" class="mockup-img" />
+          <div style="font-size:0.75rem; color:var(--muted); margin-top:6px;">Interface real rodando em tempo real na PE-60</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: QUANTO CUSTA (MEDIDO VS FLX) -->
     <div class="slide" id="slide-2">
       <div class="tag">Slide 2 · Quanto Custa · Medido vs flx · 50 s</div>
-      <h1>Tempo e memória medidos no repositório com <code>medir_custo_sem2.py</code></h1>
-      <div class="grid">
-        <div class="card">
-          <div class="card-title">No Celular (FSM Cinemática v3)</div>
-          <div class="card-val green">4,98 ms · 12 KB</div>
-          <div class="card-desc">flx estimava 14,29 µs (passo simples) e 8,92 KB de RAM. Soft-Voting + cinemática rodam em < 5 ms. Zero impacto de bateria.</div>
-        </div>
-        <div class="card">
-          <div class="card-title">No Servidor (STGCN 20 Nós PE-60)</div>
-          <div class="card-val" style="color:var(--accent);">0,77 ms · 84 KB</div>
-          <div class="card-desc">flx estimava < 500 ms e ~300 MB. Inferência pura na CPU é instantânea. O processo total do PyTorch consome 358 MB.</div>
-        </div>
-        <div class="card">
-          <div class="card-title">Custo Financeiro na Escala</div>
-          <div class="card-val green">R$ 0,00</div>
-          <div class="card-desc">34.627 parâmetros. Roda em computador comum de escritório do consórcio, sem gastar nada com nuvem paga.</div>
-        </div>
+      <h1>Inferência em Menos de 1 ms e Custo Zero de Infraestrutura</h1>
+      <div class="subtitle">
+        Medição real no repositório com <code>medir_custo_sem2.py</code> · Intel Core CPU · Windows 11 · PyTorch
+      </div>
+
+      <div class="slide-media-container">
+        <img src="img/card_custo_medido.png" alt="Quadro de Custo Medido" class="slide-media-img" />
       </div>
     </div>
 
     <!-- SLIDE 3: A FALHA MOSTRADA (OVER-SMOOTHING) -->
     <div class="slide" id="slide-3">
-      <div class="tag" style="color:var(--danger); background:rgba(244,63,94,0.12); border-color:rgba(244,63,94,0.3);">Slide 3 · A Falha Mostrada de Propósito · 65 s</div>
-      <h1>Bloqueio no Trevo de Ipojuca: a STGCN espalha e suaviza o atraso</h1>
-      <div class="grid">
-        <div class="card" style="border-color:rgba(244,63,94,0.4);">
-          <div class="card-title">A Entrada Real (GPS Bruto)</div>
-          <div class="card-val danger">45 min</div>
-          <div class="card-desc">Ônibus travou no bloqueio da rodovia PE-60. O atraso no satélite salta de 5 para 45 minutos.</div>
-        </div>
-        <div class="card" style="border-color:rgba(245,158,11,0.4);">
-          <div class="card-title">A Saída da IA (Como Saiu)</div>
-          <div class="card-val warn">18 min [?]</div>
-          <div class="card-desc">Convolução espacial difunde o choque para as paradas vizinhas. Previsão mente dizendo que o ônibus tá perto.</div>
-        </div>
-        <div class="card">
-          <div class="card-title">Quem Sofre & O que Revela</div>
-          <div class="card-val">O Trabalhador</div>
-          <div class="card-desc">Operário perde o turno em Suape. Revela <em>over-smoothing</em>. Solução: selo de alerta [?] quando STGCN difere > 15 min do GPS.</div>
-        </div>
+      <div class="tag" style="color:var(--danger); background:rgba(244,63,94,0.12); border-color:rgba(244,63,94,0.3);">
+        Slide 3 · A Falha Mostrada de Propósito · 65 s
       </div>
-      <div style="font-size:0.9rem; color:var(--muted); background:var(--card); padding:10px 16px; border-radius:10px;">
-        🧪 <strong>Demonstração ao vivo no app:</strong> Botão <em>"Simular Interdição PE-60"</em> acende o alerta de falha na tela.
+      <h1>Onde a Rede Neural Mente: Super-Suavização no Bloqueio da PE-60</h1>
+      <div class="subtitle">
+        Simulação real no Trevo de Ipojuca (Km 14) · Botão interativo de simulação no app
+      </div>
+
+      <div class="slide-media-container">
+        <img src="img/grafico_falha_oversmoothing.png" alt="Gráfico da Falha de Over-smoothing" class="slide-media-img" />
       </div>
     </div>
 
     <!-- SLIDE 4: O QUE MUDOU DESDE O SEM1 -->
     <div class="slide" id="slide-4">
-      <div class="tag">Slide 4 · O que Mudou desde o Sem1 · 50 s</div>
-      <h1>De 5 para 20 paradas: STGCN comprovada e foco na rotina e inclusão</h1>
-      <div class="grid">
-        <div class="card">
-          <div class="card-title">No Sem1 (Corredor Curto 5 Paradas)</div>
-          <div class="card-val muted" style="color:var(--muted);">2,46 vs 4,42 min</div>
-          <div class="card-desc">Cálculo simples bateu a STGCN. Prometemos testar se a IA se justificava quando o sistema crescesse.</div>
-        </div>
-        <div class="card" style="border-color:rgba(16, 185, 129, 0.4);">
-          <div class="card-title">Agora no Sem2 (Malha Real 20 Paradas)</div>
-          <div class="card-val green">1,51 vs 1,93 min</div>
-          <div class="card-desc">STGCN venceu a regressão linear (1,51 vs 1,93) e reduziu 78% do erro contra a persistência (7,13 min). Confirmado!</div>
-        </div>
-        <div class="card" style="border-color:rgba(56, 189, 248, 0.4);">
-          <div class="card-title">Do Rastreador à Realocação</div>
-          <div class="card-val" style="color:var(--accent);">Rotina & Inclusão</div>
-          <div class="card-desc">Rotina dos trabalhadores orienta o despacho da frota ociosa. Acessibilidade com Letreiro LED para idosos e Modo Bolso para jovens.</div>
-        </div>
+      <div class="tag" style="color:var(--accent); background:rgba(56,189,248,0.12); border-color:rgba(56,189,248,0.3);">
+        Slide 4 · O que Mudou desde o Sem1 · 50 s
+      </div>
+      <h1>De 5 para 20 Paradas: A STGCN Virou o Jogo e Provou seu Custo</h1>
+      <div class="subtitle">
+        Validação empírica com 43 paradas e dados de telemetria do GTFS do Grande Recife
+      </div>
+
+      <div class="slide-media-container">
+        <img src="img/grafico_evolucao_mae.png" alt="Evolução Sem1 vs Sem2" class="slide-media-img" />
       </div>
     </div>
 
-    <!-- SLIDE 5: FECHO -->
+    <!-- SLIDE 5: O FECHO & EXPERIMENTO SEM3 -->
     <div class="slide" id="slide-5">
-      <div class="tag">Slide 5 · Fecho · 20 s</div>
-      <h1>A desistência na parada financia o ônibus no horário de pico</h1>
-      <div class="grid">
-        <div class="card" style="border-color:rgba(16, 185, 129, 0.4);">
-          <div class="card-title">No Aparelho do Usuário</div>
-          <div class="card-val green">Privado & Seguro</div>
-          <div class="card-desc">Rotina gravada no celular (166 bytes). Alerta calmo por voz no fone. Tela preta anti-assalto. Zero rastreamento externo.</div>
-        </div>
-        <div class="card" style="border-color:rgba(56, 189, 248, 0.4);">
-          <div class="card-title">No Consórcio Grande Recife</div>
-          <div class="card-val" style="color:var(--accent);">14 L · R$ 155 · R$ 4,10</div>
-          <div class="card-desc">Poupa 14 L de diesel por viagem ociosa evitada, preserva R$ 155 contra ligeirinhos e protege o débito indevido do VEM.</div>
-        </div>
+      <div class="tag" style="color:var(--green); background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3);">
+        Slide 5 · Fecho & Experimento de Campo · 20 s
       </div>
-      <div style="font-size:0.95rem; color:var(--text); text-align:center; margin-top:10px;">
-        No dia 25/11 (Sem3): validação experimental de campo com passageiros reais na PE-60.
+      <h1>A Desistência na Parada Financia o Ônibus no Horário de Pico</h1>
+      <div class="subtitle">
+        No dia 25/11 (Sem3): Validação de campo na PE-60 com passageiros reais testando a trava híbrida
+      </div>
+
+      <div class="slide-media-container">
+        <img src="img/card_realocacao_ctm.png" alt="Balanço Final e Conexão Sem3" class="slide-media-img" />
       </div>
     </div>
 
-    <!-- CONTROLS & FOOTER -->
+    <!-- FOOTER NAV -->
     <div class="footer">
-      <div>Cauã Lira · Tópicos Avançados em IA (AI4Good · UFRPE)</div>
+      <div>Cauã da Cunha Lira · Tópicos Avançados em IA (AI4Good · UFRPE)</div>
       <div style="display:flex; align-items:center; gap:12px;">
-        <button class="btn-nav" onclick="prevSlide()">◀ Anterior</button>
-        <span id="slide-counter" style="font-family:'JetBrains Mono',monospace; font-weight:700;">1 / 5</span>
-        <button class="btn-nav" onclick="nextSlide()">Próximo ▶</button>
+        <button class="btn-nav" id="btn-prev" onclick="prevSlide()">◀ Anterior</button>
+        <span id="slide-indicator" style="font-weight:800; color:#ffffff;">1 / 5</span>
+        <button class="btn-nav" id="btn-next" onclick="nextSlide()">Próximo ▶</button>
       </div>
-      <div>Commit: <code>565321f</code></div>
     </div>
   </div>
 
   <script>
-    let currentSlide = 1;
-    const totalSlides = 5;
+    let cur = 1;
+    const total = 5;
 
     function showSlide(n) {
       if (n < 1) n = 1;
-      if (n > totalSlides) n = totalSlides;
-      currentSlide = n;
-
-      for (let i = 1; i <= totalSlides; i++) {
-        const el = document.getElementById("slide-" + i);
-        if (el) el.classList.toggle("active", i === currentSlide);
-      }
-      document.getElementById("slide-counter").textContent = currentSlide + " / " + totalSlides;
+      if (n > total) n = total;
+      cur = n;
+      document.querySelectorAll(".slide").forEach((el, i) => {
+        el.classList.toggle("active", i + 1 === cur);
+      });
+      document.getElementById("slide-indicator").textContent = cur + " / " + total;
+      document.getElementById("btn-prev").disabled = cur === 1;
+      document.getElementById("btn-next").disabled = cur === total;
     }
 
-    function nextSlide() { showSlide(currentSlide + 1); }
-    function prevSlide() { showSlide(currentSlide - 1); }
+    function prevSlide() { showSlide(cur - 1); }
+    function nextSlide() { showSlide(cur + 1); }
 
-    window.addEventListener("keydown", function(e) {
-      if (e.key === "ArrowRight" || e.key === "Space" || e.key === "PageDown") nextSlide();
-      if (e.key === "ArrowLeft" || e.key === "PageUp") prevSlide();
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") nextSlide();
+      if (e.key === "ArrowLeft") prevSlide();
     });
+
+    showSlide(1);
   </script>
 </body>
 </html>
