@@ -1023,6 +1023,23 @@
       transform: scale(0.98);
       background: #dcfce7;
     }
+    .routine-quick-chip {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .routine-quick-chip:hover, .routine-quick-chip:active {
+      background: #ecfdf5;
+      border-color: #059669;
+      color: #065f46;
+    }
 
     /* LETREIRO DE LED FRONTAL DO COLETIVO (ACESSIBILIDADE SÊNIOR) */
     .bus-led-sign-box {
@@ -1783,56 +1800,81 @@
     </div>
 
 
-    <!-- 14. MODAL: MINHA ROTINA PENDULAR (MAPEADOR DE TURNO SEM BUROCRACIA) -->
+    <!-- 14. MODAL: MINHA ROTINA PENDULAR (PERSONALIZADOR DE PERFIL REAL) -->
     <div id="modal-routine" class="modal-overlay">
-      <div class="modal-card" style="border:2px solid #059669; max-width:400px;">
+      <div class="modal-card" style="border:2px solid #059669; max-width:440px; max-height:88vh; overflow-y:auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:22px;">📅</span>
             <div>
               <h3 style="font-size:16px; font-weight:800; color:#059669; margin:0;">Minha Rotina Pendular</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Mapeador de Turno com Zero Burocracia</span>
+              <span style="font-size:11px; color:var(--text-secondary);">Crie seu perfil real de deslocamento no Grande Recife</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeRoutineModal()">✕</button>
         </div>
 
         <p style="font-size:12px; color:#475569; margin-bottom:12px; line-height:1.4;">
-          Escolha seu turno habitual com 1 toque. O GrafoParada calcula quando sair de casa e comunica sua demanda anonimamente à Central CTM:
+          Informe onde você estuda ou trabalha e seus horários reais. O GrafoParada calcula sua <strong>Janela de Saída</strong> personalizada para não mofar no ponto e comunica sua demanda à Central CTM:
         </p>
 
-        <!-- 4 BOTOES DE TURNO -->
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
-          <button class="routine-choice-btn" id="btn-routine-suape" onclick="selectRoutinePreset('suape')" style="background:#ecfdf5; border:1.5px solid #059669; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:13px; color:#065f46;">🏭 Turno Indústria Suape</strong>
-              <span style="font-size:11px; font-weight:800; background:#059669; color:#ffffff; padding:2px 8px; border-radius:999px;">05h45</span>
+        <!-- FORMULÁRIO PERSONALIZADO DO USUÁRIO -->
+        <div style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:14px; padding:12px; margin-bottom:12px;">
+          <!-- 1. ONDE VOCÊ TRABALHA OU ESTUDA -->
+          <div style="margin-bottom:10px;">
+            <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+              🏢 1. Onde você trabalha ou estuda?
+            </label>
+            <input type="text" id="inp-custom-dest" class="field-input" placeholder="Ex: UFRPE Dois Irmãos, UFPE, Derby, Porto Digital..." value="UFRPE · Campus Dois Irmãos" style="background:#ffffff; border-color:#86efac; font-weight:700;" />
+            <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;">
+              <button type="button" class="routine-quick-chip" onclick="setQuickDest('UFRPE · Campus Dois Irmãos', '07:30', 'Seg a Sex', 'Derby / Rui Barbosa')">🎓 UFRPE (Dois Irmãos)</button>
+              <button type="button" class="routine-quick-chip" onclick="setQuickDest('UFPE · Campus Recife', '07:45', 'Seg a Sex', 'TI CDU / Várzea')">🏛️ UFPE (CDU)</button>
+              <button type="button" class="routine-quick-chip" onclick="setQuickDest('Porto Digital · Recife Antigo', '08:30', 'Seg a Sex', 'Boa Viagem')">💻 Porto Digital</button>
+              <button type="button" class="routine-quick-chip" onclick="setQuickDest('Hosp. da Restauração · Derby', '06:30', 'Plantão 12x36', 'Caxangá')">🏥 HR / Derby</button>
+              <button type="button" class="routine-quick-chip" onclick="setQuickDest('Complexo Suape · Porto', '05:45', 'Seg a Sex', 'Camela')">🏭 Suape</button>
             </div>
-            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ TI Cabo / Suape · Entrada no posto às 07h00. 48 passageiros.</div>
-          </button>
+          </div>
 
-          <button class="routine-choice-btn" id="btn-routine-comercio" onclick="selectRoutinePreset('comercio')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:13px; color:#0f172a;">🛍️ Turno Comércio / Centro</strong>
-              <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">07h30</span>
+          <!-- 2. FREQUÊNCIA DE ÔNIBUS -->
+          <div style="margin-bottom:10px;">
+            <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+              🚌 2. Com que frequência você pega ônibus?
+            </label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+              <label style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:6px 8px; font-size:11px; font-weight:700; color:#334155; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="radio" name="custom-routine-freq" value="Seg a Sex" checked /> Diariamente (Seg-Sex)
+              </label>
+              <label style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:6px 8px; font-size:11px; font-weight:700; color:#334155; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="radio" name="custom-routine-freq" value="Plantão 12x36" /> Plantão (12x36)
+              </label>
+              <label style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:6px 8px; font-size:11px; font-weight:700; color:#334155; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="radio" name="custom-routine-freq" value="Híbrido (2-3x)" /> Híbrido (2 a 3x/sem)
+              </label>
+              <label style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:6px 8px; font-size:11px; font-weight:700; color:#334155; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="radio" name="custom-routine-freq" value="Esporádico" /> Esporádico / Noite
+              </label>
             </div>
-            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ Centro do Cabo / Shopping Costa Dourada · Entrada às 08h30.</div>
-          </button>
+          </div>
 
-          <button class="routine-choice-btn" id="btn-routine-noturno" onclick="selectRoutinePreset('noturno')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:13px; color:#0f172a;">🎓 Estudante Universitário / Noite</strong>
-              <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">17h40</span>
+          <!-- 3. HORÁRIO E ORIGEM -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+            <div>
+              <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+                ⏰ 3. Hora de Chegada:
+              </label>
+              <input type="time" id="inp-custom-time" class="field-input" value="07:30" style="background:#ffffff; border-color:#86efac; font-weight:800;" />
             </div>
-            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ TI Cabo / Fachuca / UFRPE · Volta às 22h30.</div>
-          </button>
+            <div>
+              <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+                📍 4. Onde você embarca:
+              </label>
+              <input type="text" id="inp-custom-origin" class="field-input" placeholder="Seu bairro/parada" value="Derby / Rui Barbosa" style="background:#ffffff; border-color:#86efac; font-weight:700;" />
+            </div>
+          </div>
 
-          <button class="routine-choice-btn" id="btn-routine-saude" onclick="selectRoutinePreset('saude')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-size:13px; color:#0f172a;">🏥 Turno Plantão Saúde (12x36)</strong>
-              <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">06h30</span>
-            </div>
-            <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ UPA Ipojuca / Hosp. Mendo Sampaio · Plantão das 07h às 19h.</div>
+          <!-- BOTAO ATIVAR PERFIL PERSONALIZADO -->
+          <button class="btn-primary" onclick="applyCustomRoutineProfile()" style="background:#059669; font-weight:800; font-size:13.5px; padding:11px; margin-top:4px;">
+            ✨ Salvar Meu Perfil de Rotina
           </button>
         </div>
 
@@ -1844,7 +1886,7 @@
           <div>
             • <strong>Detecção Automática:</strong> O celular reconhece permanência habitual na parada (> 2,5 min) em dias úteis.<br>
             • <strong>Convergência Rápida:</strong> Em <strong>3 dias úteis</strong>, a IA local consolida seu centróide de embarque sem você precisar digitar nada.<br>
-            • <strong>Proteção no Bolso:</strong> Calcula sua <strong>Janela Segura de Saída</strong> e avisa por voz/vibração no fone sem expor o aparelho em paradas escuras.<br>
+            • <strong>Proteção no Bolso:</strong> Calcula sua <strong>Janela de Saída</strong> e avisa por voz/vibração no fone sem expor o aparelho em paradas escuras.<br>
             • <strong>Privacidade LGPD:</strong> 100% processado no celular (&lt; 1 KB local). <strong>Zero envio</strong> de histórico de GPS para a nuvem.
           </div>
         </div>
@@ -1853,10 +1895,51 @@
           ⚡ <strong>Previsão de Demanda para a Central CTM:</strong> Ao salvar seu turno, a Central sabe exatamente quantas pessoas precisam embarcar na sua parada sem você precisar abrir o app com antecedência!
         </div>
 
-        <button class="btn-primary" onclick="confirmRoutineChoice()" style="background:#059669; margin-bottom:8px;">
-          Salvar Minha Rotina
-        </button>
-        <button class="btn-secondary" onclick="closeRoutineModal()">Cancelar</button>
+        <!-- MODELOS DE TESTE PRE-CONFIGURADOS (ACCORDION) -->
+        <details style="background:#f8fafc; border:1px dashed #94a3b8; border-radius:12px; padding:8px 12px; margin-bottom:12px;">
+          <summary style="font-size:11.5px; font-weight:800; color:#0369a1; cursor:pointer;">
+            ⚡ Ou escolha um turno de demonstração rápida (Suape, Comércio, UFRPE, Plantão)
+          </summary>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+            <button class="routine-choice-btn" id="btn-routine-suape" onclick="selectRoutinePreset('suape')" style="background:#ecfdf5; border:1.5px solid #059669; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:13px; color:#065f46;">🏭 Turno Indústria Suape</strong>
+                <span style="font-size:11px; font-weight:800; background:#059669; color:#ffffff; padding:2px 8px; border-radius:999px;">05h45</span>
+              </div>
+              <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ TI Cabo / Suape · Entrada no posto às 07h00. 48 trabalhadores.</div>
+            </button>
+
+            <button class="routine-choice-btn" id="btn-routine-comercio" onclick="selectRoutinePreset('comercio')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:13px; color:#0f172a;">🛍️ Turno Comércio / Centro</strong>
+                <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">07h30</span>
+              </div>
+              <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ Centro do Cabo / Shopping Costa Dourada · Entrada às 08h30.</div>
+            </button>
+
+            <button class="routine-choice-btn" id="btn-routine-noturno" onclick="selectRoutinePreset('noturno')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:13px; color:#0f172a;">🎓 Estudante Universitário / Noite</strong>
+                <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">17h40</span>
+              </div>
+              <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ TI Cabo / Fachuca / UFRPE · Volta às 22h30.</div>
+            </button>
+
+            <button class="routine-choice-btn" id="btn-routine-saude" onclick="selectRoutinePreset('saude')" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; text-align:left; cursor:pointer;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:13px; color:#0f172a;">🏥 Turno Plantão Saúde (12x36)</strong>
+                <span style="font-size:11px; font-weight:800; background:#64748b; color:#ffffff; padding:2px 8px; border-radius:999px;">06h30</span>
+              </div>
+              <div style="font-size:11px; color:#475569; margin-top:2px;">Camela ➔ UPA Ipojuca / Hosp. Mendo Sampaio · Plantão das 07h às 19h.</div>
+            </button>
+
+            <button class="btn-primary" onclick="confirmRoutineChoice()" style="background:#0284c7; margin-top:6px;">
+              Carregar Este Modelo de Teste
+            </button>
+          </div>
+        </details>
+
+        <button class="btn-secondary" onclick="closeRoutineModal()">Fechar</button>
       </div>
     </div>
 
@@ -2843,6 +2926,26 @@
       if (lineBadge && u.line) {
         lineBadge.textContent = u.line === "199" ? "199 · Camela / Cabo" : "Linha " + u.line;
       }
+
+      // Restaura perfil de rotina personalizado se existir
+      const savedRoutine = localStorage.getItem("grafoparada_custom_routine");
+      if (savedRoutine) {
+        try {
+          const r = JSON.parse(savedRoutine);
+          const titleEl = document.getElementById("routine-title-desc");
+          const adviceEl = document.getElementById("routine-advice-desc");
+          const tagEl = document.getElementById("routine-tag-pill");
+          const pillEl = document.getElementById("label-routine-pill");
+          if (titleEl && r.origin && r.dest) titleEl.textContent = `${r.origin} ➔ ${r.dest}`;
+          if (tagEl && r.freq && r.time) tagEl.textContent = `${r.freq} · Chegada ${r.time}`;
+          if (pillEl && r.time) pillEl.textContent = `Rotina: ${r.time}`;
+          if (adviceEl && r.saia && r.bus) {
+            adviceEl.innerHTML = `💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia às <strong>${r.saia}</strong> para pegar o coletivo das <strong>${r.bus}</strong> sem mofar no ponto.`;
+          }
+          if (workSub && r.dest) workSub.textContent = r.dest.split("·")[0].split("(")[0].trim() + " · 24 min";
+          if (homeSub && r.origin) homeSub.textContent = r.origin.split("·")[0].split("(")[0].trim() + " · 4 min";
+        } catch(e) {}
+      }
     }
 
     function getUserData() {
@@ -3226,6 +3329,76 @@
         audio: "Rotina de plantão de saúde selecionada. Bom plantão!"
       }
     };
+
+    function setQuickDest(dest, time, freq, origin) {
+      const destEl = document.getElementById("inp-custom-dest");
+      const timeEl = document.getElementById("inp-custom-time");
+      const origEl = document.getElementById("inp-custom-origin");
+      if (destEl) destEl.value = dest;
+      if (timeEl && time) timeEl.value = time.replace("h", ":");
+      if (origEl && origin) origEl.value = origin;
+
+      const radios = document.getElementsByName("custom-routine-freq");
+      for (let r of radios) {
+        if (r.value === freq) r.checked = true;
+      }
+      playSimpleChime();
+    }
+
+    function applyCustomRoutineProfile() {
+      const dest = (document.getElementById("inp-custom-dest")?.value || "UFRPE · Campus Dois Irmãos").trim();
+      const origin = (document.getElementById("inp-custom-origin")?.value || "Derby / Rui Barbosa").trim();
+      const time = document.getElementById("inp-custom-time")?.value || "07:30";
+
+      let freq = "Seg a Sex";
+      const radios = document.getElementsByName("custom-routine-freq");
+      for (let r of radios) {
+        if (r.checked) freq = r.value;
+      }
+
+      // Cálculo inteligente da Janela Segura de Saída
+      const parts = time.split(":");
+      let targetH = parseInt(parts[0], 10) || 7;
+      let targetM = parseInt(parts[1], 10) || 30;
+      let arrivalMin = targetH * 60 + targetM;
+
+      // Estimativa de percurso: ~36 min de viagem + 6 min de caminhada até a parada
+      let busDepartureMin = arrivalMin - 36;
+      if (busDepartureMin < 0) busDepartureMin += 1440;
+      let walkOutMin = busDepartureMin - 6;
+      if (walkOutMin < 0) walkOutMin += 1440;
+
+      const saiaH = String(Math.floor(walkOutMin / 60)).padStart(2, "0");
+      const saiaM = String(walkOutMin % 60).padStart(2, "0");
+      const busH = String(Math.floor(busDepartureMin / 60)).padStart(2, "0");
+      const busM = String(busDepartureMin % 60).padStart(2, "0");
+
+      const titleEl = document.getElementById("routine-title-desc");
+      const adviceEl = document.getElementById("routine-advice-desc");
+      const tagEl = document.getElementById("routine-tag-pill");
+      const pillEl = document.getElementById("label-routine-pill");
+
+      if (titleEl) titleEl.textContent = `${origin} ➔ ${dest}`;
+      if (tagEl) tagEl.textContent = `${freq} · Chegada ${time}`;
+      if (pillEl) pillEl.textContent = `Rotina: ${time}`;
+      if (adviceEl) {
+        adviceEl.innerHTML = `💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia às <strong>${saiaH}:${saiaM}</strong> para pegar o coletivo das <strong>${busH}:${busM}</strong> sem mofar no ponto.`;
+      }
+
+      // Atualiza os botões de viagem rápida
+      const workCard = document.getElementById("work-card-sub");
+      if (workCard) workCard.textContent = dest.split("·")[0].split("(")[0].trim() + " · 24 min";
+      const homeCard = document.getElementById("home-card-sub");
+      if (homeCard) homeCard.textContent = origin.split("·")[0].split("(")[0].trim() + " · 4 min";
+
+      // Salva no localStorage para persistência
+      const customProfile = { dest, origin, time, freq, saia: `${saiaH}:${saiaM}`, bus: `${busH}:${busM}` };
+      localStorage.setItem("grafoparada_custom_routine", JSON.stringify(customProfile));
+
+      playSimpleChime();
+      playNaturalVoice(`Perfil de rotina personalizado salvo com sucesso para ${dest}. Sua Janela de Saída foi calculada para as ${saiaH} horas e ${saiaM} minutos.`);
+      closeRoutineModal();
+    }
 
     function openRoutineModal() {
       document.getElementById("modal-routine").style.display = "flex";

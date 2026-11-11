@@ -36,6 +36,13 @@
   - *Janela Segura de Saída*: Cruza caminhada a pé com previsão ST-GCN e diz a hora exata de sair de casa (ex: 06h08 em vez de 05h45), encurtando a espera em pontos escuros de 35 min para 5 min.
   - *Modo Bolso Seguro (0 Nits + Fone + Vibração)*: Alerta por voz no fone e vibração háptica tátil quando o ônibus está a 3 min, sem precisar tirar o celular do bolso em áreas de risco.
   - *Farol Noturno Anti-Queima*: Tela em alto contraste piscante para sinalizar ao motorista em rodovias não iluminadas.
+- [x] **Construtor de Perfil de Rotina Real (Fim do Nicho Engessado)**:
+  - Substituído o menu rígido de 4 botões estáticos por um assistente de rotina interativo:
+    1. *Onde trabalha/estuda*: Campo aberto com sugestões inteligentes de 1 toque (UFRPE Dois Irmãos, UFPE CDU, Porto Digital, HR Derby, Suape).
+    2. *Frequência de ônibus*: Diariamente (Seg-Sex), Plantão (12x36), Híbrido (2-3x/sem) ou Esporádico.
+    3. *Horário de chegada e Ponto de partida*: Cálculo algorítmico da Janela de Saída personalizada para o percurso do usuário.
+    4. *Persistência Real*: Salvo em `localStorage` com feedback em áudio neural.
+    5. *Preservação de Compatibilidade*: Modelos pré-configurados mantidos em sanfona/accordion expansível para testes de demonstração rápida (20/20 PASS).
 - [x] **Alimentação Coletiva da Central CTM**:
   - Emissão de contagem anônima agregada ($k$-anônima, $k \ge 3$) indicando volume de rotinas ativas no corredor.
   - Elimina a censura da catraca tradicional e alimenta a ST-GCN para estimar demanda latente ($\hat{D} = 41 \pm 3{,}8$) e acionar reforço antes da superlotação.
