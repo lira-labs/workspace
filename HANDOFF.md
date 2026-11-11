@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 14:15
+- **Última Atualização:** 11/11/2026 14:30
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -12,7 +12,7 @@
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
-  - *Google Drive (Celular/Web)*: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx`
+  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
@@ -22,6 +22,30 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Adequação Rigorosa ao Peer Review Acadêmico (Revisão Claude · 7 Pontos Críticos)
+- [x] **Ponto 1 · Rótulos Honestos de Protótipo e Simulação**:
+  - Removidas alegações infladas ("GPS Satélite Ativo", "Zero Ônibus Fantasma") que o CTM não sustenta.
+  - Substituídas pelo selo explícito no topo: `🔬 Protótipo Acadêmico · Malha GTFS Real + Modelo ST-GCN` e badge de telemetria `📡 Telemetria ST-GCN · Malha GTFS Oficial CTM (Simulação Acadêmica)`.
+- [x] **Ponto 2 · Personas e Critérios de Projeto**:
+  - Modal renomeado de "Auditoria de Usabilidade · Retestes de Campo · Aprovado" para `Personas & Critérios de Projeto · Metas de Acessibilidade & Usabilidade (WCAG AAA)`.
+  - Personas Dona Severina (68), Lucas (21) e Severino Fiscal identificadas com badges de `Critério de Projeto (Design Target)`.
+- [x] **Ponto 3 · Conformidade Legal e Tarifária Fidedigna**:
+  - *Lei Estadual 15.878/2016*: Enquadramento estrito ao texto legal (desembarque seguro entre 22h e 05h para mulheres e pessoas com deficiência ou mobilidade reduzida no STPP/RMR).
+  - *Tarifa e Janela VEM*: Valor oficial fixado em R$ 4,10 (Anel A) e janela temporal oficial de 120 minutos.
+- [x] **Ponto 4 · Propostas de Integração Operacional (Sem Falsas Promessas)**:
+  - Proteção contra dupla cobrança, ressarcimento e despacho de reserva rotulados explicitamente como *Proposta de Integração Operacional CTM/Concessionárias*.
+- [x] **Ponto 5 · Proteção de Dados (LGPD) e Identificador Simulado**:
+  - Retirada qualquer solicitação de CPF ou consulta externa a cadastro real; substituído por `Matrícula ou Identificador Simulado (Fictício)` (`UFRPE-TESTE-2026`) e botão direto `⚡ Entrar Rápido (Demonstração do Protótipo)`.
+- [x] **Ponto 6 · Evidenciação do Núcleo Matemático (Catraca vs Rotina vs ST-GCN)**:
+  - O modal da Central CTM (`modal-dispatch`) agora detalha o cálculo da decisão:
+    - *Demanda Observada (SBE/Catraca)*: 12 embarques (dado censurado).
+    - *Rotinas Pendulares Declaradas*: 26 passageiros com alarme ativo no trecho.
+    - *Demanda Latente Estimada (ST-GCN)*: $38 \pm 4$ passageiros aguardando na parada (capacidade de 36 assentos esgotada).
+    - *Detecção de Ociosidade*: Linha concorrente com 3 passageiros (6% ocupação, 14 L/h diesel desperdiçado).
+    - *Regra Algorítmica de Despacho*: `SE (Demanda Latente > Lotação Máxima) E (Linha Concorrente < 15%) ENTAO Sugerir Remanejamento`.
+- [x] **Ponto 7 · Limpeza Visual da Gaveta e Foco no Seminário**:
+  - Controles secundários (Farol Noturno, Radar de Alagamento, Lei Parada Segura, Queima de Parada) agrupados dentro de `<details>` expansível (`🛠️ Recursos Complementares & Trabalhos Futuros`), mantendo a gaveta enxuta e focada nas 4 frases do Seminário 2.
 
 ### 1. Eliminação Total de Mocks e Cobertura de 100% das Linhas Reais do Grande Recife
 - [x] **Compilação Completa do GTFS Oficial do Grande Recife CTM (`compilar_rede_real_gtfs.py`)**:

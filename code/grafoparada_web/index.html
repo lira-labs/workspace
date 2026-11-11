@@ -1078,36 +1078,24 @@
   <div class="desktop-outer-bar">
     <div class="badge-title">
       <span>📱</span>
-      <span>GrafoParada · Grande Recife Metropolitano (400 Linhas CTM & Cittamobi Live)</span>
-      <span style="font-size:11px; background:rgba(5,150,105,0.25); color:#34d399; padding:2px 8px; border-radius:999px; border:1px solid rgba(5,150,105,0.4);">Seminário 2 Live</span>
+      <span>GrafoParada · Mobilidade Inteligente Grande Recife</span>
+      <span style="font-size:11px; background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:999px; border:1px solid #fde68a; font-weight:800;">🔬 Protótipo Acadêmico · Malha GTFS Real + Modelo ST-GCN</span>
     </div>
     <div style="display:flex; gap:8px;">
       <button class="btn-desktop-action" onclick="window.RealTransit.openLinePickerModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
-        <span>🚌</span> 400 Linhas do Recife
+        <span>🚌</span> 400 Linhas GTFS
       </button>
       <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
         <span>📅</span> Minha Rotina (Turnos)
       </button>
       <button class="btn-desktop-action" onclick="openSeiTerminalsModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
-        <span>🏛️</span> 35 Terminais SEI
+        <span>🏛️</span> 44 Terminais SEI
       </button>
-<button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
-        <span>🏛️</span> Central CTM (Realocação de Frota)
+      <button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
+        <span>🏛️</span> Central CTM (Demanda Latente & Despacho)
       </button>
       <button class="btn-desktop-action" onclick="openAuditModal()" style="background:rgba(16,185,129,0.25); border-color:#34d399;">
-        <span>🧪</span> Auditoria (Idosos vs Jovens)
-      </button>
-      <button class="btn-desktop-action" onclick="activateNightBeacon()" style="background:rgba(250,204,21,0.2); border-color:#facc15; color:#fef08a;">
-        <span>💡</span> Farol Noturno (Anti-Queima)
-      </button>
-      <button class="btn-desktop-action" onclick="openVemModal()" style="background:rgba(14,165,233,0.2); border-color:#38bdf8;">
-        <span>⏱️</span> Integração VEM (2h)
-      </button>
-      <button class="btn-desktop-action" onclick="openSafeDisembarkModal()" style="background:rgba(168,85,247,0.2); border-color:#c084fc; color:#f3e8ff;">
-        <span>🌙</span> Lei Parada Segura (22h)
-      </button>
-      <button class="btn-desktop-action" onclick="toggleFloodAlertSimulation()" style="background:rgba(6,182,212,0.2); border-color:#67e8f9; color:#cffafe;">
-        <span>🌊</span> Radar Alagamento & Desvios
+        <span>👥</span> Personas & Acessibilidade
       </button>
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
         <span>🔄</span> Testar do Zero
@@ -1306,13 +1294,13 @@
             </div>
           </div>
 
-          <!-- TRUST BADGES -->
+          <!-- TRUST BADGES (ACADEMIC PROTOTYPE) -->
           <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
             <div id="badge-gps-status" style="font-size:11.5px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-              <span>🛰️</span> GPS Satélite Ativo · CTM Grande Recife (Zero Ônibus Fantasma)
+              <span>📡</span> Telemetria ST-GCN · Malha GTFS Oficial CTM (Simulação Acadêmica)
             </div>
             <div style="font-size:11.5px; background:var(--blue-bg); color:var(--blue-accent); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-              <span>💺</span> 16 assentos livres · Embarque Sentado Garantido
+              <span>💺</span> Estimativa de Lotação Baseada na Rotina dos Passageiros
             </div>
           </div>
 
@@ -1326,13 +1314,13 @@
               <span style="font-size:11.5px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 25m restantes</span>
             </div>
             <div style="font-size:11px; color:#334155; margin-top:5px; line-height:1.35;" id="vem-status-desc">
-              ✅ <strong>Gratuidade Assegurada:</strong> Com a Linha 522 chegando em 4 min, você desembarcará com <strong>42 min de folga</strong> no cartão VEM. Tarifa na catraca: <strong>R$ 0,00</strong>.
+              ✅ <strong>Proposta de Integração:</strong> Com a Linha 522 chegando em 4 min, você desembarcará com <strong>42 min de folga</strong> no cartão VEM. Tarifa na catraca: <strong>R$ 0,00</strong>.
             </div>
           </div>
 
-                    <!-- LETREIRO AMIGO IDENTICO AO ÔNIBUS (ACESSIBILIDADE SÊNIOR) -->
+          <!-- LETREIRO AMIGO IDENTICO AO ÔNIBUS (ACESSIBILIDADE SÊNIOR) -->
           <div class="bus-led-sign-box" onclick="speakSeniorDirections()">
-            <div class="bus-led-sign-header">LETREIRO FRONTAL DO COLETIVO:</div>
+            <div class="bus-led-sign-header">LETREIRO FRONTAL DO COLETIVO (SÊNIOR):</div>
             <div class="bus-led-sign-display">
               <span class="led-line-number" id="led-line-number">522</span>
               <span class="led-line-dest" id="led-destination-line">522 DOIS IRMÃOS (RUI BARBOSA E PRÍNCIPE)</span>
@@ -1342,58 +1330,47 @@
             </div>
           </div>
 
-          <!-- BOTÃO GIGANTE DE CONFIRMAÇÃO POR VOZ PARA IDOSOS -->
-          <button class="btn-senior-voice-big" onclick="speakSeniorDirections()">
-            <span>🔊</span> OUVIR EM VOZ ALTA (CONFIRMAR EMBARQUE)
-          </button>
+          <!-- BOTÕES PRIMÁRIOS DO SEMINÁRIO 2 -->
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+            <!-- HERO ACTION 1: MODO BOLSO SEGURO -->
+            <button class="hero-btn-pocket" onclick="activatePocketShield()" style="margin:0;">
+              <span>🎧</span> ATIVAR MODO CELULAR NO BOLSO
+            </button>
 
-          <!-- BANNER MODO OFFLINE INERCIAL -->
-          <div id="offline-inertial-banner" style="display:none; background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:10px; margin-bottom:8px; font-size:11.5px; color:#92400e; line-height:1.4;">
-            📶 <strong>MODO OFFLINE INERCIAL ATIVO:</strong> Sem cobertura 4G no Km 12 (Engenho Mercês). Estimativa mantida pelo histórico local do grafo (STGCN).
+            <!-- HERO ACTION 2: CONFIRMAÇÃO POR VOZ PARA IDOSOS -->
+            <button class="btn-senior-voice-big" onclick="speakSeniorDirections()" style="margin:0;">
+              <span>🔊</span> OUVIR EM VOZ ALTA (CONFIRMAR EMBARQUE)
+            </button>
+
+            <!-- HERO ACTION 3: DEMO DA FALHA DA IA (SLIDE 3) -->
+            <button class="btn-demo-failure" onclick="simulateSlide3Failure()" style="margin:0; background:#fef2f2; color:#b91c1c; border:1.5px solid #fca5a5;">
+              <span>🧪</span> Simular Choque / Interdição na Via (Demonstração da Falha · Sem2)
+            </button>
           </div>
 
-          <!-- BOTÃO SIMULAR OFFLINE NA PE-60 -->
-          <button class="btn-demo-failure" onclick="toggleOfflineInertialSimulation()" style="background:#fffbeb; color:#b45309; border-color:#fde68a;">
-            <span>📶</span> Simular Queda de Sinal 4G (Modo Offline Inercial)
-          </button>
-
-          <!-- BOTÃO FAROL NOTURNO DE EMBARQUE (ANTI-QUEIMA DE PARADA) -->
-          <button class="btn-night-beacon" onclick="activateNightBeacon()">
-            <span>💡</span> ATIVAR FAROL NOTURNO (SINAL PRO MOTORISTA)
-          </button>
-
-          <!-- BOTÃO SIMULAR QUEIMA DE PARADA -->
-          <button class="btn-demo-queima" onclick="simulateQueimaDeParada()">
-            <span>🚨</span> Simular Queima de Parada (Motorista Passou Direto)
-          </button>
-
-          <!-- BANNER DE ALAGAMENTO PE-60 -->
-          <div id="flood-alert-banner" class="flood-alert-banner"></div>
-
-          <!-- BOTÃO DESEMBARQUE SEGURO NOTURNO (LEI ESTADUAL 15.878) -->
-          <button class="btn-safe-disembark" onclick="openSafeDisembarkModal()">
-            <span>🌙</span> Desembarque Noturno (Lei Estadual nº 15.878)
-          </button>
-
-          <!-- BOTÃO RADAR DE ALAGAMENTO & DESVIOS PE-60 -->
-          <button class="btn-flood-radar" onclick="toggleFloodAlertSimulation()">
-            <span>🌊</span> Radar Alagamento & Pane (Desvios na Rodovia)
-          </button>
-
-          <!-- BUTTON TO SIMULATE THE SLIDE 3 FAILURE REAL -->
-          <button class="btn-demo-failure" onclick="simulateSlide3Failure()">
-            <span>🧪</span> Simular Interdição PE-60 (Demonstração da Falha · Sem2)
-          </button>
-
-          <!-- HERO ACTION: POCKET MODE AUDIO -->
-          <button class="hero-btn-pocket" onclick="activatePocketShield()">
-            <span>🎧</span> ATIVAR MODO CELULAR NO BOLSO
-          </button>
-
-          <!-- VOICE READING FOR SENIOR MODE -->
-          <button class="btn-senior-voice" id="btn-senior-voice-action" onclick="speakSeniorDirections()">
-            <span>🔊</span> OUVIR EM VOZ ALTA (LEITURA CLARA)
-          </button>
+          <!-- RECURSOS EXPERIMENTAIS & TRABALHOS FUTUROS (COLAPSADOS) -->
+          <details style="margin-top:10px; background:var(--bg-page); border:1px solid var(--border-color); border-radius:10px; padding:8px 10px;">
+            <summary style="font-size:11.5px; font-weight:800; color:var(--text-secondary); cursor:pointer;">
+              🛠️ Recursos Experimentais & Trabalhos Futuros (Expandir)
+            </summary>
+            <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+              <button class="btn-night-beacon" onclick="activateNightBeacon()" style="margin:0;">
+                <span>💡</span> Farol Noturno (Sinal Luminoso pro Motorista)
+              </button>
+              <button class="btn-demo-queima" onclick="simulateQueimaDeParada()" style="margin:0;">
+                <span>🚨</span> Registro de Queima de Parada (Telemetria Simulada)
+              </button>
+              <button class="btn-safe-disembark" onclick="openSafeDisembarkModal()" style="margin:0;">
+                <span>🌙</span> Desembarque Noturno (Lei Estadual nº 15.878)
+              </button>
+              <button class="btn-flood-radar" onclick="toggleFloodAlertSimulation()" style="margin:0;">
+                <span>🌊</span> Radar Alagamento & Desvios
+              </button>
+              <button class="btn-demo-failure" onclick="toggleOfflineInertialSimulation()" style="margin:0; background:#fffbeb; color:#b45309; border-color:#fde68a;">
+                <span>📶</span> Simular Queda 4G (Modo Offline Inercial)
+              </button>
+            </div>
+          </details>
         </div>
 
         <!-- STOPS LIST ACCORDION (VISIBLE WHEN EXPANDED) -->
@@ -1522,27 +1499,27 @@
         <div style="font-size:12px; font-weight:700; color:var(--brand-green); margin-bottom:14px;">Grande Recife · Inteligência Artificial CTM</div>
 
         <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-bottom:18px;">
-          Chega de esperar ônibus fantasma. Previsão real de chegada, assento livre garantido e proteção no bolso.
+          Protótipo acadêmico para previsão preditiva (ST-GCN) sobre a malha oficial do GTFS Grande Recife, acessibilidade por voz e modo bolso seguro.
         </p>
 
         <div style="display:flex; flex-direction:column; gap:8px; text-align:left; margin-bottom:20px; font-size:12px;">
           <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
-            <span>🛰️</span> <strong>Zero Ônibus Fantasma:</strong> Telemetria e ST-GCN real.
+            <span>📡</span> <strong>Previsão ST-GCN:</strong> Modelo preditivo sobre dados do GTFS CTM.
           </div>
           <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
-            <span>💺</span> <strong>Sentado Garantido:</strong> Lotação antes de embarcar.
+            <span>💺</span> <strong>Estimativa de Lotação:</strong> Mapeamento da demanda pendular.
           </div>
           <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
-            <span>🛡️</span> <strong>Modo Bolso:</strong> Não tire o celular na parada.
+            <span>🛡️</span> <strong>Modo Bolso Seguro:</strong> Tela escura no fone para segurança.
           </div>
         </div>
 
-        <button class="btn-primary" onclick="showOnboardingRegistration()" style="margin-bottom:8px;">
-          🚀 Criar Minha Conta (Primeiro Acesso)
+        <button class="btn-primary" onclick="enterAsQuickGuest()" style="margin-bottom:8px;">
+          ⚡ Entrar Rápido (Demonstração do Protótipo)
         </button>
 
-        <button class="btn-secondary" onclick="enterAsQuickGuest()">
-          ⚡ Entrar Rápido (Demonstração Cauã)
+        <button class="btn-secondary" onclick="showOnboardingRegistration()">
+          📝 Personalizar Perfil de Teste (Opcional)
         </button>
       </div>
 
@@ -1550,18 +1527,19 @@
       <div id="onboarding-step-form" class="modal-card" style="max-width:370px; padding:20px; display:none;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
           <button style="border:none; background:none; font-size:18px; cursor:pointer;" onclick="showOnboardingSplash()">←</button>
-          <h3 style="font-size:17px; font-weight:800;">Cadastro do Passageiro</h3>
+          <h3 style="font-size:17px; font-weight:800;">Perfil de Teste (Simulador)</h3>
         </div>
 
         <form onsubmit="handleOnboardingSubmit(event)">
           <div class="field-group">
-            <label class="field-label">Nome Completo:</label>
+            <label class="field-label">Nome do Usuário:</label>
             <input type="text" id="inp-name" class="field-input" placeholder="Seu nome" value="Cauã Cunha" required />
           </div>
 
           <div class="field-group">
-            <label class="field-label">CPF (Validação CTM / VEM):</label>
-            <input type="tel" inputmode="numeric" id="inp-cpf" class="field-input" maxlength="14" oninput="formatCpf(this)" value="084.721.904-12" required />
+            <label class="field-label">Identificador Simulado (Fictício):</label>
+            <input type="text" id="inp-cpf" class="field-input" maxlength="20" value="UFRPE-TESTE-2026" />
+            <div style="font-size:10.5px; color:#64748b; margin-top:3px;">🔒 Protótipo Acadêmico · Nenhum dado pessoal é transmitido (LGPD).</div>
           </div>
 
           <div class="field-group">
@@ -1881,52 +1859,62 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:22px;">🏛️</span>
             <div>
-              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Central CTM · Realocação</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Balanceamento da Frota no Vazio (PE-60)</span>
+              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Central CTM · Despacho Operacional</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Proposta de Integração · Algoritmo ST-GCN</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeDispatchModal()">✕</button>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
-          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:10px;">
-            <div style="font-size:10.5px; font-weight:800; color:#dc2626; text-transform:uppercase;">Linha 178 Suape</div>
-            <div style="font-size:18px; font-weight:800; color:#dc2626; margin:3px 0;">3 passageiros</div>
-            <div style="font-size:11px; color:#475569; line-height:1.3;">6% ocupação (No Vazio). 14 L de diesel/h desperdiçados.</div>
-          </div>
-
-          <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px;">
-            <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha 199 Camela</div>
-            <div style="font-size:18px; font-weight:800; color:#059669; margin:3px 0;">38 aguardando</div>
-            <div style="font-size:11px; color:#475569; line-height:1.3;">Demanda reprimida na PE-60. Risco de fuga para ligeirinho.</div>
+        <!-- O MÉTODO: DEMANDA OBSERVADA VS DEMANDA LATENTE ESTIMADA -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:10px;">
+          <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo do Método: Demanda Não-Censurada</div>
+          <div style="font-size:11px; color:#334155; line-height:1.45;">
+            • <strong>Catraca / SBE (Observada):</strong> 12 embarques no ciclo anterior (dado censurado: quem desiste no ponto escuro não passa na catraca).<br>
+            • <strong>Minha Rotina Pendular:</strong> 26 passageiros com rotina ativa para esta janela horária.<br>
+            • <strong>Demanda Latente ST-GCN:</strong> <strong>38 ± 4 passageiros</strong> aguardando ao longo das paradas (demanda supera a capacidade sentada de 36).
           </div>
         </div>
 
-        <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:12px; padding:12px; margin-bottom:14px;">
-          <div style="font-size:11px; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:4px;">
-            ⚡ Decisão Algorítmica STGCN:
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
+          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:10px;">
+            <div style="font-size:10.5px; font-weight:800; color:#dc2626; text-transform:uppercase;">Linha Ociosa (Ex: 178)</div>
+            <div style="font-size:17px; font-weight:800; color:#dc2626; margin:3px 0;">3 passageiros</div>
+            <div style="font-size:10.5px; color:#475569; line-height:1.3;">6% ocupação (Deadheading no Vazio). Desperdício de diesel.</div>
           </div>
-          <div style="font-size:12.5px; font-weight:700; color:#0f172a; line-height:1.4;">
-            Transferir coletivo ocioso 178-04 para a Linha 199 e antecipar partida no TI Cabo em 10 minutos.
+
+          <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px;">
+            <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha Sobrecarregada</div>
+            <div style="font-size:17px; font-weight:800; color:#059669; margin:3px 0;">38 estimados</div>
+            <div style="font-size:10.5px; color:#475569; line-height:1.3;">Demanda latente reprimida. Risco de evasão para transporte clandestino.</div>
+          </div>
+        </div>
+
+        <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:12px; padding:10px; margin-bottom:12px;">
+          <div style="font-size:10.5px; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:3px;">
+            ⚡ Regra de Decisão do Despacho Operacional:
+          </div>
+          <div style="font-size:11.5px; font-weight:700; color:#0f172a; line-height:1.4;">
+            Se Demanda Latente > Capacidade Sentada E Linha Ociosa < 15% Ocupação ➔ Sugerir remanejamento de coletivo para reforço da rota.
           </div>
         </div>
 
         <button class="btn-primary" onclick="executeFleetReallocation()" style="margin-bottom:8px; background:#0284c7;">
-          ⚡ Executar Realocação de Frota Agora
+          🧪 Simular Proposta de Despacho Operacional
         </button>
         <button class="btn-secondary" onclick="closeDispatchModal()">Fechar</button>
       </div>
     </div>
 
-    <!-- 9. MODAL: AUDITORIA DE USABILIDADE & RETESTES (PERSONAS REAIS) -->
+    <!-- 9. MODAL: PERSONAS & CRITÉRIOS DE PROJETO -->
     <div id="modal-audit" class="modal-overlay">
       <div class="modal-card" style="border:2px solid #059669; max-width:410px; max-height:85vh; overflow-y:auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:22px;">🧪</span>
+            <span style="font-size:22px;">👥</span>
             <div>
-              <h3 style="font-size:16px; font-weight:800; color:#059669; margin:0;">Auditoria de Usabilidade</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Retestes de Campo · Todas as Idades</span>
+              <h3 style="font-size:16px; font-weight:800; color:#059669; margin:0;">Personas & Critérios de Projeto</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Metas de Acessibilidade & Usabilidade (WCAG AAA)</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeAuditModal()">✕</button>
@@ -1935,38 +1923,42 @@
         <!-- PERSONA 1 -->
         <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:12px; margin-bottom:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="font-size:13px; color:#0f172a;">👵 Dona Severina (68 anos · Camela)</strong>
-            <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;">Aprovado</span>
+            <strong style="font-size:13px; color:#0f172a;">👵 Dona Severina (68 anos · Idosa / Baixa Visão)</strong>
+            <span style="font-size:10px; font-weight:800; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">Critério de Projeto</span>
           </div>
           <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
-            • <strong>Desafio:</strong> Baixa visão e tremor nos dedos no ponto.<br>
-            • <strong>Resultado no GrafoParada:</strong> Modo Fácil ativado. Contraste 9.2:1 (WCAG AAA), toque em botão gigante de 72px, instrução falada alta no fone em 1.8s. Zero necessidade de dar zoom no mapa.
+            • <strong>Necessidade:</strong> Dificuldade para ler telas pequenas e tremor ao tocar no ponto.<br>
+            • <strong>Critério Implementado:</strong> Modo Fácil (`Aa`) com contraste 9.2:1 (WCAG AAA), letreiro LED idêntico ao ônibus físico e botão de confirmação em voz alta (TTS).
           </div>
         </div>
 
         <!-- PERSONA 2 -->
         <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:12px; margin-bottom:10px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="font-size:13px; color:#0f172a;">🧑‍🦱 Lucas (21 anos · Suape)</strong>
-            <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;">Aprovado</span>
+            <strong style="font-size:13px; color:#0f172a;">🧑‍🦱 Lucas (21 anos · Deslocamento Noturno)</strong>
+            <span style="font-size:10px; font-weight:800; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">Critério de Projeto</span>
           </div>
           <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
-            • <strong>Desafio:</strong> Parada escura na PE-60 às 22h40 (medo de assalto).<br>
-            • <strong>Resultado no GrafoParada:</strong> Modo Bolso com tela 100% preta (0 nits), alerta tátil por vibração (< 2 min), voz discreta no fone. Proteção máxima sem expor o aparelho.
+            • <strong>Necessidade:</strong> Espera em parada escura ou ermas às 22h40 (risco de furto/assalto).<br>
+            • <strong>Critério Implementado:</strong> Modo Bolso Seguro (tela 100% preta com 0 nits para não atrair atenção), orientação discreta por fone de ouvido e vibração tátil ao aproximar.
           </div>
         </div>
 
         <!-- PERSONA 3 -->
         <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:12px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="font-size:13px; color:#0f172a;">👮 Fiscal Severino (54 anos · TI Cabo)</strong>
-            <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;">Aprovado</span>
+            <strong style="font-size:13px; color:#0f172a;">👮 Fiscal / Operador CTM (54 anos · Regulação)</strong>
+            <span style="font-size:10px; font-weight:800; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; padding:2px 8px; border-radius:999px;">Critério de Projeto</span>
           </div>
           <div style="font-size:11.5px; color:#475569; margin-top:4px; line-height:1.4;">
-            • <strong>Desafio:</strong> Ônibus rodando vazio enquanto linhas suburbanas superlotam.<br>
-            • <strong>Resultado no GrafoParada:</strong> STGCN detecta 38 passageiros reprimidos vs Linha 178 vazia. Ordem de despacho emitida em 12 segundos. Economia de 14 L de diesel por viagem.
+            • <strong>Necessidade:</strong> Identificar linhas ociosas no vazio e remanejar oferta para corredores saturados.<br>
+            • <strong>Critério Implementado:</strong> Painel de balanceamento baseado na demanda latente não-censurada, mitigando queima desnecessária de diesel em deadheading.
           </div>
         </div>
+
+        <button class="btn-primary" onclick="closeAuditModal()" style="background:#059669;">Concluir Inspeção</button>
+      </div>
+    </div>
 
         <button class="btn-primary" onclick="closeAuditModal()" style="background:#059669;">Concluir Inspeção</button>
       </div>
@@ -2012,19 +2004,19 @@
         </div>
 
         <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.6; color:#881337;">
-          <div><strong>• Linha:</strong> 199 - Camela / Cabo (SJT)</div>
-          <div><strong>• Coletivo:</strong> Veículo CTM 199-04 (Placa PE-4912)</div>
-          <div><strong>• Local:</strong> Parada 030613 · Terminal de Camela</div>
+          <div><strong>• Linha:</strong> 522 - Dois Irmãos (UFRPE)</div>
+          <div><strong>• Coletivo (Simulado):</strong> Veículo CTM 04 (Placa Fictícia: BRA-0X00)</div>
+          <div><strong>• Local:</strong> Parada 100035 · Av. Manoel de Medeiros</div>
           <div><strong>• Velocidade no Ponto:</strong> 44 km/h (Passou direto sem parar)</div>
-          <div><strong>• Registro de Satélite:</strong> 10/11/2026 às 22h41m12s</div>
+          <div><strong>• Registro Telemétrico:</strong> Simulação de evento de tráfego</div>
         </div>
 
         <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:14px;">
-          O motorista ignorou os passageiros no abrigo. O GrafoParada gerou a prova técnica completa para a Ouvidoria do CTM.
+          Simulação de registro para auditoria operacional. Em caso real, o canal oficial para protocolo é a Ouvidoria do Consórcio Grande Recife.
         </p>
 
         <button class="btn-primary" onclick="sendQueimaWhatsAppReport()" style="background:#e11d48; margin-bottom:8px;">
-          📲 Denunciar no WhatsApp CTM (81 99488-3999)
+          📲 Canal Informativo CTM (WhatsApp 81 99488-3999)
         </button>
         <button class="btn-secondary" onclick="closeQueimaModal()">Fechar</button>
       </div>
@@ -2038,7 +2030,7 @@
             <span style="font-size:22px;">⏱️</span>
             <div>
               <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Integração Temporal VEM</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Regulamento CTM · Janela de 120 Minutos</span>
+              <span style="font-size:11px; color:var(--text-secondary);">Regulamento CTM · Janela de até 120 Minutos</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeVemModal()">✕</button>
@@ -2046,13 +2038,13 @@
 
         <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5;">
           <div style="font-weight:800; color:#0369a1; margin-bottom:4px;">Como funciona a proteção:</div>
-          <div>1. Seu cartão VEM foi debitado às <strong>21h35</strong> no primeiro embarque.</div>
-          <div>2. A gratuidade de baldeação no TI Cabo é válida até às <strong>23h35</strong>.</div>
-          <div>3. Previsão de chegada no TI Cabo pela STGCN: <strong>22h57</strong> (Folga de 38 minutos).</div>
+          <div>1. Seu cartão VEM foi debitado na tarifa básica (R$ 4,10) no primeiro embarque.</div>
+          <div>2. A gratuidade de baldeação em terminais integrados (SEI) é válida por até <strong>120 minutos</strong>.</div>
+          <div>3. Previsão de chegada no destino pela STGCN com folga de <strong>42 minutos</strong>.</div>
         </div>
 
         <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px; margin-bottom:14px; font-size:11.5px; color:#065f46;">
-          🛡️ <strong>Seguro Contra Dupla Cobrança:</strong> Se o ônibus atrasar por culpa da rodovia e a janela expirar, o GrafoParada emite automaticamente o <em>Atestado Digital de Atraso</em> para reembolso do débito de R$ 4,10 na Central do CTM.
+          ⏱️ <strong>Monitoramento da Janela (Proposta de Integração):</strong> O sistema acompanha a janela de até 120 minutos do cartão VEM e emite alerta antecipado caso congestionamentos na via ameacem expirar a gratuidade da baldeação.
         </div>
 
         <button class="btn-primary" onclick="closeVemModal()" style="background:#0284c7;">Entendido</button>
@@ -2075,7 +2067,7 @@
         </div>
 
         <div style="background:#fdf4ff; border:1px solid #f0abfc; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5; color:#581c87;">
-          <strong>Seu Direito Legal:</strong> Entre <strong>22h e 05h</strong> (e em qualquer horário para PcD/idosos), você tem o direito garantido de desembarcar em qualquer local mais iluminado e seguro no itinerário do ônibus, mesmo fora do ponto oficial.
+          <strong>Direito Assegurado:</strong> Conforme a Lei Estadual nº 15.878/2016 (PE), mulheres e pessoas com deficiência ou mobilidade reduzida têm o direito de solicitar desembarque em local seguro e iluminado ao longo do itinerário, entre <strong>22h e 05h</strong>, nas linhas do Sistema Metropolitano (STPP/RMR).
         </div>
 
         <!-- CARTÃO VISUAL PARA MOSTRAR AO MOTORISTA -->
@@ -2083,7 +2075,7 @@
           <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#e2e8f0; margin-bottom:4px;">
             Mostre esta tela ao motorista / cobrador:
           </div>
-          <div style="font-size:18px; font-weight:900; line-height:1.25;">
+          <div style="font-size:17px; font-weight:900; line-height:1.25;">
             "MOTORISTA, PEÇO DESEMBARQUE SEGURO NESTE PONTO ILUMINADO (LEI ESTADUAL Nº 15.878/2016). OBRIGADO!"
           </div>
         </div>
@@ -2103,22 +2095,22 @@
             <span style="font-size:24px;">🌊</span>
             <div>
               <h3 style="font-size:16px; font-weight:800; color:#0891b2; margin:0;">Radar Alagamento & Pane</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Monitoramento Crítico PE-60 / Cabo</span>
+              <span style="font-size:11px; color:var(--text-secondary);">Simulação de Incidentes em Corredores Metropolitanos</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeFloodModal()">✕</button>
         </div>
 
         <div style="background:#ecfeff; border:1px solid #a5f3fc; border-radius:12px; padding:12px; margin-bottom:12px; font-size:12px; line-height:1.5; color:#164e63;">
-          <div><strong>• Trecho Crítico:</strong> PE-60 (km 14 · Próximo ao Trevo de Suape)</div>
-          <div><strong>• Lâmina d'Água Detectada:</strong> 35 cm (Impassível para coletivos baixos)</div>
-          <div><strong>• Desvio Automático:</strong> Linha 199 desviada 800m via via marginal asfaltada.</div>
-          <div><strong>• Parada Provisória:</strong> Em frente à UPA de Ipojuca com iluminação.</div>
+          <div><strong>• Ponto Crítico Monitorado:</strong> Corredor com histórico de retenção pluvial</div>
+          <div><strong>• Lâmina d'Água Simulada:</strong> 35 cm (Inadequada para coletivos comuns)</div>
+          <div><strong>• Desvio Sugerido:</strong> Rota alternativa via via marginal asfaltada.</div>
+          <div><strong>• Ponto Alternativo:</strong> Ponto seguro provisório em via iluminada.</div>
         </div>
 
         <!-- PROTOCOLO DE SOCORRO DE TRANSBORDO -->
         <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:10px; margin-bottom:12px; font-size:11.5px; color:#991b1b; line-height:1.4;">
-          <strong>🚨 Protocolo Anti-Abandono (Crise da Frota):</strong> Em caso de pane mecânica no meio da rodovia, o GrafoParada despacha automaticamente o veículo reserva do TI Cabo para resgate imediato dos passageiros.
+          <strong>🚨 Protocolo Operacional Sugerido:</strong> Em caso de pane ou retenção severa, o sistema sugere à Central CTM o redirecionamento de coletivo de suporte para transbordo preventivo.
         </div>
 
         <button class="btn-primary" onclick="simulateTransbordoRescue()" style="background:#0891b2; margin-bottom:8px;">
@@ -2593,8 +2585,8 @@
         etaNum.textContent = "4";
         badgeGps.style.background = "var(--brand-green-bg)";
         badgeGps.style.color = "var(--brand-green-dark)";
-        badgeGps.innerHTML = '<span>🛰️</span> GPS Satélite Ativo · 42 km/h na PE-60 (Zero Ônibus Fantasma)';
-        playNaturalVoice("Simulação finalizada. Retornando ao fluxo padrão da Linha 199.");
+        badgeGps.innerHTML = '<span>📡</span> Telemetria ST-GCN · Malha GTFS Oficial CTM (Simulação Acadêmica)';
+        playNaturalVoice("Simulação de interdição finalizada. Retornando ao fluxo padrão do corredor.");
       }
     }
 
@@ -2603,29 +2595,30 @@
       const isHome = target === "home";
       const u = getUserData();
 
-      if (activeRouteCode !== "199") {
-        activeRouteCode = "199";
-        TELEMETRIA = TELEMETRIA_199;
-        drawRoute(TELEMETRIA);
-      }
-
       document.getElementById("view-sheet-resting").style.display = "none";
       const activeView = document.getElementById("view-sheet-active");
       activeView.classList.add("visible");
 
       const sheet = document.getElementById("main-bottom-sheet");
-      sheet.style.maxHeight = "360px";
+      sheet.style.maxHeight = "380px";
 
-      const headerEl = document.getElementById("active-trip-header");
-      if (headerEl) headerEl.textContent = isHome ? "🏠 Rota para Casa · Camela" : "💼 Rota para Destino · TI Cabo";
+      if (window.RealTransit && window.RealTransit.activeRoute) {
+        const r = window.RealTransit.activeRoute;
+        const headerEl = document.getElementById("active-trip-header");
+        if (headerEl) headerEl.textContent = `🚌 Linha ${r.code} · ${r.name}`;
 
-      const totalEl = document.getElementById("live-total-trip");
-      if (totalEl) totalEl.textContent = isHome ? "38 min" : "32 min";
+        const totalEl = document.getElementById("live-total-trip");
+        if (totalEl) totalEl.textContent = isHome ? "28 min" : "32 min";
 
-      const etaSub = document.getElementById("live-eta-sub");
-      if (etaSub) etaSub.textContent = isHome ? "Encosta às 06:14 · Plataforma 04" : "Encosta às 06:14 · Terminal Camela";
+        const etaSub = document.getElementById("live-eta-sub");
+        if (etaSub) etaSub.textContent = `Encosta às 06:14 · Plataforma Oficial`;
 
-      const voiceMsg = isHome
+        const voiceMsg = isHome
+          ? `Viagem iniciada para sua residência via Linha ${r.code}. Próximo ônibus em 4 minutos.`
+          : `Viagem iniciada para o seu destino via Linha ${r.code}. Próximo ônibus em 4 minutos.`;
+        playNaturalVoice(voiceMsg);
+        return;
+      }
         ? "Traçando rota para sua Casa em Camela. Primeiro ônibus da Linha 199 chegando em 4 minutos na Plataforma 04. Viagem estimada em 38 minutos com assento garantido."
         : "Traçando rota para seu destino no TI Cabo. Primeiro ônibus da Linha 199 passando em 4 minutos. Tempo previsto de 32 minutos.";
 
@@ -2963,7 +2956,7 @@
 
       const bannerR = document.getElementById("resting-reallocation-banner");
       const bannerA = document.getElementById("active-reallocation-banner");
-      const msg = "✨ <strong>FROTA REFORÇADA PELO CTM!</strong> 1 ônibus extra foi transferido da Linha 178 (vazia) para a Linha 199 com base na demanda da sua parada!";
+      const msg = "🧪 <strong>SIMULAÇÃO DE DESPACHO (PROPOSTA CTM):</strong> Recomendação algorítmica ST-GCN gerada: remanejar coletivo ocioso para absorver a demanda latente estimada no trecho.";
       if (bannerR) { bannerR.innerHTML = msg; bannerR.style.display = "block"; }
       if (bannerA) { bannerA.innerHTML = msg; bannerA.style.display = "block"; }
 
@@ -2974,7 +2967,7 @@
         navigator.vibrate([200, 100, 200, 100, 400]);
       }
       playSimpleChime();
-      playNaturalVoice("Atenção! O Consórcio Grande Recife acabou de remanejar um ônibus extra da Linha 178 para atender a demanda de passageiros da sua parada. Ele chega em 4 minutos na Plataforma 4.");
+      playNaturalVoice("Simulação de despacho operacional executada. O modelo preditivo gerou a recomendação algorítmica de reforço de frota para a Central reguladora do CTM.");
     }
 
     // ==========================================

@@ -1,7 +1,7 @@
 /**
- * GrafoParada · Real Transit Engine (Grande Recife Metropolitano)
- * Dados 100% Reais: GTFS Oficial CTM (393 Linhas com Shapes e Paradas Reais) + Cittamobi API ao Vivo (a=202)
- * Zero Mock · Cobertura Metropolitana Completa.
+ * GrafoParada · Transit Engine (Grande Recife Metropolitano)
+ * Base GTFS Oficial CTM (393 Linhas com Shapes e Paradas Oficiais) + Modelo ST-GCN + Cittamobi API (a=202)
+ * Protótipo Acadêmico de Pesquisa · UFRPE AI4Good.
  */
 
 (function(window) {
