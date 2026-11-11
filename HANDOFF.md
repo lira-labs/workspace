@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 16:10
+- **Última Atualização:** 11/11/2026 16:18
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -27,7 +27,20 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Novo Fluxo Blindado de Deploy & Desacoplamento de Branches
+### 1. Eliminação Definitiva da Marca d'Água "API KEY REQUIRED" (Substituição por Esri)
+- [x] **Diagnóstico da Marca d'Água Carto**:
+  - A opção anterior de modo claro/escuro utilizava o CDN da Carto (`basemaps.cartocdn.com`), que recentemente passou a estampar marcas d'água "API KEY REQUIRED" sobre as imagens do mapa caso nenhuma credencial paga seja informada.
+  - O modo satélite funcionava perfeitamente porque já utilizava os servidores abertos da Esri ArcGIS (`server.arcgisonline.com`).
+- [x] **Migração 100% para a Suíte Esri (Zero Chaves / Zero Watermark)**:
+  - Substituídos todos os endpoints Carto pelos servidores públicos e ultra-rápidos da Esri:
+    1. 🗺️ **Modo Ruas & Trânsito Urbano**: `World_Street_Map` (ruas, bairros, paradas e avenidas com nitidez máxima).
+    2. 🛰️ **Modo Satélite Real**: `World_Imagery` (fotografia aérea em alta definição).
+    3. 🌙 **Modo Noturno Neon**: `World_Dark_Gray_Base` (fundo grafite ideal para contraste com linhas e ônibus).
+    4. 🏙️ **Modo Clean Minimalista**: `World_Light_Gray_Base` (fundo cinza neutro e sem poluição visual).
+  - Configurado `maxNativeZoom` para permitir aproximação sem erros de tile inexistente.
+  - Validado via `pre_flight_check.py` e implantado em produção em `grafoparadaweb.vercel.app`.
+
+### 2. Novo Fluxo Blindado de Deploy & Desacoplamento de Branches
 - [x] **Adoção Integral da Arquitetura Vercel + GitHub + Main Protegida**:
   - Abandonada a branch com nome legado de outra matéria (`feature/if-2va-pqc-telessaude`).
   - Criada a branch canônica `feature/grafoparada-dev` sincronizada com `origin/feature/grafoparada-dev`.
