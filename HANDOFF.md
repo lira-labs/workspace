@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 15:45
+- **Última Atualização:** 11/11/2026 16:00
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -27,7 +27,18 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Mapa Inovador, Vivo e 100% Livre (Zero Chaves / Sem Bloqueios)
+### 1. Diagnóstico e Resolução Definitiva do Bug do Mapa (PC e Mobile)
+- [x] **Causa Raiz Identificada e Corrigida**:
+  - Na linha 3205 de `index.html`, uma expressão ternária órfã (`? "Traçando rota..." : "Traçando rota..."`) sem o identificador `const voiceMsg = isHome` provocava um erro de sintaxe fatal (`Uncaught SyntaxError: Unexpected token '?'`) durante o carregamento inicial.
+  - No motor JavaScript (V8 / WebKit), erros de sintaxe no bloco inline abortam a interpretação de todo o script: a função `initMap()` e o listener `DOMContentLoaded` nunca chegavam a ser executados, deixando a `div#mobile-map` vazia e cinzenta.
+  - A sintaxe foi corrigida e blindada. Validada via compilador `node -e "new vm.Script(code)"` confirmando 100% de integridade sintática.
+- [x] **Resiliência de Inicialização do Leaflet e Controles Globais**:
+  - Implementada verificação defensiva em `initMap()` com retry assíncrono caso o CDN do Leaflet tenha latência de rede (`typeof L === "undefined"`).
+  - Exportadas explicitamente para o escopo global `window` todas as funções de controle e coordenadas (`window.userCurrentCoords`, `window.leafletMap`, `window.recenterOnUser`, `window.trackBusLocation`, `window.cycleMapStyle`, `window.zoomMapIn`, `window.zoomMapOut`, `window.updateLiveBusMarker`, `window.connectUserToActiveStop`), garantindo interoperabilidade total com `real_transit_engine.js`.
+- [x] **Deploy Imediato na Branch de Produção (`main`)**:
+  - O commit com a correção foi mesclado e enviado para a branch `main`, sincronizando o build em produção na Vercel (`https://grafoparadaweb.vercel.app`).
+
+### 2. Mapa Inovador, Vivo e 100% Livre (Zero Chaves / Sem Bloqueios)
 - [x] **Eliminação Total de Exigência de Chaves / Tokens**:
   - Camadas de mapa 100% livres e abertas (Carto Positron, Carto Dark Matter e Esri World Imagery Satellite via CDN rápida Fastly/Cloudflare sem restrições ou chaves).
   - Seletor de visual com 1 clique: 🗺️ **Modo Trânsito Clean**, 🌙 **Modo Noturno Neon** e 🛰️ **Modo Satélite Real**.
@@ -44,7 +55,7 @@
   - 🗺️ *Alternar Estilo*: troca cíclica entre Clean, Noturno e Satélite.
   - ＋ / － *Zoom Tátil*: botões de vidro responsivos.
 
-### 2. Incorporação Rigorosa do Peer Review do ChatGPT
+### 3. Incorporação Rigorosa do Peer Review do ChatGPT
 - [x] **Viés de Amostragem do Aplicativo ($D_{\text{real}} \neq D_{\text{app}}$)**:
   - Adotada a formulação recomendada: o sinal dos celulares não é tratado como censo, mas como *“sinal complementar de intenção de deslocamento, agregado e anonimizado ($k$-anônimo), usado como proxy para recuperar parte da demanda invisível à bilhetagem”*.
 - [x] **Três Níveis Metodológicos Claros**:

@@ -2576,6 +2576,7 @@
     function updateUserLocationMarker(lat, lon, animate) {
       if (!leafletMap) return;
       userCurrentCoords = [lat, lon];
+      window.userCurrentCoords = userCurrentCoords;
 
       const userIcon = L.divIcon({
         className: "user-leaflet-div",
@@ -2756,12 +2757,22 @@
 
     function initMap() {
       try {
+        if (typeof L === "undefined") {
+          console.warn("Leaflet library not ready, retrying in 150ms...");
+          setTimeout(initMap, 150);
+          return;
+        }
+        if (leafletMap) return;
+        const mapContainer = document.getElementById("mobile-map");
+        if (!mapContainer) return;
+
         leafletMap = L.map("mobile-map", {
           center: [-8.0475, -34.8980],
           zoom: 14,
           zoomControl: false,
           attributionControl: false
         });
+        window.leafletMap = leafletMap;
 
         // Inicia com o estilo Trânsito Clean 100% livre (sem chaves)
         setMapTileStyle(0);
@@ -2792,6 +2803,18 @@
         console.error("Leaflet map init error:", err);
       }
     }
+
+    // Exposição global das funções para interoperação robusta
+    window.recenterOnUser = recenterOnUser;
+    window.recenterGpsTarget = recenterGpsTarget;
+    window.trackBusLocation = trackBusLocation;
+    window.cycleMapStyle = cycleMapStyle;
+    window.setMapTileStyle = setMapTileStyle;
+    window.zoomMapIn = zoomMapIn;
+    window.zoomMapOut = zoomMapOut;
+    window.updateLiveBusMarker = updateLiveBusMarker;
+    window.updateUserLocationMarker = updateUserLocationMarker;
+    window.connectUserToActiveStop = connectUserToActiveStop;
 
     function drawRoute(telemetria) {
       if (!leafletMap) return;
@@ -3202,6 +3225,8 @@
         playNaturalVoice(voiceMsg);
         return;
       }
+
+      const voiceMsg = isHome
         ? "Traçando rota para sua Casa em Camela. Primeiro ônibus da Linha 199 chegando em 4 minutos na Plataforma 04. Viagem estimada em 38 minutos com assento garantido."
         : "Traçando rota para seu destino no TI Cabo. Primeiro ônibus da Linha 199 passando em 4 minutos. Tempo previsto de 32 minutos.";
 
