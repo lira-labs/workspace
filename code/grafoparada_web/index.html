@@ -1097,6 +1097,9 @@
       <button class="btn-desktop-action" onclick="openAuditModal()" style="background:rgba(16,185,129,0.25); border-color:#34d399;">
         <span>👥</span> Personas & Acessibilidade
       </button>
+      <button class="btn-desktop-action" onclick="openDataOriginModal()" style="background:rgba(245,158,11,0.2); border-color:#fbbf24; color:#fef3c7;">
+        <span>🔬</span> Origem dos Dados (Transparência)
+      </button>
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
         <span>🔄</span> Testar do Zero
       </button>
@@ -1867,13 +1870,18 @@
         </div>
 
         <!-- O MÉTODO: DEMANDA OBSERVADA VS DEMANDA LATENTE ESTIMADA -->
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:10px;">
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:8px;">
           <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo do Método: Demanda Não-Censurada & ST-GCN</div>
           <div style="font-size:11px; color:#334155; line-height:1.45;">
             • <strong>Catraca / SBE (Observada):</strong> 14 embarques médios históricos (dado censurado: ignora passageiros que desistem antes ou evadem).<br>
             • <strong>Rotina Pendular On-Device:</strong> 19 passageiros com alarme ativo no corredor (~42% de adesão amostral; 8 coincidem com a catraca, sem dupla contagem).<br>
             • <strong>Demanda Latente ST-GCN (D̂):</strong> <strong>41 ± 3,8 passageiros</strong> aguardando (IC 90% via calibração conformal: [37, 45] passageiros).
           </div>
+        </div>
+
+        <!-- FLUXO MATEMÁTICO EM UMA LINHA -->
+        <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:10px; padding:7px 8px; margin-bottom:10px; font-size:10px; color:#0369a1; font-weight:700; text-align:center; line-height:1.4;">
+          📡 Sinais Observados ➔ 🧠 ST-GCN infere D̂ ➔ 📊 IC 90% [37, 45] ➔ 🎲 P(D &gt; 36) = 98,4% ➔ 🚨 Decisão de Despacho
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
@@ -1960,7 +1968,60 @@
       </div>
     </div>
 
-        <button class="btn-primary" onclick="closeAuditModal()" style="background:#059669;">Concluir Inspeção</button>
+    <!-- 9B. MODAL: ORIGEM DOS DADOS & TRANSPARÊNCIA METODOLÓGICA -->
+    <div id="modal-data-origin" class="modal-overlay">
+      <div class="modal-card" style="border:2px solid #f59e0b; max-width:420px; max-height:85vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:22px;">🔬</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:#b45309; margin:0;">Origem dos Dados & Rigor</h3>
+              <span style="font-size:11px; color:var(--text-secondary);">Transparência Acadêmica (Real vs Simulado)</span>
+            </div>
+          </div>
+          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeDataOriginModal()">✕</button>
+        </div>
+
+        <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:10px; margin-bottom:12px; font-size:11.5px; color:#92400e; line-height:1.45;">
+          <strong>Declaração Metodológica:</strong> Separamos com rigor o que foi extraído de fontes governamentais abertas do que foi gerado em ambiente de simulação.
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:14px; text-align:left;">
+          <thead>
+            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+              <th style="padding:8px; color:#1e293b; font-weight:800;">Componente</th>
+              <th style="padding:8px; color:#1e293b; font-weight:800;">Origem dos Dados</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:8px; font-weight:700; color:#334155;">Paradas, linhas e trajetos</td>
+              <td style="padding:8px; color:#059669; font-weight:700;">✅ GTFS oficial CTM Grande Recife (393 linhas, 15.239 paradas)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:8px; font-weight:700; color:#334155;">Horários programados</td>
+              <td style="padding:8px; color:#059669; font-weight:700;">✅ GTFS oficial (stop_times.txt)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:8px; font-weight:700; color:#334155;">Atrasos e retenções</td>
+              <td style="padding:8px; color:#d97706; font-weight:700;">⚠️ Dados sintéticos (difusão espaço-temporal via matriz Laplaciana)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:8px; font-weight:700; color:#334155;">Demanda latente do exemplo</td>
+              <td style="padding:8px; color:#0284c7; font-weight:700;">ℹ️ Estimativa ilustrativa de apoio à decisão (IC 90%)</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; font-weight:700; color:#334155;">Telemetria contínua real</td>
+              <td style="padding:8px; color:#dc2626; font-weight:700;">🔒 Não disponível publicamente pelo consórcio CTM</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:10px; font-size:11px; color:#475569; line-height:1.4; margin-bottom:12px;">
+          <strong>Protocolo Experimental da ST-GCN:</strong> Split temporal 58% treino (70 casos) / 42% teste (50 casos) sem vazamento. ST-GCN (1,51 min) vs Regressão OLS achatada (1,93 min) vs Persistência (7,13 min). O ganho decorre da parcimônia em rede frente a 120 variáveis lineares.
+        </div>
+
+        <button class="btn-secondary" onclick="closeDataOriginModal()">Fechar</button>
       </div>
     </div>
 
@@ -2970,6 +3031,12 @@
     }
     function closeAuditModal() {
       document.getElementById("modal-audit").style.display = "none";
+    }
+    function openDataOriginModal() {
+      document.getElementById("modal-data-origin").style.display = "flex";
+    }
+    function closeDataOriginModal() {
+      document.getElementById("modal-data-origin").style.display = "none";
     }
 
 

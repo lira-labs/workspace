@@ -324,20 +324,63 @@
     </div>
   </div>
 
-  <!-- BANCA CÉTICA -->
-  <div class="qa-box">
-    <h3>🛡️ Respostas Rápidas para a Banca Cética:</h3>
+  <!-- TABELA DE TRANSPARÊNCIA: ORIGEM DOS DADOS -->
+  <div class="qa-box" style="border-left-color: #f59e0b; margin-top:24px;">
+    <h3 style="color:#b45309;">🔬 Transparência Metodológica · Origem dos Dados</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:0.85rem; margin-top:10px;">
+      <thead>
+        <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; text-align:left;">
+          <th style="padding:8px;">Componente</th>
+          <th style="padding:8px;">Origem dos Dados</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:8px; font-weight:700;">Paradas, linhas e trajetos</td>
+          <td style="padding:8px; color:#059669; font-weight:700;">✅ GTFS oficial CTM Grande Recife (393 linhas, 15.239 paradas)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:8px; font-weight:700;">Horários programados</td>
+          <td style="padding:8px; color:#059669; font-weight:700;">✅ GTFS oficial (stop_times.txt)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:8px; font-weight:700;">Atrasos e retenções</td>
+          <td style="padding:8px; color:#d97706; font-weight:700;">⚠️ Dados sintéticos (difusão espaço-temporal via Laplaciana)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:8px; font-weight:700;">Demanda latente do exemplo</td>
+          <td style="padding:8px; color:#0284c7; font-weight:700;">ℹ️ Estimativa ilustrativa do protótipo (IC 90%)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; font-weight:700;">Telemetria contínua real</td>
+          <td style="padding:8px; color:#dc2626; font-weight:700;">🔒 Não disponível publicamente pelo consórcio CTM</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- BANCA CÉTICA: AS 4 PERGUNTAS DECISIVAS -->
+  <div class="qa-box" style="margin-top:20px;">
+    <h3>🛡️ Respostas Prontas para as 4 Perguntas Difíceis da Banca:</h3>
+
     <div class="qa-item">
-      <div class="qa-q">1. "Se a IA errou no congestionamento prevendo 18 min em vez de 45 min, por que não usar só o GPS puro?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "O GPS só sabe onde o ônibus está agora, ele não prevê atrasos futuros provocados pela propagação do fluxo nas paradas seguintes. A STGCN prevê o fluxo normal com erro baixíssimo de 1,51 min. A trava entra apenas como segurança em casos atípicos de choque brusco."</div>
+      <div class="qa-q">1. "Se os dados são sintéticos, por que a ST-GCN venceu a regressão linear?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "A ST-GCN venceu porque resolve a maldição da dimensionalidade. Em 5 paradas (Sem1), uma reta simples tinha apenas 10 variáveis e aprendeu com facilidade. Ao expandir para 20 paradas no Sem2 com 6 lags temporais, a regressão tabular precisa estimar 120 pesos livres em matriz achatada, sofrendo com colinearidade severa. A ST-GCN compartilha pesos espaciais via convolução espectral de Chebyshev sobre a topologia física da rodovia. Reconheço, contudo, que parte dessa vantagem advém da hipótese de difusão em rede utilizada no gerador sintético, o que reforça que o resultado demonstra eficiência estrutural do grafo, mas não substitui a validação de campo."</div>
     </div>
+
     <div class="qa-item">
-      <div class="qa-q">2. "Por que 358 MB de memória se o flx estimou menos?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "Porque medimos o processo inteiro do PyTorch rodando na máquina real. Os tensores da STGCN pesam só 84 KB. Os 358 MB são as bibliotecas compartilhadas do runtime que o Python segura no sistema operacional."</div>
+      <div class="qa-q">2. "Como você validaria esse modelo com dados reais?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "A validação real requer um convênio de pesquisa operacional com o CTM Grande Recife ou uma das concessionárias operadoras para acesso ao streaming de telemetria AVL/GPS dos transponders da frota e aos logs com timestamp e validador da bilhetagem eletrônica (VEM). Com esse fluxo, mapearíamos o histórico real de tempos entre paradas consecutivas, separaríamos os dados por divisão temporal estrita (ex: 4 semanas de treino, 1 semana de teste) e testaríamos a capacidade preditiva da ST-GCN sem depender de gerador sintético."</div>
     </div>
+
     <div class="qa-item">
-      <div class="qa-q">3. "No sem1 a conta simples ganhou. Por que a STGCN ganhou agora no sem2?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "Em 5 paradas a correlação espacial é quase nula, uma reta simples basta. Na malha metropolitana real com mais de 20 paradas, o atraso de um trecho afeta os nós seguintes. É aí que a matriz Laplaciana do grafo faz a diferença."</div>
+      <div class="qa-q">3. "De onde vem a demanda latente da Central CTM?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "A bilhetagem eletrônica da catraca registra apenas a demanda atendida e censurada: quem desiste na parada escura ou desiste da espera por superlotação não passa na catraca e vira invisível para o CTM. A demanda latente no GrafoParada é modelada combinando três fontes: (1) a série histórica censurada da catraca; (2) a declaração voluntária de rotina pendular no app pelo passageiro (amostragem on-device); e (3) a propagação espaço-temporal estimada pela ST-GCN ao longo dos nós adjacentes da malha, gerando uma distribuição probabilística N(μ, σ²) com intervalo de incerteza de 90% para apoiar a decisão operacional."</div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">4. "O que exatamente o projeto consegue afirmar hoje e o que ainda é hipótese?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "O que afirmamos com dados concretos hoje: (1) Que é viável processar a malha metropolitana oficial inteira do Grande Recife (393 linhas, 15.239 paradas) com inferência ultrarrápida (0,77 ms na CPU e 4,98 ms on-device); (2) Que convoluções espaciais em grafo sofrem de super-suavização (over-smoothing) em choques bruscos de trânsito, exigindo obrigatoriamente uma trava híbrida que corte a IA se o desvio ultrapassar 15 min; (3) Que a formulação de despacho deve ser probabilística, baseada em P(Demanda > Capacidade). O que ainda é hipótese: A magnitude exata da redução do erro de previsão em tráfego metropolitano real, que depende do acesso a dados contínuos de GPS da frota."</div>
     </div>
   </div>
 

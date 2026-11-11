@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 14:40
+- **Última Atualização:** 11/11/2026 14:50
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` e `main` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -13,15 +13,31 @@
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_BoWXNT7KUn7Ax6AqN1MdHS3aYYMU` em Produção)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment `dpl_2gktRWrc6ubteqSyQHCf5Qy1vxbt` em Produção)
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
-  - *Roteiro de Fala Mobile*: `https://grafoparadaweb.vercel.app/roteiro.html`
+  - *Roteiro de Fala Mobile com as 4 Perguntas da Banca*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 1. Consolidação Científica Final & Defesa do Seminário 2
+- [x] **Tabela Visual Explícita da Origem dos Dados (Real vs Simulado)**:
+  - Inserida no topo do Web App (`modal-data-origin`), no Slide 1 do PPTX, na versão web dos slides e no roteiro mobile.
+  - Discrimina com rigor: Paradas e Trajetos (GTFS Oficial Real), Horários Programados (GTFS Oficial Real), Atrasos de Treino (Sintéticos por difusão), Demanda do Exemplo (Estimativa Ilustrativa) e Telemetria Contínua da Frota (Não pública no CTM).
+- [x] **Fluxo Matemático Visual da Central CTM**:
+  - `📡 Sinais Observados ➔ 🧠 ST-GCN infere D̂ ➔ 📊 IC 90% [37, 45] ➔ 🎲 P(D > 36) = 98,4% ➔ 🚨 Decisão de Despacho`.
+  - Deixa claro que o sistema não faz soma ingênua e apoia a decisão com base no risco probabilístico de superlotação.
+- [x] **Especificação Experimental da ST-GCN**:
+  - Split temporal 58% treino (70 casos) / 42% teste (50 casos) sem vazamento.
+  - Resultados: ST-GCN ($1{,}51$ min) vs OLS ($1{,}93$ min) vs Persistência ($7{,}13$ min).
+  - Justificativa: a GNN mitiga a explosão de 120 parâmetros colineares ao achatar 20 paradas $\times$ 6 lags.
+- [x] **Guia Completo para as 4 Perguntas Difíceis da Banca**:
+  - Perguntas 1 a 4 adicionadas ao roteiro mobile (`roteiro.html`) e a `va2/sem2.md` com argumentos defensáveis sobre simulação, telemetria, demanda censurada e limites do projeto.
+- [x] **Deploy e Repositórios Sincronizados**:
+  - Vercel em produção atualizada. Branches `feature/if-2va-pqc-telessaude` e `main` no GitHub sincronizadas no mesmo commit.
 
 ### 1. Refinamento de Substância e Rigor Científico (Audit Claude 2ª Rodada)
 - [x] **Confirmação e Deploy em Produção (Vercel)**:

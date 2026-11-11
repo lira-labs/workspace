@@ -99,7 +99,7 @@ s1 = prs.slides.add_slide(blank_layout)
 set_slide_background(s1)
 add_header(s1, "01 / Ponta a Ponta · Demonstração ao Vivo",
            "GrafoParada: Mobilidade Inteligente no Grande Recife",
-           "Dados 100% reais: 400 Linhas GTFS CTM + Satélite Cittamobi ao vivo.")
+           "Malha GTFS Oficial CTM Grande Recife + Protótipo Preditivo ST-GCN.")
 add_footer(s1, 1)
 
 # Coluna 1: O Caso Concreto em 4 pontos
@@ -111,7 +111,7 @@ tf1.margin_top = tf1.margin_bottom = tf1.margin_left = tf1.margin_right = 0
 items_s1 = [
     ("QUEM USA", "Estudante ou trabalhador na Região Metropolitana do Recife"),
     ("ENTRADA REAL", "Linha 522 (Dois Irmãos / UFRPE) ou qualquer das 400 linhas do GTFS"),
-    ("SAÍDA NA TELA", "Previsão exata em 4 min, assentos livres, letreiro LED e voz no fone"),
+    ("SAÍDA NA TELA", "Previsão em 4 min, assentos livres, letreiro LED e voz no fone"),
     ("O QUE DEIXA FAZER", "Sair no minuto exato (06h09) sem mofar no ponto de ônibus")
 ]
 
@@ -131,7 +131,7 @@ for idx, (label, val) in enumerate(items_s1):
     p_val.font.color.rgb = TEXT_BLACK
     p_val.space_after = Pt(14)
 
-# Coluna 2: Box da Execução Viva
+# Coluna 2: Box de Transparência Metodológica (Origem dos Dados)
 box1 = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(7.9), Inches(2.6), Inches(4.4), Inches(3.8))
 box1.fill.solid()
 box1.fill.fore_color.rgb = RGBColor(248, 250, 252) # Slate 50
@@ -144,25 +144,26 @@ tf_b1.word_wrap = True
 tf_b1.margin_top = tf_b1.margin_bottom = tf_b1.margin_left = tf_b1.margin_right = 0
 
 p = tf_b1.paragraphs[0]
-p.text = "DEMONSTRAÇÃO AO VIVO"
+p.text = "ORIGEM DOS DADOS (TRANSPARÊNCIA)"
 p.font.name = FONT_FAMILY
 p.font.size = Pt(11)
 p.font.bold = True
 p.font.color.rgb = ACCENT_BLUE
-p.space_after = Pt(16)
+p.space_after = Pt(10)
 
 p2 = tf_b1.add_paragraph()
-p2.text = "Rodando do Repositório"
+p2.text = "Malha Real vs Simulação"
 p2.font.name = FONT_FAMILY
-p2.font.size = Pt(20)
+p2.font.size = Pt(18)
 p2.font.bold = True
 p2.font.color.rgb = TEXT_BLACK
-p2.space_after = Pt(14)
+p2.space_after = Pt(12)
 
 p3 = tf_b1.add_paragraph()
-p3.text = "• Web: grafoparadaweb.vercel.app\n• Rede: 400 linhas reais e 44 T.I.s do SEI\n• API: Cittamobi ao vivo (a=202)\n• Aparelho: Celular espelhado na sala\n• Reserva: Vídeo contínuo gravado"
+p3.text = "• Paradas & Trajetos: GTFS Oficial CTM\n• Quadro de Horários: GTFS Oficial\n• Atrasos de Treino: Simulação Sintética\n• Demanda do Exemplo: Estimativa Ilustrativa\n• Telemetria Contínua: Não pública no CTM"
 p3.font.name = FONT_FAMILY
-p3.font.size = Pt(13)
+p3.font.size = Pt(12)
+p3.font.color.rgb = TEXT_MUTED
 p3.font.color.rgb = TEXT_MUTED
 
 
@@ -412,8 +413,15 @@ p2_main.font.color.rgb = ACCENT_BLUE
 p2_sub = tf4.add_paragraph()
 p2_sub.text = "Decisão: Fica a STGCN. A GNN mitiga a explosão dimensional da linear (120 variáveis). Validação final requer telemetria contínua."
 p2_sub.font.name = FONT_FAMILY
-p2_sub.font.size = Pt(14)
+p2_sub.font.size = Pt(13)
 p2_sub.font.color.rgb = TEXT_BLACK
+p2_sub.space_after = Pt(8)
+
+p2_proto = tf4.add_paragraph()
+p2_proto.text = "Protocolo Experimental: 70 casos treino / 50 casos teste (split temporal estrito sem vazamento). A STGCN supera a regressão linear que sofre colinearidade em 20 paradas x 6 lags."
+p2_proto.font.name = FONT_FAMILY
+p2_proto.font.size = Pt(11)
+p2_proto.font.color.rgb = TEXT_MUTED
 
 
 # ==============================================================================

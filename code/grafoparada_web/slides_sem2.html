@@ -238,7 +238,7 @@
     <section class="slide active" data-tag="01 / PONTA A PONTA · DEMO AO VIVO" data-num="1">
       <div class="header-group">
         <h1>GrafoParada: Mobilidade Inteligente no Grande Recife</h1>
-        <p class="subtitle">Dados 100% reais: 400 Linhas GTFS CTM + Satélite Cittamobi ao vivo.</p>
+        <p class="subtitle">Malha GTFS Oficial CTM Grande Recife + Protótipo Preditivo ST-GCN.</p>
       </div>
 
       <div class="two-cols">
@@ -253,7 +253,7 @@
           </div>
           <div>
             <div class="clean-item-label">Saída na tela</div>
-            <div class="clean-item-val">Previsão exata em 4 min, assentos livres, letreiro LED e voz no fone</div>
+            <div class="clean-item-val">Previsão em 4 min, assentos livres, letreiro LED e voz no fone</div>
           </div>
           <div>
             <div class="clean-item-label">O que deixa fazer</div>
@@ -262,15 +262,14 @@
         </div>
 
         <div class="demo-box">
-          <div class="demo-box-tag">Demonstração ao Vivo</div>
-          <div class="demo-box-title">Roda direto do repositório</div>
-          <ul class="demo-box-list">
-            <li>• <strong>Web ao vivo:</strong> <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:var(--blue);text-decoration:none;">grafoparadaweb.vercel.app</a></li>
-            <li>• <strong>Rede:</strong> 400 linhas reais e 44 T.I.s do SEI</li>
-            <li>• <strong>API:</strong> Cittamobi ao vivo (a=202)</li>
-            <li>• <strong>Commit identificado:</strong> <code>0cdf397</code></li>
-            <li>• <strong>Aparelho:</strong> Celular espelhado na sala</li>
-            <li>• <strong>Reserva:</strong> Vídeo contínuo gravado sem cortes</li>
+          <div class="demo-box-tag">Origem dos Dados (Transparência)</div>
+          <div class="demo-box-title">Malha Real vs Simulação</div>
+          <ul class="demo-box-list" style="font-size:0.9rem; line-height:1.5;">
+            <li>• <strong>Paradas & Trajetos:</strong> GTFS Oficial CTM</li>
+            <li>• <strong>Quadro de Horários:</strong> GTFS Oficial</li>
+            <li>• <strong>Atrasos de Treino:</strong> Simulação Sintética</li>
+            <li>• <strong>Demanda do Exemplo:</strong> Estimativa Ilustrativa</li>
+            <li>• <strong>Telemetria Contínua:</strong> Não pública no CTM</li>
           </ul>
         </div>
       </div>
@@ -362,6 +361,7 @@
           <div class="compare-item-tag active">Agora no sem2 (Malha GTFS expandida · 20 paradas)</div>
           <div class="compare-item-title blue">A STGCN reduziu o erro para 1,51 min (contra 1,93 min da linear e 7,13 min da persistência).</div>
           <div class="compare-item-sub"><strong>Decisão:</strong> Fica a STGCN. A GNN mitiga a explosão dimensional da linear (120 variáveis). Validação final em campo requer telemetria contínua.</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">Protocolo: 70 casos treino / 50 casos teste (split temporal estrito sem vazamento, 5 seeds). ST-GCN supera a regressão OLS que sofre colinearidade em 20 nós x 6 lags.</div>
         </div>
       </div>
     </section>
