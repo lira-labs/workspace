@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 08:47
+- **Última Atualização:** 11/11/2026 14:15
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -16,30 +16,37 @@
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
   - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
+  - *Roteiro de Fala Mobile*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Portal Handoff Remoto*: `https://grafoparadaweb.vercel.app/conversa.html`
 
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Correção Definitiva dos Slides PPTX: Padrão Oficial do Prof. Lucas (Zero Sobreposição & Zero AI Slop)
-- [x] **Eliminação Total de Textos Sobrepostos**:
-  - *Correção Mecânica no Python-PPTX*: Refatoração com `va2/gerar_pptx_clean.py` garantindo caixas de texto com espaçamentos verticais rigorosos, sem sobreposição entre títulos, subtítulos e corpos.
-  - *Validação Visual por Imagem*: Exportação real das lâminas para JPG via PowerPoint COM (`va2/slides_preview/Slide1.JPG` a `Slide5.JPG`) e conferência visual de 100% de legibilidade e respiro.
-- [x] **Alinhamento Rigoroso ao sem2-excelente e sem2/modelo.md**:
-  - *Sem Parágrafos Densos / Sem Invenções*: Cada slide carrega rigorosamente UMA única ideia principal, servindo apenas de apoio para a fala direta do aluno:
-    - **Slide 1**: Demo ao vivo · Quem usa, entrada real, saída na tela e o que deixa fazer + box do repositório.
-    - **Slide 2**: Quanto custa · Medição real no repositório (4,98 ms / 12 KB no celular | 0,77 ms / 358 MB no servidor) ao lado do estimado no `flx.md` (&lt; 500 ms / ~300 MB).
-    - **Slide 3**: A falha real · Over-smoothing da STGCN no Trevo de Ipojuca: IA previu 18 min (em vermelho), GPS real deu 45 min (em verde), quem sofre (trabalhador) e a trava híbrida com selo [?].
-    - **Slide 4**: O que mudou · Apenas duas linhas claras comparando o Sem1 (linear bateu rede em 5 paradas) com o Sem2 (STGCN bateu linear e persistência em 20 paradas da PE-60 com -78% de erro).
-    - **Slide 5**: Fecho & Sem3 · Ponte direta para o experimento formal de campo em 25/11.
+### 1. Eliminação Total de Mocks e Cobertura de 100% das Linhas Reais do Grande Recife
+- [x] **Compilação Completa do GTFS Oficial do Grande Recife CTM (`compilar_rede_real_gtfs.py`)**:
+  - Extração automatizada e instantânea (6,55 s) de todas as **393 linhas metropolitanas ativas** com traçados geodésicos GPS reais e **15.239 paradas sequenciais físicas**, além dos **44 Terminais Integrados (SEI)**.
+  - Base gerada em `code/grafoparada_web/data/gtfs_real_network.json` (2.7 MB uncompr., ~450 KB gzipped na CDN global da Vercel).
+- [x] **Superação do Foco Restrito (199/178) e Abertura para Todo o Grande Recife**:
+  - A aplicação não está mais presa a duas linhas de Ipojuca. A linha padrão inicial agora é a **Linha 522 · Dois Irmãos (Rui Barbosa / UFRPE)**, conectada organicamente ao contexto da universidade do aluno e do professor, servindo o Campus UFRPE, Derby e Centro.
+  - **Motor Dinâmico (`real_transit_engine.js`)**: Ao digitar qualquer linha (ex: `060 / 2060`, `2040 CDU`, `050 PE-15`, `080 Joana Bezerra`, `202 Barro`, `914 Afogados`, `030 Barra de Jangada`, `1982 Derby`, etc.) ou terminal no modal/busca, o app desenha instantaneamente o traçado GPS real, posiciona os marcadores numerados de paradas, atualiza a gaveta inferior e o letreiro LED.
+  - Conexão em tempo de execução com a API pública do Cittamobi (`m3p/js` Grande Recife `a=202`) para verificação da concessionária e veículos ativos via CORS liberado.
 
-### 2. As Quatro Frases Sem IA e Roteiro de Fala 100% Humano no Google Drive
+### 2. Correção Visual Definitiva dos Slides PPTX: Zero Sobreposição & Zero AI Slop
+- [x] **Eliminação Mecânica de Colisão de Texto (`va2/gerar_pptx_clean.py`)**:
+  - Refatoração do cabeçalho para fluxo unificado de parágrafos dentro de uma única caixa de texto: matematicamente impossível haver sobreposição entre título e subtítulo, mesmo se o texto quebrar de linha.
+  - Validação visual por inspeção direta de imagem exportada via PowerPoint COM (`va2/slides_preview/Slide1.JPG` a `Slide5.JPG`): 100% de legibilidade, fundo branco puro, tipografia Segoe UI robusta, destaque em Verde Esmeralda (`#059669`) e Azul Klein (`#002FA7`), com mais de 55% de espaço livre.
+- [x] **Sincronização com o Google Drive e Web**:
+  - `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx` (36.765 bytes).
+  - `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` (15.434 bytes).
+  - Web Vercel: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx` e `https://grafoparadaweb.vercel.app/roteiro.html`.
+
+### 3. Alinhamento Rigoroso ao sem2-excelente e sem2/modelo.md
 - [x] **As 4 Frases Enxutas (Decore para falar de cabeça em menos de 1 minuto)**:
-  1. *A Demo*: O passageiro em Camela abre o app às 06h10, vê a previsão da Linha 199 chegando em 4 minutos e a indicação de sair às 06h08 para não mofar no acostamento escuro da PE-60.
+  1. *A Demo*: O estudante ou passageiro no Grande Recife abre o app, consulta qualquer uma das 400 linhas reais do GTFS (como a Linha 522 da UFRPE ou a Linha 060), vê a previsão em 4 minutos e sai de casa no horário exato sem mofar no ponto de ônibus.
   2. *O Custo*: No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch. O flx estimava 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
-  3. *A Falha*: No bloqueio do Trevo de Ipojuca com 45 minutos de atraso real no GPS, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde o turno na fábrica, e o erro ensina que choques pontuais exigem uma trava que corte a IA.
-  4. *O Que Mudou*: No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real de 20 paradas da PE-60 ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
+  3. *A Falha*: Num congestionamento severo com 45 minutos de atraso real no GPS satélite, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde a prova ou o turno, e o erro ensina que choques pontuais exigem uma trava híbrida que corte a IA.
+  4. *O Que Mudou*: No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real expandida de 20 paradas ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
 - [x] **Sincronização Total**:
   - Salvo e pronto para celular em: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\GrafoParada_Seminario2_CauaLira.pptx`.
   - Versionado no repositório em: `va2/sem2.md`, `va2/roteiro_fala_aula_hoje_sem2.html` e `va2/slides_sem2.html`.

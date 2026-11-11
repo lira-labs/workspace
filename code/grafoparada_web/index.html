@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="real_transit_engine.js"></script>
 
   <style>
     :root {
@@ -1077,15 +1078,18 @@
   <div class="desktop-outer-bar">
     <div class="badge-title">
       <span>📱</span>
-      <span>Simulador Mobile · GrafoParada Grande Recife</span>
+      <span>GrafoParada · Grande Recife Metropolitano (400 Linhas CTM & Cittamobi Live)</span>
       <span style="font-size:11px; background:rgba(5,150,105,0.25); color:#34d399; padding:2px 8px; border-radius:999px; border:1px solid rgba(5,150,105,0.4);">Seminário 2 Live</span>
     </div>
     <div style="display:flex; gap:8px;">
-            <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
+      <button class="btn-desktop-action" onclick="window.RealTransit.openLinePickerModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
+        <span>🚌</span> 400 Linhas do Recife
+      </button>
+      <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
         <span>📅</span> Minha Rotina (Turnos)
       </button>
       <button class="btn-desktop-action" onclick="openSeiTerminalsModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
-        <span>🏛️</span> 26 Terminais do SEI
+        <span>🏛️</span> 35 Terminais SEI
       </button>
 <button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
         <span>🏛️</span> Central CTM (Realocação de Frota)
@@ -1149,7 +1153,7 @@
 
         <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
           <div class="pulse-dot"></div>
-          <span id="top-line-label">199</span>
+          <span id="top-line-label">522</span>
         </div>
       </div>
 
@@ -1157,7 +1161,7 @@
       <div class="search-pill-wrapper">
         <div class="search-pill">
           <span style="font-size:14px; color:var(--text-muted);">🔍</span>
-          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar linha (ex: 199, 178) ou Terminal..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
+          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar entre 400 linhas reais (ex: 522, 060, CDU) ou T.I..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
           <button id="search-clear-btn" onclick="clearQuickSearch()" style="display:none; border:none; background:none; color:var(--text-muted); cursor:pointer;">✕</button>
         </div>
         <div id="search-results-dropdown" class="search-dropdown"></div>
@@ -1195,19 +1199,19 @@
                 <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual:</span>
                 <button id="btn-fav-star" onclick="toggleFavoriteCurrentStop()" style="border:none; background:none; cursor:pointer; font-size:14px;" title="Favoritar parada">⭐</button>
               </div>
-              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas (43) ▲</button>
+              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas as Paradas (<span id="stops-count-label">48</span>) ▲</button>
             </div>
             <div id="current-stop-name" style="color:var(--text-main);">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD 030613</span>
-                <span style="font-size:11px; font-weight:800; color:#047857;">📍 Ipojuca · Camela</span>
-                <span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">🏠 Abrigo Coberto</span>
+                <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD 100035</span>
+                <span style="font-size:11px; font-weight:800; color:#047857;">📍 Recife · Dois Irmãos</span>
+                <span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">🎓 Campus UFRPE</span>
               </div>
               <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:3px;">
-                Praça Pedro Serafim (Terminal de Camela)
+                Terminal de Dois Irmãos (UFRPE / Rui Barbosa)
               </div>
               <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
-                Ref: Igreja Matriz de Santo Antônio / Mercado Público · Sentido TI Cabo
+                Ref: Av. Manoel de Medeiros / Praça de Fátima · Sentido Derby / Centro
               </div>
             </div>
 
@@ -1215,7 +1219,7 @@
             <div style="background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
               <div>
                 <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em;">
-                  🚌 Próximo Ônibus Linha 199:
+                  🚌 Próximo Ônibus Linha 522:
                 </div>
                 <div style="font-size:14.5px; font-weight:800; color:#065f46; margin-top:1px;">
                   Chega em <span id="resting-eta-val">4</span> min <span style="font-size:11px; font-weight:600; color:#047857;">(06:14)</span>
@@ -1232,23 +1236,23 @@
             </div>
           </div>
 
-                    <!-- CARD ROTINA PENDULAR INTELIGENTE -->
+          <!-- CARD ROTINA PENDULAR INTELIGENTE -->
           <div class="routine-commute-card" onclick="openRoutineModal()">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <span style="font-size:15px;">📅</span>
-                <span style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Pendular</span>
+                <span style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Universitária</span>
               </div>
-              <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">Turno Ativo · 05h45</span>
+              <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">UFRPE Ativa · 07h00</span>
             </div>
             <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:5px;" id="routine-title-desc">
-              Indústria Suape (Camela ➔ TI Cabo) · Entrada 07h00
+              Campus Dois Irmãos (UFRPE ➔ Derby / Centro)
             </div>
             <div style="font-size:11px; color:#475569; margin-top:3px; line-height:1.35;" id="routine-advice-desc">
-              💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia de casa às <strong>06:08</strong> para pegar o 199 das 06:14 sem mofar no ponto.
+              💡 <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia às <strong>06:09</strong> para pegar o coletivo das 06:14 sem mofar no ponto.
             </div>
             <div style="font-size:10.5px; color:#059669; font-weight:700; margin-top:4px;">
-              👥 48 trabalhadores nesta rota · Demanda alimenta a Central CTM.
+              👥 Rede conectada com 400 linhas reais e Terminais do Grande Recife.
             </div>
           </div>
 
@@ -1256,12 +1260,12 @@
           <div class="travel-cards-row">
             <button class="travel-card active-home" onclick="triggerTripAction('home')">
               <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
-              <div class="travel-card-subtitle" id="home-card-sub">Camela · 4 min</div>
+              <div class="travel-card-subtitle" id="home-card-sub">Derby / Rui Barbosa · 4 min</div>
             </button>
 
             <button class="travel-card active-work" onclick="triggerTripAction('work')">
-              <div class="travel-card-title"><span>💼</span> Vou pro Destino</div>
-              <div class="travel-card-subtitle" id="work-card-sub">TI Cabo · 32 min</div>
+              <div class="travel-card-title"><span>🎓</span> Campus UFRPE</div>
+              <div class="travel-card-subtitle" id="work-card-sub">Dois Irmãos · 22 min</div>
             </button>
           </div>
 
@@ -1283,7 +1287,7 @@
           <div id="active-reallocation-banner" class="reallocation-banner"></div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="font-size:13px; font-weight:800; color:var(--brand-green-dark);" id="active-trip-header">
-              🚌 Linha 199 · Camela / TI Cabo
+              🚌 Linha 522 · Dois Irmãos (Rui Barbosa / UFRPE)
             </div>
             <button style="border:none; background:none; color:var(--text-muted); font-size:12.5px; font-weight:700; cursor:pointer;" onclick="closeActiveTripView()">✕ Voltar</button>
           </div>
@@ -1293,11 +1297,11 @@
             <div>
               <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Primeiro Ônibus</div>
               <div class="hero-eta-big"><span id="live-eta-num">4</span> <span style="font-size:20px; font-weight:700;">min</span></div>
-              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 04</div>
+              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 01</div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Viagem Total</div>
-              <div style="font-size:23px; font-weight:800; color:var(--text-main);" id="live-total-trip">38 min</div>
+              <div style="font-size:23px; font-weight:800; color:var(--text-main);" id="live-total-trip">28 min</div>
               <span style="font-size:10.5px; font-weight:700; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:2px 8px; border-radius:999px;">Assento Livre</span>
             </div>
           </div>
@@ -1305,10 +1309,10 @@
           <!-- TRUST BADGES -->
           <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
             <div id="badge-gps-status" style="font-size:11.5px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-              <span>🛰️</span> GPS Satélite Ativo · 42 km/h na PE-60 (Zero Ônibus Fantasma)
+              <span>🛰️</span> GPS Satélite Ativo · CTM Grande Recife (Zero Ônibus Fantasma)
             </div>
             <div style="font-size:11.5px; background:var(--blue-bg); color:var(--blue-accent); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-              <span>💺</span> 14 assentos livres · Embarque Sentado Garantido
+              <span>💺</span> 16 assentos livres · Embarque Sentado Garantido
             </div>
           </div>
 
@@ -1319,10 +1323,10 @@
                 <span style="font-size:16px;">⏱️</span>
                 <span style="font-weight:800; font-size:11.5px; color:#0369a1; text-transform:uppercase;">Integração Temporal VEM (2h)</span>
               </div>
-              <span style="font-size:11.5px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 14m restantes</span>
+              <span style="font-size:11.5px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 25m restantes</span>
             </div>
             <div style="font-size:11px; color:#334155; margin-top:5px; line-height:1.35;" id="vem-status-desc">
-              ✅ <strong>Gratuidade Assegurada:</strong> Com o 199 chegando em 4 min, você desembarcará no TI Cabo com <strong>38 min de folga</strong> no cartão VEM. Tarifa na catraca: <strong>R$ 0,00</strong>.
+              ✅ <strong>Gratuidade Assegurada:</strong> Com a Linha 522 chegando em 4 min, você desembarcará com <strong>42 min de folga</strong> no cartão VEM. Tarifa na catraca: <strong>R$ 0,00</strong>.
             </div>
           </div>
 
@@ -1330,8 +1334,8 @@
           <div class="bus-led-sign-box" onclick="speakSeniorDirections()">
             <div class="bus-led-sign-header">LETREIRO FRONTAL DO COLETIVO:</div>
             <div class="bus-led-sign-display">
-              <span class="led-line-number">199</span>
-              <span class="led-line-dest">CAMELA / TI CABO VIA PE-60</span>
+              <span class="led-line-number" id="led-line-number">522</span>
+              <span class="led-line-dest" id="led-destination-line">522 DOIS IRMÃOS (RUI BARBOSA E PRÍNCIPE)</span>
             </div>
             <div class="bus-led-sign-hint">
               👁️ Compare este visor com o letreiro do ônibus chegando na pista.
@@ -2194,8 +2198,12 @@
         routePolylineLayer = L.layerGroup().addTo(leafletMap);
         stopsMarkersLayer = L.layerGroup().addTo(leafletMap);
 
-        drawRoute(TELEMETRIA);
-        selectStop(1, false);
+        if (window.RealTransit) {
+          window.RealTransit.init(leafletMap);
+        } else {
+          drawRoute(TELEMETRIA);
+          selectStop(1, false);
+        }
 
         // Multiple invalidation passes to guarantee rendering on any screen/resize
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 100);
@@ -2290,6 +2298,10 @@
     }
 
     function speakCurrentArrival() {
+      if (window.RealTransit && window.RealTransit.activeRoute) {
+        window.RealTransit.speakCurrent();
+        return;
+      }
       const st = (TELEMETRIA && TELEMETRIA.stops) ? (TELEMETRIA.stops.find(function(s) { return s.seq === activeStopSeq; }) || TELEMETRIA.stops[0]) : null;
       const stopName = st ? st.name : "Parada de Camela";
       const eta = (st && st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4";
@@ -2367,6 +2379,11 @@
 
     // SEARCH AUTOCOMPLETE LOGIC (RODADA: NOMES DE PARADAS, LOCALIDADES E TERMINAIS SEI)
     function handleQuickSearch(query) {
+      if (window.RealTransit && window.RealTransit.networkData) {
+        window.RealTransit.handleSearch(query);
+        return;
+      }
+
       const q = (query || "").trim().toLowerCase();
       const drop = document.getElementById("search-results-dropdown");
       const clearBtn = document.getElementById("search-clear-btn");
@@ -2499,6 +2516,10 @@
 
     function selectSearchedRoute(code) {
       clearQuickSearch();
+      if (window.RealTransit) {
+        window.RealTransit.loadRoute(code);
+        return;
+      }
       if (code === "178") {
         activeRouteCode = "178";
         TELEMETRIA = TELEMETRIA_178;
@@ -2763,6 +2784,10 @@
     }
 
     function switchLineQuick() {
+      if (window.RealTransit) {
+        window.RealTransit.openLinePickerModal();
+        return;
+      }
       if (activeRouteCode === "199") {
         activeRouteCode = "178";
         TELEMETRIA = TELEMETRIA_178;

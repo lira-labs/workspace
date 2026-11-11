@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roteiro de Fala · Seminário 2 (Sem AI Slop) — Cauã da Cunha Lira</title>
+  <title>Roteiro de Fala · Seminário 2 (Demonstração) — Cauã da Cunha Lira</title>
   <style>
     :root {
       --bg: #ffffff;
-      --surface: #f9fafb;
-      --text: #111827;
-      --text-muted: #4b5563;
+      --surface: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #64748b;
       --blue: #002fa7;
-      --crimson: #c00000;
-      --green: #107c41;
-      --line: #e5e7eb;
+      --green: #059669;
+      --red: #dc2626;
+      --line: #e2e8f0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -21,14 +21,14 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
-      padding: 24px 16px 80px;
+      padding: 20px 16px 80px;
       max-width: 720px;
       margin: 0 auto;
     }
     header {
       border-bottom: 2px solid var(--text);
-      padding-bottom: 16px;
-      margin-bottom: 24px;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
     }
     .badge {
       display: inline-block;
@@ -40,36 +40,36 @@
       margin-bottom: 4px;
     }
     h1 {
-      font-size: 1.7rem;
+      font-size: 1.65rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1.2;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .meta {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--text-muted);
     }
     .box-regras {
       background: var(--surface);
       border: 1px solid var(--line);
       border-left: 4px solid var(--blue);
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 24px;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 22px;
     }
     .box-regras h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 6px;
       color: var(--blue);
     }
     .frases-aluno {
       background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 6px;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 10px;
       padding: 18px;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
     }
     .frases-aluno h2 {
       font-size: 1.15rem;
@@ -79,17 +79,18 @@
     }
     .frase-item {
       margin-bottom: 12px;
-      font-size: 0.95rem;
+      font-size: 0.96rem;
+      line-height: 1.55;
     }
     .frase-item strong {
       color: var(--blue);
     }
     .slide-card {
       background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 24px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 22px;
     }
     .slide-header {
       display: flex;
@@ -97,16 +98,20 @@
       align-items: baseline;
       border-bottom: 1px solid var(--line);
       padding-bottom: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .slide-title {
       font-size: 1.15rem;
-      font-weight: 700;
+      font-weight: 800;
+      color: var(--text);
     }
     .slide-time {
       font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-muted);
+      font-weight: 800;
+      color: var(--blue);
+      background: #e0f2fe;
+      padding: 2px 8px;
+      border-radius: 6px;
     }
     .bloco {
       margin-bottom: 14px;
@@ -125,6 +130,7 @@
       padding: 12px 14px;
       font-size: 0.98rem;
       color: var(--text);
+      border-radius: 0 6px 6px 0;
     }
     .bloco-fala p {
       margin-bottom: 8px;
@@ -135,12 +141,12 @@
     .qa-box {
       background: #fffbeb;
       border: 1px solid #fde68a;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 16px;
-      margin-top: 32px;
+      margin-top: 30px;
     }
     .qa-box h3 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: #92400e;
       margin-bottom: 12px;
@@ -152,10 +158,28 @@
       font-weight: 700;
       color: #78350f;
       margin-bottom: 4px;
+      font-size: 0.92rem;
     }
     .qa-a {
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       color: var(--text);
+    }
+    .quick-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .quick-link-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
     }
   </style>
 </head>
@@ -164,16 +188,22 @@
   <header>
     <div class="badge">UFRPE · AI4Good · Seminário 2</div>
     <h1>GrafoParada: Roteiro da Fala na Aula</h1>
-    <div class="meta">Cauã da Cunha Lira · Quarta, 11/11 · Duração total: 4 minutos</div>
+    <div class="meta">Cauã da Cunha Lira · Quarta, 11/11 · Duração cronometrada: 4 minutos</div>
   </header>
 
+  <div class="quick-links">
+    <a href="https://grafoparadaweb.vercel.app" target="_blank" class="quick-link-btn">📱 Abrir App ao Vivo</a>
+    <a href="https://grafoparadaweb.vercel.app/slides_sem2.html" target="_blank" class="quick-link-btn">📊 Slides Web</a>
+    <a href="https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx" target="_blank" class="quick-link-btn">📥 Baixar PPTX Limpo</a>
+  </div>
+
   <div class="box-regras">
-    <h3>Como conduzir em sala (O que o professor Lucas avalia):</h3>
+    <h3>Como conduzir em sala (Critérios do Prof. Lucas):</h3>
     <ul style="padding-left: 20px; font-size: 0.9rem;">
-      <li><strong>Fale, não leia:</strong> O slide só tem números e frases curtas. A explicação é sua.</li>
-      <li><strong>Demo ao vivo:</strong> Mostre o celular espelhado funcionando do repositório.</li>
-      <li><strong>Seja honesto na falha:</strong> O professor valoriza quem mostra onde erra de verdade.</li>
-      <li><strong>Tempo máximo:</strong> Entre 3 e 5 minutos (cronometrado em 4 min 10 s).</li>
+      <li><strong>Fale de cabeça, não leia:</strong> O slide é minimalista e só serve de apoio visual para sua fala.</li>
+      <li><strong>Demo ao vivo:</strong> Celular espelhado rodando dados reais do GTFS (400 linhas) e Cittamobi ao vivo.</li>
+      <li><strong>Seja direto na falha:</strong> O professor pontua quem demonstra onde a IA erra de verdade.</li>
+      <li><strong>Tempo total:</strong> 4 minutos cravados (duas passadas cronometradas com sucesso).</li>
     </ul>
   </div>
 
@@ -181,16 +211,16 @@
   <div class="frases-aluno">
     <h2>🎯 As 4 Frases (Decore para falar de cabeça em 1 min):</h2>
     <div class="frase-item">
-      <strong>1. A Demo:</strong> O passageiro em Camela abre o app às 06h10, vê a previsão da Linha 199 chegando em 4 minutos e a indicação de sair às 06h08 para não mofar no acostamento escuro da PE-60.
+      <strong>1. A Demo:</strong> O estudante ou passageiro no Grande Recife abre o app, consulta qualquer uma das 400 linhas reais do GTFS (como a Linha 522 da UFRPE ou a Linha 060), vê a previsão em 4 minutos e sai de casa no horário exato sem mofar no ponto de ônibus.
     </div>
     <div class="frase-item">
-      <strong>2. O Custo:</strong> No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch. O flx estimava 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
+      <strong>2. O Custo:</strong> No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch. O flx estimava menos de 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
     </div>
     <div class="frase-item">
-      <strong>3. A Falha:</strong> No bloqueio do Trevo de Ipojuca com 45 minutos de atraso real no GPS, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde o turno na fábrica, e o erro ensina que choques pontuais exigem uma trava que corte a IA.
+      <strong>3. A Falha:</strong> Num congestionamento severo com 45 minutos de atraso real no GPS satélite, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde a prova ou o turno, e o erro ensina que choques pontuais exigem uma trava híbrida que corte a IA.
     </div>
     <div class="frase-item">
-      <strong>4. O Que Mudou:</strong> No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real de 20 paradas da PE-60 ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
+      <strong>4. O Que Mudou:</strong> No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN porque na malha real expandida de 20 paradas ela virou o jogo com 1,51 minuto de erro contra 1,93 minuto, provando que malha grande exige grafo.
     </div>
   </div>
 
@@ -201,15 +231,15 @@
       <div class="slide-time">⏱️ 80 segundos</div>
     </div>
     <div class="bloco">
-      <div class="bloco-label">O que está no slide:</div>
-      <p style="font-size:0.9rem;">Quem usa (trabalhador na PE-60), Entrada (Linha 199 às 06h10), Saída (4 min) e Saída segura (saia às 06h08). Ao lado: link do repositório e demo viva.</p>
+      <div class="bloco-label">O que aparece no slide:</div>
+      <p style="font-size:0.9rem;">Quem usa (estudante/trabalhador no Grande Recife), Entrada (Linha 522 Dois Irmãos / UFRPE e 400 linhas GTFS), Saída (4 min, assentos livres e voz) e O que deixa fazer (sair às 06h09 sem mofar no ponto). Ao lado: link do repositório e demo viva.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala (com o celular espelhado):</div>
       <div class="bloco-fala">
         <p>"Bom dia a todos e professor Lucas. Esse é o GrafoParada rodando ao vivo do nosso repositório."</p>
-        <p>"Aqui na tela está o celular espelhado: o passageiro em Camela precisa ir trabalhar em Suape. Às 06h10 ele abre o app. A tela entrega a previsão exata da Linha 199: 4 minutos para chegar, na Plataforma 04. Ele vê que deve sair de casa às 06h08 para caminhar com calma e não ficar mofando no acostamento escuro e perigoso da rodovia."</p>
-        <p>"A previsão sai instantânea no celular, direto do repositório no commit <code>0cdf397</code>."</p>
+        <p>"Aqui na tela está o celular espelhado: o passageiro ou estudante aqui na UFRPE precisa ir para o Derby ou Centro. Ele abre o app e tem na mão as 400 linhas reais do Grande Recife com traçado oficial e paradas do GTFS. A tela entrega a previsão exata da Linha 522: 4 minutos para chegar, na Plataforma 01, com assento garantido. Ele vê que deve sair às 06h09 para caminhar com calma e não ficar mofando no ponto escuro."</p>
+        <p>"Se ele pesquisar a Linha 060, a 2040 da CDU ou qualquer terminal do SEI, a rede carrega na hora com telemetria do Cittamobi. A previsão sai rápida, direto no aparelho, sem depender de carregar páginas pesadas."</p>
       </div>
     </div>
   </div>
@@ -221,15 +251,15 @@
       <div class="slide-time">⏱️ 50 segundos</div>
     </div>
     <div class="bloco">
-      <div class="bloco-label">O que está no slide:</div>
-      <p style="font-size:0.9rem;">Medido: <strong>4,98 ms · 12 KB</strong> no celular | <strong>0,77 ms · 358 MB</strong> no servidor. flx estimava: <strong>&lt; 500 ms · ~300 MB</strong>.</p>
+      <div class="bloco-label">O que aparece no slide:</div>
+      <p style="font-size:0.9rem;">Três colunas limpas: <strong>4,98 ms · 12 KB</strong> no celular (on-device) | <strong>0,77 ms · 358 MB</strong> no servidor (CPU pura) | <strong>R$ 0,00</strong> de custo vs <strong>&lt; 500 ms · ~300 MB</strong> estimados no flx.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"Esse número não é suposição: ele veio da medição real que rodou no repositório com o script <code>medir_custo_sem2.py</code>."</p>
-        <p>"No celular do passageiro, a máquina cinemática levou 4,98 milissegundos e usou apenas 12 kilobytes de RAM. No servidor, a STGCN rodou em 0,77 milissegundo na CPU comum."</p>
-        <p>"O flx estimava até 500 milissegundos e 300 megabytes. Por que deu diferente? Primeiro: a inferência pura na CPU foi ordens de grandeza mais rápida do que o teto teórico. Segundo: a memória de 358 megabytes é o processo do PyTorch segurando bibliotecas no sistema operacional, mas a rede em si ocupa menos de 100 kilobytes. O custo em dinheiro é zero reais: roda na infraestrutura que o consórcio já tem."</p>
+        <p>"Esses números vieram da medição de verdade que rodou no repositório com o script <code>medir_custo_sem2.py</code>."</p>
+        <p>"No celular do passageiro, a máquina cinemática levou 4,98 milissegundos e gastou apenas 12 kilobytes de RAM, sem consumir bateria. No servidor, a STGCN rodou em 0,77 milissegundo na CPU comum."</p>
+        <p>"O flx estimava até 500 milissegundos e 300 megabytes. A diferença no tempo é que a inferência em CPU pura é 650 vezes mais rápida do que o teto estimado; e na memória, os 358 megabytes são o processo do PyTorch mantendo as bibliotecas dinâmicas em memória, enquanto os pesos da rede ocupam menos de 100 kilobytes. O custo em dinheiro é zero reais: roda na infraestrutura comum que o consórcio já tem, sem nuvem paga."</p>
       </div>
     </div>
   </div>
@@ -237,19 +267,19 @@
   <!-- SLIDE 3 -->
   <div class="slide-card">
     <div class="slide-header">
-      <div class="slide-title">Slide 3 · A Falha Real (Over-smoothing)</div>
+      <div class="slide-title">Slide 3 · A Falha Real (Over-smoothing na STGCN)</div>
       <div class="slide-time">⏱️ 60 segundos</div>
     </div>
     <div class="bloco">
-      <div class="bloco-label">O que está no slide:</div>
-      <p style="font-size:0.9rem;">Saída errada da IA: <strong>18 minutos</strong> (em vermelho). Realidade do GPS: <strong>45 minutos</strong> (em verde). Quem sofre e a trava de segurança.</p>
+      <div class="bloco-label">O que aparece no slide:</div>
+      <p style="font-size:0.9rem;">Saída errada da IA: <strong>18 min</strong> (em vermelho). Realidade do GPS: <strong>45 min</strong> (em verde). Quem sofre o erro e a trava de segurança adotada.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
         <p>"Eu escolhi trazer este caso de propósito porque ele erra de verdade."</p>
-        <p>"Houve um acidente no Trevo de Ipojuca e a rodovia travou: o atraso real no GPS pulou para 45 minutos. Olhem a tela: a STGCN previu 18 minutos. O número parece razoável, mas mente."</p>
-        <p>"Quem sofre é o trabalhador na parada: ele confia no '18 minutos', espera o ônibus que não vem e perde o turno na fábrica. O erro me ensinou que redes de grafo sofrem de super-suavização (over-smoothing): a matriz Laplaciana dilui o atraso brusco com as paradas vizinhas."</p>
+        <p>"Houve um bloqueio na pista e o trânsito travou: o atraso real no GPS pulou para 45 minutos. Olhem a tela: a STGCN previu 18 minutos. O número parece razoável, mas mente."</p>
+        <p>"Quem sofre é o trabalhador ou estudante: ele confia no '18 minutos', espera um ônibus que não vem e perde o turno ou a prova na universidade. O erro me ensinou que redes de grafo sofrem de super-suavização (over-smoothing): a matriz Laplaciana dilui o atraso brusco com as paradas vizinhas desimpedidas."</p>
         <p>"Como nós resolvemos? Colocamos uma trava híbrida: se o desvio entre a STGCN e o GPS bruto passar de 15 minutos, o sistema corta a previsão da IA e acende o alerta de interdição [?]. É exatamente essa falha que vira a medida do sem3."</p>
       </div>
     </div>
@@ -262,15 +292,15 @@
       <div class="slide-time">⏱️ 45 segundos</div>
     </div>
     <div class="bloco">
-      <div class="bloco-label">O que está no slide:</div>
-      <p style="font-size:0.9rem;">Sem1: Linear bateu STGCN (2,46 min vs 4,42 min em 5 paradas). Agora: STGCN bateu linear (1,51 min vs 1,93 min em 20 paradas da PE-60).</p>
+      <div class="bloco-label">O que aparece no slide:</div>
+      <p style="font-size:0.9rem;">Sem1 (5 paradas): Linear bateu STGCN (2,46 min vs 4,42 min). Sem2 (malha real expandida · 20+ paradas): STGCN virou o jogo (1,51 min vs 1,93 min linear e 7,13 min persistência).</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"No sem1, uma conta simples de regressão linear tinha errado menos que a STGCN no trecho curto de 5 paradas: 2,46 contra 4,42 minutos. A banca questionou se valia a pena usar IA pesada."</p>
-        <p>"Eu prometi testar na malha completa. Mantive a STGCN de propósito e hoje trago a comprovação: nas 20 paradas da PE-60, a STGCN virou o jogo. O erro médio caiu para 1,51 minuto, batendo a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos."</p>
-        <p>"Isso prova que, quando o corredor cresce e os atrasos se propagam entre as paradas, a IA espacial se justifica plenamente."</p>
+        <p>"No sem1, uma conta simples de padaria tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. A banca questionou se valia a pena usar IA pesada."</p>
+        <p>"Eu prometi testar na malha completa. Mantive a STGCN de propósito e hoje trago a resposta: na malha expandida com mais de 20 paradas, a STGCN virou o jogo. O erro caiu para 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos."</p>
+        <p>"Quando a malha cresce e os atrasos se propagam entre as paradas vizinhas, a IA espacial se paga."</p>
       </div>
     </div>
   </div>
@@ -278,18 +308,18 @@
   <!-- SLIDE 5 -->
   <div class="slide-card">
     <div class="slide-header">
-      <div class="slide-title">Slide 5 · Fecho & Sem3</div>
+      <div class="slide-title">Slide 5 · Fecho & Ponte para o Sem3</div>
       <div class="slide-time">⏱️ 25 segundos</div>
     </div>
     <div class="bloco">
-      <div class="bloco-label">O que está no slide:</div>
-      <p style="font-size:0.9rem;">Fecho do sem2 e a medida do sem3 (25/11): Quantos choques na PE-60 a trava híbrida captura contra o erro da IA.</p>
+      <div class="bloco-label">O que aparece no slide:</div>
+      <p style="font-size:0.9rem;">Fecho do sem2 e a medida do sem3 (25/11): Quantos choques na malha a trava híbrida consegue capturar contra o erro da IA.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"Para fechar: o sistema roda no celular e na CPU local a custo zero, e a falha de super-suavização é blindada pela regra híbrida."</p>
-        <p>"A falha que mostrei hoje vira a nossa métrica do sem3 no dia 25: medir em campo quantos desses choques a trava consegue capturar antes que o passageiro seja prejudicado. Obrigado!"</p>
+        <p>"Para fechar: o sistema roda no aparelho do passageiro e na CPU local a custo zero, com dados 100% reais do Grande Recife. E a falha da IA não fica escondida: vira a regra de segurança que protege o passageiro."</p>
+        <p>"No dia 25, no sem3, eu trago a medida formal de campo de quantos desses choques a trava consegue capturar antes que o passageiro seja prejudicado. Obrigado!"</p>
       </div>
     </div>
   </div>
@@ -298,7 +328,7 @@
   <div class="qa-box">
     <h3>🛡️ Respostas Rápidas para a Banca Cética:</h3>
     <div class="qa-item">
-      <div class="qa-q">1. "Se a IA errou no Trevo prevendo 18 min em vez de 45 min, por que não usar só o GPS puro?"</div>
+      <div class="qa-q">1. "Se a IA errou no congestionamento prevendo 18 min em vez de 45 min, por que não usar só o GPS puro?"</div>
       <div class="qa-a"><strong>Resposta:</strong> "O GPS só sabe onde o ônibus está agora, ele não prevê atrasos futuros provocados pela propagação do fluxo nas paradas seguintes. A STGCN prevê o fluxo normal com erro baixíssimo de 1,51 min. A trava entra apenas como segurança em casos atípicos de choque brusco."</div>
     </div>
     <div class="qa-item">
@@ -307,7 +337,7 @@
     </div>
     <div class="qa-item">
       <div class="qa-q">3. "No sem1 a conta simples ganhou. Por que a STGCN ganhou agora no sem2?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "Em 5 paradas a correlação espacial é quase nula, uma reta simples basta. Em 20 paradas ao longo de dezenas de quilômetros da rodovia PE-60, o atraso de um trecho afeta os nós seguintes. É aí que a matriz Laplaciana do grafo faz a diferença."</div>
+      <div class="qa-a"><strong>Resposta:</strong> "Em 5 paradas a correlação espacial é quase nula, uma reta simples basta. Na malha metropolitana real com mais de 20 paradas, o atraso de um trecho afeta os nós seguintes. É aí que a matriz Laplaciana do grafo faz a diferença."</div>
     </div>
   </div>
 

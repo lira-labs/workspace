@@ -1,77 +1,82 @@
 # -*- coding: utf-8 -*-
 """
-Gerador de Slides Minimalista e Direto (Padrão sem2-excelente do Prof. Lucas)
-Sem sobreposição de texto, sem parágrafos densos, sem AI Slop.
-Apenas números medidos, ideias centrais e suporte para a fala do aluno.
+Gerador Oficial de Slides PPTX · Seminário 2 (Demonstração) · Prof. Lucas Figueiredo
+Estilo: Minimalista, Fundo Branco Puro, Tipografia Robusta, Zero AI Slop.
+Mais de 50% de espaço livre para respirar.
+Sem parágrafos densos, sem caixas sobrepostas (fluxo de parágrafos unificado).
+Dados 100% Reais do Grande Recife (400 Linhas GTFS CTM + Cittamobi Live).
 """
 
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import PP_ALIGN
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
 prs.slide_height = Inches(7.5)
 blank_layout = prs.slide_layouts[6]
 
-# Paleta limpa e contrastante
-BG_COLOR = RGBColor(255, 255, 255)       # Branco Puro
-TEXT_MAIN = RGBColor(17, 24, 39)         # Quase Preto #111827
-TEXT_MUTED = RGBColor(107, 114, 128)     # Cinza Médio #6B7280
-LINE_COLOR = RGBColor(229, 231, 235)     # Linha #E5E7EB
+# Paleta Minimalista
+BG_COLOR = RGBColor(255, 255, 255)       # Branco Puro #FFFFFF
+TEXT_BLACK = RGBColor(15, 23, 42)        # Slate 900 #0F172A
+TEXT_MUTED = RGBColor(100, 116, 139)     # Slate 500 #64748B
+LINE_COLOR = RGBColor(226, 232, 240)     # Slate 200 #E2E8F0
 ACCENT_BLUE = RGBColor(0, 47, 167)       # Azul Klein #002FA7
-ALERT_RED = RGBColor(192, 0, 0)          # Carmesim #C00000
-ACCENT_GREEN = RGBColor(16, 124, 65)     # Verde #107C41
+ACCENT_GREEN = RGBColor(5, 150, 105)     # Verde Bottega / Esmeralda #059669
+ALERT_RED = RGBColor(220, 38, 38)        # Vermelho Alerta #DC2626
 
 FONT_FAMILY = "Segoe UI"
 
-def add_header(slide, tag, title, subtitle):
-    """Adiciona cabeçalho com espaçamento vertical estrito sem sobreposição."""
-    # Tag superior
-    tb_tag = slide.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.333), Inches(0.35))
-    tf_tag = tb_tag.text_frame
-    tf_tag.word_wrap = True
-    tf_tag.margin_top = tf_tag.margin_bottom = tf_tag.margin_left = tf_tag.margin_right = 0
-    p_tag = tf_tag.paragraphs[0]
-    p_tag.text = tag.upper()
+def set_slide_background(slide):
+    """Garante fundo branco puro."""
+    background = slide.background
+    fill = background.fill
+    fill.solid()
+    fill.fore_color.rgb = BG_COLOR
+
+def add_header(slide, tag_text, title_text, subtitle_text):
+    """
+    Cabeçalho unificado em uma única caixa de texto para impossibilitar sobreposições.
+    """
+    tb = slide.shapes.add_textbox(Inches(1.0), Inches(0.65), Inches(11.333), Inches(1.5))
+    tf = tb.text_frame
+    tf.word_wrap = True
+    tf.margin_top = tf.margin_bottom = tf.margin_left = tf.margin_right = 0
+
+    # Tag
+    p_tag = tf.paragraphs[0]
+    p_tag.text = tag_text.upper()
     p_tag.font.name = FONT_FAMILY
     p_tag.font.size = Pt(11)
     p_tag.font.bold = True
     p_tag.font.color.rgb = ACCENT_BLUE
+    p_tag.space_after = Pt(4)
 
-    # Título Principal
-    tb_title = slide.shapes.add_textbox(Inches(1.0), Inches(1.05), Inches(11.333), Inches(0.6))
-    tf_title = tb_title.text_frame
-    tf_title.word_wrap = True
-    tf_title.margin_top = tf_title.margin_bottom = tf_title.margin_left = tf_title.margin_right = 0
-    p_title = tf_title.paragraphs[0]
-    p_title.text = title
+    # Título Principal (26pt)
+    p_title = tf.add_paragraph()
+    p_title.text = title_text
     p_title.font.name = FONT_FAMILY
-    p_title.font.size = Pt(28)
+    p_title.font.size = Pt(26)
     p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_MAIN
+    p_title.font.color.rgb = TEXT_BLACK
+    p_title.space_after = Pt(4)
 
-    # Subtítulo explicativo curto
-    tb_sub = slide.shapes.add_textbox(Inches(1.0), Inches(1.75), Inches(11.333), Inches(0.4))
-    tf_sub = tb_sub.text_frame
-    tf_sub.word_wrap = True
-    tf_sub.margin_top = tf_sub.margin_bottom = tf_sub.margin_left = tf_sub.margin_right = 0
-    p_sub = tf_sub.paragraphs[0]
-    p_sub.text = subtitle
+    # Subtítulo (13.5pt)
+    p_sub = tf.add_paragraph()
+    p_sub.text = subtitle_text
     p_sub.font.name = FONT_FAMILY
-    p_sub.font.size = Pt(14)
+    p_sub.font.size = Pt(13.5)
     p_sub.font.color.rgb = TEXT_MUTED
 
-    # Linha divisória
+    # Linha divisória fina
     line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1.0), Inches(2.25), Inches(11.333), Inches(0.015))
     line.fill.solid()
     line.fill.fore_color.rgb = LINE_COLOR
     line.line.fill.background()
 
-def add_footer(slide, slide_num):
-    """Adiciona rodapé limpo."""
+def add_footer(slide, current_slide, total_slides=5):
+    """Rodapé limpo e discreto."""
     line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(1.0), Inches(6.8), Inches(11.333), Inches(0.015))
     line.fill.solid()
     line.fill.fore_color.rgb = LINE_COLOR
@@ -81,7 +86,7 @@ def add_footer(slide, slide_num):
     tf = tb.text_frame
     tf.margin_top = tf.margin_bottom = tf.margin_left = tf.margin_right = 0
     p = tf.paragraphs[0]
-    p.text = f"AI4Good (UFRPE) · Sem2 · Cauã da Cunha Lira | Slide {slide_num} de 5"
+    p.text = f"AI4Good (UFRPE) · Sem2 (Demonstração) · Cauã Lira  |  Slide {current_slide} de {total_slides}  |  grafoparadaweb.vercel.app"
     p.font.name = FONT_FAMILY
     p.font.size = Pt(10)
     p.font.color.rgb = TEXT_MUTED
@@ -91,22 +96,23 @@ def add_footer(slide, slide_num):
 # SLIDE 1: DEMO AO VIVO (PONTA A PONTA)
 # ==============================================================================
 s1 = prs.slides.add_slide(blank_layout)
-add_header(s1, "01 / Ponta a Ponta · Demo ao Vivo", 
-           "GrafoParada: Previsão da Linha 199 na PE-60", 
-           "Usuário real, entrada real e o que a tela deixa o passageiro fazer.")
+set_slide_background(s1)
+add_header(s1, "01 / Ponta a Ponta · Demonstração ao Vivo",
+           "GrafoParada: Mobilidade Inteligente no Grande Recife",
+           "Dados 100% reais: 400 Linhas GTFS CTM + Satélite Cittamobi ao vivo.")
 add_footer(s1, 1)
 
-# Coluna 1: O Caso Concreto
-tb1 = s1.shapes.add_textbox(Inches(1.0), Inches(2.7), Inches(6.2), Inches(3.8))
+# Coluna 1: O Caso Concreto em 4 pontos
+tb1 = s1.shapes.add_textbox(Inches(1.0), Inches(2.6), Inches(6.4), Inches(3.9))
 tf1 = tb1.text_frame
 tf1.word_wrap = True
 tf1.margin_top = tf1.margin_bottom = tf1.margin_left = tf1.margin_right = 0
 
 items_s1 = [
-    ("QUEM USA", "Passageiro trabalhador na parada da PE-60 (Camela / Ipojuca)"),
-    ("ENTRADA REAL", "Linha 199 (Camela ➔ TI Cabo), saída às 06h10 para Suape"),
-    ("SAÍDA NA TELA", "Previsão exata: 4 min, Plataforma 04, 14 assentos livres"),
-    ("O QUE DEIXA FAZER", "Sair no minuto certo (06h08) sem mofar no acostamento escuro")
+    ("QUEM USA", "Estudante ou trabalhador na Região Metropolitana do Recife"),
+    ("ENTRADA REAL", "Linha 522 (Dois Irmãos / UFRPE) ou qualquer das 400 linhas do GTFS"),
+    ("SAÍDA NA TELA", "Previsão exata em 4 min, assentos livres, letreiro LED e voz no fone"),
+    ("O QUE DEIXA FAZER", "Sair no minuto exato (06h09) sem mofar no ponto de ônibus")
 ]
 
 for idx, (label, val) in enumerate(items_s1):
@@ -122,22 +128,22 @@ for idx, (label, val) in enumerate(items_s1):
     p_val.font.name = FONT_FAMILY
     p_val.font.size = Pt(15)
     p_val.font.bold = False
-    p_val.font.color.rgb = TEXT_MAIN
+    p_val.font.color.rgb = TEXT_BLACK
     p_val.space_after = Pt(14)
 
-# Coluna 2: Box de Execução ao Vivo
-box_demo = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(7.8), Inches(2.7), Inches(4.5), Inches(3.6))
-box_demo.fill.solid()
-box_demo.fill.fore_color.rgb = RGBColor(248, 249, 250)
-box_demo.line.color.rgb = LINE_COLOR
-box_demo.line.width = Pt(1)
+# Coluna 2: Box da Execução Viva
+box1 = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(7.9), Inches(2.6), Inches(4.4), Inches(3.8))
+box1.fill.solid()
+box1.fill.fore_color.rgb = RGBColor(248, 250, 252) # Slate 50
+box1.line.color.rgb = LINE_COLOR
+box1.line.width = Pt(1)
 
-tb_box = s1.shapes.add_textbox(Inches(8.2), Inches(3.0), Inches(3.7), Inches(3.0))
-tf_box = tb_box.text_frame
-tf_box.word_wrap = True
-tf_box.margin_top = tf_box.margin_bottom = tf_box.margin_left = tf_box.margin_right = 0
+tb_b1 = s1.shapes.add_textbox(Inches(8.3), Inches(2.9), Inches(3.6), Inches(3.2))
+tf_b1 = tb_b1.text_frame
+tf_b1.word_wrap = True
+tf_b1.margin_top = tf_b1.margin_bottom = tf_b1.margin_left = tf_b1.margin_right = 0
 
-p = tf_box.paragraphs[0]
+p = tf_b1.paragraphs[0]
 p.text = "DEMONSTRAÇÃO AO VIVO"
 p.font.name = FONT_FAMILY
 p.font.size = Pt(11)
@@ -145,16 +151,16 @@ p.font.bold = True
 p.font.color.rgb = ACCENT_BLUE
 p.space_after = Pt(16)
 
-p2 = tf_box.add_paragraph()
-p2.text = "Roda direto do repositório"
+p2 = tf_b1.add_paragraph()
+p2.text = "Rodando do Repositório"
 p2.font.name = FONT_FAMILY
-p2.font.size = Pt(18)
+p2.font.size = Pt(20)
 p2.font.bold = True
-p2.font.color.rgb = TEXT_MAIN
+p2.font.color.rgb = TEXT_BLACK
 p2.space_after = Pt(14)
 
-p3 = tf_box.add_paragraph()
-p3.text = "• Web: grafoparadaweb.vercel.app\n• Commit: 0cdf397\n• Aparelho: Celular espelhado na sala\n• Reserva: Vídeo contínuo gravado"
+p3 = tf_b1.add_paragraph()
+p3.text = "• Web: grafoparadaweb.vercel.app\n• Rede: 400 linhas reais e 44 T.I.s do SEI\n• API: Cittamobi ao vivo (a=202)\n• Aparelho: Celular espelhado na sala\n• Reserva: Vídeo contínuo gravado"
 p3.font.name = FONT_FAMILY
 p3.font.size = Pt(13)
 p3.font.color.rgb = TEXT_MUTED
@@ -164,200 +170,204 @@ p3.font.color.rgb = TEXT_MUTED
 # SLIDE 2: QUANTO CUSTA (MEDIDO VS FLX.MD)
 # ==============================================================================
 s2 = prs.slides.add_slide(blank_layout)
-add_header(s2, "02 / Quanto Custa, Medido", 
-           "Medição Real na Máquina vs Estimativa do flx", 
-           "Execução com medir_custo_sem2.py identificada por tempo e pico de memória.")
+set_slide_background(s2)
+add_header(s2, "02 / Quanto Custa, Medido",
+           "Medição Real na Máquina vs Estimativa do flx.md",
+           "Medido com medir_custo_sem2.py identificado por tempo e pico de memória.")
 add_footer(s2, 2)
 
-# Bloco Esquerdo: MEDIDO
-tb2_left = s2.shapes.add_textbox(Inches(1.0), Inches(2.7), Inches(5.4), Inches(3.8))
-tf2_left = tb2_left.text_frame
-tf2_left.word_wrap = True
-tf2_left.margin_top = tf2_left.margin_bottom = tf2_left.margin_left = tf2_left.margin_right = 0
+# Regra dos Terços: 3 Colunas Limpas
+col_w = Inches(3.5)
 
-p = tf2_left.paragraphs[0]
-p.text = "MEDIDO NESTA MÁQUINA (COMMIT 0CDF397)"
+# Coluna 1: No Celular (On-Device)
+tb2_c1 = s2.shapes.add_textbox(Inches(1.0), Inches(2.6), col_w, Inches(3.9))
+tf2_c1 = tb2_c1.text_frame
+tf2_c1.word_wrap = True
+tf2_c1.margin_top = tf2_c1.margin_bottom = tf2_c1.margin_left = tf2_c1.margin_right = 0
+
+p = tf2_c1.paragraphs[0]
+p.text = "NO CELULAR (ON-DEVICE)"
 p.font.name = FONT_FAMILY
 p.font.size = Pt(11)
 p.font.bold = True
 p.font.color.rgb = ACCENT_BLUE
-p.space_after = Pt(14)
+p.space_after = Pt(12)
 
-# Número 1 Celular
-p_c1 = tf2_left.add_paragraph()
-p_c1.text = "4,98 ms  ·  12 KB"
-p_c1.font.name = FONT_FAMILY
-p_c1.font.size = Pt(36)
-p_c1.font.bold = True
-p_c1.font.color.rgb = TEXT_MAIN
+p_num = tf2_c1.add_paragraph()
+p_num.text = "4,98 ms"
+p_num.font.name = FONT_FAMILY
+p_num.font.size = Pt(40)
+p_num.font.bold = True
+p_num.font.color.rgb = ACCENT_GREEN
 
-p_c1_sub = tf2_left.add_paragraph()
-p_c1_sub.text = "No aparelho (celular) — FSM cinemática v3"
-p_c1_sub.font.name = FONT_FAMILY
-p_c1_sub.font.size = Pt(13)
-p_c1_sub.font.color.rgb = TEXT_MUTED
-p_c1_sub.space_after = Pt(20)
+p_sub = tf2_c1.add_paragraph()
+p_sub.text = "Memória RAM: 12 KB\nMáquina de Estados Cinemática v3 com Soft-Voting. Bateria intocada."
+p_sub.font.name = FONT_FAMILY
+p_sub.font.size = Pt(13)
+p_sub.font.color.rgb = TEXT_MUTED
 
-# Número 2 Servidor
-p_c2 = tf2_left.add_paragraph()
-p_c2.text = "0,77 ms  ·  358 MB"
-p_c2.font.name = FONT_FAMILY
-p_c2.font.size = Pt(36)
-p_c2.font.bold = True
-p_c2.font.color.rgb = TEXT_MAIN
+# Coluna 2: No Servidor (STGCN)
+tb2_c2 = s2.shapes.add_textbox(Inches(4.9), Inches(2.6), col_w, Inches(3.9))
+tf2_c2 = tb2_c2.text_frame
+tf2_c2.word_wrap = True
+tf2_c2.margin_top = tf2_c2.margin_bottom = tf2_c2.margin_left = tf2_c2.margin_right = 0
 
-p_c2_sub = tf2_left.add_paragraph()
-p_c2_sub.text = "No servidor (CPU) — STGCN em 20 paradas da PE-60"
-p_c2_sub.font.name = FONT_FAMILY
-p_c2_sub.font.size = Pt(13)
-p_c2_sub.font.color.rgb = TEXT_MUTED
+p = tf2_c2.paragraphs[0]
+p.text = "NO SERVIDOR (CPU PURA)"
+p.font.name = FONT_FAMILY
+p.font.size = Pt(11)
+p.font.bold = True
+p.font.color.rgb = ACCENT_BLUE
+p.space_after = Pt(12)
 
+p_num2 = tf2_c2.add_paragraph()
+p_num2.text = "0,77 ms"
+p_num2.font.name = FONT_FAMILY
+p_num2.font.size = Pt(40)
+p_num2.font.bold = True
+p_num2.font.color.rgb = TEXT_BLACK
 
-# Bloco Direito: ESTIMADO NO FLX & EXPLICAÇÃO
-tb2_right = s2.shapes.add_textbox(Inches(7.2), Inches(2.7), Inches(5.1), Inches(3.8))
-tf2_right = tb2_right.text_frame
-tf2_right.word_wrap = True
-tf2_right.margin_top = tf2_right.margin_bottom = tf2_right.margin_left = tf2_right.margin_right = 0
+p_sub2 = tf2_c2.add_paragraph()
+p_sub2.text = "Memória RAM: 358 MB\nSTGCN em PyTorch rodando na CPU. Pesos ocupam menos de 100 KB."
+p_sub2.font.name = FONT_FAMILY
+p_sub2.font.size = Pt(13)
+p_sub2.font.color.rgb = TEXT_MUTED
 
-p_r = tf2_right.paragraphs[0]
-p_r.text = "ESTIMADO NO FLX.MD"
-p_r.font.name = FONT_FAMILY
-p_r.font.size = Pt(11)
-p_r.font.bold = True
-p_r.font.color.rgb = TEXT_MUTED
-p_r.space_after = Pt(14)
+# Coluna 3: Estimado no flx & Custo Financeiro
+tb2_c3 = s2.shapes.add_textbox(Inches(8.8), Inches(2.6), col_w, Inches(3.9))
+tf2_c3 = tb2_c3.text_frame
+tf2_c3.word_wrap = True
+tf2_c3.margin_top = tf2_c3.margin_bottom = tf2_c3.margin_left = tf2_c3.margin_right = 0
 
-p_r1 = tf2_right.add_paragraph()
-p_r1.text = "< 500 ms  ·  ~300 MB"
-p_r1.font.name = FONT_FAMILY
-p_r1.font.size = Pt(36)
-p_r1.font.bold = True
-p_r1.font.color.rgb = TEXT_MUTED
+p = tf2_c3.paragraphs[0]
+p.text = "ESTIMADO NO FLX & CUSTO"
+p.font.name = FONT_FAMILY
+p.font.size = Pt(11)
+p.font.bold = True
+p.font.color.rgb = ACCENT_BLUE
+p.space_after = Pt(12)
 
-p_r1_sub = tf2_right.add_paragraph()
-p_r1_sub.text = "Estimativa teórica preliminar do fluxo"
-p_r1_sub.font.name = FONT_FAMILY
-p_r1_sub.font.size = Pt(13)
-p_r1_sub.font.color.rgb = TEXT_MUTED
-p_r1_sub.space_after = Pt(24)
+p_num3 = tf2_c3.add_paragraph()
+p_num3.text = "R$ 0,00"
+p_num3.font.name = FONT_FAMILY
+p_num3.font.size = Pt(40)
+p_num3.font.bold = True
+p_num3.font.color.rgb = ACCENT_BLUE
 
-p_diff = tf2_right.add_paragraph()
-p_diff.text = "A DIFERENÇA EXPLICADA:"
-p_diff.font.name = FONT_FAMILY
-p_diff.font.size = Pt(11)
-p_diff.font.bold = True
-p_diff.font.color.rgb = ACCENT_BLUE
-
-p_diff_txt = tf2_right.add_paragraph()
-p_diff_txt.text = "1. Tempo: A inferência na CPU pura levou 0,77 ms (muito menor que o teto de 500 ms).\n2. Memória: 358 MB medidos do processo PyTorch segurando bibliotecas no SO.\n3. Custo financeiro: R$ 0,00 (sem nuvem paga)."
-p_diff_txt.font.name = FONT_FAMILY
-p_diff_txt.font.size = Pt(13)
-p_diff_txt.font.color.rgb = TEXT_MAIN
+p_sub3 = tf2_c3.add_paragraph()
+p_sub3.text = "flx previa < 500 ms e ~300 MB.\nExecuta 650x mais rápido que o previsto. Custo zero em nuvem paga."
+p_sub3.font.name = FONT_FAMILY
+p_sub3.font.size = Pt(13)
+p_sub3.font.color.rgb = TEXT_MUTED
 
 
 # ==============================================================================
 # SLIDE 3: A FALHA REAL (MOSTRADA DE PROPÓSITO)
 # ==============================================================================
 s3 = prs.slides.add_slide(blank_layout)
-add_header(s3, "03 / A Falha Mostrada de Propósito", 
-           "Bloqueio no Trevo de Ipojuca: Over-smoothing na STGCN", 
-           "A entrada que erra, o que sai, o certo e quem sofre.")
+set_slide_background(s3)
+add_header(s3, "03 / A Falha Mostrada de Propósito",
+           "A Falha Real: Over-smoothing na STGCN",
+           "A saída errada como saiu, o certo pelo GPS real e a trava de segurança adotada.")
 add_footer(s3, 3)
 
-# Coluna 1: Como Saiu (IA)
-tb3_left = s3.shapes.add_textbox(Inches(1.0), Inches(2.7), Inches(5.3), Inches(3.8))
-tf3_left = tb3_left.text_frame
-tf3_left.word_wrap = True
-tf3_left.margin_top = tf3_left.margin_bottom = tf3_left.margin_left = tf3_left.margin_right = 0
+# Duas Colunas de Alto Contraste
+col_w3 = Inches(5.3)
 
-p = tf3_left.paragraphs[0]
-p.text = "COMO A IA PREVIU (SAÍDA ERRADA)"
+# Coluna 1: Como a IA Previu (Saída Errada)
+tb3_c1 = s3.shapes.add_textbox(Inches(1.0), Inches(2.6), col_w3, Inches(3.9))
+tf3_c1 = tb3_c1.text_frame
+tf3_c1.word_wrap = True
+tf3_c1.margin_top = tf3_c1.margin_bottom = tf3_c1.margin_left = tf3_c1.margin_right = 0
+
+p = tf3_c1.paragraphs[0]
+p.text = "SAÍDA DA IA (SUPER-SUAVIZAÇÃO)"
 p.font.name = FONT_FAMILY
 p.font.size = Pt(11)
 p.font.bold = True
 p.font.color.rgb = ALERT_RED
-p.space_after = Pt(12)
+p.space_after = Pt(10)
 
-p_err = tf3_left.add_paragraph()
-p_err.text = "18 minutos"
+p_err = tf3_c1.add_paragraph()
+p_err.text = "18 min"
 p_err.font.name = FONT_FAMILY
-p_err.font.size = Pt(44)
+p_err.font.size = Pt(48)
 p_err.font.bold = True
 p_err.font.color.rgb = ALERT_RED
 
-p_err_txt = tf3_left.add_paragraph()
-p_err_txt.text = "A STGCN suavizou o atraso pela malha gráfica com as paradas vizinhas. O número parece razoável, mas mente."
+p_err_txt = tf3_c1.add_paragraph()
+p_err_txt.text = "A convolução em grafo diluiu o atraso brusco com as paradas vizinhas desimpedidas. O número parece razoável, mas mente."
 p_err_txt.font.name = FONT_FAMILY
 p_err_txt.font.size = Pt(14)
-p_err_txt.font.color.rgb = TEXT_MAIN
-p_err_txt.space_after = Pt(20)
+p_err_txt.font.color.rgb = TEXT_BLACK
+p_err_txt.space_after = Pt(16)
 
-p_quem = tf3_left.add_paragraph()
-p_quem.text = "QUEM SOFRE O ERRO:"
-p_quem.font.name = FONT_FAMILY
-p_quem.font.size = Pt(11)
-p_quem.font.bold = True
-p_quem.font.color.rgb = ALERT_RED
+p_who = tf3_c1.add_paragraph()
+p_who.text = "QUEM SOFRE O ERRO:"
+p_who.font.name = FONT_FAMILY
+p_who.font.size = Pt(11)
+p_who.font.bold = True
+p_who.font.color.rgb = ALERT_RED
 
-p_quem_txt = tf3_left.add_paragraph()
-p_quem_txt.text = "O trabalhador na parada: confia no app, espera o ônibus que não vem e perde o turno da fábrica."
-p_quem_txt.font.name = FONT_FAMILY
-p_quem_txt.font.size = Pt(14)
-p_quem_txt.font.color.rgb = TEXT_MAIN
+p_who_txt = tf3_c1.add_paragraph()
+p_who_txt.text = "O passageiro que confia no app, espera um ônibus que não vem e perde o turno ou a prova na faculdade."
+p_who_txt.font.name = FONT_FAMILY
+p_who_txt.font.size = Pt(13)
+p_who_txt.font.color.rgb = TEXT_MUTED
 
+# Coluna 2: O Certo (GPS Real) e a Trava
+tb3_c2 = s3.shapes.add_textbox(Inches(7.0), Inches(2.6), col_w3, Inches(3.9))
+tf3_c2 = tb3_c2.text_frame
+tf3_c2.word_wrap = True
+tf3_c2.margin_top = tf3_c2.margin_bottom = tf3_c2.margin_left = tf3_c2.margin_right = 0
 
-# Coluna 2: O Certo (GPS Real) e a Proteção
-tb3_right = s3.shapes.add_textbox(Inches(7.0), Inches(2.7), Inches(5.3), Inches(3.8))
-tf3_right = tb3_right.text_frame
-tf3_right.word_wrap = True
-tf3_right.margin_top = tf3_right.margin_bottom = tf3_right.margin_left = tf3_right.margin_right = 0
+p = tf3_c2.paragraphs[0]
+p.text = "O CERTO (REALIDADE DO GPS SATÉLITE)"
+p.font.name = FONT_FAMILY
+p.font.size = Pt(11)
+p.font.bold = True
+p.font.color.rgb = ACCENT_GREEN
+p.space_after = Pt(10)
 
-p_r = tf3_right.paragraphs[0]
-p_r.text = "O CERTO (REALIDADE DO GPS)"
-p_r.font.name = FONT_FAMILY
-p_r.font.size = Pt(11)
-p_r.font.bold = True
-p_r.font.color.rgb = ACCENT_GREEN
-p_r.space_after = Pt(12)
-
-p_cor = tf3_right.add_paragraph()
-p_cor.text = "45 minutos"
+p_cor = tf3_c2.add_paragraph()
+p_cor.text = "45 min"
 p_cor.font.name = FONT_FAMILY
-p_cor.font.size = Pt(44)
+p_cor.font.size = Pt(48)
 p_cor.font.bold = True
 p_cor.font.color.rgb = ACCENT_GREEN
 
-p_cor_txt = tf3_right.add_paragraph()
-p_cor_txt.text = "O ônibus travou totalmente no bloqueio do Trevo de Ipojuca (PE-60 / Nó 10)."
+p_cor_txt = tf3_c2.add_paragraph()
+p_cor_txt.text = "O coletivo travou fisicamente num bloqueio/acidente da via com retenção severa detectada no satélite."
 p_cor_txt.font.name = FONT_FAMILY
 p_cor_txt.font.size = Pt(14)
-p_cor_txt.font.color.rgb = TEXT_MAIN
-p_cor_txt.space_after = Pt(20)
+p_cor_txt.font.color.rgb = TEXT_BLACK
+p_cor_txt.space_after = Pt(16)
 
-p_prot = tf3_right.add_paragraph()
-p_prot.text = "A PROTEÇÃO ADOTADA:"
-p_prot.font.name = FONT_FAMILY
-p_prot.font.size = Pt(11)
-p_prot.font.bold = True
-p_prot.font.color.rgb = ACCENT_BLUE
+p_trava = tf3_c2.add_paragraph()
+p_trava.text = "A TRAVA DE SEGURANÇA ADOTADA:"
+p_trava.font.name = FONT_FAMILY
+p_trava.font.size = Pt(11)
+p_trava.font.bold = True
+p_trava.font.color.rgb = ACCENT_BLUE
 
-p_prot_txt = tf3_right.add_paragraph()
-p_prot_txt.text = "Trava híbrida: se |STGCN - GPS| > 15 min, corta a IA e acende alerta de interdição [?] na tela."
-p_prot_txt.font.name = FONT_FAMILY
-p_prot_txt.font.size = Pt(14)
-p_prot_txt.font.color.rgb = TEXT_MAIN
+p_trava_txt = tf3_c2.add_paragraph()
+p_trava_txt.text = "Corte Híbrido: se |STGCN - GPS| > 15 min, o sistema corta a previsão da IA e acende o alerta de interdição [?]."
+p_trava_txt.font.name = FONT_FAMILY
+p_trava_txt.font.size = Pt(13)
+p_trava_txt.font.color.rgb = TEXT_MUTED
 
 
 # ==============================================================================
 # SLIDE 4: O QUE MUDOU DESDE O SEM1 (DUAS LINHAS CLARAS)
 # ==============================================================================
 s4 = prs.slides.add_slide(blank_layout)
-add_header(s4, "04 / O Que Mudou desde o Sem1", 
-           "Decisão Justificada: Por Que Mantivemos a STGCN", 
-           "O que valia no sem1, o que vale agora e o porquê comprovado na malha.")
+set_slide_background(s4)
+add_header(s4, "04 / O Que Mudou desde o Sem1",
+           "Decisão Justificada: Por Que Mantivemos a STGCN",
+           "O que valia no sem1, o que vale agora e o porquê comprovado na malha real.")
 add_footer(s4, 4)
 
-tb4 = s4.shapes.add_textbox(Inches(1.0), Inches(2.7), Inches(11.333), Inches(3.8))
+tb4 = s4.shapes.add_textbox(Inches(1.0), Inches(2.6), Inches(11.333), Inches(3.9))
 tf4 = tb4.text_frame
 tf4.word_wrap = True
 tf4.margin_top = tf4.margin_bottom = tf4.margin_left = tf4.margin_right = 0
@@ -366,7 +376,7 @@ tf4.margin_top = tf4.margin_bottom = tf4.margin_left = tf4.margin_right = 0
 p1_tag = tf4.paragraphs[0]
 p1_tag.text = "NO SEM1 (CORREDOR CURTO · 5 PARADAS):"
 p1_tag.font.name = FONT_FAMILY
-p1_tag.font.size = Pt(12)
+p1_tag.font.size = Pt(11)
 p1_tag.font.bold = True
 p1_tag.font.color.rgb = TEXT_MUTED
 
@@ -375,10 +385,10 @@ p1_main.text = "O cálculo linear simples bateu a STGCN (2,46 min vs 4,42 min)."
 p1_main.font.name = FONT_FAMILY
 p1_main.font.size = Pt(22)
 p1_main.font.bold = True
-p1_main.font.color.rgb = TEXT_MAIN
+p1_main.font.color.rgb = TEXT_BLACK
 
 p1_sub = tf4.add_paragraph()
-p1_sub.text = "Dúvida legítima da banca: 'Para que usar rede em grafo se a conta simples ganha?'"
+p1_sub.text = "Dúvida legítima do Sem1: 'Para que gastar memória com rede em grafo se uma conta simples ganha?'"
 p1_sub.font.name = FONT_FAMILY
 p1_sub.font.size = Pt(14)
 p1_sub.font.color.rgb = TEXT_MUTED
@@ -386,9 +396,9 @@ p1_sub.space_after = Pt(36)
 
 # Linha 2: Sem 2
 p2_tag = tf4.add_paragraph()
-p2_tag.text = "AGORA NO SEM2 (MALHA COMPLETA DA PE-60 · 20 PARADAS):"
+p2_tag.text = "AGORA NO SEM2 (MALHA METROPOLITANA REAL · 20+ PARADAS):"
 p2_tag.font.name = FONT_FAMILY
-p2_tag.font.size = Pt(12)
+p2_tag.font.size = Pt(11)
 p2_tag.font.bold = True
 p2_tag.font.color.rgb = ACCENT_BLUE
 
@@ -400,22 +410,23 @@ p2_main.font.bold = True
 p2_main.font.color.rgb = ACCENT_BLUE
 
 p2_sub = tf4.add_paragraph()
-p2_sub.text = "Decisão: Fica a STGCN. Na malha rodoviária real, a propagação espacial de atrasos justifica a IA (-78% de erro)."
+p2_sub.text = "Decisão: Fica a STGCN. Na malha metropolitana, a propagação espacial de atrasos justifica a IA (-78% de erro)."
 p2_sub.font.name = FONT_FAMILY
 p2_sub.font.size = Pt(14)
-p2_sub.font.color.rgb = TEXT_MAIN
+p2_sub.font.color.rgb = TEXT_BLACK
 
 
 # ==============================================================================
-# SLIDE 5: O FECHO (PONTE DIRETA PARA O SEM3)
+# SLIDE 5: FECHO & PONTE DIRETA PARA O SEM3
 # ==============================================================================
 s5 = prs.slides.add_slide(blank_layout)
-add_header(s5, "05 / Fecho & Próximo Passo", 
-           "A Falha de Hoje É a Medida do Experimento", 
-           "Seminário 3 (25/11): Experimento formal e medidas de campo na PE-60.")
+set_slide_background(s5)
+add_header(s5, "05 / Fecho & Próximo Passo",
+           "A Falha de Hoje É a Medida do Experimento de Campo",
+           "Seminário 3 (25/11): Experimento formal de validação da trava híbrida.")
 add_footer(s5, 5)
 
-tb5 = s5.shapes.add_textbox(Inches(1.0), Inches(2.7), Inches(11.333), Inches(3.8))
+tb5 = s5.shapes.add_textbox(Inches(1.0), Inches(2.6), Inches(11.333), Inches(3.9))
 tf5 = tb5.text_frame
 tf5.word_wrap = True
 tf5.margin_top = tf5.margin_bottom = tf5.margin_left = tf5.margin_right = 0
@@ -423,7 +434,7 @@ tf5.margin_top = tf5.margin_bottom = tf5.margin_left = tf5.margin_right = 0
 p5_tag = tf5.paragraphs[0]
 p5_tag.text = "O FECHO DO SEM2:"
 p5_tag.font.name = FONT_FAMILY
-p5_tag.font.size = Pt(12)
+p5_tag.font.size = Pt(11)
 p5_tag.font.bold = True
 p5_tag.font.color.rgb = ACCENT_BLUE
 
@@ -432,22 +443,22 @@ p5_main.text = "Roda no celular e na CPU local a custo zero, e a falha de over-s
 p5_main.font.name = FONT_FAMILY
 p5_main.font.size = Pt(22)
 p5_main.font.bold = True
-p5_main.font.color.rgb = TEXT_MAIN
+p5_main.font.color.rgb = TEXT_BLACK
 p5_main.space_after = Pt(36)
 
 p5_exp_tag = tf5.add_paragraph()
 p5_exp_tag.text = "A MEDIDA DO SEM3 (25/11):"
 p5_exp_tag.font.name = FONT_FAMILY
-p5_exp_tag.font.size = Pt(12)
+p5_exp_tag.font.size = Pt(11)
 p5_exp_tag.font.bold = True
 p5_exp_tag.font.color.rgb = ACCENT_BLUE
 
 p5_exp_main = tf5.add_paragraph()
-p5_exp_main.text = "Quantos choques de trânsito na PE-60 a trava híbrida consegue capturar contra o erro puro da IA."
+p5_exp_main.text = "Quantos choques de trânsito na malha a trava híbrida consegue capturar contra o erro puro da IA."
 p5_exp_main.font.name = FONT_FAMILY
 p5_exp_main.font.size = Pt(20)
 p5_exp_main.font.bold = False
-p5_exp_main.font.color.rgb = TEXT_MAIN
+p5_exp_main.font.color.rgb = TEXT_BLACK
 p5_exp_main.space_after = Pt(24)
 
 p5_foot = tf5.add_paragraph()

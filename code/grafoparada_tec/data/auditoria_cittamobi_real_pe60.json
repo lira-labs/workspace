@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-11-08T19:52:38Z",
+  "timestamp_utc": "2026-11-11T16:37:25Z",
   "public_repositories_audited": [
     {
       "repo": "ericklucena/cittamobi-wp",
@@ -34,14 +34,14 @@
       "stops_returned": 534,
       "payload_bytes": 142363,
       "payload_kb": 139.03,
-      "latency_ms": 358.58
+      "latency_ms": 363.87
     },
     "recife_centro_viewport": {
       "bbox": "[-8.0800, -34.9100, -8.0300, -34.8650]",
       "stops_returned": 1000,
       "payload_bytes": 274520,
       "payload_kb": 268.09,
-      "latency_ms": 411.51
+      "latency_ms": 420.6
     },
     "polling_architecture_cittamobi": {
       "timer_interval_sec": 15,
@@ -73,7 +73,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 177.43
+      "latencyMs": 179.05
     },
     {
       "serviceId": 9655999,
@@ -85,7 +85,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 184.73
+      "latencyMs": 166.64
     },
     {
       "serviceId": 9656486,
@@ -97,7 +97,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 162.57
+      "latencyMs": 194.11
     },
     {
       "serviceId": 9656487,
@@ -109,7 +109,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 185.21
+      "latencyMs": 190.94
     },
     {
       "serviceId": 9656488,
@@ -121,7 +121,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 158.54
+      "latencyMs": 181.71
     },
     {
       "serviceId": 9656489,
@@ -133,7 +133,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 184.46
+      "latencyMs": 165.96
     },
     {
       "serviceId": 9656042,
@@ -145,7 +145,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 185.41
+      "latencyMs": 180.01
     },
     {
       "serviceId": 9656043,
@@ -157,7 +157,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 192.39
+      "latencyMs": 167.41
     },
     {
       "serviceId": 9656040,
@@ -169,7 +169,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 158.36
+      "latencyMs": 186.3
     },
     {
       "serviceId": 9656041,
@@ -181,7 +181,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 180.31
+      "latencyMs": 191.66
     },
     {
       "serviceId": 9656508,
@@ -193,7 +193,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 178.85
+      "latencyMs": 188.97
     },
     {
       "serviceId": 9656509,
@@ -205,7 +205,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 164.61
+      "latencyMs": 184.57
     },
     {
       "serviceId": 6663,
@@ -217,7 +217,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 170.06
+      "latencyMs": 179.69
     },
     {
       "serviceId": 6666,
@@ -229,7 +229,7 @@
       "companyAuthorized": true,
       "activeVehicles": 0,
       "responseBytes": 2,
-      "latencyMs": 181.66
+      "latencyMs": 180.31
     }
   ],
   "pe60_corridor_20_stops_mapping": [
