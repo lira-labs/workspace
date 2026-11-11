@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roteiro Descomplicado · Seminário 2 (Hoje) — Cauã Lira</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --blue: #0284c7;
+      --blue-bg: #f0f9ff;
+      --blue-border: #bae6fd;
+      --green: #059669;
+      --green-bg: #ecfdf5;
+      --green-border: #a7f3d0;
+      --red: #e11d48;
+      --red-bg: #fff1f2;
+      --red-border: #fecdd3;
+      --amber: #d97706;
+      --amber-bg: #fffbeb;
+      --amber-border: #fde68a;
+      --purple: #7c3aed;
+      --purple-bg: #f5f3ff;
+      --purple-border: #ddd6fe;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 16px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+    }
+    .badge-top {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .header-sub {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 12px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-pill strong {
+      display: block;
+      font-size: 15px;
+      color: #38bdf8;
+    }
+    .stat-pill span {
+      font-size: 10.5px;
+      color: #cbd5e1;
+    }
+
+    /* CARD DE PREPARAÇÃO */
+    .prep-box {
+      background: var(--amber-bg);
+      border: 1.5px solid var(--amber-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .prep-box h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #92400e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .prep-list {
+      list-style: none;
+      font-size: 12.5px;
+      color: #78350f;
+    }
+    .prep-list li {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    /* BLOCOS DE SLIDES */
+    .slide-section {
+      background: var(--card-bg);
+      border: 1.5px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 20px 18px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+    .slide-tag-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .slide-pill {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+    .slide-timer {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--blue);
+      background: var(--blue-bg);
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--blue-border);
+    }
+    .slide-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .action-box {
+      background: #f1f5f9;
+      border-left: 4px solid var(--blue);
+      padding: 10px 12px;
+      border-radius: 0 10px 10px 0;
+      font-size: 12px;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+    .action-box strong { color: var(--blue); }
+
+    .speech-box {
+      background: #fafafa;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .speech-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speech-text {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #1e293b;
+    }
+    .speech-text mark {
+      background: #fef08a;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .tip-box {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #065f46;
+    }
+
+    /* SEÇÃO DE PERGUNTAS E RESPOSTAS */
+    .qa-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .qa-q {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--red);
+      margin-bottom: 6px;
+    }
+    .qa-a {
+      font-size: 12.5px;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .footer-actions {
+      text-align: center;
+      margin: 30px 0 20px;
+    }
+    .btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CABEÇALHO PRINCIPAL -->
+  <header>
+    <div class="badge-top">AI4Good · UFRPE · Quarta, 11/11</div>
+    <h1>Roteiro da Sua Apresentação (Seminário 2)</h1>
+    <div class="header-sub">
+      <strong>Aluno:</strong> Cauã da Cunha Lira &nbsp;|&nbsp; <strong>Professor:</strong> Lucas Silva Figueiredo<br>
+      <strong>Tema:</strong> GrafoParada · Mobilidade Inteligente na PE-60 & Realocação no Vazio
+    </div>
+
+    <div class="quick-stats">
+      <div class="stat-pill">
+        <strong>4 min 15 s</strong>
+        <span>Tempo Alvo</span>
+      </div>
+      <div class="stat-pill">
+        <strong>5 slides</strong>
+        <span>Deck Canva</span>
+      </div>
+      <div class="stat-pill">
+        <strong>Ao Vivo</strong>
+        <span>Demo no Celular</span>
+      </div>
+      <div class="stat-pill">
+        <strong>R$ 0,00</strong>
+        <span>Custo Total</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- DICAS DE OURO ANTES DE COMEÇAR -->
+  <div class="prep-box">
+    <h3>⚡ 3 Coisas Rápidas Antes de Subir para Falar</h3>
+    <ul class="prep-list">
+      <li>✅ <strong>Celular em Mãos com a Tela Aberta:</strong> Deixe o app aberto em <a href="https://grafoparadaweb.vercel.app" target="_blank" style="color:#b45309; font-weight:800;">grafoparadaweb.vercel.app</a>. Se a internet da sala oscilar, o mapa e os dados estão salvos em cache.</li>
+      <li>✅ <strong>Não leia slide:</strong> O professor odeia quem fica de costas lendo texto na parede. O slide só tem número e imagem; a história sai da sua boca.</li>
+      <li>✅ <strong>Fale como um engenheiro que resolveu um problema real:</strong> Você não inventou uma tese teórica; você mapeou a rotina dos trabalhadores de Camela e Suape para acabar com ônibus rodando vazio.</li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 1 -->
+  <div class="slide-section">
+    <div class="slide-tag-row">
+      <span class="slide-pill" style="background:#dcfce7; color:#15803d;">Slide 1 · A Demo ao Vivo</span>
+      <span class="slide-timer">⏱️ 80 segundos</span>
+    </div>
+    <div class="slide-title">A Rotina dos Passageiros Orientando a Realocação da Frota</div>
+
+    <div class="action-box">
+      <strong>📱 O QUE MOSTRAR NA TELA:</strong> Abra o app no celular. Toque no card verde <em>"Minha Rotina (Turno Suape 05h45)"</em> para mostrar o cálculo da saída (06h08). Mostre o letreiro LED âmbar e, se quiser, aperte o botão <em>"🔊 Ouvir"</em> para o áudio falar a chegada em 4 minutos.
+    </div>
+
+    <div class="speech-box">
+      <div class="speech-label">🗣️ O QUE VOCÊ DEVE FALAR (PALAVRAS SUAS):</div>
+      <div class="speech-text">
+        "Bom dia, professor. Este é o <strong>GrafoParada rodando ao vivo</strong> do nosso repositório. O passageiro comum não pega ônibus por acaso: ele tem uma rotina diária de trabalho ou estudo. Com um único toque no celular, o operário que mora em Camela ativa o seu <mark>Turno das 05h45 para Suape</mark>. O app calcula a janela segura: como a caminhada até o ponto leva 6 minutos e o ônibus 199 passa às 06h14, ele avisa para sair de casa exatamente às <mark>06h08</mark>, evitando que a pessoa fique mofando no acostamento escuro e perigoso da rodovia PE-60.
+        <br><br>
+        E para uma senhora de 68 anos, como a Dona Severina, que tem dificuldade de ler letrinhas pequenas, o app exibe na tela o <strong>Letreiro LED idêntico ao letreiro da frente do ônibus</strong> e fala alto no fone: <em>'O 199 chega em 4 minutos, tem 14 bancos livres'</em>.
+        <br><br>
+        Mas a nossa grande tese está aqui: <mark>48 trabalhadores</mark> ativaram essa mesma rotina. A Central do CTM percebe que o ônibus regular vai superlotar e que a Linha 178 de Suape está voltando vazia na contramão — queimando 14 litros de diesel por hora no que chamamos de <em>deadheading</em>. Com um comando na central, o ônibus ocioso é transferido para socorrer a Linha 199. A espera cai de 18 para 4 minutos e ninguém fica na chuva."
+      </div>
+    </div>
+
+    <div class="tip-box">
+      💡 <strong>O Pulo do Gato:</strong> O professor quer ver um <em>usuário concreto</em> (o trabalhador do turno das 07h e a Dona Severina) e uma <em>saída que muda a vida deles</em> (não mofar no ponto e ônibus reforçado).
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide-section">
+    <div class="slide-tag-row">
+      <span class="slide-pill" style="background:#e0f2fe; color:#0369a1;">Slide 2 · Quanto Custa</span>
+      <span class="slide-timer">⏱️ 50 segundos</span>
+    </div>
+    <div class="slide-title">Inferência em Menos de 1 ms e Custo Zero em Nuvem</div>
+
+    <div class="action-box">
+      <strong>📊 O QUE MOSTRAR NA TELA:</strong> O slide exibe o dashboard com os três números medidos pelo script <code>medir_custo_sem2.py</code>: Celular (4,98 ms / 12 KB), Servidor (0,77 ms / 358 MB) e Custo Financeiro (R$ 0,00).
+    </div>
+
+    <div class="speech-box">
+      <div class="speech-label">🗣️ O QUE VOCÊ DEVE FALAR (PALAVRAS SUAS):</div>
+      <div class="speech-text">
+        "Esses números que estão na tela <strong>não são estimativas teóricas</strong>: eles saíram de uma execução de verdade que rodou no meu computador com o script <code>medir_custo_sem2.py</code>.
+        <br><br>
+        No celular do passageiro, a cinemática com filtro de votação suave levou <mark>4,98 milissegundos</mark> e gastou apenas <mark>12 kilobytes de RAM</mark>. É instantâneo e não drena bateria.
+        <br><br>
+        No servidor do CTM, a nossa rede STGCN com 34 mil parâmetros rodou em <mark>0,77 milissegundo por ciclo</mark> na CPU comum. No documento <em>flx</em> eu tinha estimado menos de 500 milissegundos e 300 megabytes de memória. Por que deu diferente? Porque a inferência pura de 20 paradas cabe inteira no cache da CPU, levando menos de 1 milissegundo. E a memória total do processo no Windows deu <mark>358 megabytes</mark>, porque o PyTorch segura as bibliotecas dinâmicas na inicialização, mas os pesos da rede mesmo ocupam só 84 kilobytes.
+        <br><br>
+        O custo em dinheiro segue <mark>R$ 0,00</mark>: roda num computador comum de escritório do consórcio, sem pagar um centavo para nuvem ou servidores externos."
+      </div>
+    </div>
+
+    <div class="tip-box">
+      💡 <strong>O Pulo do Gato:</strong> Quando você explica por que a estimativa do <em>flx</em> errou (500 ms vs 0,77 ms e 300 MB vs 358 MB), você ganha total credibilidade com o professor, porque mostra que você realmente mediu no código.
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide-section">
+    <div class="slide-tag-row">
+      <span class="slide-pill" style="background:#ffe4e6; color:#9f1239;">Slide 3 · A Falha Mostrada de Propósito</span>
+      <span class="slide-timer">⏱️ 65 segundos</span>
+    </div>
+    <div class="slide-title">Onde a IA Mente: Super-Suavização no Bloqueio da PE-60</div>
+
+    <div class="action-box">
+      <strong>🧪 O QUE MOSTRAR NA TELA:</strong> O slide exibe o gráfico do Trevo de Ipojuca: a linha vermelha do GPS saltando para 45 minutos enquanto a curva amarela da STGCN mente dizendo que o ônibus está a 18 minutos. No celular, você pode tocar no botão <em>"Simular Interdição PE-60"</em> para mostrar o alerta amarelo acendendo.
+    </div>
+
+    <div class="speech-box">
+      <div class="speech-label">🗣️ O QUE VOCÊ DEVE FALAR (PALAVRAS SUAS):</div>
+      <div class="speech-text">
+        "Eu fiz questão de trazer este caso porque a nossa inteligência artificial erra de verdade. Imaginem que houve um acidente ou protesto no Trevo de Ipojuca e a PE-60 travou: o atraso real medido no satélite GPS salta de 5 para <mark>45 minutos</mark>.
+        <br><br>
+        Olhem o que a STGCN fez: como ela usa convolução em grafo, ela 'espalha' e suaviza o atraso entre as paradas vizinhas pela matriz matemática. Em vez de 45 minutos, a IA previu apenas <mark>18 minutos</mark>. O número parece bonito, mas é mentiroso.
+        <br><br>
+        <strong>Quem sofre com isso?</strong> O operário na parada de Camela. Ele olha a tela, acha que o ônibus chega logo, espera 45 minutos, perde o turno na fábrica e toma advertência.
+        <br><br>
+        Esse erro me ensinou algo fundamental sobre IA: redes de grafo sofrem de <mark>super-suavização espacial (over-smoothing)</mark> quando ocorrem bloqueios bruscos na rodovia. E como nós resolvemos isso no GrafoParada? Nós <strong>nunca escondemos o GPS bruto</strong>. Criamos uma trava híbrida: se a diferença entre a IA e o GPS passar de 15 minutos, a tela corta a IA, acende o selo de interdição [?] e avisa por voz que a pista travou. Essa falha é exatamente a nossa métrica para o experimento de campo do Sem3 no dia 25."
+      </div>
+    </div>
+
+    <div class="tip-box">
+      💡 <strong>O Pulo do Gato:</strong> Não tente defender que a IA é infalível. O professor Lucas ama quando o aluno mostra a falha de cabeça erguida e diz exatamente <em>quem sofre</em> e <em>o que o erro revela</em>.
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide-section">
+    <div class="slide-tag-row">
+      <span class="slide-pill" style="background:#f3e8ff; color:#6b21a8;">Slide 4 · O que Mudou desde o Sem1</span>
+      <span class="slide-timer">⏱️ 50 segundos</span>
+    </div>
+    <div class="slide-title">De 5 para 20 Paradas: A STGCN Virou o Jogo</div>
+
+    <div class="action-box">
+      <strong>📈 O QUE MOSTRAR NA TELA:</strong> O slide exibe o gráfico de barras comparativo: no Sem1 a regressão linear venceu a STGCN (2,46 vs 4,42 min), mas no Sem2 a STGCN venceu com folga (1,51 min vs 1,93 min linear e 7,13 min da persistência).
+    </div>
+
+    <div class="speech-box">
+      <div class="speech-label">🗣️ O QUE VOCÊ DEVE FALAR (PALAVRAS SUAS):</div>
+      <div class="speech-text">
+        "No primeiro seminário, eu fui honesto e mostrei que, num pedacinho simples de 5 paradas, uma regressão linear básica de padaria tinha errado menos que a STGCN: deu 2,46 contra 4,42 minutos. Prometi à banca que ia testar na malha completa para ver se a rede de grafos realmente se pagava.
+        <br><br>
+        Hoje eu trago a resposta com dados reais do GTFS: nas 20 paradas da PE-60, a STGCN <mark>virou o jogo</mark>. Ela cravou um erro de <mark>1,51 minuto</mark>, batendo a regressão linear que deu 1,93 minuto e a persistência cega que deu 7,13 minutos — uma <strong>redução de 78% do erro</strong>. Quando o corredor cresce e os atrasos se espalham entre os trechos, a IA espacial se justifica plenamente.
+        <br><br>
+        Mas a maior mudança foi de conceito: o GrafoParada deixou de ser um simples aplicativo rastreador passivo, como o Cittamobi. Ele passou a entender a rotina diária das pessoas para acabar com o <em>deadheading</em> — que é o desperdício de ônibus rodando vazios pelo Grande Recife enquanto os trabalhadores mofam no acostamento da PE-60."
+      </div>
+    </div>
+
+    <div class="tip-box">
+      💡 <strong>O Pulo do Gato:</strong> Mudar de opinião ou confirmar uma tese com dados empíricos é o ápice do método científico. Diga com orgulho que no Sem1 a regressão venceu, mas na malha real de 20 paradas a STGCN dominou.
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide-section">
+    <div class="slide-tag-row">
+      <span class="slide-pill" style="background:#ecfdf5; color:#047857;">Slide 5 · Fecho & Sem3</span>
+      <span class="slide-timer">⏱️ 20 segundos</span>
+    </div>
+    <div class="slide-title">A Desistência na Parada Financia o Ônibus no Pico</div>
+
+    <div class="action-box">
+      <strong>🎯 O QUE MOSTRAR NA TELA:</strong> Os 4 cartões de impacto real: 14 L de Diesel poupados, R$ 155,80 de receita preservada, R$ 4,10 do VEM protegido e 166 bytes locais.
+    </div>
+
+    <div class="speech-box">
+      <div class="speech-label">🗣️ O QUE VOCÊ DEVE FALAR (PALAVRAS SUAS):</div>
+      <div class="speech-text">
+        "Para encerrar: o GrafoParada roda no celular, roda na CPU comum do consórcio a custo zero e protege o trabalhador da violência e da exposição no escuro da rodovia. Cada ônibus ocioso remanejado poupa <mark>14 litros de diesel</mark>, preserva <mark>R$ 155</mark> de receita que iria para o transporte clandestino e garante que o cartão VEM não seja cobrado em duplicidade.
+        <br><br>
+        A desistência na parada financia o ônibus no horário de pico. No dia 25 de novembro, no Seminário 3, nós traremos os resultados do experimento de campo na PE-60 com passageiros reais. Obrigado!"
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO DE RESPOSTAS PARA PERGUNTAS DIFÍCEIS (ENSAIO CÉTICO) -->
+  <h2 style="font-size:18px; font-weight:800; color:var(--text-main); margin:32px 0 16px;">
+    🎯 As 5 Perguntas Mais Difíceis da Banca (e Como Responder)
+  </h2>
+
+  <div class="qa-card">
+    <div class="qa-q">1. "Se a STGCN erra feio quando tem acidente prevendo 18 min em vez de 45, por que o usuário confiaria no seu app?"</div>
+    <div class="qa-a">
+      <strong>Sua Resposta:</strong> "Excelente pergunta, professor. Foi exatamente por perceber essa falha que eu criei a <strong>Trava Híbrida de Discrepância</strong> no código. A rede neural cuida do tráfego comum contínuo; mas se houver um bloqueio e o GPS do ônibus indicar uma diferença maior que 15 minutos em relação à STGCN, o app não mente: ele corta a previsão da IA, acende o selo de interdição [?] na tela e avisa por voz no fone que a pista travou. O passageiro confia porque o app não esconde o dado bruto."
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q">2. "O Consórcio Grande Recife (CTM) realmente vai mudar rota de ônibus por causa do seu app?"</div>
+    <div class="qa-a">
+      <strong>Sua Resposta:</strong> "Sim, professor, porque tanto a Linha 199 (Camela / TI Cabo) quanto a Linha 178 (Suape / TI Cabo) são operadas pela <strong>mesma empresa, a Viação São Judas Tadeu (SJT)</strong>. O despachante do TI Cabo já faz remanejamentos manuais por telefone. O GrafoParada apenas automatiza isso entregando a demanda dos trabalhadores com 40 minutos de antecedência, economizando diesel que a empresa hoje queima rodando no vazio."
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q">3. "Por que você não usou uma API em nuvem paga como a da OpenAI ou Google Cloud?"</div>
+    <div class="qa-a">
+      <strong>Sua Resposta:</strong> "Porque o transporte público metropolitano é um serviço contínuo e não pode depender de custos em dólar por requisição nem de servidores fora do país. A nossa rede STGCN tem 34 mil parâmetros e roda em 0,77 milissegundo numa CPU comum de computador de escritório do CTM, com custo financeiro de zero reais e total soberania dos dados."
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q">4. "Uma pessoa idosa ou sem intimidade com celular vai conseguir usar isso?"</div>
+    <div class="qa-a">
+      <strong>Sua Resposta:</strong> "Foi pensando nisso que criamos o <strong>Modo Fácil</strong>. Com um toque, a fonte aumenta, o contraste sobe para padrão de acessibilidade máxima e a tela exibe o <strong>letreiro LED âmbar idêntico ao letreiro da frente do ônibus</strong> (199 CAMELA/CABO), além de um botão de áudio alto que fala a chegada sem exigir que a pessoa fique procurando no mapa."
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-q">5. "Qual é a medida exata que você vai levar para o Seminário 3 no dia 25/11?"</div>
+    <div class="qa-a">
+      <strong>Sua Resposta:</strong> "No Sem3 levaremos a validação de campo na PE-60: a nossa medida será <strong>quantas vezes a trava híbrida de discrepância protegeu o trabalhador contra o over-smoothing da IA</strong> antes de ele chegar na catraca, comparando o tempo de espera real contra o tempo de espera de quem usa o sistema tradicional."
+    </div>
+  </div>
+
+  <!-- LINKS E AÇÕES -->
+  <div class="footer-actions">
+    <a href="https://grafoparadaweb.vercel.app" target="_blank" class="btn-main">
+      <span>📱</span> Abrir GrafoParada ao Vivo na Web
+    </a>
+  </div>
+
+</body>
+</html>

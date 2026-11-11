@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 01:25
+- **Última Atualização:** 11/11/2026 08:30
 - **Branch Ativo:** `feature/if-2va-pqc-telessaude` (Workspace)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -12,6 +12,7 @@
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
+  - *Google Drive*: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app`
   - *Slides Sem2 Web (Canva Style)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
@@ -21,7 +22,13 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Transformação Completa dos Slides: Padrão Canva/Keynote (Zero AI Slop)
+### 1. Roteiro Descomplicado da Apresentação (Disponível no Google Drive)
+- [x] **Documento HTML Educativo e Direto para o Celular**:
+  - Salvo em: `G:\Meu Drive\roteiro_fala_aula_hoje_sem2.html` (raiz do Drive) e `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html`.
+  - Versionado no repositório: `va2/roteiro_fala_aula_hoje_sem2.html` e `code/grafoparada_web/roteiro.html`.
+  - *Conteúdo Prático*: Guia passo a passo com minutagem de cada slide (total 4 min 15 s), o que mostrar no celular ao vivo, as 4 frases em linguagem simples e humana, e respostas prontas na ponta da língua para as 5 perguntas mais difíceis da banca.
+
+### 2. Transformação Completa dos Slides: Padrão Canva/Keynote (Zero AI Slop)
 - [x] **Eliminação Total da Repetição Robótica de 3 Cards**:
   - *Diagnóstico do Usuário/Banca*: A versão anterior repetia o mesmo layout de 3 caixas cinzas arredondadas em todos os 5 slides, denunciando geração mecânica/IA automatizada sem alma.
   - *Novo Padrão Editorial Canva*: Cada slide agora possui uma diagramação visual única, personalizada para a sua mensagem específica, com proporção widescreen 16:9 (`13.333` x `7.5` pol.), tipografia moderna (*Segoe UI / Plus Jakarta Sans*), contraste nítido em Deep Navy (`#0A0F1D`) e zero parágrafos densos (apenas frases de impacto, números e gráficos).
