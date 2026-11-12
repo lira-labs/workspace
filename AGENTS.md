@@ -20,6 +20,10 @@
   - *Gatekeeper Pré-Deploy Obrigatório*: Antes de qualquer merge ou promoção para a `main`, executar obrigatoriamente `uv run python code/grafoparada_tec/pre_flight_check.py` (valida sintaxe JS via Node VM, integridade física do GTFS e 20/20 na suíte de testes). Se houver qualquer falha, o merge para a `main` é terminantemente bloqueado.
 - **ARMAZENAMENTO PESADO NO GOOGLE DRIVE (5 TB)**: Datasets volumosos, vídeos, checkpoints e pesos de modelos de IA (`.pt`, `.ckpt`, `.safetensors`, `.onnx`) NUNCA são commitados no Git nem consom o SSD local. Ficam sempre em `G:\Meu Drive\IA_Projetos\` (`datasets/`, `checkpoints/`, `outputs/`), compartilhados instantaneamente entre o Notebook e o Desktop.
 - **LIMPEZA E HIGIENE**: Arquivos de build (LaTeX `.aux`, `.log`, caches Python `__pycache__`) nunca são commitados.
+- **SISTEMA FULL STACK MULTIAGENTE & ANTI-AI SLOP (`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`)**:
+  - *Princípio Fundamental*: NUNCA implementar código diretamente sem antes inspecionar o projeto, consultar contratos e planejar com separação de responsabilidades (Orquestrador, Arquiteto, Backend, Frontend, Pesquisador, Testes e Crítico Visual).
+  - *Fonte Canônica de Contratos*: `/contracts/` (`api-contract.yaml`, `data-model.md`, `integration-notes.md`). O Frontend nunca inventa campos; o Backend nunca altera respostas sem atualizar o contrato.
+  - *Qualidade de UI & 5 Estados*: A interface nasce da tarefa do usuário e não de templates decorativos. Proibido AI Slop (cards dentro de cards, gradientes aleatórios, emojis como ícones corporativos). Tratar obrigatoriamente os 5 estados da UI (loading, sucesso, vazio, erro e dados parciais) com inspeção visual obrigatória antes da entrega.
 - **DIRETRIZ DE SEQUENTIAL ART & HQ/EBOOK (ANTI-AI-SLOP)**:
   - *As 3 Camadas Indissociáveis*:
     1. **Narrativa**: O que está acontecendo? (enredo, personagens, conflito pedagógico e desfecho).

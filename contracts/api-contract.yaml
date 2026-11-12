@@ -1,0 +1,128 @@
+openapi: 3.0.3
+info:
+  title: GrafoParada & Real Transit Engine API
+  description: >
+    Contrato formal compartilhado de dados e serviços do GrafoParada.
+    Utilizado para sincronização rígida entre a Central de Despacho (Backend/GNN)
+    e as interfaces do passageiro (Frontend Mobile/PWA/Laya IA).
+  version: 2.0.0
+paths:
+  /api/v1/network/gtfs:
+    get:
+      summary: Catálogo Metropolitano GTFS CTM
+      description: Retorna a malha completa de linhas, paradas e shapes georreferenciados.
+      responses:
+        '200':
+          description: Malha metropolitana carregada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_routes:
+                    type: integer
+                    example: 393
+                  routes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Route'
+  /api/v1/telemetry/line/{route_code}:
+    get:
+      summary: Telemetria ao Vivo de Corredor
+      parameters:
+        - name: route_code
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "199"
+      responses:
+        '200':
+          description: Telemetria espacial em tempo real do corredor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineTelemetry'
+        '404':
+          description: Linha não encontrada no catálogo.
+  /api/v1/dispatch/emergency:
+    post:
+      summary: Notificação de Despacho Operacional CTM
+      description: Dispara inserção de veículo no contra-fluxo para mitigar abandono.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - route_code
+                - trigger_stop_id
+                - reason
+              properties:
+                route_code:
+                  type: string
+                  example: "199"
+                trigger_stop_id:
+                  type: string
+                  example: "030613"
+                reason:
+                  type: string
+                  example: "Retenção crítica > 15 min na PE-60 (Risco de Reneging Kim et al. 2026)"
+      responses:
+        '200':
+          description: Despacho confirmado e registrado na malha.
+components:
+  schemas:
+    Route:
+      type: object
+      required:
+        - route_code
+        - route_label
+        - agency
+      properties:
+        route_code:
+          type: string
+        route_label:
+          type: string
+        agency:
+          type: string
+    LineTelemetry:
+      type: object
+      required:
+        - route_code
+        - corridor_id
+        - stops
+      properties:
+        route_code:
+          type: string
+        corridor_id:
+          type: string
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stop'
+    Stop:
+      type: object
+      required:
+        - stop_id
+        - name
+        - lat
+        - lon
+        - wait_gps_min
+      properties:
+        stop_id:
+          type: string
+        name:
+          type: string
+        lat:
+          type: number
+        lon:
+          type: number
+        wait_gps_min:
+          type: number
+        crowd_status:
+          type: string
+        operational_state:
+          type: string
+          enum: [REGULAR, WARNING, CRITICAL]
