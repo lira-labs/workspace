@@ -227,20 +227,20 @@
   <!-- SLIDE 1 -->
   <div class="slide-card">
     <div class="slide-header">
-      <div class="slide-title">Slide 1 · Ponta a Ponta (Demo ao Vivo)</div>
+      <div class="slide-title">Slide 1 · Ponta a Ponta (Demo ao Vivo · Linha 199 & Malha GTFS)</div>
       <div class="slide-time">⏱️ 80 segundos</div>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Quem usa (estudante/trabalhador no Grande Recife), Entrada (Linha 522 Dois Irmãos / UFRPE e 400 linhas GTFS), Saída (4 min, assentos livres e voz) e O que deixa fazer (sair às 06h09 sem mofar no ponto). Ao lado: link do repositório e demo viva.</p>
+      <p style="font-size:0.9rem;">Quem usa (Trabalhador em Camela / PE-60 no turno Suape às 06h10 e estudantes da UFRPE), Entrada (Linha 199 Camela/Cabo e 400 linhas GTFS), Saída (4 min, assentos livres e Laya IA por voz) e O que deixa fazer (sair às 06h08 sem mofar no acostamento escuro). Ao lado: link do repositório e demo viva.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala (com o celular espelhado):</div>
       <div class="bloco-fala">
         <p>"Bom dia a todos e professor Lucas. Esse é o GrafoParada rodando ao vivo do nosso repositório."</p>
-        <p>"Aqui na tela está o celular espelhado: o passageiro ou estudante aqui na UFRPE precisa ir para o Derby ou Centro. Ele abre o app e tem na mão as 400 linhas reais do Grande Recife com traçado oficial e paradas do GTFS. A tela entrega a previsão exata da Linha 522: 4 minutos para chegar, na Plataforma 01, com assento garantido. Ele vê que deve sair às 06h09 para caminhar com calma e não ficar mofando no ponto escuro."</p>
-        <p>"Notem no mapa o radar de localização em tempo real e o coletivo deslizando com tag flutuante de ocupação. O mapa roda sobre camadas abertas da Esri e OpenStreetMap, 100% livres de tokens e sem marcas d'água. Na busca inteligente com autocomplete, ele localiza qualquer parada, linha ou campus universitário instantaneamente."</p>
-        <p>"E respondendo à sugestão do professor de trazer IA generativa acessível ao app: integramos a <strong>Laya IA</strong>. O usuário pode tocar no microfone e perguntar por comando de voz natural: <em>'Laya, quando passa meu ônibus?'</em> ou <em>'Quero ir para a UFRPE'</em>. A Laya processa localmente, traça a rota e responde com síntese neural de voz. Além disso, o usuário favorita suas paradas de Casa, Faculdade e Trabalho em 1 toque, garantindo uma interface limpa, minimalista e focada 100% na experiência do passageiro."</p>
+        <p>"Aqui na tela está o celular espelhado no nosso caso de estudo principal da Rodovia PE-60: o trabalhador em Camela que precisa chegar ao turno em Suape. Ele abre o app e tem na mão as 400 linhas reais do Grande Recife com traçado oficial e paradas do GTFS. A tela entrega a previsão exata da Linha 199: 4 minutos para chegar, com assento garantido. O app calcula que ele deve sair às 06h08 para caminhar 6 minutos com calma e não ficar mofando no acostamento escuro da rodovia."</p>
+        <p>"Notem no mapa o radar de localização em tempo real e o coletivo deslizando com tag de ocupação. O mapa roda sobre camadas abertas da Esri e OpenStreetMap, 100% livres de tokens e sem marcas d'água. Na busca inteligente com autocomplete, ele localiza qualquer parada, linha ou campus metropolitano em segundos."</p>
+        <p>"E respondendo diretamente à sugestão do professor de trazer IA generativa acessível: integramos a <strong>Laya IA</strong>. O usuário toca no microfone e pergunta em voz natural: <em>'Laya, quando passa meu ônibus?'</em> ou <em>'Quero ir para a UFRPE'</em>. A Laya processa localmente, traça a rota para a Linha 522 e responde com voz acolhedora. Além disso, o usuário favorita suas paradas de Casa, Faculdade e Trabalho em 1 toque, garantindo uma interface limpa, minimalista e focada 100% na experiência do passageiro."</p>
       </div>
     </div>
   </div>
@@ -281,7 +281,7 @@
         <p>"Eu escolhi trazer este caso de propósito porque ele erra de verdade."</p>
         <p>"Simulamos um bloqueio severo de via no trecho e o atraso de referência pulou para 45 minutos. Olhem a tela: a STGCN previu apenas 18 minutos. O número parece razoável, mas mente."</p>
         <p>"Quem sofre é o trabalhador ou estudante: ele confia no '18 minutos', espera um ônibus que não vem e perde o turno ou a prova na universidade. O erro me ensinou que redes de grafo sofrem de super-suavização (over-smoothing): a matriz Laplaciana dilui o atraso brusco com as paradas vizinhas desimpedidas."</p>
-        <p>"Como nós resolvemos? Colocamos uma trava híbrida: se o desvio entre a STGCN e a referência passar de 15 minutos, o sistema corta a previsão da IA e acende o alerta de interdição [?]. É exatamente essa falha que vira a medida do sem3."</p>
+        <p>"Como nós resolvemos? Colocamos uma trava híbrida defensiva de AI4Good: se o desvio entre a STGCN e o GPS passar de 15 minutos, o sistema corta a previsão da IA e acende o alerta de interdição. O GPS protege o passageiro no curto prazo contra o erro da rede, enquanto a ST-GCN continua modelando o efeito dominó de desbalanceamento a jusante nas próximas 15 paradas para a Central CTM. É exatamente essa convivência híbrida que vira a medida do sem3."</p>
       </div>
     </div>
   </div>
@@ -301,7 +301,7 @@
       <div class="bloco-fala">
         <p>"No sem1, uma conta simples de padaria tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. A banca questionou com razão se valia a pena usar IA pesada."</p>
         <p>"Eu prometi testar na malha completa. Mantive a STGCN para avaliar em escala: na malha expandida com 20 paradas da PE-60, em dados simulados por difusão espaço-temporal, a STGCN obteve 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos."</p>
-        <p>"A regressão linear sofre ao tentar ajustar 120 variáveis achatadas, enquanto o grafo preserva a esparsidade física da via. Como os dados de atraso foram simulados por difusão em rede, a validação empírica definitiva dependerá de dados contínuos de telemetria da frota que o consórcio ainda não abre publicamente."</p>
+        <p>"A regressão linear sofre ao tentar ajustar 120 variáveis achatadas e colineares, enquanto o grafo preserva a invariância espacial. Reconhecemos com rigor científico que a ST-GCN foi favorecida pela hipótese de difusão Laplaciana do gerador sintético. O experimento comprova a eficiência estrutural do grafo contra a colinearidade, mas a validação empírica da física real dependerá de telemetria contínua AVL que o consórcio ainda não abre publicamente."</p>
       </div>
     </div>
   </div>
@@ -400,6 +400,16 @@
     <div class="qa-item">
       <div class="qa-q">7. "Qual a fundamentação científica e o referencial teórico internacional para o GrafoParada?"</div>
       <div class="qa-a"><strong>Resposta:</strong> "Nossa proposta está alinhada às publicações mais recentes dos periódicos A1 da área de transportes (<em>Transportation</em>, <em>Transportation Research Part A e B</em>). Estruturamos nossa taxonomia em 5 fenômenos consagrados: (1) <strong>Balking</strong> (desistência de iniciar a espera ao prever atraso, Wardman et al. 2014); (2) <strong>Passenger Reneging</strong> (abandono da parada durante a espera prolongada, Kim et al. 2026); (3) <strong>Denied Boarding</strong> (impossibilidade de embarque por queima de parada ou lotação, Tan & Ramli 2024); (4) <strong>Active Boarding Delay</strong> (escolha deliberada de esperar o próximo ônibus com mais assentos, Drabicki et al. 2023); e (5) <strong>Bus Bunching</strong> (comboio irregular de veículos, Drabicki et al. 2023). A lacuna científica inédita do GrafoParada é conectar a ponta do passageiro no smartphone via IA de borda à intervenção dinâmica na frota no vazio (deadheading), resgatando o passageiro antes que o abandono aconteça."</div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">8. "Se no momento da crise a ST-GCN erra e precisa ser desligada pelo GPS, para que serve a IA na prática?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "Essa é a pergunta mais incômoda e necessária, professor. Se o objetivo fosse unicamente prever o atraso pontual daquele veículo bloqueado no Km 14, o GPS bastaria. A razão de mantermos a ST-GCN reside no efeito dominó a jusante (<em>downstream</em>): o GPS do ônibus avisa que aquele veículo travou, mas não projeta como essa retenção desestrutura o intervalo (<em>headway</em>) das próximas 15 paradas da PE-60 nos 40 minutos seguintes. A ST-GCN falhou no epicentro do choque por diluição da Laplaciana — o que denunciamos como over-smoothing —, mas ela é a única ferramenta capaz de projetar a propagação da onda na malha. A trava híbrida é uma arquitetura defensiva de AI4Good: o GPS protege o passageiro local no curto prazo, enquanto o grafo recalcula o desbalanceamento da malha para a Central CTM."</div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">9. "De onde saíram os números de economia de '14 L/h' e 'R$ 155,80' do despacho?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "Trata-se de um <strong>cenário operacional simulado de apoio à decisão</strong>, parametrizado com o consumo médio padrão de ônibus urbano diesel Euro V em regime rodoviário (~32 L/100 km) e a tarifa pública do CTM (R$ 4,10 × 38 passageiros resgatados). Deixamos isso explicitado na nossa tabela de transparência metodológica: não são números medidos em campo por telemetria de injeção eletrônica, mas uma estimativa ilustrativa para simular a viabilidade econômica do remanejamento de frotas ociosas (deadheading mitigation)."</div>
     </div>
   </div>
 
