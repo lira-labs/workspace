@@ -1,0 +1,39 @@
+# ==============================================================================
+# CONFIGURAÇÃO OFICIAL · DEEPSEEK HARNESS (DSH)
+# Perfil: Revisor Cético UFRPE (AI4Good) · GrafoParada
+# ==============================================================================
+
+name: revisor-cetico-ufrpe
+description: "Auditor Cético Independente para o GrafoParada na UFRPE"
+version: "1.0.0"
+
+# Modelo Padrão: DeepSeek-R1 (Raciocínio Profundo) ou DeepSeek-V3
+model:
+  provider: deepseek
+  name: deepseek-reasoner
+  temperature: 0.2
+  max_tokens: 4096
+
+# Diretórios Monitorados
+workspace:
+  root: "../../.."
+  include:
+    - "code/grafoparada_tec/**"
+    - "code/grafoparada_web/**"
+    - "papers/**"
+    - "va2/**"
+  exclude:
+    - "node_modules/**"
+    - ".venv/**"
+    - "**/*.png"
+    - "**/*.jpg"
+    - "**/*.mp4"
+
+# Plugins Ativos do DSH
+plugins:
+  - "@deepseek-ai/dsh-tool-fs"
+  - "@deepseek-ai/dsh-tool-bash"
+  - "@deepseek-ai/dsh-plan-mode"
+
+# Prompt do Sistema
+system_prompt_file: "./prompt_revisor_cetico.txt"

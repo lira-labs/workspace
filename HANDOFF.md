@@ -4,11 +4,13 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 21:35
+- **Última Atualização:** 11/11/2026 21:53
+- **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
+- **Harness Auditor / Crítico:** DeepSeek Harness (`core/harness/deepseek/`)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -27,7 +29,17 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Implementação da Assistente Laya IA (Comandos de Voz & Onboarding Guiado)
+### 1. Configuração do DeepSeek Harness (DSH) como Auditor Cético Automatizado
+- [x] **Instalação do Core Runtime (`@deepseek-ai/dsh` v0.2.2-rc.1)**:
+  - Validado e baixado no cache npm; comandos CLI `dsh --help`, `dsh --profile web` e `dsh headless` 100% funcionais.
+- [x] **Módulo de Auditoria Automatizada ([`core/harness/deepseek/`](core/harness/deepseek/))**:
+  - `prompt_revisor_cetico.txt`: Calibrado especificamente para o nível de rigor da banca da UFRPE e conferências A1 de transporte.
+  - `revisor_cetico.py`: Pipeline Python que gera o dossiê consolidado do projeto e dispara consultas para o DeepSeek-R1 (`deepseek-reasoner`).
+  - `dsh.config.yaml`: Perfil formal de workspace e sandbox para o DeepSeek Harness.
+  - `iniciar_dsh.ps1`: Script de um clique para subir a Web UI do DeepSeek Harness localmente.
+  - `dossie_projeto_completo.md`: Dossiê compilado de 9,7 KB para auditorias rápidas ou colar no DeepSeek Web.
+
+### 2. Implementação da Assistente Laya IA (Comandos de Voz & Onboarding Guiado)
 - [x] **Laya IA Integrada por Voz e Texto (`modal-laya`)**:
   - Implementado modal conversacional da Laya com reconhecimento nativo de voz via Web Speech API (`webkitSpeechRecognition`) em português do Brasil (`pt-BR`).
   - Botão de microfone interativo no modal e atalho rápido na barra de busca `[ 🎙️ Laya ]` e no mapa `[ ✨ Laya IA ]`.
