@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 21:53
+- **Última Atualização:** 11/11/2026 22:15
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
