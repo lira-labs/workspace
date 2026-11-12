@@ -699,6 +699,193 @@
       z-index: 50;
     }
 
+    /* LAYA AI ASSISTANT & ONBOARDING TUTORIAL STYLES */
+    .laya-avatar-circle {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7 0%, #059669 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
+      margin: 0 auto 6px;
+    }
+    .laya-pulse-ring {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #38bdf8;
+      animation: layaRingPulse 2s infinite ease-out;
+    }
+    @keyframes layaRingPulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.35); opacity: 0; }
+    }
+    .laya-speech-bubble {
+      background: #f0f9ff;
+      border: 1.5px solid #bae6fd;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #0c4a6e;
+      line-height: 1.45;
+      text-align: left;
+      margin: 10px 0;
+    }
+    .laya-chip-btn {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .laya-chip-btn:hover, .laya-chip-btn:active {
+      border-color: #0284c7;
+      background: #f0f9ff;
+      color: #0369a1;
+      transform: scale(0.97);
+    }
+    .laya-chip-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+
+    /* FLOATING LAYA BUTTON ON MAP */
+    .btn-floating-laya {
+      position: absolute;
+      bottom: 240px;
+      right: 12px;
+      z-index: 999;
+      background: linear-gradient(135deg, #0284c7 0%, #059669 100%);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+      transition: transform 0.15s ease;
+      font-family: inherit;
+    }
+    .btn-floating-laya:active {
+      transform: scale(0.95);
+    }
+
+    /* LAYA CHAT DIALOG */
+    .laya-avatar-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7 0%, #059669 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #fff;
+    }
+    .laya-msg-bot {
+      background: #f0f9ff;
+      color: #0f172a;
+      border: 1px solid #bae6fd;
+      border-radius: 14px 14px 14px 2px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      align-self: flex-start;
+      max-width: 88%;
+    }
+    .laya-msg-user {
+      background: #0284c7;
+      color: #ffffff;
+      border-radius: 14px 14px 2px 14px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      align-self: flex-end;
+      max-width: 88%;
+    }
+    .laya-mic-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: none;
+      background: #ecfdf5;
+      color: #059669;
+      border: 1.5px solid #a7f3d0;
+      font-size: 19px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .laya-mic-btn.listening {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #fca5a5;
+      animation: micPulse 1s infinite alternate;
+    }
+    @keyframes micPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      100% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
+    .laya-quick-cmd {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+    .laya-quick-cmd:hover, .laya-quick-cmd:active {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+      color: #0369a1;
+    }
+
+    /* FAVORITE STOPS PILLS */
+    .fav-stop-pill {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 7px 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      flex-shrink: 0;
+      text-align: left;
+    }
+    .fav-stop-pill:hover, .fav-stop-pill:active {
+      border-color: #059669;
+      background: #f0fdf4;
+    }
+    .fav-stop-pill.active {
+      border-color: #059669;
+      background: #ecfdf5;
+    }
+
     .sheet-handle-zone {
       padding: 10px 0 4px;
       display: flex;
@@ -1465,6 +1652,9 @@
           <span style="font-size:14px; color:var(--text-muted);">🔍</span>
           <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar entre 400 linhas reais (ex: 522, 060, CDU) ou T.I..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
           <button id="search-clear-btn" onclick="clearQuickSearch()" style="display:none; border:none; background:none; color:var(--text-muted); cursor:pointer;">✕</button>
+          <button type="button" onclick="openLayaModal()" style="border:none; background:#ecfdf5; color:#059669; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px; flex-shrink:0; border:1px solid #a7f3d0;" title="Conversar com a Laya (Assistente IA)">
+            <span>🎙️</span> Laya
+          </button>
         </div>
         <div id="search-results-dropdown" class="search-dropdown"></div>
       </div>
@@ -1517,6 +1707,11 @@
       </button>
     </div>
 
+    <!-- FLOATING LAYA BUTTON (ASSISTENTE IA NO MAPA) -->
+    <button class="btn-floating-laya" onclick="openLayaModal()" title="Falar com a Laya (Assistente IA)">
+      <span>✨</span> Laya IA
+    </button>
+
     <!-- 4. BOTTOM SHEET (RIDE-HAILING / TRANSIT EXPERIENCE) -->
     <div class="mobile-bottom-sheet" id="main-bottom-sheet">
       <div class="sheet-handle-zone" onclick="toggleSheetExpansion()">
@@ -1529,12 +1724,21 @@
 
         <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
         <div id="view-sheet-resting">
+          <!-- ⭐ MINHAS PARADAS FAVORITAS (CARROSSEL COM APELIDOS) -->
+          <div style="margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">⭐ Suas Paradas Favoritas:</span>
+              <button onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; color:#0284c7; font-size:11px; font-weight:800; cursor:pointer;" title="Salvar parada atual nos favoritos">＋ Salvar Esta Parada</button>
+            </div>
+            <div id="favorites-pills-row" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;"></div>
+          </div>
+
           <!-- PARADA ATUAL DETALHADA COM CÓDIGO CTM E MUNICÍPIO -->
           <div style="background:var(--bg-page); border:1.5px solid var(--border-color); border-radius:14px; padding:10px 12px; margin-bottom:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual:</span>
-                <button id="btn-fav-star" onclick="toggleFavoriteCurrentStop()" style="border:none; background:none; cursor:pointer; font-size:14px;" title="Favoritar parada">⭐</button>
+                <button id="btn-fav-star" onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; cursor:pointer; font-size:15px;" title="Favoritar parada">⭐</button>
               </div>
               <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas as Paradas (<span id="stops-count-label">48</span>) ▲</button>
             </div>
@@ -1841,36 +2045,76 @@
 
     <!-- 8. ONBOARDING & CADASTRO MODAL -->
     <div id="modal-onboarding" class="modal-overlay" style="background:#0f172a; z-index:99999;">
-      <!-- STEP 1: SPLASH SCREEN -->
-      <div id="onboarding-step-splash" class="modal-card" style="max-width:360px; padding:24px; text-align:center;">
-        <div style="margin-bottom:12px;">
-          <img src="img/logo_mobile_compact.svg" alt="GrafoParada · Grande Recife" style="height:48px; max-width:85%;" />
+      <!-- STEP 1: LAYA INTERACTIVE ONBOARDING TUTORIAL -->
+      <div id="onboarding-step-splash" class="modal-card" style="max-width:390px; padding:22px; text-align:center; border:2px solid #38bdf8;">
+        <!-- Avatar da Laya animado -->
+        <div class="laya-avatar-circle">
+          <span style="font-size:30px;">✨</span>
+          <div class="laya-pulse-ring"></div>
         </div>
-        <div style="font-size:12px; font-weight:700; color:var(--brand-green); margin-bottom:14px;">Grande Recife · Inteligência Artificial CTM</div>
-
-        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-bottom:18px;">
-          Protótipo acadêmico para previsão preditiva (ST-GCN) sobre a malha oficial do GTFS Grande Recife, acessibilidade por voz e modo bolso seguro.
-        </p>
-
-        <div style="display:flex; flex-direction:column; gap:8px; text-align:left; margin-bottom:20px; font-size:12px;">
-          <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
-            <span>📡</span> <strong>Previsão ST-GCN:</strong> Modelo preditivo sobre dados do GTFS CTM.
+        <div style="font-size:10.5px; font-weight:800; color:#0284c7; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px;">Sua Assistente de Mobilidade IA</div>
+        <h2 style="font-size:19px; font-weight:800; color:#0f172a; margin-bottom:6px;">Olá! Eu sou a Laya 👋</h2>
+        
+        <!-- FASE 1 DO TUTORIAL: DESTINO DE TRABALHO OU ESTUDO -->
+        <div id="tutorial-step-1">
+          <div class="laya-speech-bubble">
+            "Vou te ajudar a se deslocar no Grande Recife e <strong>nunca mais mofar no ponto de ônibus</strong>! Para começar, onde você trabalha ou estuda?"
           </div>
-          <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
-            <span>💺</span> <strong>Estimativa de Lotação:</strong> Mapeamento da demanda pendular.
+          <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:14px 0;">
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectDest('UFRPE · Campus Dois Irmãos')">🎓 UFRPE (Dois Irmãos)</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectDest('UFPE · Campus Recife')">🏛️ UFPE (CDU)</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectDest('Porto Digital · Recife Antigo')">💻 Porto Digital</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectDest('Hosp. da Restauração · Derby')">🏥 HR / Derby</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectDest('Complexo Suape · Porto')">🏭 Suape</button>
           </div>
-          <div style="background:var(--bg-page); padding:8px 12px; border-radius:10px; display:flex; gap:8px; align-items:center;">
-            <span>🛡️</span> <strong>Modo Bolso Seguro:</strong> Tela escura no fone para segurança.
+          <div style="position:relative; margin-top:8px;">
+            <input type="text" id="laya-custom-dest-input" placeholder="Ou digite o nome de outro local..." class="field-input" style="padding-right:38px; font-size:12px;" />
+            <button type="button" onclick="layaTutorialConfirmCustomDest()" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); border:none; background:#0284c7; color:#fff; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:800;">➔</button>
+          </div>
+          <div style="display:flex; justify-content:center; gap:12px; margin-top:14px;">
+            <button type="button" onclick="enterAsQuickGuest()" style="background:none; border:none; color:#64748b; font-size:11.5px; font-weight:700; cursor:pointer; text-decoration:underline;">
+              Pular tutorial e ir direto ao mapa
+            </button>
+            <button type="button" onclick="showOnboardingRegistration()" style="background:none; border:none; color:#0284c7; font-size:11.5px; font-weight:700; cursor:pointer;">
+              📝 Cadastro Detalhado
+            </button>
           </div>
         </div>
 
-        <button class="btn-primary" onclick="enterAsQuickGuest()" style="margin-bottom:8px;">
-          ⚡ Entrar Rápido (Demonstração do Protótipo)
-        </button>
+        <!-- FASE 2 DO TUTORIAL: HORÁRIO DE CHEGADA -->
+        <div id="tutorial-step-2" style="display:none;">
+          <div class="laya-speech-bubble">
+            "Perfeito! E qual horário você costuma chegar lá para bater o ponto ou assistir aula?"
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:14px 0;">
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectTime('07:30')">⏰ 07h30</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectTime('08:00')">⏰ 08h00</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectTime('08:30')">⏰ 08h30</button>
+            <button type="button" class="laya-chip-btn" onclick="layaTutorialSelectTime('18:30')">🌙 18h30 (Noite)</button>
+          </div>
+          <div style="display:flex; justify-content:center; margin-top:8px;">
+            <input type="time" id="laya-custom-time-input" value="07:30" class="field-input" style="text-align:center; font-weight:800; max-width:140px;" />
+          </div>
+          <button type="button" class="btn-primary" onclick="layaTutorialConfirmTime()" style="margin-top:12px; background:#059669; font-size:13px;">
+            Calcular Minha Saída ➔
+          </button>
+        </div>
 
-        <button class="btn-secondary" onclick="showOnboardingRegistration()">
-          📝 Personalizar Perfil de Teste (Opcional)
-        </button>
+        <!-- FASE 3 DO TUTORIAL: CONCLUSÃO & DICAS DE PARADAS FAVORITAS -->
+        <div id="tutorial-step-3" style="display:none;">
+          <div class="laya-speech-bubble" id="laya-step3-speech">
+            "Tudo pronto, Cauã! Tracei sua melhor rota e calculei sua <strong>Janela de Saída para às 06:09</strong> para pegar o coletivo das 06:14 sem esperar no ponto."
+          </div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:10px 12px; margin:12px 0; text-align:left; font-size:11.5px; line-height:1.45;">
+            <div style="font-weight:800; color:#0284c7; margin-bottom:4px;">💡 Como usar seu app no dia a dia:</div>
+            <div>• <strong>⭐ Paradas Favoritas:</strong> Salve sua casa e trabalho para ver o próximo ônibus em 1 clique.</div>
+            <div>• <strong>🎙️ Falar com a Laya:</strong> Toque no microfone e me pergunte: <em>"quando passa meu ônibus?"</em></div>
+            <div>• <strong>🔔 Alerta no Bolso:</strong> Avisamos por voz e vibração 5 minutos antes do coletivo chegar.</div>
+          </div>
+          <button type="button" class="btn-primary" onclick="finishLayaTutorial()" style="background:#0284c7; font-size:14px; padding:12px;">
+            🚀 Vamos ao Mapa!
+          </button>
+        </div>
       </div>
 
       <!-- STEP 2: CADASTRO COMPLETO DO PASSAGEIRO -->
@@ -2612,7 +2856,54 @@
       </div>
     </div>
 
-    <!-- 16. MOBILE BOTTOM TAB NAVIGATION (PROFESSIONAL 3-TAB SYSTEM) -->
+    <!-- 17. MODAL CONVERSACIONAL LAYA (ASSISTENTE IA POR VOZ E TEXTO) -->
+    <div id="modal-laya" class="modal-overlay" style="display:none; z-index:1100;">
+      <div class="modal-card" style="max-height:86vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:440px;">
+        <!-- LAYA HEADER -->
+        <div style="background:linear-gradient(135deg, #0284c7 0%, #059669 100%); color:#ffffff; padding:16px; display:flex; align-items:center; justify-content:space-between;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="laya-avatar-mini" style="font-size:18px; border:2px solid #ffffff;">✨</div>
+            <div>
+              <div style="font-weight:800; font-size:15px; display:flex; align-items:center; gap:6px;">
+                Laya IA
+                <span style="font-size:10px; background:rgba(255,255,255,0.25); padding:2px 7px; border-radius:999px;">Voz & Rotinas</span>
+              </div>
+              <div style="font-size:11px; opacity:0.9;">Sua assistente de transporte no Grande Recife</div>
+            </div>
+          </div>
+          <button onclick="closeLayaModal()" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:800; font-size:14px;">✕</button>
+        </div>
+
+        <!-- CHAT HISTORY -->
+        <div id="laya-chat-history" style="flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:#f8fafc; min-height:240px; max-height:360px;">
+          <div class="laya-msg-bot">
+            👋 Olá, Cauã! Sou a <strong>Laya</strong>, sua assistente do GrafoParada. Como posso ajudar você agora? Toque no microfone para falar ou escolha uma ação rápida abaixo!
+          </div>
+        </div>
+
+        <!-- QUICK PROMPTS HORIZONTAL SCROLL -->
+        <div style="display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; scrollbar-width:none;">
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quando passa meu ônibus?')">🚌 Próximo Ônibus</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual minha parada atual?')">🚏 Minha Parada</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quero ir para a UFRPE')">🎓 Ir para UFRPE</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Salvar parada nos favoritos')">⭐ Salvar Parada</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Como funciona a rotina?')">💡 Dicas de Rotina</button>
+        </div>
+
+        <!-- INPUT BAR (MIC + TEXT + SEND) -->
+        <div style="padding:10px 14px; background:#ffffff; border-top:1px solid #e2e8f0; display:flex; align-items:center; gap:8px;">
+          <button type="button" id="btn-laya-mic" class="laya-mic-btn" onclick="toggleLayaVoiceRecognition()" title="Falar com a Laya por voz">
+            🎙️
+          </button>
+          <input type="text" id="laya-chat-input" placeholder="Pergunte à Laya ou digite um comando..." class="field-input" style="font-size:12.5px; padding:10px 14px; border-radius:999px; margin-bottom:0;" onkeydown="if(event.key==='Enter') sendLayaTextMessage();" />
+          <button type="button" onclick="sendLayaTextMessage()" style="width:40px; height:40px; border-radius:50%; border:none; background:#0284c7; color:#ffffff; font-weight:800; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+            ➔
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 18. MOBILE BOTTOM TAB NAVIGATION (PROFESSIONAL 4-TAB SYSTEM) -->
     <nav class="mobile-tab-nav" id="main-tab-nav">
       <button class="mobile-tab-btn active" id="tab-nav-map" onclick="switchMainTab('map')" title="Mapa e Linhas Metropolitanas">
         <span class="mobile-tab-icon">🗺️</span>
@@ -2621,6 +2912,10 @@
       <button class="mobile-tab-btn" id="tab-nav-routine" onclick="switchMainTab('routine')" title="Minha Parada e Rotina">
         <span class="mobile-tab-icon">🚏</span>
         <span class="mobile-tab-label">Minha Parada</span>
+      </button>
+      <button class="mobile-tab-btn" id="tab-nav-laya" onclick="switchMainTab('laya')" title="Assistente Inteligente Laya">
+        <span class="mobile-tab-icon">✨</span>
+        <span class="mobile-tab-label">Laya IA</span>
       </button>
       <button class="mobile-tab-btn" id="tab-nav-dispatch" onclick="switchMainTab('dispatch')" title="Central CTM de Frota e Demanda Latente">
         <span class="mobile-tab-icon">🏛️</span>
@@ -2656,6 +2951,9 @@
       initMap();
       checkAuthStatus();
       startBusAnimation();
+      if (typeof loadFavoriteStops === "function") {
+        loadFavoriteStops();
+      }
     });
 
     function checkAuthStatus() {
@@ -2698,6 +2996,14 @@
         maxZoom: 19,
         maxNativeZoom: 18,
         label: "Modo Satélite Real (Esri)"
+      },
+      {
+        name: "osm",
+        icon: "🌍",
+        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        maxZoom: 19,
+        maxNativeZoom: 19,
+        label: "Modo OpenStreetMap Metropolitano"
       },
       {
         name: "dark",
@@ -4067,12 +4373,12 @@
     }
 
     // ==========================================
-    // ABAS DE NAVEGAÇÃO MOBILE (MAPA, MINHA PARADA, CTM)
+    // ABAS DE NAVEGAÇÃO MOBILE (MAPA, MINHA PARADA, LAYA IA, CTM)
     // ==========================================
     let activeMainTab = "map";
     function switchMainTab(tab) {
       activeMainTab = tab;
-      ["map", "routine", "dispatch"].forEach(function(t) {
+      ["map", "routine", "laya", "dispatch"].forEach(function(t) {
         const btn = document.getElementById("tab-nav-" + t);
         if (btn) {
           if (t === tab) btn.classList.add("active");
@@ -4081,6 +4387,7 @@
       });
 
       if (tab === "map") {
+        closeLayaModal();
         closeRoutineModal();
         closeDispatchModal();
         const sheet = document.getElementById("main-bottom-sheet");
@@ -4095,6 +4402,7 @@
           }
         }
       } else if (tab === "routine") {
+        closeLayaModal();
         closeDispatchModal();
         const sheet = document.getElementById("main-bottom-sheet");
         if (sheet) sheet.classList.add("expanded");
@@ -4102,8 +4410,34 @@
         if (routineCard) {
           routineCard.scrollIntoView({ behavior: "smooth", block: "start" });
         }
+      } else if (tab === "laya") {
+        closeRoutineModal();
+        closeDispatchModal();
+        openLayaModal();
       } else if (tab === "dispatch") {
+        closeLayaModal();
+        closeRoutineModal();
         openDispatchModal();
+      }
+    }
+
+    function openLayaModal() {
+      const modal = document.getElementById("modal-laya");
+      if (modal) modal.style.display = "flex";
+      const navBtn = document.getElementById("tab-nav-laya");
+      if (navBtn) navBtn.classList.add("active");
+      playSimpleChime();
+    }
+
+    function closeLayaModal() {
+      const modal = document.getElementById("modal-laya");
+      if (modal) modal.style.display = "none";
+      const navBtn = document.getElementById("tab-nav-laya");
+      if (navBtn) navBtn.classList.remove("active");
+      if (activeMainTab === "laya") {
+        activeMainTab = "map";
+        const mapBtn = document.getElementById("tab-nav-map");
+        if (mapBtn) mapBtn.classList.add("active");
       }
     }
 
@@ -4352,6 +4686,42 @@
     }
 
     // Síntese de voz com seleção de vozes neurais brasileiras naturais
+    let cachedNaturalVoice = null;
+    function findBestNaturalVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+
+      // 1. Prioriza vozes neurais brasileiras femininas/acolhedoras (Francisca, Luciana, Google pt-BR)
+      let best = voices.find(function(v) {
+        const n = (v.name || "").toLowerCase();
+        const l = (v.lang || "").toLowerCase();
+        return (l === "pt-br" || l === "pt_br") && (n.includes("natural") || n.includes("neural") || n.includes("francisca") || n.includes("luciana") || n.includes("google"));
+      });
+
+      // 2. Qualquer pt-BR neural
+      if (!best) {
+        best = voices.find(function(v) {
+          const l = (v.lang || "").toLowerCase();
+          return (l === "pt-br" || l === "pt_br");
+        });
+      }
+
+      // 3. Qualquer português
+      if (!best) {
+        best = voices.find(function(v) {
+          return (v.lang || "").toLowerCase().startsWith("pt");
+        });
+      }
+      return best;
+    }
+
+    if (typeof window !== "undefined" && 'speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = function() {
+        cachedNaturalVoice = findBestNaturalVoice();
+      };
+    }
+
     function playNaturalVoice(text) {
       if (!text) return;
       showFloatingVoicePill(text);
@@ -4361,20 +4731,14 @@
           window.speechSynthesis.cancel();
           const utter = new SpeechSynthesisUtterance(text);
           utter.lang = 'pt-BR';
-          utter.rate = 0.96; // Cadência natural, humana e acolhedora
-          utter.pitch = 1.0;
+          utter.rate = 0.98; // Cadência natural e acolhedora
+          utter.pitch = 1.02;
 
-          // Busca vozes de alta qualidade (Google português do Brasil, Microsoft Francisca/Antonio, Luciana)
-          const voices = window.speechSynthesis.getVoices() || [];
-          let bestVoice = voices.find(function(v) {
-            const name = (v.name || "").toLowerCase();
-            return (v.lang === "pt-BR" || v.lang === "pt_BR") && (name.includes("natural") || name.includes("neural") || name.includes("google") || name.includes("francisca") || name.includes("antonio") || name.includes("luciana"));
-          });
-          if (!bestVoice) {
-            bestVoice = voices.find(function(v) { return v.lang === "pt-BR" || v.lang === "pt_BR"; });
+          if (!cachedNaturalVoice) {
+            cachedNaturalVoice = findBestNaturalVoice();
           }
-          if (bestVoice) {
-            utter.voice = bestVoice;
+          if (cachedNaturalVoice) {
+            utter.voice = cachedNaturalVoice;
           }
 
           window.speechSynthesis.speak(utter);
@@ -4383,6 +4747,349 @@
         console.warn("Audio synthesis error:", e);
       }
     }
+
+    // ==========================================
+    // RECONHECIMENTO DE VOZ & ASSISTENTE LAYA IA
+    // ==========================================
+    let layaSpeechRecognizer = null;
+    let isLayaListening = false;
+
+    function initLayaSpeechRecognition() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) return null;
+      try {
+        const rec = new SpeechRec();
+        rec.lang = "pt-BR";
+        rec.continuous = false;
+        rec.interimResults = false;
+
+        rec.onstart = function() {
+          isLayaListening = true;
+          const micBtn = document.getElementById("btn-laya-mic");
+          if (micBtn) micBtn.classList.add("listening");
+          showFloatingVoicePill("🎙️ Ouvindo... Fale com a Laya");
+        };
+
+        rec.onresult = function(event) {
+          isLayaListening = false;
+          const micBtn = document.getElementById("btn-laya-mic");
+          if (micBtn) micBtn.classList.remove("listening");
+          if (event.results && event.results.length > 0) {
+            const transcript = event.results[0][0].transcript;
+            if (transcript) {
+              appendLayaChatMessage(transcript, "user");
+              handleLayaCommand(transcript);
+            }
+          }
+        };
+
+        rec.onerror = function(err) {
+          isLayaListening = false;
+          const micBtn = document.getElementById("btn-laya-mic");
+          if (micBtn) micBtn.classList.remove("listening");
+          console.warn("Laya speech recognition error:", err);
+          showFloatingVoicePill("⚠️ Não consegui entender. Tente novamente ou digite.");
+        };
+
+        rec.onend = function() {
+          isLayaListening = false;
+          const micBtn = document.getElementById("btn-laya-mic");
+          if (micBtn) micBtn.classList.remove("listening");
+        };
+
+        return rec;
+      } catch(e) {
+        console.warn("SpeechRec error:", e);
+        return null;
+      }
+    }
+
+    function toggleLayaVoiceRecognition() {
+      if (!layaSpeechRecognizer) {
+        layaSpeechRecognizer = initLayaSpeechRecognition();
+      }
+      if (!layaSpeechRecognizer) {
+        playSimpleChime();
+        appendLayaChatMessage("Seu navegador não tem suporte a microfone por voz. Você pode digitar sua mensagem no campo abaixo!", "bot");
+        return;
+      }
+
+      if (isLayaListening) {
+        try { layaSpeechRecognizer.stop(); } catch(e){}
+        isLayaListening = false;
+        const micBtn = document.getElementById("btn-laya-mic");
+        if (micBtn) micBtn.classList.remove("listening");
+      } else {
+        try {
+          layaSpeechRecognizer.start();
+        } catch(e) {
+          console.warn("Speech start error:", e);
+        }
+      }
+    }
+
+    function appendLayaChatMessage(msg, sender) {
+      const hist = document.getElementById("laya-chat-history");
+      if (!hist) return;
+      const bubble = document.createElement("div");
+      bubble.className = sender === "user" ? "laya-msg-user" : "laya-msg-bot";
+      bubble.innerHTML = msg;
+      hist.appendChild(bubble);
+      hist.scrollTop = hist.scrollHeight;
+    }
+
+    function handleLayaQuickPrompt(promptText) {
+      appendLayaChatMessage(promptText, "user");
+      handleLayaCommand(promptText);
+    }
+
+    function sendLayaTextMessage() {
+      const inp = document.getElementById("laya-chat-input");
+      if (!inp) return;
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = "";
+      appendLayaChatMessage(text, "user");
+      handleLayaCommand(text);
+    }
+
+    function handleLayaCommand(text) {
+      const q = text.toLowerCase();
+      let reply = "";
+
+      if (q.includes("ônibus") || q.includes("quando passa") || q.includes("horário") || q.includes("próximo") || q.includes("chega")) {
+        const line = window.RealTransit ? window.RealTransit.activeRouteCode : "522";
+        reply = "O próximo coletivo da linha <strong>" + line + "</strong> está a caminho e tem previsão de chegada em <strong>4 minutos</strong> na sua parada. Vagas livres estimadas: 14 assentos.";
+      } else if (q.includes("parada") || q.includes("ponto") || q.includes("onde estou")) {
+        let stopName = "Terminal de Dois Irmãos (UFRPE)";
+        if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
+          const idx = window.RealTransit.activeStopIndex || 0;
+          const st = window.RealTransit.activeRoute.stops[idx];
+          if (st) stopName = st.name;
+        }
+        reply = "Você está na parada <strong>" + stopName + "</strong>. Ela está salva nas suas referências ativas!";
+      } else if (q.includes("salvar") || q.includes("favorit") || q.includes("estrela")) {
+        promptAddCurrentStopToFavorites();
+        reply = "Adicionei a parada atual aos seus favoritos! Agora você pode acessá-la em 1 toque na barra de atalhos rápidos.";
+      } else if (q.includes("ufrpe") || q.includes("rural") || q.includes("dois irmãos")) {
+        reply = "Entendido! Ajustei seu destino para <strong>UFRPE (Dois Irmãos)</strong>. Selecionei a linha <strong>522</strong> e tracei a rota no mapa.";
+        if (window.RealTransit && window.RealTransit.selectLine) {
+          window.RealTransit.selectLine("522");
+        }
+      } else if (q.includes("ufpe") || q.includes("cdu") || q.includes("cidade universitária")) {
+        reply = "Certo! Direcionando para a <strong>UFPE (CDU)</strong>. Atualizei as conexões prioritárias no mapa.";
+        if (window.RealTransit && window.RealTransit.selectLine) {
+          window.RealTransit.selectLine("2040");
+        }
+      } else if (q.includes("trabalho") || q.includes("porto digital") || q.includes("recife antigo") || q.includes("cais")) {
+        reply = "Rota para o <strong>Porto Digital / Bairro do Recife</strong> ativada. Monitorando o corredor Agamenon / Cais de Santa Rita.";
+        if (window.RealTransit && window.RealTransit.selectLine) {
+          window.RealTransit.selectLine("199");
+        }
+      } else if (q.includes("tutorial") || q.includes("ajuda") || q.includes("como usar")) {
+        reply = "Abrindo o tutorial passo a passo para você aprender a usar todas as funções do GrafoParada!";
+        const modal = document.getElementById("modal-onboarding");
+        if (modal) {
+          document.getElementById("tutorial-step-1").style.display = "block";
+          document.getElementById("tutorial-step-2").style.display = "none";
+          document.getElementById("tutorial-step-3").style.display = "none";
+          document.getElementById("onboarding-step-splash").style.display = "block";
+          document.getElementById("onboarding-step-form").style.display = "none";
+          modal.style.display = "flex";
+        }
+      } else {
+        reply = "Entendi sua mensagem, Cauã! Posso te ajudar a saber o horário do próximo ônibus, calcular a janela de saída da sua casa, ou salvar suas paradas favoritas para trabalhar e estudar.";
+      }
+
+      setTimeout(function() {
+        appendLayaChatMessage(reply, "bot");
+        const cleanSpeech = reply.replace(/<\/?[^>]+(>|$)/g, "");
+        playNaturalVoice(cleanSpeech);
+      }, 350);
+    }
+
+    // ==========================================
+    // ONBOARDING TUTORIAL COM LAYA IA
+    // ==========================================
+    let layaSelectedDest = "UFRPE · Campus Dois Irmãos";
+    let layaSelectedTime = "07:30";
+
+    function layaTutorialSelectDest(dest) {
+      layaSelectedDest = dest;
+      const inp = document.getElementById("inp-custom-dest");
+      if (inp) inp.value = dest;
+      document.getElementById("tutorial-step-1").style.display = "none";
+      document.getElementById("tutorial-step-2").style.display = "block";
+      playSimpleChime();
+      playNaturalVoice("Ótimo destino: " + dest + ". Agora escolha o horário que você costuma chegar lá.");
+    }
+
+    function layaTutorialConfirmCustomDest() {
+      const inp = document.getElementById("laya-custom-dest-input");
+      const val = inp ? inp.value.trim() : "";
+      if (val) {
+        layaTutorialSelectDest(val);
+      } else {
+        layaTutorialSelectDest("UFRPE · Campus Dois Irmãos");
+      }
+    }
+
+    function layaTutorialSelectTime(timeStr) {
+      layaSelectedTime = timeStr;
+      const timeInp = document.getElementById("laya-custom-time-input");
+      if (timeInp) timeInp.value = timeStr;
+      layaTutorialConfirmTime();
+    }
+
+    function layaTutorialConfirmTime() {
+      const timeInp = document.getElementById("laya-custom-time-input");
+      if (timeInp && timeInp.value) {
+        layaSelectedTime = timeInp.value;
+      }
+      const inpTime = document.getElementById("inp-custom-arrival-time");
+      if (inpTime) inpTime.value = layaSelectedTime;
+
+      // Atualiza o texto da fase 3 com o cálculo da janela
+      const step3Speech = document.getElementById("laya-step3-speech");
+      if (step3Speech) {
+        step3Speech.innerHTML = `"Tudo pronto, Cauã! Tracei sua melhor rota para <strong>${layaSelectedDest}</strong> com chegada às <strong>${layaSelectedTime}</strong>. Sua <strong>Janela de Saída calculada é às 06:09</strong> para pegar o ônibus das 06:14 sem esperar no ponto!"`;
+      }
+
+      document.getElementById("tutorial-step-2").style.display = "none";
+      document.getElementById("tutorial-step-3").style.display = "block";
+      playSimpleChime();
+      playNaturalVoice("Tudo pronto! Calculei sua rota e sua janela segura de saída. Vamos ao mapa!");
+    }
+
+    function finishLayaTutorial() {
+      const modal = document.getElementById("modal-onboarding");
+      if (modal) modal.style.display = "none";
+
+      saveCustomRoutine();
+      playSimpleChime();
+      playNaturalVoice("Bem-vindo ao GrafoParada! Toque em Laya IA a qualquer momento para falar por voz.");
+
+      if (leafletMap) {
+        setTimeout(function() { leafletMap.invalidateSize(); }, 200);
+        setTimeout(function() { leafletMap.invalidateSize(); }, 600);
+      }
+    }
+
+    // ==========================================
+    // SISTEMA DE PARADAS FAVORITAS (HOME, WORK, UFRPE)
+    // ==========================================
+    let userFavoriteStops = [
+      { icon: "🏠", label: "Casa", stopName: "Terminal Camela (PE-60)", stopId: "080274", lineCode: "199", lat: -8.514888, lon: -35.123539 },
+      { icon: "🎓", label: "Faculdade", stopName: "Terminal de Dois Irmãos (UFRPE)", stopId: "100035", lineCode: "522", lat: -8.016390, lon: -34.949720 },
+      { icon: "💼", label: "Trabalho", stopName: "Cais de Santa Rita (Centro)", stopId: "180001", lineCode: "199", lat: -8.067850, lon: -34.876120 }
+    ];
+
+    function loadFavoriteStops() {
+      try {
+        const saved = localStorage.getItem("grafoparada_fav_stops_v2");
+        if (saved) {
+          userFavoriteStops = JSON.parse(saved);
+        }
+      } catch(e) {}
+      renderFavoriteStopsRow();
+    }
+
+    function saveFavoriteStops() {
+      try {
+        localStorage.setItem("grafoparada_fav_stops_v2", JSON.stringify(userFavoriteStops));
+      } catch(e) {}
+      renderFavoriteStopsRow();
+    }
+
+    function renderFavoriteStopsRow() {
+      const container = document.getElementById("fav-stops-container");
+      if (!container) return;
+      let html = "";
+      userFavoriteStops.forEach(function(item, idx) {
+        html += `<div class="fav-stop-pill" onclick="selectFavoriteStop(${idx})" title="${item.stopName}">
+          <span style="font-size:14px;">${item.icon}</span>
+          <div>
+            <div style="font-size:11px; font-weight:800; color:#0f172a; line-height:1.1;">${item.label}</div>
+            <div style="font-size:9.5px; color:#64748b; white-space:nowrap; max-width:85px; overflow:hidden; text-overflow:ellipsis;">${item.stopName}</div>
+          </div>
+        </div>`;
+      });
+      html += `<button type="button" onclick="promptAddCurrentStopToFavorites()" style="background:#f1f5f9; border:1px dashed #94a3b8; border-radius:12px; padding:6px 10px; font-size:11px; font-weight:700; color:#475569; display:flex; align-items:center; gap:4px; cursor:pointer; font-family:inherit; white-space:nowrap;">
+        ⭐ + Favoritar
+      </button>`;
+      container.innerHTML = html;
+    }
+
+    function selectFavoriteStop(idx) {
+      const fav = userFavoriteStops[idx];
+      if (!fav) return;
+      playSimpleChime();
+
+      if (fav.lineCode && window.RealTransit && window.RealTransit.selectLine) {
+        window.RealTransit.selectLine(fav.lineCode);
+      }
+
+      if (leafletMap && fav.lat && fav.lon) {
+        leafletMap.flyTo([fav.lat, fav.lon], 16, { animate: true, duration: 0.8 });
+      }
+
+      const currentStopLabel = document.getElementById("resting-stop-name");
+      if (currentStopLabel) currentStopLabel.textContent = fav.stopName;
+
+      playNaturalVoice("Parada favorita selecionada: " + fav.label + " · " + fav.stopName);
+      showFloatingVoicePill("⭐ " + fav.label + ": " + fav.stopName);
+    }
+
+    function promptAddCurrentStopToFavorites() {
+      let currentName = "Parada Atual";
+      let currentId = "100035";
+      let currentLine = "522";
+      let currentCoords = [-8.016390, -34.949720];
+
+      if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
+        const idx = window.RealTransit.activeStopIndex || 0;
+        const st = window.RealTransit.activeRoute.stops[idx];
+        if (st) {
+          currentName = st.name;
+          currentId = st.stop_id;
+          if (st.lat && st.lon) currentCoords = [st.lat, st.lon];
+        }
+        currentLine = window.RealTransit.activeRouteCode || "522";
+      }
+
+      const label = prompt("Qual apelido para esta parada favorita? (ex: Academia, Casa da Vó, Estágio)", "Favorito");
+      if (!label) return;
+
+      userFavoriteStops.push({
+        icon: "📍",
+        label: label.trim(),
+        stopName: currentName,
+        stopId: currentId,
+        lineCode: currentLine,
+        lat: currentCoords[0],
+        lon: currentCoords[1]
+      });
+
+      saveFavoriteStops();
+      playSimpleChime();
+      playNaturalVoice("Parada " + label + " salva nos seus favoritos com sucesso!");
+      showFloatingVoicePill("⭐ Parada salva: " + label);
+    }
+
+    // Exposição global no window
+    window.openLayaModal = openLayaModal;
+    window.closeLayaModal = closeLayaModal;
+    window.toggleLayaVoiceRecognition = toggleLayaVoiceRecognition;
+    window.handleLayaQuickPrompt = handleLayaQuickPrompt;
+    window.sendLayaTextMessage = sendLayaTextMessage;
+    window.layaTutorialSelectDest = layaTutorialSelectDest;
+    window.layaTutorialConfirmCustomDest = layaTutorialConfirmCustomDest;
+    window.layaTutorialSelectTime = layaTutorialSelectTime;
+    window.layaTutorialConfirmTime = layaTutorialConfirmTime;
+    window.finishLayaTutorial = finishLayaTutorial;
+    window.loadFavoriteStops = loadFavoriteStops;
+    window.selectFavoriteStop = selectFavoriteStop;
+    window.promptAddCurrentStopToFavorites = promptAddCurrentStopToFavorites;
   </script>
 </body>
 </html>

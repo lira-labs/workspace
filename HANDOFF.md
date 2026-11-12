@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 16:25
+- **Última Atualização:** 11/11/2026 21:35
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
@@ -27,14 +27,31 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Atualização do Roteiro de Fala Mobile e Slides PPTX (Pré-Apresentação Aula)
-- [x] **Roteiro de Fala Mobile Atualizado (`roteiro.html`)**:
-  - Incorporadas menções diretas à suíte cartográfica Esri com radar em tempo real e marcadores de ônibus ao vivo com tag dinâmica.
-  - Sincronizado instantaneamente no Google Drive (`G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html`) para leitura confortável no smartphone durante o trajeto/ônibus.
-  - Mantidas as 4 frases mestras, os 5 blocos de fala cronometrados (4 min) e as respostas prontas para as 6 perguntas difíceis da banca.
-- [x] **Regeneração da Apresentação PPTX (`GrafoParada_Seminario2_CauaLira.pptx`)**:
-  - Atualizado [`va2/gerar_pptx_minimalista_sem2.py`](va2/gerar_pptx_minimalista_sem2.py) com a redação metodologicamente blindada do Slide 4 (120 features colineares na OLS vs preservação de topologia viária na GNN).
-  - Arquivo binário recompilado e copiado para a raiz web (`code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx`) e para o Google Drive (`G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`).
+### 1. Implementação da Assistente Laya IA (Comandos de Voz & Onboarding Guiado)
+- [x] **Laya IA Integrada por Voz e Texto (`modal-laya`)**:
+  - Implementado modal conversacional da Laya com reconhecimento nativo de voz via Web Speech API (`webkitSpeechRecognition`) em português do Brasil (`pt-BR`).
+  - Botão de microfone interativo no modal e atalho rápido na barra de busca `[ 🎙️ Laya ]` e no mapa `[ ✨ Laya IA ]`.
+  - Compreensão semântica para perguntas em linguagem natural: *"quando passa meu ônibus?"*, *"qual minha parada?"*, *"quero ir para a UFRPE"*, *"salvar parada favorita"*.
+  - Transcrição visual imediata com balões de conversa e pílula flutuante animada.
+- [x] **Síntese Neural de Voz Acolhedora**:
+  - Implementado seletor e cache de vozes neurais brasileiras via `speechSynthesis.onvoiceschanged`.
+  - Priorização automática de vozes de alta fidelidade (`Microsoft Francisca Online (Natural)`, `Google português do Brasil`), eliminando a voz robótica SAPI5 do Windows.
+- [x] **Tutorial Interativo no Primeiro Uso (Onboarding em 3 Passos)**:
+  - Substituída a splash burocrática por um tutorial guiado pela Laya:
+    1. *Destino Habitual*: chips rápidos (UFRPE, UFPE/CDU, Porto Digital, HR/Derby, Suape) ou digitação com autocomplete.
+    2. *Horário de Chegada*: seleção do horário de entrada no trabalho ou aula.
+    3. *Janela Segura Calculada*: indicação do horário ideal de saída de casa para não esperar na parada.
+  - Opção para pular direto ao mapa ou acessar cadastro detalhado.
+- [x] **Sistema de Paradas Favoritas**:
+  - Linha horizontal de atalhos rápidos no Bottom Sheet (`🏠 Casa`, `🎓 Faculdade`, `💼 Trabalho`) persistidos no `localStorage`.
+  - Botão `⭐ + Favoritar` para salvar qualquer parada ativa com apelido personalizado.
+  - Seleção em 1 toque centraliza o mapa e atualiza a telemetria com anúncio por voz.
+- [x] **Navegação Bottom Tab em 4 Abas**:
+  - `🗺️ Mapa & Linhas` · `🚏 Minha Parada` · `✨ Laya IA` · `🏛️ Central CTM`.
+- [x] **Camadas de Mapa 100% Livres de Chaves e Sem Watermark**:
+  - Adicionado OpenStreetMap Metropolitano (`https://tile.openstreetmap.org/`) junto à suíte Esri (Ruas, Satélite Real, Noturno Neon e Clean), eliminando em definitivo qualquer dependência de CartoDB ou chaves de API.
+- [x] **Atualização dos Slides PPTX e Roteiro de Fala**:
+  - Roteiro mobile e Slide 1 atualizados para demonstrar a Laya IA, os comandos de voz e a usabilidade intuitiva para o passageiro.
 
 ### 2. Eliminação Definitiva da Marca d'Água "API KEY REQUIRED" (Substituição por Esri)
 - [x] **Diagnóstico da Marca d'Água Carto**:

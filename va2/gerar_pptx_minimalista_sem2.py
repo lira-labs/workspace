@@ -125,12 +125,12 @@ cols_s1 = [
         "body": "Morador de Camela em direção ao polo industrial. Janela calculada: saia às 06h08 (caminhada de 6 min) para não mofar no acostamento escuro da PE-60."
     },
     {
-        "tag": "ACESSIBILIDADE REAL",
+        "tag": "ACESSIBILIDADE & LAYA IA",
         "tag_color": TEXT_MUTED,
-        "hero": "Dona Severina, 68 anos",
+        "hero": "Laya IA & Inclusão",
         "hero_color": TEXT_BLACK,
-        "sub": "Inclusão Universal",
-        "body": "Letreiro LED âmbar idêntico à frente do coletivo (199 CAMELA/CABO) e leitura em voz alta. Para jovens: Modo Bolso Seguro (0 nits OLED) com vibração oculta."
+        "sub": "Voz Natural & Favoritos",
+        "body": "Comandos de voz interativos ('quando passa meu ônibus?'), tutorial de rotina em 3 passos, paradas favoritas (Casa/Faculdade) e Modo Bolso Seguro (0 nits OLED com vibração)."
     },
     {
         "tag": "A TESE CENTRAL",
