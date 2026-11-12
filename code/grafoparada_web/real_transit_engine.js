@@ -51,6 +51,7 @@
         console.log(`✅ [RealTransit] GTFS carregado: ${this.networkData.total_lines_ready} linhas com traçados e paradas 100% reais.`);
       } catch (err) {
         console.error('❌ [RealTransit] Erro ao carregar gtfs_real_network.json:', err);
+        this.showToast('Aviso: Operando em modo telemetria de contingência (PE-60).', 'warning');
         return;
       }
 
@@ -67,6 +68,11 @@
       if (searchInput) {
         searchInput.placeholder = 'Buscar entre 400 linhas reais (ex: 522, 060, 2040, CDU) ou T.I...';
       }
+    },
+
+    // Alias canônico para seleção de linha compatível com Laya IA e favoritos
+    selectLine(code) {
+      return this.loadRoute(code);
     },
 
     // Renderiza linha completa com shape e paradas do GTFS
@@ -93,6 +99,7 @@
 
       if (!lineData) {
         console.warn('Linha não encontrada no catálogo metropolitano:', code);
+        this.showToast('Linha "' + code + '" não localizada no catálogo ativo.', 'warning');
         return;
       }
 
@@ -400,7 +407,16 @@
       }
 
       if (items.length === 0) {
-        listEl.innerHTML = `<div style="padding:16px; font-size:13px; color:#64748b; text-align:center;">Nenhuma linha encontrada para "${query}".</div>`;
+        listEl.innerHTML = `
+          <div style="padding:24px 16px; text-align:center; color:#64748b;">
+            <div style="font-size:24px; margin-bottom:6px;">🔍</div>
+            <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha encontrada para "${query}"</div>
+            <div style="font-size:11.5px; color:#64748b; line-height:1.45; margin-bottom:12px;">Verifique o número da linha (ex: 522, 060, 2040) ou o nome do corredor (ex: Dois Irmãos, Derby, CDU).</div>
+            <button onclick="document.getElementById('modal-line-search-input').value=''; window.RealTransit.filterModalLines('');" style="background:#0284c7; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">
+              Ver Linhas Populares
+            </button>
+          </div>
+        `;
         return;
       }
 
@@ -474,16 +490,48 @@
       `;
     },
 
-    // Busca inteligente no catálogo de 400 linhas, 44 terminais e paradas da linha
+    // Busca inteligente no catálogo de 400 linhas, 44 terminais e paradas da linha (5 Estados de UI)
     handleSearch(query) {
       const q = (query || '').trim().toLowerCase();
       const drop = document.getElementById('search-results-dropdown');
       const clearBtn = document.getElementById('search-clear-btn');
       if (!drop) return;
 
+      // 1. ESTADO VAZIO ORIENTADOR: Usuário focou no input sem digitar nada
       if (!q) {
-        drop.style.display = 'none';
         if (clearBtn) clearBtn.style.display = 'none';
+        drop.innerHTML = `
+          <div style="padding:8px 12px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;">
+            <span>🔥 Linhas Populares no Grande Recife</span>
+            <span style="font-size:10.5px; color:#0284c7; cursor:pointer; font-weight:800;" onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();">Ver 400 Linhas ➔</span>
+          </div>
+          <div class="search-item" onclick="window.RealTransit.loadRoute('522'); if(window.clearQuickSearch) window.clearQuickSearch();">
+            <div><strong style="color:#0f172a;">🚌 522 · Dois Irmãos (Rui Barbosa / UFRPE)</strong><div style="font-size:11px; color:var(--text-secondary);">Linha Oficial da UFRPE · Derby · Rui Barbosa</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">UFRPE</span>
+          </div>
+          <div class="search-item" onclick="window.RealTransit.loadRoute('2060'); if(window.clearQuickSearch) window.clearQuickSearch();">
+            <div><strong style="color:#0f172a;">🚌 2060 · TI Tancredo Neves / TI Macaxeira (Linha 060)</strong><div style="font-size:11px; color:var(--text-secondary);">Espinha Dorsal Metropolitana · Av. Recife</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Linha 060</span>
+          </div>
+          <div class="search-item" onclick="window.RealTransit.loadRoute('2040'); if(window.clearQuickSearch) window.clearQuickSearch();">
+            <div><strong style="color:#0f172a;">🚌 2040 · CDU / Boa Viagem / Caxangá</strong><div style="font-size:11px; color:var(--text-secondary);">Conexão Universitária UFPE / Zona Sul</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">CDU</span>
+          </div>
+          <div class="search-item" onclick="window.RealTransit.loadRoute('050'); if(window.clearQuickSearch) window.clearQuickSearch();">
+            <div><strong style="color:#0f172a;">🚌 050 · PE-15 / Boa Viagem</strong><div style="font-size:11px; color:var(--text-secondary);">Corredor Agamenon Magalhães</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Agamenon</span>
+          </div>
+          <div class="search-item" onclick="window.RealTransit.loadRoute('199'); if(window.clearQuickSearch) window.clearQuickSearch();">
+            <div><strong style="color:#0f172a;">🚌 199 · Camela / TI Cabo</strong><div style="font-size:11px; color:var(--text-secondary);">Corredor Rodoviário PE-60 · São Judas Tadeu</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">PE-60</span>
+          </div>
+          <div style="padding:8px 12px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <button onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="width:100%; background:#0284c7; color:#ffffff; border:none; border-radius:8px; padding:7px; font-size:12px; font-weight:800; cursor:pointer;">
+              🔍 Explorar Catálogo Completo (400 Linhas GTFS)
+            </button>
+          </div>
+        `;
+        drop.style.display = 'flex';
         return;
       }
 
@@ -535,12 +583,23 @@
         });
       }
 
+      // 2. ESTADO VAZIO / SEM RESULTADOS (COM ORIENTAÇÃO CLARA)
       if (results.length === 0) {
-        drop.innerHTML = '<div style="padding:12px; font-size:12px; color:var(--text-muted); text-align:center;">Nenhuma linha, terminal ou parada encontrada para "' + query + '".</div>';
+        drop.innerHTML = `
+          <div style="padding:16px; text-align:center; color:#64748b;">
+            <div style="font-size:22px; margin-bottom:4px;">🔍</div>
+            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha ou parada para "${query}"</div>
+            <div style="font-size:11.5px; color:#64748b; line-height:1.4; margin-bottom:10px;">Dica: Digite o número (ex: 522, 060, 2040) ou nome do terminal (ex: Macaxeira, CDU, Derby).</div>
+            <button onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="background:#0284c7; color:#ffffff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">
+              Abrir Catálogo de 400 Linhas ➔
+            </button>
+          </div>
+        `;
         drop.style.display = 'flex';
         return;
       }
 
+      // 3. ESTADO SUCESSO (DADOS REAIS COM BADGES SEMÂNTICOS)
       const topResults = results.slice(0, 10);
       window.currentRealSearchResults = topResults;
 
@@ -587,6 +646,37 @@
       } else if (r.type === 'route') {
         this.loadRoute(r.code);
       }
+      if (typeof window.clearQuickSearch === 'function') {
+        window.clearQuickSearch();
+      }
+    },
+
+    // Sistema leve de toasts para feedback de estados da UI (Zero Slop)
+    showToast(message, type = 'info') {
+      let toast = document.getElementById('grafoo-floating-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'grafoo-floating-toast';
+        toast.style.cssText = 'position:fixed; top:75px; left:50%; transform:translateX(-50%); z-index:9999; padding:9px 15px; border-radius:12px; font-size:12.5px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,0.25); display:flex; align-items:center; gap:8px; transition:opacity 0.25s ease, transform 0.25s ease; font-family:"Plus Jakarta Sans",sans-serif; max-width:90%; pointer-events:none;';
+        document.body.appendChild(toast);
+      }
+      const bg = type === 'warning' ? '#fffbeb' : type === 'error' ? '#fef2f2' : '#f0fdf4';
+      const color = type === 'warning' ? '#92400e' : type === 'error' ? '#991b1b' : '#166534';
+      const border = type === 'warning' ? '#fde68a' : type === 'error' ? '#fecaca' : '#bbf7d0';
+      const icon = type === 'warning' ? '⚠️' : type === 'error' ? '❌' : '✅';
+
+      toast.style.background = bg;
+      toast.style.color = color;
+      toast.style.border = `1.5px solid ${border}`;
+      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+
+      if (this._toastTimer) clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(-10px)';
+      }, 3500);
     },
 
     // Leitura em voz alta da parada ativa

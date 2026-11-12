@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 12/11/2026 00:30
+- **Última Atualização:** 12/11/2026 01:00
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -12,7 +12,9 @@
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
 - **Harness Auditor / Crítico:** DeepSeek Harness (`core/harness/deepseek/`)
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
-- **Contratos Compartilhados (OpenAPI/Modelos):** [`contracts/`](contracts/)
+  - Subagentes Especializados Ativos: `backend-engineer`, `frontend-engineer`, `qa-integration-engineer`, `visual-design-critic`, `slide-master-canva`.
+- **Contratos Compartilhados (OpenAPI v2.1.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
+- **Gatekeeper Pré-Deploy:** 28/28 Testes Automatizados em 5 Etapas (100% PASS)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -33,7 +35,43 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Geração Oficial da Apresentação no Canva MCP e Exportação PPTX
+### 1. Reestruturação do Sistema Multiagente e Purga de Agentes Legados
+- [x] **Encerramento de Subagentes Legados**:
+  - Encerrados e purgados com sucesso os 8 subagentes antigos de *História do Brasil*.
+- [x] **Formalização e Ativação do Esquadrão Especialista Full Stack**:
+  - `backend-engineer`: Engenheiro de Backend, modelagem de dados, algoritmos de transporte GTFS e predição ST-GCN.
+  - `frontend-engineer`: Engenheiro de Frontend, UI/UX anti-slop, Leaflet Maps, Web Speech API e responsividade.
+  - `qa-integration-engineer`: Auditor de Qualidade e Blindagem Pré-Flight Gatekeeper.
+  - `visual-design-critic`: Revisor de Usabilidade, Contraste WCAG e Design System.
+  - `slide-master-canva`: Diretor de Arte e Narrativa Visual no Canva Pro.
+
+### 2. Auditoria e Refinamento do Frontend (`frontend-engineer`)
+- [x] **Acesso & Download da Apresentação Oficial (Banca Examinadora UFRPE)**:
+  - Adicionado botão de destaque com download direto do PPTX (`📥 Baixar PPTX (Banca)`) e atalhos na barra superior (`.desktop-outer-bar`).
+  - Adicionada pílula de acesso rápido na barra mobile (`🎓 Banca PPTX`) e card dedicado no modal de perfil.
+  - Implementado modal acadêmico exclusivo `#modal-presentation` interligando o PPTX (13.1 MB), os slides web (`slides_canva.html`) e o roteiro de fala (`roteiro.html`).
+- [x] **Cobertura Completa dos 5 Estados da Interface**:
+  - *Estado Vazio Orientador*: painel acolhedor com Linhas Populares (522 Dois Irmãos, 2060 TI Tancredo Neves/Macaxeira, etc.) e acesso ao catálogo metropolitano de 393 linhas.
+  - *Estado Carregando*: Typing indicator visual na Laya IA (`#laya-typing-bubble` com animação neural dot pulse).
+  - *Estado Erro & Contingência*: Tratamento gracioso para bloqueio de microfone e fallback elegante para a Grade Horária Soberana CTM em caso de falha de telemetria externa.
+- [x] **Correção de Interoperabilidade e Mapa Leaflet**:
+  - Criado o alias canônico `selectLine(code)` -> `loadRoute(code)` em `real_transit_engine.js`.
+  - Invalidação escalonada de tiles no Leaflet (`100ms`, `300ms`, `600ms`) eliminando bordas cinzas ao redimensionar entre PC e Smartphone.
+
+### 3. Sincronização de Contratos e Modelagem Matemática A1 (`backend-engineer`)
+- [x] **Contratos OpenAPI v2.1.0 e Modelos de Domínio**:
+  - Atualizados `contracts/api-contract.yaml`, `contracts/data-model.md` e `contracts/integration-notes.md`.
+  - Módulo canônico criado: `code/grafoparada_tec/modelo_predicao_e_abandono.py`.
+  - Modelagem formalizada com rigor Qualis A1:
+    - *PerceivedWaitModel*: Percepção de espera inflada em 1,68x sob *denied boarding* (Yap & Cats, 2021).
+    - *PassengerRenegingModel*: Sigmoide logística de abandono com proteção numérica contra overflow (Kim et al., 2026).
+    - *Trava Híbrida Defensiva*: Interdição anti-oversmoothing com fallback para o dado físico de GPS se $\Delta > 15\text{ min}$.
+    - *EmergencyDispatchAction*: Gatilho operacional de quebra de escala com economia comprovada de 14L de diesel/ciclo.
+- [x] **Gatekeeper Pré-Deploy Expandido (5 Etapas / 28 Testes)**:
+  - `pre_flight_check.py` agora valida fisicamente o PPTX oficial (limiar > 1 MB; atual 12,51 MB).
+  - Suíte `teste_rotinas_e_realocacao.py` ampliada para 28 testes (100% de aprovação).
+
+### 4. Geração Oficial da Apresentação no Canva MCP e Exportação PPTX
 - [x] **Autêntica Criação via API Oficial do Canva (`canva_canva:create-design`)**:
   - Apresentação de 5 slides criada e vinculada diretamente à conta real do usuário Cauã Lira (`oUZdnQgRr2EYh1AnvcyI28`), time `oBZdnXhr5CIciUTb_XJoTU`.
   - Design ID: `DAHaqRyMW0A` | Título: *Projeto GrafoParada*.

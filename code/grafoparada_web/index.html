@@ -65,14 +65,16 @@
     .desktop-outer-bar {
       display: none;
       width: 100%;
-      max-width: 900px;
-      padding: 10px 20px;
-      margin-bottom: 12px;
+      max-width: 1320px;
+      padding: 8px 18px;
+      margin-bottom: 10px;
       justify-content: space-between;
       align-items: center;
       color: #e2e8f0;
-      font-size: 13.5px;
+      font-size: 13px;
       z-index: 1000;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .desktop-outer-bar .badge-title {
@@ -842,6 +844,10 @@
       0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
       100% { transform: scale(1.12); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
     }
+    @keyframes layaDotPulse {
+      0% { transform: scale(0.7); opacity: 0.4; }
+      100% { transform: scale(1.25); opacity: 1; }
+    }
     .laya-quick-cmd {
       background: #f1f5f9;
       border: 1px solid #cbd5e1;
@@ -1579,30 +1585,43 @@
       <img src="img/logo_pc_horizontal.svg" alt="GrafoParada · Menos Espera, Mais Cidade" style="height:30px; vertical-align:middle; margin-right:8px;" />
       <span style="font-size:11px; background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:999px; border:1px solid #fde68a; font-weight:800;">🔬 Protótipo Acadêmico · Malha GTFS Real + Modelo ST-GCN</span>
     </div>
-    <div style="display:flex; gap:8px;">
+    <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+      <!-- DECK OFICIAL BANCA UFRPE (PPTX, SLIDES & ROTEIRO) -->
+      <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" class="btn-desktop-action" style="background:#ea580c; border-color:#f97316; color:#ffffff; font-weight:800; text-decoration:none; box-shadow:0 2px 8px rgba(234,88,12,0.35);" title="Baixar Apresentação Oficial em PPTX (13.1 MB - 16:9 Widescreen para PowerPoint)">
+        <span>📥</span> Baixar PPTX (Banca)
+      </a>
+      <button class="btn-desktop-action" onclick="openPresentationModal()" style="background:rgba(124,58,237,0.3); border-color:#a78bfa; color:#ede9fe; font-weight:800;" title="Apresentação Oficial, Slides Canva e Roteiro da Banca UFRPE">
+        <span>🎓</span> Apresentação UFRPE
+      </button>
+      <a href="slides_canva.html" target="_blank" class="btn-desktop-action" style="background:rgba(14,165,233,0.25); border-color:#38bdf8; color:#bae6fd; text-decoration:none;" title="Abrir Apresentação Web de Slides Canva">
+        <span>📊</span> Slides Web
+      </a>
+      <a href="roteiro.html" target="_blank" class="btn-desktop-action" style="background:rgba(16,185,129,0.25); border-color:#34d399; color:#a7f3d0; text-decoration:none;" title="Ver Roteiro Oficial do Seminário">
+        <span>📜</span> Roteiro
+      </a>
       <button class="btn-desktop-action" onclick="window.RealTransit.openLinePickerModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
         <span>🚌</span> 400 Linhas GTFS
       </button>
       <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
-        <span>📅</span> Minha Rotina (Turnos)
+        <span>📅</span> Minha Rotina
       </button>
       <button class="btn-desktop-action" onclick="openSeiTerminalsModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
         <span>🏛️</span> 44 Terminais SEI
       </button>
       <button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
-        <span>🏛️</span> Central CTM (Demanda Latente & Despacho)
+        <span>🏛️</span> Central CTM
       </button>
       <button class="btn-desktop-action" onclick="openAuditModal()" style="background:rgba(16,185,129,0.25); border-color:#34d399;">
-        <span>👥</span> Personas & Acessibilidade
+        <span>👥</span> Personas
       </button>
       <button class="btn-desktop-action" onclick="openDataOriginModal()" style="background:rgba(245,158,11,0.2); border-color:#fbbf24; color:#fef3c7;">
-        <span>🔬</span> Origem dos Dados (Transparência)
+        <span>🔬</span> Origem dos Dados
       </button>
       <button class="btn-desktop-action" onclick="logoutAndRestart()">
-        <span>🔄</span> Testar do Zero
+        <span>🔄</span> Reiniciar
       </button>
-      <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()" title="Alternar entre modo smartphone e modo monitor de PC em tela cheia">
-        <span>🖥️</span> Modo PC / Celular
+      <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()" title="Alternar entre modo smartphone e monitor de PC em tela cheia">
+        <span>🖥️</span> Modo PC
       </button>
     </div>
   </div>
@@ -1623,6 +1642,11 @@
         <div class="top-pill" onclick="openProfileModal()">
           <span style="font-size:15px;">👤</span>
           <span id="top-user-name">Cauã</span>
+        </div>
+
+        <div class="top-pill" onclick="openPresentationModal()" title="Apresentação Oficial da Banca UFRPE (PPTX / Slides)" style="background:#fef3c7; border-color:#fde68a; color:#92400e; font-weight:800;">
+          <span style="font-size:14px;">🎓</span>
+          <span>Banca PPTX</span>
         </div>
 
                 <div class="top-pill" id="routine-pill-btn" onclick="openRoutineModal()" title="Configurar Minha Rotina Pendular" style="color:#059669; font-weight:800;">
@@ -2031,6 +2055,28 @@
           <div><strong>Casa:</strong> <span id="prof-home">Camela (Rua do Comércio)</span></div>
           <div><strong>Destino:</strong> <span id="prof-work">TI Cabo</span></div>
           <div><strong>Linha:</strong> <span id="prof-line">199 · Camela / TI Cabo</span></div>
+        </div>
+
+        <!-- MATERIAL OFICIAL BANCA UFRPE -->
+        <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:12px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+            <span style="font-size:16px;">🎓</span>
+            <strong style="font-size:13px; color:#0f172a;">Material Oficial · Banca UFRPE</strong>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="background:#ea580c; color:#ffffff; padding:8px 12px; border-radius:10px; font-size:12px; font-weight:800; text-decoration:none; display:flex; align-items:center; justify-content:space-between;">
+              <span>📥 Baixar Apresentação PPTX</span>
+              <span style="font-size:10.5px; opacity:0.9;">13.1 MB</span>
+            </a>
+            <div style="display:flex; gap:6px;">
+              <a href="slides_canva.html" target="_blank" style="flex:1; background:#7c3aed; color:#ffffff; padding:7px 10px; border-radius:8px; font-size:11.5px; font-weight:800; text-decoration:none; text-align:center;">
+                📊 Slides Web
+              </a>
+              <a href="roteiro.html" target="_blank" style="flex:1; background:#0284c7; color:#ffffff; padding:7px 10px; border-radius:8px; font-size:11.5px; font-weight:800; text-decoration:none; text-align:center;">
+                📜 Roteiro
+              </a>
+            </div>
+          </div>
         </div>
 
         <button class="btn-primary" onclick="testNeuralVoice()" style="margin-bottom:8px;">
@@ -2857,6 +2903,81 @@
       </div>
     </div>
 
+    <!-- 15. MODAL DE APRESENTAÇÃO OFICIAL DA BANCA UFRPE -->
+    <div id="modal-presentation" class="modal-overlay" style="display:none; z-index:2500;">
+      <div class="modal-card" style="border:2px solid #7c3aed; max-width:440px; max-height:88vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:38px; height:38px; border-radius:10px; background:#ede9fe; color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800;">🎓</div>
+            <div>
+              <div style="font-size:11px; font-weight:800; color:#7c3aed; text-transform:uppercase;">Banca Examinadora · UFRPE</div>
+              <h3 style="font-size:17px; font-weight:800; color:#0f172a; margin:0;">Apresentação do Seminário 2</h3>
+            </div>
+          </div>
+          <button style="border:none; background:#f1f5f9; width:30px; height:30px; border-radius:50%; font-size:16px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closePresentationModal()">✕</button>
+        </div>
+
+        <div style="font-size:12px; color:#475569; line-height:1.5; margin-bottom:14px; background:#f8fafc; padding:10px 12px; border-radius:12px; border:1px solid #e2e8f0;">
+          Apresentação de pesquisa de <strong>Cauã da Cunha Lira</strong> para a banca examinadora do Departamento de Estatística e Informática (DEINFO / UFRPE). Pesquisa em <em>ST-GCN</em> e <em>Redes de Transporte Inteligente</em>.
+        </div>
+
+        <!-- OPÇÃO 1: PPTX OFICIAL -->
+        <div style="background:#fff7ed; border:1.5px solid #fdba74; border-radius:14px; padding:12px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:18px;">📥</span>
+              <strong style="font-size:13.5px; color:#9a3412;">Apresentação Oficial PPTX</strong>
+            </div>
+            <span style="font-size:10px; font-weight:800; background:#ea580c; color:#ffffff; padding:2px 7px; border-radius:999px;">16:9 Widescreen</span>
+          </div>
+          <div style="font-size:11.5px; color:#7c2d12; line-height:1.45; margin-bottom:10px;">
+            Arquivo PowerPoint oficial completo (13.1 MB) com arquitetura ST-GCN, métricas de erro MAE/RMSE da PE-60 e gráficos de telemetria GTFS.
+          </div>
+          <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; background:#ea580c; color:#ffffff; padding:10px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; box-shadow:0 3px 12px rgba(234,88,12,0.3); transition:background 0.2s;">
+            <span>📥 Baixar PPTX Direto (13.1 MB)</span>
+          </a>
+        </div>
+
+        <!-- OPÇÃO 2: SLIDES WEB INTERATIVOS -->
+        <div style="background:#f5f3ff; border:1.5px solid #ddd6fe; border-radius:14px; padding:12px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:18px;">📊</span>
+              <strong style="font-size:13.5px; color:#5b21b6;">Slides Web Interativos (Canva Style)</strong>
+            </div>
+            <span style="font-size:10px; font-weight:800; background:#7c3aed; color:#ffffff; padding:2px 7px; border-radius:999px;">HTML5 Live</span>
+          </div>
+          <div style="font-size:11.5px; color:#5b21b6; line-height:1.45; margin-bottom:10px;">
+            Apresentação responsiva projetável em sala ou monitor sem necessidade do Microsoft Office instalado.
+          </div>
+          <a href="slides_canva.html" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; background:#7c3aed; color:#ffffff; padding:10px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; box-shadow:0 3px 12px rgba(124,58,237,0.3);">
+            <span>📊 Abrir Slides Web ➔</span>
+          </a>
+        </div>
+
+        <!-- OPÇÃO 3: ROTEIRO PEDAGÓGICO -->
+        <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:14px; padding:12px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:18px;">📜</span>
+              <strong style="font-size:13.5px; color:#0369a1;">Roteiro da Apresentação Minuto a Minuto</strong>
+            </div>
+            <span style="font-size:10px; font-weight:800; background:#0284c7; color:#ffffff; padding:2px 7px; border-radius:999px;">Guia da Banca</span>
+          </div>
+          <div style="font-size:11.5px; color:#0c4a6e; line-height:1.45; margin-bottom:10px;">
+            Estrutura de fala dividida por minutos, perguntas esperadas da banca da UFRPE e fundamentação teórica.
+          </div>
+          <a href="roteiro.html" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; background:#0284c7; color:#ffffff; padding:10px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none;">
+            <span>📜 Ver Roteiro Oficial ➔</span>
+          </a>
+        </div>
+
+        <button onclick="closePresentationModal()" class="btn-secondary" style="width:100%; margin-top:4px;">
+          Fechar Janela
+        </button>
+      </div>
+    </div>
+
     <!-- 17. MODAL CONVERSACIONAL LAYA (ASSISTENTE IA POR VOZ E TEXTO) -->
     <div id="modal-laya" class="modal-overlay" style="display:none; z-index:1100;">
       <div class="modal-card" style="max-height:86vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:440px;">
@@ -2884,6 +3005,7 @@
 
         <!-- QUICK PROMPTS HORIZONTAL SCROLL -->
         <div style="display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; scrollbar-width:none;">
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Apresentação da Banca UFRPE')" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe; font-weight:800;">🎓 Banca UFRPE</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quando passa meu ônibus?')">🚌 Próximo Ônibus</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual minha parada atual?')">🚏 Minha Parada</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quero ir para a UFRPE')">🎓 Ir para UFRPE</button>
@@ -3591,8 +3713,31 @@
     function clearQuickSearch() {
       const inp = document.getElementById("quick-search-input");
       if (inp) inp.value = "";
-      document.getElementById("search-results-dropdown").style.display = "none";
-      document.getElementById("search-clear-btn").style.display = "none";
+      const drop = document.getElementById("search-results-dropdown");
+      if (drop) drop.style.display = "none";
+      const clearBtn = document.getElementById("search-clear-btn");
+      if (clearBtn) clearBtn.style.display = "none";
+    }
+
+    // FECHAR DROPDOWN DE BUSCA AO CLICAR FORA
+    document.addEventListener("click", function(e) {
+      const searchWrapper = document.querySelector(".search-pill-wrapper");
+      const drop = document.getElementById("search-results-dropdown");
+      if (searchWrapper && drop && !searchWrapper.contains(e.target)) {
+        drop.style.display = "none";
+      }
+    });
+
+    // MODAL DE APRESENTAÇÃO BANCA UFRPE
+    function openPresentationModal() {
+      const m = document.getElementById("modal-presentation");
+      if (m) m.style.display = "flex";
+      playSimpleChime();
+    }
+
+    function closePresentationModal() {
+      const m = document.getElementById("modal-presentation");
+      if (m) m.style.display = "none";
     }
 
     function selectSearchedTerminal(lat, lon, title) {
@@ -3882,9 +4027,9 @@
 
     function toggleFullscreenDesktop() {
       document.body.classList.toggle("is-fullscreen");
-      setTimeout(function() {
-        if (leafletMap) leafletMap.invalidateSize();
-      }, 300);
+      setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 100);
+      setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 300);
+      setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 600);
     }
 
     function switchLineQuick() {
@@ -4428,6 +4573,10 @@
       const navBtn = document.getElementById("tab-nav-laya");
       if (navBtn) navBtn.classList.add("active");
       playSimpleChime();
+      setTimeout(function() {
+        const inp = document.getElementById("laya-chat-input");
+        if (inp) inp.focus();
+      }, 150);
     }
 
     function closeLayaModal() {
@@ -4779,7 +4928,11 @@
             const transcript = event.results[0][0].transcript;
             if (transcript) {
               appendLayaChatMessage(transcript, "user");
-              handleLayaCommand(transcript);
+              showLayaTypingIndicator();
+              setTimeout(function() {
+                hideLayaTypingIndicator();
+                handleLayaCommand(transcript);
+              }, 450);
             }
           }
         };
@@ -4789,7 +4942,9 @@
           const micBtn = document.getElementById("btn-laya-mic");
           if (micBtn) micBtn.classList.remove("listening");
           console.warn("Laya speech recognition error:", err);
-          showFloatingVoicePill("⚠️ Não consegui entender. Tente novamente ou digite.");
+          hideLayaTypingIndicator();
+          appendLayaChatMessage("Não consegui ouvir com clareza pelo microfone. Você pode tentar falar novamente tocando no 🎙️ ou digitar sua mensagem abaixo!", "bot");
+          showFloatingVoicePill("⚠️ Áudio não reconhecido. Toque no microfone para tentar de novo.");
         };
 
         rec.onend = function() {
@@ -4811,7 +4966,7 @@
       }
       if (!layaSpeechRecognizer) {
         playSimpleChime();
-        appendLayaChatMessage("Seu navegador não tem suporte a microfone por voz. Você pode digitar sua mensagem no campo abaixo!", "bot");
+        appendLayaChatMessage("Seu navegador não possui suporte ao microfone. Você pode digitar sua dúvida diretamente no campo abaixo!", "bot");
         return;
       }
 
@@ -4829,6 +4984,30 @@
       }
     }
 
+    function showLayaTypingIndicator() {
+      const hist = document.getElementById("laya-chat-history");
+      if (!hist || document.getElementById("laya-typing-bubble")) return;
+      const bubble = document.createElement("div");
+      bubble.id = "laya-typing-bubble";
+      bubble.className = "laya-msg-bot";
+      bubble.style.cssText = "display:flex; align-items:center; gap:6px; width:fit-content; padding:8px 12px;";
+      bubble.innerHTML = `
+        <span style="width:6px; height:6px; background:#0284c7; border-radius:50%; display:inline-block; animation:layaDotPulse 0.9s infinite alternate;"></span>
+        <span style="width:6px; height:6px; background:#059669; border-radius:50%; display:inline-block; animation:layaDotPulse 0.9s infinite 0.2s alternate;"></span>
+        <span style="width:6px; height:6px; background:#0284c7; border-radius:50%; display:inline-block; animation:layaDotPulse 0.9s infinite 0.4s alternate;"></span>
+        <span style="font-size:11px; color:#64748b; margin-left:4px;">Laya está consultando o GrafoParada...</span>
+      `;
+      hist.appendChild(bubble);
+      hist.scrollTop = hist.scrollHeight;
+    }
+
+    function hideLayaTypingIndicator() {
+      const el = document.getElementById("laya-typing-bubble");
+      if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }
+
     function appendLayaChatMessage(msg, sender) {
       const hist = document.getElementById("laya-chat-history");
       if (!hist) return;
@@ -4841,26 +5020,45 @@
 
     function handleLayaQuickPrompt(promptText) {
       appendLayaChatMessage(promptText, "user");
-      handleLayaCommand(promptText);
+      showLayaTypingIndicator();
+      setTimeout(function() {
+        hideLayaTypingIndicator();
+        handleLayaCommand(promptText);
+      }, 400);
     }
 
     function sendLayaTextMessage() {
       const inp = document.getElementById("laya-chat-input");
       if (!inp) return;
       const text = inp.value.trim();
-      if (!text) return;
+      if (!text) {
+        appendLayaChatMessage("Olá! Como posso te orientar? Você pode me perguntar: <em>'Quando passa meu ônibus?'</em>, <em>'Qual minha parada?'</em>, <em>'Apresentação da Banca UFRPE'</em> ou tocar no microfone 🎙️ para falar comigo!", "bot");
+        return;
+      }
       inp.value = "";
       appendLayaChatMessage(text, "user");
-      handleLayaCommand(text);
+      showLayaTypingIndicator();
+      setTimeout(function() {
+        hideLayaTypingIndicator();
+        handleLayaCommand(text);
+      }, 450);
     }
 
     function handleLayaCommand(text) {
       const q = text.toLowerCase();
       let reply = "";
 
-      if (q.includes("ônibus") || q.includes("quando passa") || q.includes("horário") || q.includes("próximo") || q.includes("chega")) {
+      if (q.includes("apresentação") || q.includes("apresentacao") || q.includes("slide") || q.includes("pptx") || q.includes("banca") || q.includes("roteiro") || q.includes("seminario") || q.includes("seminário")) {
+        reply = "Aqui estão os materiais oficiais para a <strong>Banca Examinadora da UFRPE (Seminário 2)</strong>:<br><br>" +
+          "• 📥 <strong>Apresentação PPTX:</strong> Arquivo oficial 16:9 (13.1 MB)<br>" +
+          "• 📊 <strong>Slides Web Interativos:</strong> Exibição Canva style no navegador<br>" +
+          "• 📜 <strong>Roteiro Pedagógico:</strong> Guia minuto a minuto de sustentação.<br><br>" +
+          "<button type=\"button\" onclick=\"openPresentationModal()\" style=\"background:#7c3aed; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;\">🎓 Abrir Painel da Apresentação</button>";
+        openPresentationModal();
+      } else if (q.includes("ônibus") || q.includes("quando passa") || q.includes("horário") || q.includes("próximo") || q.includes("chega")) {
         const line = window.RealTransit ? window.RealTransit.activeRouteCode : "522";
-        reply = "O próximo coletivo da linha <strong>" + line + "</strong> está a caminho e tem previsão de chegada em <strong>4 minutos</strong> na sua parada. Vagas livres estimadas: 14 assentos.";
+        reply = "O próximo coletivo da linha <strong>" + line + "</strong> está a caminho e tem previsão de chegada em <strong>4 minutos</strong> na sua parada. Vagas livres estimadas: 14 assentos.<br><br>" +
+          "<button type=\"button\" onclick=\"trackBusLocation(true); closeLayaModal();\" style=\"background:#059669; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;\">🚌 Rastrear no Mapa</button>";
       } else if (q.includes("parada") || q.includes("ponto") || q.includes("onde estou")) {
         let stopName = "Terminal de Dois Irmãos (UFRPE)";
         if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
@@ -4874,18 +5072,21 @@
         reply = "Adicionei a parada atual aos seus favoritos! Agora você pode acessá-la em 1 toque na barra de atalhos rápidos.";
       } else if (q.includes("ufrpe") || q.includes("rural") || q.includes("dois irmãos")) {
         reply = "Entendido! Ajustei seu destino para <strong>UFRPE (Dois Irmãos)</strong>. Selecionei a linha <strong>522</strong> e tracei a rota no mapa.";
-        if (window.RealTransit && window.RealTransit.selectLine) {
-          window.RealTransit.selectLine("522");
+        if (window.RealTransit) {
+          if (window.RealTransit.selectLine) window.RealTransit.selectLine("522");
+          else if (window.RealTransit.loadRoute) window.RealTransit.loadRoute("522");
         }
       } else if (q.includes("ufpe") || q.includes("cdu") || q.includes("cidade universitária")) {
-        reply = "Certo! Direcionando para a <strong>UFPE (CDU)</strong>. Atualizei as conexões prioritárias no mapa.";
-        if (window.RealTransit && window.RealTransit.selectLine) {
-          window.RealTransit.selectLine("2040");
+        reply = "Certo! Direcionando para a <strong>UFPE (CDU)</strong>. Atualizei as conexões prioritárias no mapa com a linha <strong>2040</strong>.";
+        if (window.RealTransit) {
+          if (window.RealTransit.selectLine) window.RealTransit.selectLine("2040");
+          else if (window.RealTransit.loadRoute) window.RealTransit.loadRoute("2040");
         }
       } else if (q.includes("trabalho") || q.includes("porto digital") || q.includes("recife antigo") || q.includes("cais")) {
         reply = "Rota para o <strong>Porto Digital / Bairro do Recife</strong> ativada. Monitorando o corredor Agamenon / Cais de Santa Rita.";
-        if (window.RealTransit && window.RealTransit.selectLine) {
-          window.RealTransit.selectLine("199");
+        if (window.RealTransit) {
+          if (window.RealTransit.selectLine) window.RealTransit.selectLine("199");
+          else if (window.RealTransit.loadRoute) window.RealTransit.loadRoute("199");
         }
       } else if (q.includes("tutorial") || q.includes("ajuda") || q.includes("como usar")) {
         reply = "Abrindo o tutorial passo a passo para você aprender a usar todas as funções do GrafoParada!";
@@ -4902,11 +5103,9 @@
         reply = "Entendi sua mensagem, Cauã! Posso te ajudar a saber o horário do próximo ônibus, calcular a janela de saída da sua casa, ou salvar suas paradas favoritas para trabalhar e estudar.";
       }
 
-      setTimeout(function() {
-        appendLayaChatMessage(reply, "bot");
-        const cleanSpeech = reply.replace(/<\/?[^>]+(>|$)/g, "");
-        playNaturalVoice(cleanSpeech);
-      }, 350);
+      appendLayaChatMessage(reply, "bot");
+      const cleanSpeech = reply.replace(/<\/?[^>]+(>|$)/g, "");
+      playNaturalVoice(cleanSpeech);
     }
 
     // ==========================================
@@ -5078,6 +5277,9 @@
     }
 
     // Exposição global no window
+    window.openPresentationModal = openPresentationModal;
+    window.closePresentationModal = closePresentationModal;
+    window.clearQuickSearch = clearQuickSearch;
     window.openLayaModal = openLayaModal;
     window.closeLayaModal = closeLayaModal;
     window.toggleLayaVoiceRecognition = toggleLayaVoiceRecognition;

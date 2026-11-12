@@ -3,14 +3,17 @@ info:
   title: GrafoParada & Real Transit Engine API
   description: >
     Contrato formal compartilhado de dados e serviços do GrafoParada.
-    Utilizado para sincronização rígida entre a Central de Despacho (Backend/GNN)
+    Sincronização rígida entre a Central de Despacho Operacional (Backend/ST-GCN/CTM),
+    os algoritmos de predição comportamental e percepção temporal,
     e as interfaces do passageiro (Frontend Mobile/PWA/Laya IA).
-  version: 2.0.0
+    Fundamentado na literatura A1: Kim et al. (2026), Yap & Cats (2021) e Tan & Ramli (2024).
+  version: 2.1.0
+
 paths:
   /api/v1/network/gtfs:
     get:
       summary: Catálogo Metropolitano GTFS CTM
-      description: Retorna a malha completa de linhas, paradas e shapes georreferenciados.
+      description: Retorna a malha completa de linhas, paradas e traçados georreferenciados.
       responses:
         '200':
           description: Malha metropolitana carregada com sucesso.
@@ -18,6 +21,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - total_routes
+                  - routes
                 properties:
                   total_routes:
                     type: integer
@@ -26,9 +32,11 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Route'
+
   /api/v1/telemetry/line/{route_code}:
     get:
       summary: Telemetria ao Vivo de Corredor
+      description: Retorna a telemetria espacial e estado operacional em tempo real de uma linha.
       parameters:
         - name: route_code
           in: path
@@ -44,11 +52,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/LineTelemetry'
         '404':
-          description: Linha não encontrada no catálogo.
-  /api/v1/dispatch/emergency:
+          description: Linha não encontrada no catálogo metropolitano.
+
+  /api/v1/predict/corridor:
     post:
-      summary: Notificação de Despacho Operacional CTM
-      description: Dispara inserção de veículo no contra-fluxo para mitigar abandono.
+      summary: Predição Espaço-Temporal ST-GCN & Risco de Abandono
+      description: >
+        Calcula os horizontes multi-passo de espera (T+10, T+20, T+30),
+        o tempo percebido psicológico (1.68x Yap & Cats 2021), a probabilidade
+        de passenger reneging (Kim et al. 2026) e o estado da Trava Híbrida Defensiva.
       requestBody:
         required: true
         content:
@@ -57,21 +69,69 @@ paths:
               type: object
               required:
                 - route_code
-                - trigger_stop_id
-                - reason
+                - corridor_id
               properties:
                 route_code:
                   type: string
                   example: "199"
-                trigger_stop_id:
+                corridor_id:
                   type: string
-                  example: "030613"
-                reason:
-                  type: string
-                  example: "Retenção crítica > 15 min na PE-60 (Risco de Reneging Kim et al. 2026)"
+                  example: "pe60_camela_cabo"
+      responses:
+        '200':
+          description: Predições calculadas com sucesso.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - route_code
+                  - corridor_id
+                  - stops_prediction
+                properties:
+                  route_code:
+                    type: string
+                    example: "199"
+                  corridor_id:
+                    type: string
+                    example: "pe60_camela_cabo"
+                  stops_prediction:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PredictedStopInfo'
+
+  /api/v1/dispatch/emergency:
+    post:
+      summary: Notificação de Despacho Operacional CTM
+      description: >
+        Dispara inserção de veículo no contra-fluxo para resgate de passageiros
+        e mitigação de deadheading quando o risco de abandono for crítico.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyDispatchPayload'
       responses:
         '200':
           description: Despacho confirmado e registrado na malha.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyDispatchResult'
+
+  /api/v1/system/deck-status:
+    get:
+      summary: Auditoria Física do Deck de Apresentação da Banca
+      description: Garante que o artefato oficial PowerPoint esteja preservado e integro para visualização e avaliação docente.
+      responses:
+        '200':
+          description: Metadados do artefato de apresentação oficial.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresentationDeckStatus'
+
 components:
   schemas:
     Route:
@@ -80,13 +140,34 @@ components:
         - route_code
         - route_label
         - agency
+        - corridor_id
       properties:
         route_code:
           type: string
+          example: "199"
         route_label:
           type: string
+          example: "199 - Camela / TI Cabo"
         agency:
           type: string
+          example: "São Judas Tadeu (SJT) · CTM Grande Recife"
+        direction:
+          type: string
+          enum: [IDA, VOLTA]
+          example: "VOLTA"
+        corridor_id:
+          type: string
+          example: "pe60_camela_cabo"
+        shape_id:
+          type: string
+          example: "199-392-2"
+        stops_count:
+          type: integer
+          example: 64
+        active:
+          type: boolean
+          example: true
+
     LineTelemetry:
       type: object
       required:
@@ -96,12 +177,18 @@ components:
       properties:
         route_code:
           type: string
+          example: "199"
         corridor_id:
           type: string
+          example: "pe60_camela_cabo"
+        shape_id:
+          type: string
+          example: "199-392-2"
         stops:
           type: array
           items:
             $ref: '#/components/schemas/Stop'
+
     Stop:
       type: object
       required:
@@ -113,16 +200,187 @@ components:
       properties:
         stop_id:
           type: string
+          example: "030613"
         name:
           type: string
+          example: "Praça Pedro Serafim (Terminal de Camela)"
         lat:
           type: number
+          format: double
+          example: -8.514888
         lon:
           type: number
+          format: double
+          example: -35.123539
         wait_gps_min:
           type: number
+          format: float
+          example: 12.5
+        stgcn_horizon_min:
+          type: array
+          items:
+            type: number
+          example: [12.0, 18.5, 24.0]
+        perceived_wait_min:
+          type: number
+          format: float
+          description: Tempo ponderado pelo multiplicador 1.68x de Yap & Cats (2021) sob queima ou superlotação.
+          example: 21.0
+        reneging_risk_pct:
+          type: number
+          format: float
+          description: Probabilidade estimada de abandono de espera segundo Kim et al. (2026).
+          example: 78.4
+        crowd_level:
+          type: integer
+          minimum: 1
+          maximum: 4
+          example: 2
         crowd_status:
           type: string
+          example: "🟢 Sentado Garantido"
+        latent_demand_est:
+          type: number
+          example: 41.0
+        latent_demand_ci:
+          type: array
+          items:
+            type: number
+          example: [37.0, 45.0]
         operational_state:
           type: string
           enum: [REGULAR, WARNING, CRITICAL]
+          example: "REGULAR"
+        emergency_lock:
+          type: boolean
+          description: Trava híbrida anti-oversmoothing acionada (|STGCN - GPS| > 15 min).
+          example: false
+        discrepancy_delta:
+          type: number
+          format: float
+          example: 0.5
+
+    PredictedStopInfo:
+      type: object
+      required:
+        - stop_id
+        - wait_gps_min
+        - stgcn_horizon_min
+        - perceived_wait_min
+        - reneging_risk_pct
+        - emergency_lock
+      properties:
+        stop_id:
+          type: string
+          example: "030613"
+        wait_gps_min:
+          type: number
+          example: 14.0
+        stgcn_horizon_min:
+          type: array
+          items:
+            type: number
+          example: [14.0, 22.0, 31.0]
+        perceived_wait_min:
+          type: number
+          example: 23.52
+        reneging_risk_pct:
+          type: number
+          example: 88.5
+        emergency_lock:
+          type: boolean
+          example: false
+        discrepancy_delta:
+          type: number
+          example: 1.2
+        mitigation_action:
+          type: string
+          enum: [NONE, MONITOR, DEADHEADING_DISPATCH, EMERGENCY_LOCK_APPLIED]
+          example: "NONE"
+
+    EmergencyDispatchPayload:
+      type: object
+      required:
+        - route_code
+        - trigger_stop_id
+        - reason
+        - reneging_probability
+      properties:
+        route_code:
+          type: string
+          example: "199"
+        trigger_stop_id:
+          type: string
+          example: "030613"
+        reason:
+          type: string
+          example: "Retenção crítica > 15 min na PE-60 (Risco de Reneging Kim et al. 2026)"
+        reneging_probability:
+          type: number
+          format: float
+          example: 0.984
+        perceived_wait_min:
+          type: number
+          format: float
+          example: 25.2
+        discrepancy_delta:
+          type: number
+          format: float
+          example: 28.0
+        action_type:
+          type: string
+          enum: [DEADHEADING_DISPATCH, EXTRA_BOARDING, TRAVA_DEFENSIVA_FALLBACK]
+          example: "DEADHEADING_DISPATCH"
+
+    EmergencyDispatchResult:
+      type: object
+      required:
+        - dispatch_id
+        - status
+        - message
+        - diesel_saved_liters
+      properties:
+        dispatch_id:
+          type: string
+          example: "DSP-2026-11-098"
+        status:
+          type: string
+          enum: [EXECUTED, QUEUED, REJECTED]
+          example: "EXECUTED"
+        message:
+          type: string
+          example: "Veículo de contra-fluxo remanejado com sucesso para a PE-60."
+        diesel_saved_liters:
+          type: number
+          example: 14.0
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-11-12T03:45:00Z"
+
+    PresentationDeckStatus:
+      type: object
+      required:
+        - file_name
+        - exists
+        - size_bytes
+        - is_valid_deck
+      properties:
+        file_name:
+          type: string
+          example: "GrafoParada_Seminario2_CauaLira.pptx"
+        exists:
+          type: boolean
+          example: true
+        size_bytes:
+          type: integer
+          example: 13112877
+        is_valid_deck:
+          type: boolean
+          example: true
+        aspect_ratio:
+          type: string
+          example: "16:9"
+        path:
+          type: string
+          example: "code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx"
