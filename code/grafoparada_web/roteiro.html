@@ -379,7 +379,7 @@
 
     <div class="qa-item">
       <div class="qa-q">3. "De onde vem a demanda latente da Central CTM e como uma amostra do app representa a população?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "A bilhetagem eletrônica da catraca registra apenas a demanda atendida e censurada: quem desiste na parada escura ou vai de transporte alternativo não passa na catraca e vira invisível para o CTM. Reconhecemos que o sinal do aplicativo não é um censo total da população, mas uma variável observacional complementar agregada (D<sub>real</sub> ≠ D<sub>app</sub>). A demanda latente não-censurada é inferida pela ST-GCN fundindo três sinais: (1) o histórico censurado da catraca; (2) o proxy amostral de intenção de deslocamento coletado com k-anonimato (k ≥ 3); e (3) a topologia da malha física em grafo. A ST-GCN gera a estimativa pontual D̂ = 41, com intervalo de 90% via calibração conformal ([37, 45]), apoiando a decisão de despacho pelo risco probabilístico P(D > 36) = 98,4% no limiar de conforto operacional."</div>
+      <div class="qa-a"><strong>Resposta:</strong> "A bilhetagem eletrônica da catraca registra apenas a demanda atendida e censurada: quem desiste na parada escura ou vai de transporte alternativo não passa na catraca e vira invisível para o CTM. Na literatura A1, esse fenômeno é formalmente definido como <strong>Passenger Reneging</strong> (abandono da espera por demora, estudado recentemente por Kim et al., 2026 no <em>Journal of Public Transportation</em>) e <strong>Denied Boarding</strong> (impossibilidade de embarque por lotação, Tan & Ramli 2024 na <em>Transportation</em> e Yap & Cats 2021 na <em>TR-Part A</em>, onde provam que o peso psicológico da espera pós-recusa é 68% pior). O sinal do app não é um censo total, mas uma variável observacional agregada com k-anonimato (k ≥ 3). A ST-GCN funde a catraca censurada, o sinal amostral de intenção e a topologia do grafo para inferir a demanda latente com calibração conformal ([37, 45]), apoiando o despacho pelo risco P(D > 36) = 98,4%."</div>
     </div>
 
     <div class="qa-item">
@@ -395,6 +395,11 @@
     <div class="qa-item">
       <div class="qa-q">6. "O que acontece quando a rotina do usuário muda (ex: férias, mudança de emprego ou provas)?"</div>
       <div class="qa-a"><strong>Resposta:</strong> "O motor local opera com decaimento exponencial (EWMA). A cada dia útil em que o passageiro não é detectado aguardando na parada habitual, o score de confiança decai pelo fator 0,85 (S<sub>t</sub> = S<sub>t-1</sub> × 0,85). Em 3 a 4 dias de ausência, a pontuação cai abaixo do limiar de ativação (0,75), desarmando passivamente os alertas de bolso e os alarmes proativos, sem incomodar o usuário durante as férias e sem gerar ruído falso para a Central."</div>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">7. "Qual a fundamentação científica e o referencial teórico internacional para o GrafoParada?"</div>
+      <div class="qa-a"><strong>Resposta:</strong> "Nossa proposta está alinhada às publicações mais recentes dos periódicos A1 da área de transportes (<em>Transportation</em>, <em>Transportation Research Part A e B</em>). Estruturamos nossa taxonomia em 5 fenômenos consagrados: (1) <strong>Balking</strong> (desistência de iniciar a espera ao prever atraso, Wardman et al. 2014); (2) <strong>Passenger Reneging</strong> (abandono da parada durante a espera prolongada, Kim et al. 2026); (3) <strong>Denied Boarding</strong> (impossibilidade de embarque por queima de parada ou lotação, Tan & Ramli 2024); (4) <strong>Active Boarding Delay</strong> (escolha deliberada de esperar o próximo ônibus com mais assentos, Drabicki et al. 2023); e (5) <strong>Bus Bunching</strong> (comboio irregular de veículos, Drabicki et al. 2023). A lacuna científica inédita do GrafoParada é conectar a ponta do passageiro no smartphone via IA de borda à intervenção dinâmica na frota no vazio (deadheading), resgatando o passageiro antes que o abandono aconteça."</div>
     </div>
   </div>
 

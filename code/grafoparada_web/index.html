@@ -2546,17 +2546,18 @@
 
         <!-- O MÉTODO: DEMANDA OBSERVADA VS DEMANDA LATENTE ESTIMADA -->
         <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:8px;">
-          <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo do Método: Demanda Não-Censurada & ST-GCN</div>
+          <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo Metodológico: Demanda Não-Censurada & ST-GCN</div>
           <div style="font-size:11px; color:#334155; line-height:1.45;">
-            • <strong>Catraca / SBE (Observada):</strong> 14 embarques médios históricos (dado censurado: quem desiste ou usa transporte alternativo não passa na catraca).<br>
-            • <strong>Sinal de Intenção On-Device (Proxy Amostral):</strong> 19 rotinas ativas no corredor (amostra voluntária agregada com k-anonimato; proxy que recupera a intenção antes da catraca, onde D<sub>real</sub> ≠ D<sub>app</sub>).<br>
-            • <strong>Demanda Latente ST-GCN (D̂):</strong> <strong>41 ± 3,8 passageiros</strong> aguardando (IC 90% via calibração conformal: [37, 45] passageiros).
+            • <strong>Catraca / SBE (Censurada):</strong> 14 embarques médios históricos (não capta quem desiste por demora excessiva · <em>Passenger Reneging</em>, Kim et al., 2026).<br>
+            • <strong>Risco de Queima e Recusa:</strong> Risco de <em>Denied Boarding</em> (Tan & Ramli, 2024), cuja espera forçada tem peso psicológico 68% pior (Yap & Cats, 2021).<br>
+            • <strong>Sinal de Intenção On-Device:</strong> 19 rotinas ativas no corredor (proxy amostral com k-anonimato, D<sub>real</sub> ≠ D<sub>app</sub>).<br>
+            • <strong>Demanda Latente ST-GCN (D̂):</strong> <strong>41 ± 3,8 passageiros</strong> aguardando (IC 90% conformal: [37, 45] passageiros).
           </div>
         </div>
 
         <!-- FLUXO MATEMÁTICO EM UMA LINHA -->
         <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:10px; padding:7px 8px; margin-bottom:10px; font-size:10px; color:#0369a1; font-weight:700; text-align:center; line-height:1.4;">
-          📡 Sinais Observados ➔ 🧠 ST-GCN infere D̂ ➔ 📊 IC 90% [37, 45] ➔ 🎲 P(D &gt; 36) = 98,4% ➔ 🚨 Decisão de Despacho
+          📡 Sinais Observados ➔ 🧠 ST-GCN infere D̂ ➔ 📊 IC 90% [37, 45] ➔ 🎲 P(D &gt; 36) = 98,4% ➔ 🚨 Despacho Anti-Reneging
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
@@ -2569,16 +2570,16 @@
           <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px;">
             <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha Sobrecarga</div>
             <div style="font-size:17px; font-weight:800; color:#059669; margin:3px 0;">41 estimados</div>
-            <div style="font-size:10.5px; color:#475569; line-height:1.3;">P(D > 36 assentos sentados) = <strong>98,4%</strong>. Superlotação iminente no limiar de conforto.</div>
+            <div style="font-size:10.5px; color:#475569; line-height:1.3;">P(D > 36 assentos) = <strong>98,4%</strong>. Superlotação iminente no limiar de conforto operacional.</div>
           </div>
         </div>
 
         <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:12px; padding:10px; margin-bottom:12px;">
           <div style="font-size:10.5px; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:3px;">
-            ⚡ Regra Operacional de Despacho (Probabilística):
+            ⚡ Regra Operacional de Despacho (Probabilística & Anti-Abandono):
           </div>
           <div style="font-size:11px; font-weight:600; color:#0f172a; line-height:1.4;">
-            Se P(Demanda Latente > Limiar de Conforto de 36 Assentos) ≥ 80% E Ocupação Linha Concorrente ≤ 15% ➔ Sugerir remanejamento preventivo de coletivo de suporte.
+            Se P(Demanda Latente > Limiar de Conforto de 36 Assentos) ≥ 80% E Ocupação Linha Concorrente ≤ 15% ➔ Sugerir remanejamento preventivo de coletivo de suporte antes que ocorra o <em>reneging</em> dos usuários.
           </div>
         </div>
 
