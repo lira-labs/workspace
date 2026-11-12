@@ -4,13 +4,15 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 22:15
+- **Última Atualização:** 11/11/2026 22:30
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
 - **Harness Auditor / Crítico:** DeepSeek Harness (`core/harness/deepseek/`)
+- **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
+- **Contratos Compartilhados (OpenAPI/Modelos):** [`contracts/`](contracts/)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
