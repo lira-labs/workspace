@@ -14,9 +14,10 @@
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
-  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\roteiro_fala_aula_hoje_sem2.html` e `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`
+  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\slides_canva_sem2.html`, `roteiro_fala_aula_hoje_sem2.html` e `GrafoParada_Seminario2_CauaLira.pptx`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment em Produção)
-  - *Slides Sem2 Web (Padrão Oficial sem2-excelente)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
+  - *✨ Slides Canva Pro Web (Novo Design Bento-Grid & Glassmorphism)*: `https://grafoparadaweb.vercel.app/slides_canva.html`
+  - *Slides Sem2 Web (Padrão Clássico)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
   - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Versões de Identidade Visual*:
