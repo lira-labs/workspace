@@ -140,9 +140,13 @@ Use princípios de design profissional:
 
 ---
 
-### ETAPA 7 — USO DO CANVA
-Use o Canva como ferramenta de execução visual, não como substituto do raciocínio:
-- Antes de escolher um template, defina narrativa, identidade visual, paleta, tipografia e sistema de layouts.
+### ETAPA 7 — USO DO CANVA & ENTREGA OBRIGATÓRIA EM PPTX
+- **FORMATO OBRIGATÓRIO DE ENTREGA: SEMPRE PPTX (`.pptx`)**:
+  * Sempre que o usuário pedir slides, decks ou apresentações, a entrega final OBRIGATÓRIA é o arquivo compilado em **PowerPoint (`.pptx`)**.
+  * O agente gera e executa o script Python (`python-pptx`) garantindo geometria 16:9 widescreen, margens arejadas, números display heróis e zero sobreposição de caixas.
+  * O arquivo `.pptx` é salvo na pasta do projeto, disponibilizado para download e sincronizado no Google Drive (`G:\Meu Drive\IA_Projetos\`).
+  * NUNCA devolver apenas em HTML quando o usuário solicitar slides.
+- Use o Canva e o Keynote como referências de linguagem visual (hierarquia, tipografia, paletas e respiro).
 - Adapte os layouts ao conteúdo — nunca force conteúdos diferentes no mesmo template apenas por uniformidade.
 - Respeite rigorosamente a identidade visual e as cores da marca.
 

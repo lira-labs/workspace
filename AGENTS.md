@@ -24,6 +24,10 @@
   - *Princípio Fundamental*: NUNCA implementar código diretamente sem antes inspecionar o projeto, consultar contratos e planejar com separação de responsabilidades (Orquestrador, Arquiteto, Backend, Frontend, Pesquisador, Testes e Crítico Visual).
   - *Fonte Canônica de Contratos*: `/contracts/` (`api-contract.yaml`, `data-model.md`, `integration-notes.md`). O Frontend nunca inventa campos; o Backend nunca altera respostas sem atualizar o contrato.
   - *Qualidade de UI & 5 Estados*: A interface nasce da tarefa do usuário e não de templates decorativos. Proibido AI Slop (cards dentro de cards, gradientes aleatórios, emojis como ícones corporativos). Tratar obrigatoriamente os 5 estados da UI (loading, sucesso, vazio, erro e dados parciais) com inspeção visual obrigatória antes da entrega.
+- **REGRA OBRIGATÓRIA DE FORMATO DE SLIDES (SEMPRE PPTX)**:
+  - Sempre que o usuário solicitar slides, decks ou apresentações, o formato de entrega OBRIGATÓRIO é **PowerPoint (`.pptx`)**.
+  - O agente DEVE compilar o `.pptx` via script Python (`python-pptx`) em proporção Widescreen 16:9, salvar na raiz do projeto/web, disponibilizar o link para download direto e sincronizar em `G:\Meu Drive\IA_Projetos\`.
+  - NUNCA devolver apenas em HTML quando forem solicitados slides.
 - **DIRETRIZ DE SEQUENTIAL ART & HQ/EBOOK (ANTI-AI-SLOP)**:
   - *As 3 Camadas Indissociáveis*:
     1. **Narrativa**: O que está acontecendo? (enredo, personagens, conflito pedagógico e desfecho).

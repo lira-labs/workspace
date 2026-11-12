@@ -91,9 +91,11 @@ Nunca produzir apresentações que pareçam conteúdo gerado automaticamente.
 - Tipografia moderna (Plus Jakarta Sans / Outfit e JetBrains Mono).
 - Modo Escuro (Neon Cyber) e Modo Claro (Minimal Tech) alternáveis em 1 tecla (`T`).
 
-### 7. Uso do Canva
-- Integração via API Canva / MCP Plugin ou geração nativa em HTML5 responsivo no padrão do Canva.
-- Respeito integral à paleta de identidade do GrafoParada (Azul Royal `#0284c7`, Esmeralda `#10b981`, Âmbar `#f59e0b` e Escuro `#090d16`).
+### 7. Formato Obrigatório de Entrega: SEMPRE PPTX (.pptx)
+- **REGRA INEGOCIÁVEL:** Sempre que o usuário pedir slides, a entrega final DEVE ser o arquivo compilado em **PowerPoint (`.pptx`)**.
+- O agente compila o arquivo `.pptx` diretamente via script Python (`python-pptx`) em proporção Widescreen 16:9, garantindo diagramação matemática precisa, números heróis gigantes e zero sobreposição.
+- Salvo na raiz web (`code/grafoparada_web/`), na pasta `va2/` e espelhado em `G:\Meu Drive\IA_Projetos\`.
+- NUNCA devolver apenas em HTML quando forem pedidos slides.
 
 ### 8. Revisão Visual & Teste Anti-AI Slop
 - **A pergunta de controle:** *"Este slide parece que um humano especialista tomou decisões conscientes de conteúdo e design?"*

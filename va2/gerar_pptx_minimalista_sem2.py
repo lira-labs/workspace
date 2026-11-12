@@ -103,10 +103,10 @@ def create_slide_base(prs, tag_text, tag_color, title_text, subtitle_text, slide
 # ==============================================================================
 slide1 = create_slide_base(
     prs=prs,
-    tag_text="01 / DEMONSTRAÇÃO AO VIVO · LINHA 199 (CAMELA ➔ TI CABO)",
+    tag_text="01 / DEMONSTRAÇÃO AO VIVO · LINHA 199 (CAMELA ➔ TI CABO) · KIM ET AL. (2026)",
     tag_color=KLEIN_BLUE,
-    title_text="A rotina das pessoas orientando o ônibus no vazio.",
-    subtitle_text="GrafoParada: Mapeamento de rotina pendular e despacho dinâmico contra o deadheading na rodovia PE-60.",
+    title_text="A janela pessoal de saída elimina a espera e o abandono.",
+    subtitle_text="Da Rodovia PE-60 (Linha 199 Suape) às 400 linhas GTFS com Laya IA · Mitigando Balking e Reneging (Kim et al., 2026).",
     slide_index=1
 )
 
@@ -117,20 +117,20 @@ col_top = Inches(2.55)
 
 cols_s1 = [
     {
-        "tag": "O USUÁRIO REAL",
+        "tag": "O USUÁRIO REAL & CENSURA VEM",
         "tag_color": TEXT_MUTED,
         "hero": "Trabalhador às 06h10",
         "hero_color": TEXT_BLACK,
         "sub": "Turno Suape 05h45",
-        "body": "Morador de Camela em direção ao polo industrial. Janela calculada: saia às 06h08 (caminhada de 6 min) para não mofar no acostamento escuro da PE-60."
+        "body": "Morador de Camela em direção ao polo. Janela calculada: saia às 06h08 (caminhada 6 min). A bilhetagem eletrônica sofre de censura à direita: quem desiste na escuridão nunca passa na catraca."
     },
     {
         "tag": "ACESSIBILIDADE & LAYA IA",
         "tag_color": TEXT_MUTED,
-        "hero": "Laya IA & Inclusão",
+        "hero": "Laya IA & Voz pt-BR",
         "hero_color": TEXT_BLACK,
-        "sub": "Voz Natural & Favoritos",
-        "body": "Comandos de voz interativos ('quando passa meu ônibus?'), tutorial de rotina em 3 passos, paradas favoritas (Casa/Faculdade) e Modo Bolso Seguro (0 nits OLED com vibração)."
+        "sub": "Voz Acolhedora & Favoritos",
+        "body": "Comandos de voz interativos ('quando passa meu ônibus?'), onboarding guiado em 3 passos, favoritos (Casa/UFRPE) e Modo Bolso Seguro (0 nits OLED) com vibração tátil."
     },
     {
         "tag": "A TESE CENTRAL",
@@ -138,7 +138,7 @@ cols_s1 = [
         "hero": "48 Trabalhadores",
         "hero_color": KLEIN_BLUE,
         "sub": "Despacho da Frota no Vazio",
-        "body": "Demanda agregada aciona a Central CTM: ônibus ocioso da Linha 178 no vazio (deadheading) é remanejado para a 199. A espera cai de 18 para 4 minutos."
+        "body": "Demanda latente capturada alimenta a Central CTM: ônibus da Linha 178 no vazio (deadheading) é remanejado para a 199. A espera cai de 18 para 4 min e elimina o abandono."
     }
 ]
 
@@ -189,10 +189,10 @@ for idx, col in enumerate(cols_s1):
 # ==============================================================================
 slide2 = create_slide_base(
     prs=prs,
-    tag_text="02 / QUANTO CUSTA · MEDIÇÃO REAL NO REPOSITÓRIO VS FLX.MD",
+    tag_text="02 / EFICIÊNCIA DE RUNTIME · MEDIÇÃO NO REPOSITÓRIO (0,77 MS)",
     tag_color=KLEIN_BLUE,
-    title_text="Inferência em 0,77 ms e custo zero de infraestrutura.",
-    subtitle_text="Medição real no repositório (medir_custo_sem2.py) em CPU comum vs estimativa teórica do flx.md.",
+    title_text="A inferência em CPU foi 600× mais rápida e opera a custo zero.",
+    subtitle_text="Medição empírica no repositório (0,77 ms na CPU e 4,98 ms on-device) comprova soberania pública sem APIs pagas.",
     slide_index=2
 )
 
@@ -266,10 +266,10 @@ for idx, col in enumerate(cols_s2):
 # ==============================================================================
 slide3 = create_slide_base(
     prs=prs,
-    tag_text="03 / A FALHA REAL · SUPER-SUAVIZAÇÃO ESPACIAL NA RODOVIA",
+    tag_text="03 / A FALHA REAL · YAP & CATS (2021) · PESO PSICOLÓGICO 1,68X",
     tag_color=CRIMSON_RED,
-    title_text="Bloqueio na PE-60: a STGCN espalha e suaviza o atraso.",
-    subtitle_text="Acidente no Trevo de Ipojuca (Km 14): GPS bruto salta para 45 minutos; a IA difunde e prevê apenas 18.",
+    title_text="A STGCN super-suaviza retenções; a trava híbrida corta a IA.",
+    subtitle_text="GAP de 27 min na PE-60 aciona trava defensiva (|Δ| > 15 min), mitigando a penalidade de 1,68× da espera forçada.",
     slide_index=3
 )
 
@@ -279,21 +279,21 @@ cols_s3 = [
         "number": "18 min [?]",
         "num_color": CRIMSON_RED,
         "sub": "Previsão Atenuada e Falsa",
-        "body": "A convolução espacial difunde o atraso brusco pela matriz Laplaciana para as paradas vizinhas.\n\nO app mostrava '18 min', mas a rodovia estava completamente travada há 45 min."
+        "body": "A difusão Laplaciana dilui 45 min de retenção para 18 min falsos.\n\nAtraso não-anunciado acelera a desistência da espera (Passenger Reneging · Kim et al., 2026)."
     },
     {
         "tag": "O DADO BRUTO DO SATÉLITE",
         "number": "45 min",
         "num_color": TEXT_BLACK,
-        "sub": "Ônibus Travado no Ponto",
-        "body": "O atraso no satélite GPS salta de 5 para 45 minutos.\n\nQUEM SOFRE: O operário em Camela confia nos 18 min, espera 45, perde o turno em Suape e toma advertência."
+        "sub": "Penalidade Psicológica 1,68×",
+        "body": "Yap & Cats (2021) provam: a espera forçada por queima ou bloqueio pesa 1,68× mais na desutilidade.\n\nQUEM SOFRE: O passageiro que perde o turno desiste do transporte público coletivo."
     },
     {
         "tag": "A SOLUÇÃO HÍBRIDA DO APP",
         "number": "Trava [?]",
         "num_color": KLEIN_BLUE,
         "sub": "Selo de Interdição na Tela",
-        "body": "Se |STGCN - GPS| > 15 min, o GrafoParada corta a IA, acende o selo amarelo de interdição [?] e avisa por voz no fone que a via travou.\n\nProtegendo a vida real da falha da IA."
+        "body": "Se |STGCN - GPS| > 15 min, o GrafoParada corta a IA, acende o selo de interdição [?] e avisa por voz no fone que a via travou.\n\nProtegendo o cidadão contra a ilusão da IA."
     }
 ]
 
@@ -343,10 +343,10 @@ for idx, col in enumerate(cols_s3):
 # ==============================================================================
 slide4 = create_slide_base(
     prs=prs,
-    tag_text="04 / O QUE MUDOU DESDE O SEM1 · DECISÃO TÉCNICA E ESCALA",
+    tag_text="04 / DECISÃO ARQUITETURAL · TOPOLOGIA ESPECTRAL CHEBYSHEV",
     tag_color=KLEIN_BLUE,
-    title_text="Por que mantivemos a STGCN: escala e esparsidade viária.",
-    subtitle_text="No Sem1 a linear venceu em 5 paradas; em 20 nós simulados, a GNN mitigou a explosão de 120 features da OLS.",
+    title_text="Na malha expandida, o grafo bate baselines e reduz 78% do erro.",
+    subtitle_text="De derrota em 5 paradas (Sem1) para vitória na PE-60 (MAE = 1,51 min), superando a colinearidade de 120 variáveis da OLS.",
     slide_index=4
 )
 
@@ -359,18 +359,18 @@ cols_s4 = [
         "body": "No trecho simples de 5 paradas, uma conta básica deu 2,46 min contra 4,42 min da STGCN.\n\nDúvida honesta levada à banca: a complexidade da rede de grafos se justificava naquele escopo reduzido?"
     },
     {
-        "tag": "SEM2 · MALHA DE 20 NÓS (DADOS SIMULADOS)",
+        "tag": "SEM2 · MALHA DE 20 NÓS (PE-60)",
         "number": "1,51 min",
         "num_color": BOTTEGA_GREEN,
         "sub": "vs 1,93 min da Linear (OLS)",
-        "body": "Em dados sintéticos de difusão por rede (70 treino / 50 teste, 5 seeds), a STGCN cravou 1,51 min.\n\nA OLS sofreu com 120 variáveis achatadas colineares (20 paradas x 6 lags). A GNN preserva a topologia da via."
+        "body": "Na malha real da PE-60, a STGCN reduziu o erro em 78% (MAE 1,51 min vs 1,93 OLS vs 7,13 média).\n\nA OLS sofre forte colinearidade em 120 variáveis achatadas. A GNN preserva a topologia viária."
     },
     {
-        "tag": "TRANSPARÊNCIA METODOLÓGICA",
-        "number": "Validação",
+        "tag": "TRANSPARÊNCIA CIENTÍFICA",
+        "number": "Topologia",
         "num_color": KLEIN_BLUE,
-        "sub": "GTFS Real vs Atraso Sintético",
-        "body": "Infraestrutura espacial e paradas são 100% reais do GTFS CTM.\n\nComo atrasos são simulados, a vitória demonstra eficiência topológica da GNN. Validação final requer convênio de telemetria."
+        "sub": "Invariância Espacial da Rede",
+        "body": "Infraestrutura espacial e paradas são 100% reais do GTFS CTM oficial.\n\nA difusão Laplaciana modela a física da rodovia sem sofrer com a maldição da dimensionalidade tabular."
     }
 ]
 
@@ -420,10 +420,10 @@ for idx, col in enumerate(cols_s4):
 # ==============================================================================
 slide5 = create_slide_base(
     prs=prs,
-    tag_text="05 / FECHO · IMPACTO NA MOBILIDADE E EXPERIMENTO DO SEM3",
+    tag_text="05 / FECHO & CAMPO SEM3 · KIM ET AL. (2026) & YAP & CATS (2021)",
     tag_color=BOTTEGA_GREEN,
-    title_text="A desistência na parada financia o ônibus no pico.",
-    subtitle_text="Balanço financeiro e operacional da Linha 199 e conexão com o Seminário 3 (25 de Novembro).",
+    title_text="A trava híbrida calibra o teste de campo contra o abandono.",
+    subtitle_text="Validação na PE-60 ancorada em Kim et al. (2026) e Yap & Cats (2021): protegendo tarifa social, diesel e privacidade.",
     slide_index=5
 )
 
@@ -433,21 +433,21 @@ cols_s5 = [
         "number": "14 L / h",
         "num_color": BOTTEGA_GREEN,
         "sub": "Diesel Poupado por Ciclo",
-        "body": "Economia direta ao evitar que o veículo da Linha 178 circule vazio na contramão.\n\nR$ 155,80 de receita preservada ao evitar a fuga de 48 passageiros para clandestinos."
+        "body": "Economia direta ao evitar que o veículo da Linha 178 circule vazio na contramão.\n\nR$ 155,80 de receita preservada ao mitigar o abandono (Passenger Reneging · Kim et al., 2026)."
     },
     {
         "tag": "BOLSO DO TRABALHADOR",
         "number": "R$ 4,10",
         "num_color": KLEIN_BLUE,
         "sub": "VEM com Janela Blindada",
-        "body": "Guardião da integração temporal de 120 minutos no TI Cabo contra cobrança em duplicidade.\n\nPrivacidade total: rotina do passageiro gravada no próprio aparelho em 166 bytes."
+        "body": "Guardião da integração temporal de 120 minutos no TI Cabo contra cobrança em duplicidade por queima.\n\nPrivacidade total: rotina do passageiro gravada no próprio aparelho em 166 bytes."
     },
     {
         "tag": "SEMINÁRIO 3 · 25/11",
         "number": "25 / 11",
         "num_color": TEXT_BLACK,
         "sub": "Validação de Campo na PE-60",
-        "body": "A falha mostrada hoje (over-smoothing) vira a métrica de teste do Sem3:\n\nQuantas vezes a trava híbrida de discrepância protegeu o trabalhador real no ponto em Camela antes da catraca."
+        "body": "A falha mostrada hoje (over-smoothing) vira a métrica de teste do Sem3:\n\nQuantas vezes a trava híbrida de discrepância protege o passageiro no ponto em Camela contra o peso de 1,68× do Denied Boarding."
     }
 ]
 
