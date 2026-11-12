@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 11/11/2026 22:30
+- **Última Atualização:** 11/11/2026 23:00
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -16,11 +16,12 @@
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
-  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\slides_canva_sem2.html`, `roteiro_fala_aula_hoje_sem2.html` e `GrafoParada_Seminario2_CauaLira.pptx`
+  - *Conta Oficial Canva*: Cauã Lira (`oUZdnQgRr2EYh1AnvcyI28`), time `oBZdnXhr5CIciUTb_XJoTU`
+  - *🎨 Apresentação Oficial Canva (Link de Edição)*: [Editar no Canva](https://www.canva.com/d/kmsPgwKET9-NfgG) (`https://www.canva.com/d/kmsPgwKET9-NfgG`)
+  - *👁️ Apresentação Canva (Link de Visualização)*: [Ver no Canva](https://www.canva.com/d/NATNJypc5jdvYra)
+  - *📥 Download Direto PPTX (Export Oficial Canva - 13.1 MB)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
+  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`, `slides_canva_sem2.html` e `roteiro_fala_aula_hoje_sem2.html`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment em Produção)
-  - *✨ Slides Canva Pro Web (Novo Design Bento-Grid & Glassmorphism)*: `https://grafoparadaweb.vercel.app/slides_canva.html`
-  - *Slides Sem2 Web (Padrão Clássico)*: `https://grafoparadaweb.vercel.app/slides_sem2.html`
-  - *Download Direto PPTX (Sem Sobreposição / Zero AI Slop)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Versões de Identidade Visual*:
     - **Versão PC (Widescreen / Slides)**: `logo_pc_horizontal.svg` e `.png` (560x140) com slogan *"Menos espera · Mais cidade"*
@@ -32,7 +33,18 @@
 
 ## ✅ O que foi Concluído nesta Sessão
 
-### 1. Configuração do DeepSeek Harness (DSH) como Auditor Cético Automatizado
+### 1. Geração Oficial da Apresentação no Canva MCP e Exportação PPTX
+- [x] **Autêntica Criação via API Oficial do Canva (`canva_canva:create-design`)**:
+  - Apresentação de 5 slides criada e vinculada diretamente à conta real do usuário Cauã Lira (`oUZdnQgRr2EYh1AnvcyI28`), time `oBZdnXhr5CIciUTb_XJoTU`.
+  - Design ID: `DAHaqRyMW0A` | Título: *Projeto GrafoParada*.
+  - Link de Edição Direta no Canva: [`https://www.canva.com/d/kmsPgwKET9-NfgG`](https://www.canva.com/d/kmsPgwKET9-NfgG)
+  - Link de Visualização: [`https://www.canva.com/d/NATNJypc5jdvYra`](https://www.canva.com/d/NATNJypc5jdvYra)
+- [x] **Exportação Oficial em PowerPoint (`.pptx`)**:
+  - Exportado via `canva_canva:export-design` em alta definição (13,1 MB), eliminando qualquer aproximação rudimentar de scripts locais.
+  - Diagramação profissional com tipografia editorial, estatísticas destacadas (MAE 1,51 min, inferência 0,77 ms), cards de linhas metropolitanas reais (250 CDU, 243 Caxangá, 920 Macaxeira) e citações A1 (Kim et al. 2026, Yap & Cats 2021).
+  - Arquivos salvos em `va2/GrafoParada_Seminario2_CauaLira.pptx`, `code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx` e sincronizado com `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`.
+
+### 2. Configuração do DeepSeek Harness (DSH) como Auditor Cético Automatizado
 - [x] **Instalação do Core Runtime (`@deepseek-ai/dsh` v0.2.2-rc.1)**:
   - Validado e baixado no cache npm; comandos CLI `dsh --help`, `dsh --profile web` e `dsh headless` 100% funcionais.
 - [x] **Módulo de Auditoria Automatizada ([`core/harness/deepseek/`](core/harness/deepseek/))**:
