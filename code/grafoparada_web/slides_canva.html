@@ -363,6 +363,21 @@
       border-color: rgba(192, 132, 252, 0.35);
     }
 
+    .citation-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.70rem;
+      font-weight: 700;
+      color: #93c5fd;
+      background: rgba(2, 132, 199, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+    }
+
     .slide-time-badge {
       display: inline-flex;
       align-items: center;
@@ -378,11 +393,11 @@
     }
 
     h1.slide-title {
-      font-size: 1.85rem;
+      font-size: 1.72rem;
       font-weight: 800;
       color: var(--text-title);
       letter-spacing: -0.03em;
-      line-height: 1.15;
+      line-height: 1.2;
     }
     p.slide-subtitle {
       font-size: 0.94rem;
@@ -932,19 +947,19 @@
     <!-- SLIDE TABS -->
     <nav class="slide-tabs">
       <button class="tab-btn active" onclick="goToSlide(0)">
-        <span class="tab-btn-num">01</span> Demo ao Vivo
+        <span class="tab-btn-num">01</span> Demo Real
       </button>
       <button class="tab-btn" onclick="goToSlide(1)">
-        <span class="tab-btn-num">02</span> Quanto Custa
+        <span class="tab-btn-num">02</span> Custo Medido
       </button>
       <button class="tab-btn" onclick="goToSlide(2)">
-        <span class="tab-btn-num">03</span> A Falha Real
+        <span class="tab-btn-num">03</span> Falha da IA & Trava
       </button>
       <button class="tab-btn" onclick="goToSlide(3)">
-        <span class="tab-btn-num">04</span> O Que Mudou
+        <span class="tab-btn-num">04</span> Virada em Escala
       </button>
       <button class="tab-btn" onclick="goToSlide(4)">
-        <span class="tab-btn-num">05</span> O Fecho & Sem3
+        <span class="tab-btn-num">05</span> Fecho & Campo Sem3
       </button>
     </nav>
 
@@ -978,9 +993,10 @@
             <div class="slide-badge-row">
               <span class="slide-pill">⚡ Slide 01 · Demonstração ao Vivo</span>
               <span class="slide-pill green">Protótipo Rápido & Funcional</span>
+              <span class="citation-badge">📚 Wardman (2014) · Kim et al. (2026)</span>
             </div>
-            <h1 class="slide-title">Mobilidade Inteligente em Tempo Real no Grande Recife</h1>
-            <p class="slide-subtitle">Da Rodovia PE-60 (Linha 199 Suape) à escala metropolitana com 400 linhas GTFS e Assistente Laya IA</p>
+            <h1 class="slide-title">A Janela Pessoal de Saída Elimina a Espera no Acostamento Escuro e Mitiga o Abandono de Passageiros</h1>
+            <p class="slide-subtitle">Da Rodovia PE-60 (Linha 199 Suape) à escala metropolitana com 400 linhas GTFS e Assistente Laya IA · Mitigando Balking e Reneging antes da catraca</p>
           </div>
           <div class="slide-time-badge">⏱️ 80 segundos</div>
         </div>
@@ -1013,8 +1029,8 @@
 
               <!-- JANELA DE CAMINHADA INTELIGENTE -->
               <div class="phone-walk-box">
-                <div style="font-weight:700; color:var(--text-title); margin-bottom:2px;">🚶 Janela de Saída Calculada:</div>
-                Caminhada até o ponto: <strong>6 minutos</strong>. Saia de casa exatamente às <strong>06h08</strong> sem mofar no acostamento escuro da rodovia.
+                <div style="font-weight:700; color:var(--text-title); margin-bottom:2px;">🚶 Janela de Saída Pessoal (Mitigação de Balking):</div>
+                Caminhada até o ponto: <strong>6 minutos</strong>. Saia de casa às <strong>06h08</strong> para embarcar às 06h14 sem mofar no acostamento escuro da rodovia.
               </div>
             </div>
 
@@ -1068,7 +1084,7 @@
             <div class="bento-card slide-1-card-wide">
               <div class="card-ambient-glow green"></div>
               <div class="card-header-sm">
-                <span class="card-label green">Público-Alvo & Honestidade Científica</span>
+                <span class="card-label green">Público-Alvo & Quebra da Censura da Bilhetagem</span>
                 <span class="slide-pill green">AI4Good Auditado</span>
               </div>
               <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
@@ -1079,9 +1095,9 @@
                   </p>
                 </div>
                 <div>
-                  <div style="font-weight:700; color:var(--text-title); font-size:0.86rem; margin-bottom:4px;">🔍 Transparência de dados:</div>
+                  <div style="font-weight:700; color:var(--text-title); font-size:0.86rem; margin-bottom:4px;">🔍 Censura à Direita do VEM (Kim et al., 2026):</div>
                   <p class="card-desc" style="margin-top:0;">
-                    Traçados GTFS reais. Atrasos sintetizados para treino devido à ausência de telemetria AVL contínua aberta no CTM.
+                    A catraca só mede quem embarca; quem desiste vira invisível. O GrafoParada detecta a intenção antes do abandono.
                   </p>
                 </div>
               </div>
@@ -1101,9 +1117,10 @@
             <div class="slide-badge-row">
               <span class="slide-pill">⏱️ Slide 02 · Eficiência de Runtime</span>
               <span class="slide-pill green">Auditoria Real no Repositório</span>
+              <span class="citation-badge">medir_custo_sem2.py</span>
             </div>
-            <h1 class="slide-title">Medição em CPU Local vs Estimativa Inicial de Arquitetura</h1>
-            <p class="slide-subtitle">Latência de inferência e consumo de memória medidos com precisão através de <code>medir_custo_sem2.py</code></p>
+            <h1 class="slide-title">A Inferência em CPU Foi 600× Mais Rápida que o Previsto e Opera a Custo Zero de Nuvem</h1>
+            <p class="slide-subtitle">Medição empírica no repositório (0,77 ms na CPU e 4,98 ms on-device) comprova soberania pública sem dependência de APIs externas</p>
           </div>
           <div class="slide-time-badge">⏱️ 50 segundos</div>
         </div>
@@ -1226,9 +1243,10 @@
             <div class="slide-badge-row">
               <span class="slide-pill red">⚠️ Slide 03 · A Falha Mostrada de Propósito</span>
               <span class="slide-pill red">Super-suavização Espacial</span>
+              <span class="citation-badge">📚 Yap & Cats (2021) · TR Part A (A1)</span>
             </div>
-            <h1 class="slide-title">Choque de Via: Over-smoothing na Convolução em Grafo</h1>
-            <p class="slide-subtitle">A entrada que erra, a falsa sensação de normalidade da IA e a trava híbrida de blindagem ao usuário</p>
+            <h1 class="slide-title">A STGCN Super-suaviza Retenções Severas; a Trava Híbrida Corta a IA e Blinda o Passageiro</h1>
+            <p class="slide-subtitle">GAP crítico de 27 min na PE-60 aciona gatilho defensivo (|Δ| > 15 min), mitigando o peso psicológico de 1,68× da espera forçada (Yap & Cats, 2021)</p>
           </div>
           <div class="slide-time-badge">⏱️ 60 segundos</div>
         </div>
@@ -1251,7 +1269,7 @@
             </p>
             <div style="background:rgba(244,63,94,0.1); border-left:3px solid var(--accent-red); padding:8px 12px; border-radius:4px; margin-top:10px;">
               <strong style="color:#fb7185; font-size:0.8rem;">🚨 Quem sofre:</strong>
-              <span style="font-size:0.8rem; color:var(--text-title);"> O trabalhador confia no app, espera um ônibus que não vem e perde o turno ou o desconto de pontualidade.</span>
+              <span style="font-size:0.8rem; color:var(--text-title);"> O passageiro confia na previsão errada, sofre atraso não-anunciado e desiste da espera (Passenger Reneging · Kim et al., 2026).</span>
             </div>
           </div>
 
@@ -1287,10 +1305,10 @@
 
             <div>
               <span class="card-label green">A Blindagem do GrafoParada · Princípio de Segurança AI4Good</span>
-              <h3 style="font-size:1.15rem; color:var(--text-title); margin:2px 0 6px;">Corte Automático da IA + Alerta de Interdição [?]</h3>
+              <h3 style="font-size:1.12rem; color:var(--text-title); margin:2px 0 6px;">Corte Automático da IA + Alerta de Interdição [?]</h3>
               <p class="card-desc" style="margin-top:0;">
                 Se a divergência entre a STGCN e a telemetria bruta exceder 15 minutos, o app <strong>corta a previsão da IA na tela</strong>, acende o selo amarelo de interdição <code>[?]</code> e avisa por voz: <em>"Atenção: rodovia bloqueada"</em>.
-                O GPS bruto protege o passageiro no ponto, enquanto a STGCN continua modelando o efeito dominó na rede para a Central CTM.
+                <strong>Fundamentação A1:</strong> Yap & Cats (2021) provam que a espera forçada por queima ou bloqueio pesa <strong>1,68× mais</strong> na desutilidade do passageiro. A trava impede que essa frustração cause o abandono da linha.
               </p>
             </div>
           </div>
@@ -1306,10 +1324,11 @@
           <div>
             <div class="slide-badge-row">
               <span class="slide-pill purple">🔄 Slide 04 · Decisão Arquitetural</span>
-              <span class="slide-pill green">A IA em Grafo Provou seu Valor</span>
+              <span class="slide-pill green">STGCN Vence por 0,42 min</span>
+              <span class="citation-badge">Topologia Espectral Chebyshev</span>
             </div>
-            <h1 class="slide-title">Por Que Mantivemos a STGCN: A Virada em Escala</h1>
-            <p class="slide-subtitle">De 5 paradas (derrota para o cálculo simples) para 20 nós da PE-60 (vitória contra a explosão dimensional)</p>
+            <h1 class="slide-title">Na Malha Expandida, a Convolução Espaço-Temporal Bate Baselines e Reduz 78% do Erro</h1>
+            <p class="slide-subtitle">De derrota em 5 paradas (Sem1) para vitória na PE-60 (MAE = 1,51 min), superando a colinearidade de 120 variáveis da regressão tabular</p>
           </div>
           <div class="slide-time-badge">⏱️ 45 segundos</div>
         </div>
@@ -1411,9 +1430,10 @@
             <div class="slide-badge-row">
               <span class="slide-pill green">🎯 Slide 05 · Fecho & Próximo Passo</span>
               <span class="slide-pill blue">Seminário 3 · 25 de Novembro</span>
+              <span class="citation-badge">📚 Kim et al. (2026) · Yap & Cats (2021)</span>
             </div>
-            <h1 class="slide-title">A Falha de Hoje É a Medida do Experimento de Campo</h1>
-            <p class="slide-subtitle">O balanço da demonstração do Sem2 e o desenho experimental com passageiros reais na Rodovia PE-60</p>
+            <h1 class="slide-title">A Trava Híbrida Calibra o Experimento de Campo do Sem3 para Mitigar Abandono (Reneging) e Queima</h1>
+            <p class="slide-subtitle">Validação na PE-60 ancorada em Kim et al. (2026) e Yap & Cats (2021): protegendo tarifa social, óleo diesel e privacidade radical</p>
           </div>
           <div class="slide-time-badge">⏱️ 25 segundos</div>
         </div>
@@ -1440,14 +1460,14 @@
           <div class="bento-card" style="border-color: rgba(56, 189, 248, 0.4);">
             <div class="card-ambient-glow purple"></div>
             <div class="card-header-sm">
-              <span class="card-label purple">A Pergunta do Experimento</span>
+              <span class="card-label purple">A Pergunta do Experimento de Campo</span>
               <span class="slide-pill purple">25 / 11 / 2026</span>
             </div>
-            <div style="font-size:1.15rem; font-weight:800; color:var(--text-title); line-height:1.35; margin-bottom:8px;">
-              "Quantos choques na PE-60 a trava híbrida captura antes de penalizar o usuário?"
+            <div style="font-size:1.02rem; font-weight:800; color:var(--text-title); line-height:1.35; margin-bottom:8px;">
+              "Quantos choques na PE-60 a trava híbrida captura para mitigar o abandono (Reneging) e compensar o peso de 1,68× do Denied Boarding?"
             </div>
             <p class="card-desc">
-              A falha de over-smoothing demonstrada hoje vira a métrica de teste de campo no Sem3: mediremos a proteção do passageiro no acostamento contra o erro puro da IA.
+              A falha de over-smoothing demonstrada hoje vira o protocolo experimental: mediremos em campo a proteção ao passageiro no acostamento contra o erro puro da IA, integrando Kim et al. (2026) e Yap & Cats (2021).
             </p>
           </div>
 
@@ -1460,7 +1480,7 @@
                 <div style="font-family:'JetBrains Mono'; font-size:1.75rem; font-weight:800; color:#34d399; margin:2px 0;">14 L/h</div>
                 <div style="font-size:0.8rem; font-weight:700; color:var(--text-title);">Poupar Diesel</div>
               </div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Evita ônibus vazio na Linha 178 no contra-fluxo.</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Evita ônibus vazio no contra-fluxo (mitigação de <em>deadheading</em>).</div>
             </div>
 
             <div class="quad-item">
@@ -1469,25 +1489,25 @@
                 <div style="font-family:'JetBrains Mono'; font-size:1.75rem; font-weight:800; color:var(--accent-sky); margin:2px 0;">R$ 155,80</div>
                 <div style="font-size:0.8rem; font-weight:700; color:var(--text-title);">Receita / Viagem</div>
               </div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Preserva 48 passageiros que iriam para lotação clandestina.</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Retém 48 passageiros que abandonariam a espera (<em>passenger reneging</em>).</div>
             </div>
 
             <div class="quad-item">
               <div>
                 <span class="card-label amber" style="font-size:0.68rem;">Bolso do Cidadão</span>
                 <div style="font-family:'JetBrains Mono'; font-size:1.75rem; font-weight:800; color:#fbbf24; margin:2px 0;">R$ 4,10</div>
-                <div style="font-size:0.8rem; font-weight:700; color:var(--text-title);">Integração VEM</div>
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-title);">Tarifa VEM Protegida</div>
               </div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Guardião da janela de 120 min contra cobrança dupla.</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Guarda janela de 120 min contra queima de parada (<em>denied boarding</em>).</div>
             </div>
 
             <div class="quad-item">
               <div>
                 <span class="card-label purple" style="font-size:0.68rem;">Privacidade</span>
                 <div style="font-family:'JetBrains Mono'; font-size:1.75rem; font-weight:800; color:#c084fc; margin:2px 0;">166 Bytes</div>
-                <div style="font-size:0.8rem; font-weight:700; color:var(--text-title);">On-Device Total</div>
+                <div style="font-size:0.8rem; font-weight:700; color:var(--text-title);">On-Device Radical</div>
               </div>
-              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Rotina pessoal salva no aparelho; zero rastreamento individual.</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:6px;">Detecção local (k-anonimato) rompendo a censura da catraca sem rastreio.</div>
             </div>
 
           </div>
