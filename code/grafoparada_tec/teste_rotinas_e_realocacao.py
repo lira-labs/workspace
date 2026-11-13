@@ -184,6 +184,7 @@ ui_flow_checks = [
     ("Tela 2 Localização Guiada ('Onde você está agora?')", "app-screen-locate"),
     ("Tela 5 Central CTM & Pesquisa", "app-screen-central"),
     ("Controlador de Transição Suave (navigateToScreen)", "function navigateToScreen("),
+    ("WebMCP Declarativo na Busca de Rotas", 'toolname="grafoparada_plan_from_locate"'),
 ]
 for nome, fragmento in ui_flow_checks:
     total_testes += 1
@@ -193,18 +194,59 @@ for nome, fragmento in ui_flow_checks:
     else:
         print(f"  [FAIL] {nome} - Fragmento ausente: '{fragmento}'")
 
+total_testes += 1
+if ("Terminal de Dois Irmãos (UFRPE / Rui Barbosa)" not in html) and ("CÓD 100035" not in html):
+    print("  [PASS] Zero Hardcoding Rural: HTML inicial neutro e 100% adaptativo ao GPS")
+    aprovados += 1
+else:
+    print("  [FAIL] HTML inicial ainda contém parada fixa na UFRPE/Dois Irmãos")
+
 import json
 import subprocess
 
 node_eval = """
 const fs = require('fs');
+const registeredWebMcp = [];
 global.window = {};
+global.document = { getElementById: () => null };
+global.localStorage = { getItem: () => null, setItem: () => {} };
+Object.defineProperty(global, 'navigator', {
+  value: {
+    modelContext: {
+      registerTool: (def) => registeredWebMcp.push(def && def.name)
+    }
+  },
+  configurable: true
+});
 eval(fs.readFileSync(process.argv[1], 'utf8'));
 window.RealTransit.networkData = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+
+// Evita dependencia do Leaflet DOM ao validar adaptToUserLocation em Node
+window.RealTransit.loadRoute = () => {};
+window.RealTransit.selectStop = () => {};
+
 const tripCamelaIpojuca = window.RealTransit.answerLayaQuery('Gostaria de sair de Camela até Ipojuca. Vamos lá?');
+const tripRecifeOlinda = window.RealTransit.answerLayaQuery('Quero ir do Recife Antigo pra Olinda');
+const tripCamelaOlinda = window.RealTransit.answerLayaQuery('Quero ir de Camela até Olinda');
 const nextCamela = window.RealTransit.answerLayaQuery('Qual o horário do próximo ônibus de Camela');
 const aiKnow = window.RealTransit.answerLayaQuery('Como funciona a IA ST-GCN?');
-console.log(JSON.stringify({ tripCamelaIpojuca, nextCamela, aiKnow }));
+
+const adaptRecife = window.RealTransit.adaptToUserLocation(-8.0631, -34.8711, 'Recife Antigo');
+const adaptCamela = window.RealTransit.adaptToUserLocation(-8.5149, -35.1235, 'Camela');
+const adaptSp = window.RealTransit.adaptToUserLocation(-23.5505, -46.6333, 'SP');
+window.RealTransit.registerWebMCPTools();
+
+console.log(JSON.stringify({
+  tripCamelaIpojuca,
+  tripRecifeOlinda,
+  tripCamelaOlinda,
+  nextCamela,
+  aiKnow,
+  adaptRecife,
+  adaptCamela,
+  adaptSp,
+  registeredWebMcp
+}));
 """
 engine_js = ROOT / "code" / "grafoparada_web" / "real_transit_engine.js"
 gtfs_json = ROOT / "code" / "grafoparada_web" / "data" / "gtfs_real_network.json"
@@ -212,20 +254,43 @@ node_res = subprocess.run(["node", "-e", node_eval, str(engine_js), str(gtfs_jso
 
 total_testes += 1
 if node_res.returncode == 0:
-    out = json.loads(node_res.stdout.strip())
+    json_line = [ln for ln in node_res.stdout.strip().splitlines() if ln.strip().startswith("{")][-1]
+    out = json.loads(json_line)
     t1 = out["tripCamelaIpojuca"]
+    t_rec_ol = out["tripRecifeOlinda"]
+    t_cam_ol = out["tripCamelaOlinda"]
     t2 = out["nextCamela"]
     t3 = out["aiKnow"]
     ok_trip = (t1.get("routeCode") == "199") and ("199" in t1.get("html", "")) and ("Ipojuca" in t1.get("html", "")) and ("522" not in t1.get("html", ""))
+    ok_rec_ol = (t_rec_ol.get("routeCode") in ["1967", "1971", "1983", "1100", "1992", "1973", "1913", "914"]) and ("Olinda" in t_rec_ol.get("html", "")) and ("522" not in t_rec_ol.get("html", ""))
+    ok_cam_ol = (t_cam_ol.get("intent") in ["trip_transfer", "trip_direct"]) and ("199" in t_cam_ol.get("html", "")) and ("522" not in t_cam_ol.get("html", ""))
     ok_next = (t2.get("routeCode") == "199") and ("Camela" in t2.get("html", "")) and ("522" not in t2.get("html", ""))
     ok_ai = ("1,51 min" in t3.get("html", "")) and ("Kim et al." in t3.get("html", ""))
-    if ok_trip and ok_next and ok_ai:
-        print("  [PASS] Laya IA GTFS Router: Camela->Ipojuca (Linha 199/198), Próximo Ônibus Camela (Linha 199, zero 522) & Conhecimento ST-GCN OK")
+    if ok_trip and ok_rec_ol and ok_cam_ol and ok_next and ok_ai:
+        print(f"  [PASS] Laya IA GTFS + Hub Graph: Camela->Ipojuca (199), Recife Antigo->Olinda ({t_rec_ol.get('routeCode')}), Camela->Olinda (integração SEI via 199) OK")
         aprovados += 1
     else:
-        print(f"  [FAIL] Resposta inválida da Laya IA: trip={ok_trip}, next={ok_next}, ai={ok_ai}")
+        print(f"  [FAIL] Laya IA GTFS invalid: cam_ipo={ok_trip}, rec_ol={ok_rec_ol} ({t_rec_ol.get('routeCode')}), cam_ol={ok_cam_ol} ({t_cam_ol.get('intent')}), next={ok_next}, ai={ok_ai}")
 else:
     print(f"  [FAIL] Erro Node.js executando Laya IA: {node_res.stderr}")
+
+total_testes += 1
+if node_res.returncode == 0:
+    a_rec = out.get("adaptRecife") or {}
+    a_cam = out.get("adaptCamela") or {}
+    a_sp = out.get("adaptSp") or {}
+    wmcp = out.get("registeredWebMcp") or []
+    ok_rec_gps = (not a_rec.get("outOfCoverage")) and a_rec.get("best", {}).get("code") not in (None, "522") and a_rec.get("best", {}).get("distanceKm", 99) < 1.5
+    ok_cam_gps = (not a_cam.get("outOfCoverage")) and a_cam.get("best", {}).get("code") == "199"
+    ok_sp_gps = bool(a_sp.get("outOfCoverage"))
+    ok_wmcp = ("grafoparada_plan_route" in wmcp) and ("grafoparada_find_nearest_stop" in wmcp)
+    if ok_rec_gps and ok_cam_gps and ok_sp_gps and ok_wmcp:
+        print(f"  [PASS] Adaptação GPS Dinâmica + WebMCP: Recife Antigo->{a_rec['best']['code']}, Camela->199, SP->Fora RMR, WebMCP={wmcp}")
+        aprovados += 1
+    else:
+        print(f"  [FAIL] Adaptação GPS/WebMCP inválida: rec={ok_rec_gps} ({a_rec.get('best')}), cam={ok_cam_gps} ({a_cam.get('best')}), sp={ok_sp_gps}, wmcp={wmcp}")
+else:
+    print("  [FAIL] Adaptação GPS/WebMCP não executada por erro Node.js")
 
 # ------------------------------------------------------------------------------
 # RESUMO FINAL

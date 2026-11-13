@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 12/11/2026 22:12
+- **Última Atualização:** 12/11/2026 22:26
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -14,7 +14,7 @@
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
   - Subagentes Especializados Ativos: `backend-engineer`, `frontend-engineer`, `qa-integration-engineer`, `visual-design-critic`, `slide-master-canva`.
 - **Contratos Compartilhados (OpenAPI v2.1.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy:** 34/34 Testes Automatizados em 5 Etapas (100% PASS)
+- **Gatekeeper Pré-Deploy:** 37/37 Testes Automatizados em 5 Etapas (100% PASS)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -43,6 +43,12 @@
   - Tela 5 (`#app-screen-central`): Central organizada reunindo Rotina, Central CTM, Auditoria ST-GCN, Terminais SEI, Banca UFRPE e proteções cidadãs (`Modo Bolso`, `Farol Noturno`, `Lei 15.878`).
 - [x] **Laya IA Ensinada sobre o Sistema e Malha GTFS Real (`real_transit_engine.js`)**:
   - Motor `answerLayaQuery` & `planSmartTrip`: resolve trajetos origem-destino (ex: `"Sair de Camela até Ipojuca"` -> Linha direta `199 · Camela / TI Cabo` via PE-60 ou integração VEM no `TI Cabo` com `198 · Ipojuca / TI Cabo`) e previsões por local (`"Próximo ônibus de Camela"` -> Linha `199`), eliminando o bug do fallback fixo na Linha `522`.
+- [x] **Adaptação 100% Dinâmica à Localização Real + Banco Completo Ida/Volta + 45 Hubs SEI + WebMCP**:
+  - Compilador `compilar_rede_real_gtfs.py` atualizado e reexecutado: extrai trajetos **IDA + VOLTA** (`return_coords`) de todas as `393` linhas reais em `gtfs_real_network.json` (`3116.6 KB`) e gera `hub_graph` com **45 Terminais/Hubs SEI** (ligando todas as linhas a até `0.45 km`).
+  - Zero hardcoding na UFRPE/Rural (`522` / `100035` removidos do HTML estático e da inicialização): `adaptToUserLocation(lat, lon)` + `initUserLocation()` + `detectUserLocationForScreen2()` adaptam mapa, parada atual, linha, letreiro, ETA e Laya IA dinamicamente às coordenadas reais do usuário (ou mostram estado neutro `"Aguardando localização"` / `"Fora da RMR"`).
+  - Roteamento geoespacial completo na Laya IA (`getLinesNearPoint` + BFS 1 baldeação via `hub_graph`): resolve qualquer origem/destino na RMR (ex: `"Recife Antigo pra Olinda"` -> linhas diretas como `1971`/`1967`/`1983`/`1100`; `"Camela até Olinda"` -> integração SEI real em 2 pernas via `199`).
+  - Suporte nativo ao **Google Chrome WebMCP** (`navigator.modelContext.registerTool` com `grafoparada_plan_route` e `grafoparada_find_nearest_stop` + atributo declarativo `toolname="grafoparada_plan_from_locate"`).
+  - *Nota*: Vercel CLI retornou `Not authorized` localmente nesta máquina (login expirado); deploy na produção Vercel ocorre via integração GitHub (`main`) ou reautenticação `npx vercel login`.
   - Conhecimento da plataforma integrado (ST-GCN `1,51 min` MAE, `Yap & Cats 1,68x`, `Kim et al. 2026`, Trava Híbrida Defensiva).
   - Corrigido layout e scroll do `#modal-laya` (`height: min(640px, 86dvh)`, `#laya-chat-history` com auto-scroll `requestAnimationFrame`) e encurtado placeholder (`"Ex: De Camela até Ipojuca..."`) para evitar cortes no mobile.
 - [x] **Gatekeeper & Testes Ampliados (`teste_rotinas_e_realocacao.py`)**:

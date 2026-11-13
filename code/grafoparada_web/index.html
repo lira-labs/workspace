@@ -2049,15 +2049,14 @@
             </div>
             <div id="current-stop-name" style="color:var(--text-main);">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD 100035</span>
-                <span style="font-size:11px; font-weight:800; color:#047857;">📍 Recife · Dois Irmãos</span>
-                <span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">🎓 Campus UFRPE</span>
+                <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">GPS / CTM</span>
+                <span style="font-size:11px; font-weight:800; color:#0284c7;">📡 Aguardando sua localização</span>
               </div>
               <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:3px;">
-                Terminal de Dois Irmãos (UFRPE / Rui Barbosa)
+                Detectando parada mais próxima...
               </div>
               <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
-                Ref: Av. Manoel de Medeiros / Praça de Fátima · Sentido Derby / Centro
+                Toque em "Onde Estou" ou ative o GPS para adaptar à sua rua
               </div>
             </div>
 
@@ -2113,12 +2112,12 @@
               <div class="travel-cards-row">
                 <button class="travel-card active-home" onclick="triggerTripAction('home')">
                   <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
-                  <div class="travel-card-subtitle" id="home-card-sub">Camela · 4 min</div>
+                  <div class="travel-card-subtitle" id="home-card-sub">Origem · -- min</div>
                 </button>
 
                 <button class="travel-card active-work" onclick="triggerTripAction('work')">
                   <div class="travel-card-title"><span>💼</span> Trabalho / Estudo</div>
-                  <div class="travel-card-subtitle" id="work-card-sub">TI Cabo / UFRPE · 22 min</div>
+                  <div class="travel-card-subtitle" id="work-card-sub">Destino · -- min</div>
                 </button>
               </div>
 
@@ -2142,7 +2141,7 @@
           <div id="active-reallocation-banner" class="reallocation-banner"></div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="font-size:13px; font-weight:800; color:var(--brand-green-dark);" id="active-trip-header">
-              🚌 Linha 522 · Dois Irmãos (Rui Barbosa / UFRPE)
+              🚌 Linha Ativa · Rede Metropolitana RMR
             </div>
             <button style="border:none; background:none; color:var(--text-muted); font-size:12.5px; font-weight:700; cursor:pointer;" onclick="closeActiveTripView()">✕ Voltar</button>
           </div>
@@ -2181,7 +2180,7 @@
               <span style="font-size:11.5px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 25m restantes</span>
             </div>
             <div style="font-size:11px; color:#334155; margin-top:5px; line-height:1.35;" id="vem-status-desc">
-              ✅ <strong>Proposta de Integração:</strong> Com a Linha 522 chegando em 4 min, você desembarcará com <strong>42 min de folga</strong> no cartão VEM. Tarifa na catraca: <strong>R$ 0,00</strong>.
+              ✅ <strong>Proposta de Integração:</strong> Ao embarcar no ônibus selecionado, você realiza conexão dentro da janela de 2h do VEM sem nova tarifa.
             </div>
           </div>
 
@@ -2189,8 +2188,8 @@
           <div class="bus-led-sign-box" onclick="speakSeniorDirections()">
             <div class="bus-led-sign-header">LETREIRO FRONTAL DO COLETIVO (SÊNIOR):</div>
             <div class="bus-led-sign-display">
-              <span class="led-line-number" id="led-line-number">522</span>
-              <span class="led-line-dest" id="led-destination-line">522 DOIS IRMÃOS (RUI BARBOSA E PRÍNCIPE)</span>
+              <span class="led-line-number" id="led-line-number">--</span>
+              <span class="led-line-dest" id="led-destination-line">AGUARDANDO SELEÇÃO DE LINHA</span>
             </div>
             <div class="bus-led-sign-hint">
               👁️ Compare este visor com o letreiro do ônibus na pista (Ex: 522 DOIS IRMÃOS ou CAMELA / TI CABO VIA PE-60).
@@ -3295,10 +3294,10 @@
 
         <!-- QUICK PROMPTS HORIZONTAL SCROLL -->
         <div style="display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; scrollbar-width:none; flex-shrink:0;">
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quero ir do Recife Antigo pra Olinda')">🏛️ Recife Antigo ➔ Olinda</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Gostaria de sair de Camela até Ipojuca')">🚌 Camela ➔ Ipojuca</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual o próximo ônibus de Camela?')">⏰ Ônibus em Camela</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Como funciona a IA ST-GCN do GrafoParada?')">🧠 Como funciona a IA?</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual minha parada atual?')">📍 Minha Parada</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Como funciona a IA ST-GCN do GrafoParada?')">🧠 Como funciona a IA?</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Apresentação da Banca UFRPE')" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe; font-weight:800;">🎓 Banca UFRPE</button>
         </div>
 
@@ -3307,7 +3306,7 @@
           <button type="button" id="btn-laya-mic" class="laya-mic-btn" onclick="toggleLayaVoiceRecognition()" title="Falar com a Laya por voz" style="width:38px; height:38px; font-size:17px;">
             🎙️
           </button>
-          <input type="text" id="laya-chat-input" placeholder="Ex: De Camela até Ipojuca..." class="field-input" style="font-size:13px; padding:9px 12px; border-radius:999px; margin-bottom:0; min-width:0; flex:1;" onkeydown="if(event.key==='Enter') sendLayaTextMessage();" />
+          <input type="text" id="laya-chat-input" placeholder="Ex: Do Recife Antigo pra Olinda..." class="field-input" style="font-size:13px; padding:9px 12px; border-radius:999px; margin-bottom:0; min-width:0; flex:1;" onkeydown="if(event.key==='Enter') sendLayaTextMessage();" />
           <button type="button" onclick="sendLayaTextMessage()" style="width:38px; height:38px; border-radius:50%; border:none; background:#0284c7; color:#ffffff; font-weight:800; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
             ➔
           </button>
@@ -3363,7 +3362,7 @@
             <div class="intent-icon-box">✨</div>
             <div>
               <div class="intent-title">Planejar rota com a Laya IA</div>
-              <div class="intent-desc">Ex: "Sair de Camela até Ipojuca" ou dúvidas de rotas</div>
+              <div class="intent-desc">Ex: "Recife Antigo pra Olinda" ou conexões SEI</div>
             </div>
           </div>
           <span style="font-size:16px; color:#0284c7; font-weight:800;">➔</span>
@@ -3373,7 +3372,7 @@
       <div class="home-context-strip" id="home-active-summary">
         <div>
           <div style="font-size:10.5px; font-weight:800; color:#64748b; text-transform:uppercase;">Parada Monitorada</div>
-          <div style="font-size:13px; font-weight:800; color:#0f172a; margin-top:2px;" id="home-summary-line">Linha 199 / 522 · Pronta para radar</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a; margin-top:2px;" id="home-summary-line">📡 Aguardando GPS · Toque para escolher ponto</div>
         </div>
         <button type="button" onclick="navigateToScreen('locate')" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:999px; padding:6px 11px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap;">
           📍 Alterar
@@ -3400,7 +3399,7 @@
       </div>
 
       <h2 style="font-size:21px; font-weight:800; color:#0f172a; line-height:1.2;">Onde você está agora?</h2>
-      <p style="font-size:12.5px; color:#475569; margin-top:5px;">Escolha seu ponto atual ou ative o GPS para eu selecionar sua linha e mostrar o ônibus mais próximo.</p>
+      <p style="font-size:12.5px; color:#475569; margin-top:5px;">Ative o GPS real ou escolha um polo abaixo para adaptar mapa, linha e previsão ao seu local exato.</p>
 
       <div id="locate-gps-status" style="margin-top:12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <span style="font-size:12px; font-weight:700; color:#0369a1;" id="locate-gps-text">📡 Toque para detectar pelo GPS ou escolha abaixo</span>
@@ -3408,12 +3407,20 @@
       </div>
 
       <div class="locate-preset-grid">
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('recife antigo', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏛️ Recife Antigo</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Marco Zero / Cais Sta Rita</div>
+        </button>
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('olinda', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏘️ Olinda / Carmo</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 1967 / 1971 / 1983</div>
+        </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('camela', this)">
           <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏠 Camela</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 199 · Terminal / PE-60</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ipojuca', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏛️ Ipojuca Centro</div>
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">📍 Ipojuca Centro</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 198 / 199 · KM 20</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ufrpe', this)">
@@ -3434,26 +3441,26 @@
         </button>
       </div>
 
-      <!-- CAMPO OPCIONAL DE DESTINO -->
-      <div style="margin-top:12px; display:flex; gap:6px; align-items:center;">
-        <input type="text" id="locate-dest-input" placeholder="Para onde você vai? (ex: Ipojuca, Derby...)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" onkeydown="if(event.key==='Enter') askLayaFromLocate();" />
-        <button type="button" onclick="askLayaFromLocate()" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">✨ Ver Rota</button>
-      </div>
+      <!-- CAMPO OPCIONAL DE DESTINO (COM SUPORTE DECLARATIVO WEBMCP) -->
+      <form toolname="grafoparada_plan_from_locate" tooldescription="Planeja rota de ônibus na RMR a partir da localização atual do usuário até o destino informado." onsubmit="event.preventDefault(); askLayaFromLocate();" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
+        <input type="text" id="locate-dest-input" name="destination" toolparamdescription="Bairro, terminal ou ponto de destino no Grande Recife (ex: Olinda, Ipojuca, Derby)" placeholder="Para onde você vai? (ex: Olinda, Ipojuca, Derby...)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" />
+        <button type="submit" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">✨ Ver Rota</button>
+      </form>
 
       <!-- PRÉVIA INTELIGENTE DO PRÓXIMO ÔNIBUS -->
       <div class="locate-preview-card" id="locate-preview-card">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
           <div>
-            <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;" id="locate-preview-badge">Linha 199 · ST-GCN Online</div>
-            <div style="font-size:14.5px; font-weight:800; color:#0f172a; margin-top:2px;" id="locate-preview-stop">Praça Pedro Serafim (Camela)</div>
+            <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;" id="locate-preview-badge">Aguardando GPS ou Polo</div>
+            <div style="font-size:14.5px; font-weight:800; color:#0f172a; margin-top:2px;" id="locate-preview-stop">Selecione sua localização acima</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; color:#059669; line-height:1;" id="locate-preview-eta">3 min</div>
-            <div style="font-size:10.5px; font-weight:700; color:#64748b;" id="locate-preview-seats">28 assentos</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; color:#059669; line-height:1;" id="locate-preview-eta">-- min</div>
+            <div style="font-size:10.5px; font-weight:700; color:#64748b;" id="locate-preview-seats">-- assentos</div>
           </div>
         </div>
         <div style="font-size:11.5px; color:#475569; margin-top:8px; line-height:1.35;" id="locate-preview-advice">
-          🛡️ Baixo risco de abandono · Recomendação: vá para a parada agora e confirme no radar.
+          📡 Ao detectar seu GPS ou tocar em um polo, buscaremos a parada mais próxima nas 393 linhas reais da RMR.
         </div>
         <button type="button" onclick="confirmLocateAndOpenRadar()" style="margin-top:12px; width:100%; background:#059669; color:#ffffff; border:none; border-radius:12px; padding:12px 14px; font-size:13.5px; font-weight:800; cursor:pointer; font-family:inherit;">
           🗺️ Acompanhar Ônibus no Mapa ➔
@@ -3857,11 +3864,22 @@
     }
 
     function initUserLocation() {
-      let defaultLat = -8.0475;
-      let defaultLon = -34.8980;
+      let defaultLat = -8.0631; // Marco Zero / Referência central da RMR antes do GPS
+      let defaultLon = -34.8711;
+
+      try {
+        const lastRaw = localStorage.getItem("grafoparada_last_coords");
+        if (lastRaw) {
+          const last = JSON.parse(lastRaw);
+          if (typeof last.lat === "number" && typeof last.lon === "number") {
+            defaultLat = last.lat;
+            defaultLon = last.lon;
+          }
+        }
+      } catch(e) {}
 
       const savedRoutine = localStorage.getItem("grafoparada_custom_routine");
-      if (savedRoutine) {
+      if (savedRoutine && defaultLat === -8.0631) {
         try {
           const r = JSON.parse(savedRoutine);
           if (r.origin && r.origin.includes("Camela")) {
@@ -3876,7 +3894,12 @@
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           function(pos) {
-            updateUserLocationMarker(pos.coords.latitude, pos.coords.longitude, false);
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            updateUserLocationMarker(lat, lon, false);
+            if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+              window.RealTransit.adaptToUserLocation(lat, lon, "GPS Inicial", { fit: true });
+            }
           },
           function() {},
           { enableHighAccuracy: true, timeout: 6000 }
@@ -5039,7 +5062,7 @@
     // ==========================================
     let activeMainTab = "home";
     let currentScreenId = "home";
-    let selectedOriginCorridorKey = "camela";
+    let selectedOriginCorridorKey = null;
 
     function navigateToScreen(screenId, opts) {
       const target = screenId === "map" ? "radar" : screenId;
@@ -5106,10 +5129,16 @@
       if (greetEl) greetEl.textContent = greet + ", " + firstName + " 👋";
 
       const summaryEl = document.getElementById("home-summary-line");
-      if (summaryEl && window.RealTransit && window.RealTransit.activeRoute) {
-        const code = window.RealTransit.activeRouteCode || "522";
-        const rName = window.RealTransit.activeRoute.name || "Rede Metropolitana";
-        summaryEl.textContent = "Linha " + code + " · " + rName;
+      if (summaryEl && window.RealTransit) {
+        const adapt = window.RealTransit.userAdaptState || {};
+        if (adapt.status === "adapted" && adapt.lineCode) {
+          const distMeters = typeof adapt.distanceKm === "number" ? " (" + Math.round(adapt.distanceKm * 1000) + "m)" : "";
+          summaryEl.textContent = "📍 Linha " + adapt.lineCode + " · " + (adapt.stopName || adapt.lineName || "Parada ativa") + distMeters;
+        } else if (adapt.status === "out_of_coverage") {
+          summaryEl.textContent = "📍 Fora da RMR · Toque em Alterar para simular ponto";
+        } else {
+          summaryEl.textContent = "📡 Aguardando GPS · Toque em Alterar para localizar parada";
+        }
       }
     }
 
@@ -5119,13 +5148,57 @@
       detectUserLocationForScreen2();
     }
 
+    function applyAdaptivePreviewUI(ctx, labelFallback, waitMin, seatsFree) {
+      const badgeEl = document.getElementById("locate-preview-badge");
+      const stopEl = document.getElementById("locate-preview-stop");
+      const etaEl = document.getElementById("locate-preview-eta");
+      const seatsEl = document.getElementById("locate-preview-seats");
+      const adviceEl = document.getElementById("locate-preview-advice");
+
+      if (ctx && ctx.outOfCoverage) {
+        if (badgeEl) badgeEl.textContent = "Fora da cobertura RMR";
+        if (stopEl) stopEl.textContent = "Você está a " + Math.round(ctx.best.distanceKm) + " km do Grande Recife";
+        if (etaEl) etaEl.textContent = "-- min";
+        if (seatsEl) seatsEl.textContent = "Escolha um polo";
+        if (adviceEl) adviceEl.textContent = "📍 Selecione um dos polos acima (ex: Recife Antigo, Olinda ou Camela) para simular sua parada.";
+        return;
+      }
+
+      const best = ctx && ctx.best ? ctx.best : null;
+      const lineCode = best ? best.code : "--";
+      const rawStName = (best && best.stop && best.stop.name) ? String(best.stop.name).trim() : "";
+      const stopName = (rawStName && !/^\d+$/.test(rawStName))
+        ? rawStName
+        : (best && best.stop ? ("Parada CTM " + best.stop.stop_id + " · " + best.name) : (labelFallback || "Parada localizada"));
+      const distStr = (best && typeof best.distanceKm === "number") ? " · a " + Math.round(best.distanceKm * 1000) + "m" : "";
+      const eta = waitMin || Math.max(2, (((best && best.stopIndex) ? best.stopIndex : 0) % 5) * 2 + 2);
+      const seats = seatsFree || 15;
+      const alsoCodes = (ctx && Array.isArray(ctx.nearbyLines) && ctx.nearbyLines.length > 1)
+        ? " · Também passam aqui: " + ctx.nearbyLines.slice(1, 4).map(function(l) { return l.code; }).join(", ")
+        : "";
+
+      if (badgeEl) badgeEl.textContent = "Linha " + lineCode + " · ST-GCN Online" + distStr;
+      if (stopEl) stopEl.textContent = stopName;
+      if (etaEl) etaEl.textContent = eta + " min";
+      if (seatsEl) seatsEl.textContent = seats + " assentos";
+      if (adviceEl) {
+        const riskText = eta <= 7
+          ? "🛡️ Baixo risco de abandono (Kim et al., 2026) · Ideal ir para a parada agora"
+          : "⚠️ Risco moderado de espera (1,68x Yap & Cats) · Acompanhe o radar antes de sair";
+        adviceEl.textContent = riskText + alsoCodes + ".";
+      }
+
+      const prefixEl = document.getElementById("resting-line-prefix");
+      if (prefixEl) prefixEl.textContent = "🚌 Linha " + lineCode + " · Mais próxima de você:";
+    }
+
     function detectUserLocationForScreen2() {
       const statusEl = document.getElementById("locate-gps-text");
-      if (statusEl) statusEl.textContent = "📡 Buscando sua posição atual...";
+      if (statusEl) statusEl.textContent = "📡 Buscando sua posição real nas 393 linhas...";
 
       if (!navigator.geolocation) {
-        if (statusEl) statusEl.textContent = "📍 GPS indisponível — escolha seu ponto abaixo:";
-        selectLocatePreset(selectedOriginCorridorKey || "camela");
+        if (statusEl) statusEl.textContent = "📍 GPS indisponível — escolha seu ponto acima ou toque em um polo";
+        if (selectedOriginCorridorKey) selectLocatePreset(selectedOriginCorridorKey);
         return;
       }
 
@@ -5137,24 +5210,38 @@
             updateUserLocationMarker(lat, lon, false);
           }
 
-          let nearestKey = "camela";
-          let bestDist = Infinity;
+          let ctx = null;
+          if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+            ctx = window.RealTransit.adaptToUserLocation(lat, lon, "GPS Real", { fit: true });
+          }
+
+          if (ctx && ctx.outOfCoverage) {
+            if (statusEl) statusEl.textContent = "📍 Fora do Grande Recife — escolha um polo acima para testar";
+            applyAdaptivePreviewUI(ctx);
+            return;
+          }
+
           if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+            let bestDist = Infinity;
             window.RealTransit.getSemanticCorridors().forEach(function(c) {
               const d = Math.hypot((c.lat || 0) - lat, (c.lon || 0) - lon);
               if (d < bestDist) {
                 bestDist = d;
-                nearestKey = c.key;
+                selectedOriginCorridorKey = c.key;
               }
             });
           }
 
-          if (statusEl) statusEl.textContent = "✅ GPS ativo · Parada mais próxima identificada!";
-          selectLocatePreset(nearestKey);
+          if (statusEl) {
+            const stopLabel = (ctx && ctx.best && ctx.best.stop) ? ctx.best.stop.name : "Parada próxima identificada";
+            statusEl.textContent = "✅ GPS ativo · " + stopLabel;
+          }
+          applyAdaptivePreviewUI(ctx);
+          playSimpleChime();
         },
         function() {
-          if (statusEl) statusEl.textContent = "📍 Escolha onde você está para calcular o próximo ônibus:";
-          selectLocatePreset(selectedOriginCorridorKey || "camela");
+          if (statusEl) statusEl.textContent = "📍 GPS sem permissão — escolha onde você está acima:";
+          if (selectedOriginCorridorKey) selectLocatePreset(selectedOriginCorridorKey);
         },
         { enableHighAccuracy: true, timeout: 4500 }
       );
@@ -5173,32 +5260,31 @@
       }
       if (!corridor) return;
 
-      if (window.RealTransit && window.RealTransit.loadRoute) {
+      let ctx = null;
+      if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function" && corridor.lat && corridor.lon) {
+        ctx = window.RealTransit.adaptToUserLocation(corridor.lat, corridor.lon, corridor.label, { fit: true });
+      } else if (window.RealTransit && window.RealTransit.loadRoute) {
         window.RealTransit.loadRoute(corridor.defaultLine);
       }
       if (typeof updateUserLocationMarker === "function" && corridor.lat && corridor.lon) {
         updateUserLocationMarker(corridor.lat, corridor.lon, false);
       }
 
-      const badgeEl = document.getElementById("locate-preview-badge");
-      const stopEl = document.getElementById("locate-preview-stop");
-      const etaEl = document.getElementById("locate-preview-eta");
-      const seatsEl = document.getElementById("locate-preview-seats");
-      const adviceEl = document.getElementById("locate-preview-advice");
+      const statusEl = document.getElementById("locate-gps-text");
+      if (statusEl) statusEl.textContent = "📍 Local adaptado para: " + corridor.label;
 
-      if (badgeEl) badgeEl.textContent = "Linha " + corridor.defaultLine + " · ST-GCN Online";
-      if (stopEl) stopEl.textContent = corridor.stopName;
-      if (etaEl) etaEl.textContent = (corridor.waitMin || 4) + " min";
-      if (seatsEl) seatsEl.textContent = (corridor.seatsFree || 14) + " assentos";
-      if (adviceEl) {
-        const riskText = (corridor.waitMin || 4) <= 7
-          ? "🛡️ Baixo risco de abandono (Kim et al., 2026) · Ideal ir para a parada agora."
-          : "⚠️ Risco moderado de espera (1,68x Yap & Cats) · Fique atento ao radar antes de sair.";
-        adviceEl.textContent = riskText;
+      if (ctx) {
+        applyAdaptivePreviewUI(ctx, corridor.stopName, corridor.waitMin, corridor.seatsFree);
+      } else {
+        const badgeEl = document.getElementById("locate-preview-badge");
+        const stopEl = document.getElementById("locate-preview-stop");
+        const etaEl = document.getElementById("locate-preview-eta");
+        const seatsEl = document.getElementById("locate-preview-seats");
+        if (badgeEl) badgeEl.textContent = "Linha " + corridor.defaultLine + " · ST-GCN Online";
+        if (stopEl) stopEl.textContent = corridor.stopName;
+        if (etaEl) etaEl.textContent = (corridor.waitMin || 4) + " min";
+        if (seatsEl) seatsEl.textContent = (corridor.seatsFree || 14) + " assentos";
       }
-
-      const prefixEl = document.getElementById("resting-line-prefix");
-      if (prefixEl) prefixEl.textContent = "🚌 Linha " + corridor.defaultLine + " · Próximo Ônibus:";
 
       updateHomeGreeting();
       playSimpleChime();
@@ -5211,13 +5297,15 @@
         openLayaModal();
         return;
       }
-      let originLabel = selectedOriginCorridorKey || "Camela";
-      if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+      let originLabel = "aqui";
+      if (selectedOriginCorridorKey && window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
         const c = window.RealTransit.getSemanticCorridors().find(function(x) { return x.key === selectedOriginCorridorKey; });
         if (c) originLabel = c.label.split("(")[0].trim();
+      } else if (window.RealTransit && window.RealTransit.userAdaptState && window.RealTransit.userAdaptState.status === "adapted") {
+        originLabel = window.RealTransit.userAdaptState.stopName || "aqui";
       }
       openLayaModal();
-      handleLayaQuickPrompt("Gostaria de sair de " + originLabel + " até " + dest);
+      handleLayaQuickPrompt("Quero ir de " + originLabel + " até " + dest);
     }
 
     function confirmLocateAndOpenRadar() {
