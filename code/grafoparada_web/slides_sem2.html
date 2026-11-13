@@ -13,9 +13,9 @@
       --text: #111827;
       --text-muted: #6b7280;
       --line: #e5e7eb;
-      --blue: #002fa7;       /* Azul Klein */
-      --green: #107c41;      /* Verde Sóbrio */
-      --crimson: #c00000;    /* Vermelho Carmesim */
+      --blue: #002fa7;
+      --green: #107c41;
+      --crimson: #c00000;
       --card-bg: #f8f9fa;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -52,7 +52,6 @@
       color: var(--blue);
     }
     .tag.crimson { color: var(--crimson); }
-    .tag.green { color: var(--green); }
     .btn-download-pptx {
       display: inline-flex;
       align-items: center;
@@ -73,7 +72,7 @@
       flex-direction: column;
       justify-content: center;
       height: 100%;
-      gap: 24px;
+      gap: 28px;
     }
     .slide.active { display: flex; }
 
@@ -95,7 +94,6 @@
       line-height: 1.4;
     }
 
-    /* 2 COLUNAS LIMPAS */
     .two-cols {
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
@@ -105,7 +103,7 @@
     .clean-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
     .clean-item-label {
       font-size: 0.78rem;
@@ -113,10 +111,10 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--blue);
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
     .clean-item-val {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: var(--text);
     }
@@ -124,11 +122,11 @@
     .demo-box {
       background: var(--card-bg);
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 28px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
     .demo-box-tag {
       font-size: 0.8rem;
@@ -138,26 +136,28 @@
       color: var(--blue);
     }
     .demo-box-title {
-      font-size: 1.4rem;
+      font-size: 1.55rem;
       font-weight: 800;
       color: var(--text);
     }
-    .demo-box-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 0.95rem;
-      color: var(--text-muted);
+    .demo-link {
+      display: inline-block;
+      margin-top: 6px;
+      background: var(--blue);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
     }
-    .demo-box-list strong { color: var(--text); }
 
-    /* NÚMEROS GIGANTES */
     .big-number {
       font-size: 2.8rem;
       font-weight: 800;
       letter-spacing: -0.03em;
-      line-height: 1;
+      line-height: 1.05;
       color: var(--text);
       margin-bottom: 4px;
     }
@@ -166,15 +166,14 @@
     .big-number-sub {
       font-size: 0.95rem;
       color: var(--text-muted);
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
-    /* DUAS LINHAS (SLIDE 4) */
     .compare-block {
       display: flex;
       flex-direction: column;
       gap: 28px;
-      max-width: 90%;
+      max-width: 92%;
     }
     .compare-item {
       display: flex;
@@ -200,7 +199,6 @@
       color: var(--text-muted);
     }
 
-    /* FOOTER */
     .footer {
       display: flex;
       justify-content: space-between;
@@ -210,9 +208,7 @@
       font-size: 0.85rem;
       color: var(--text-muted);
     }
-    .nav-hint {
-      font-weight: 600;
-    }
+    .nav-hint { font-weight: 600; }
     .nav-hint kbd {
       background: var(--card-bg);
       border: 1px solid var(--line);
@@ -226,175 +222,158 @@
 
   <div class="deck">
 
-    <!-- BARRA SUPERIOR -->
     <header class="top-bar">
       <span class="tag" id="slide-tag">01 / PONTA A PONTA · DEMO AO VIVO</span>
-      <a href="GrafoParada_Seminario2_CauaLira.pptx" class="btn-download-pptx" download>
-        ⬇ Baixar PPTX
+      <a href="GrafoParada_Sem2_Roteiro.pptx" class="btn-download-pptx" download>
+        ⬇ Baixar PPTX (16:9)
       </a>
     </header>
 
-    <!-- SLIDE 1: DEMO AO VIVO -->
+    <!-- SLIDE 1: DEMO AO VIVO (UMA IDEIA: A TELA RODANDO PONTA A PONTA) -->
     <section class="slide active" data-tag="01 / PONTA A PONTA · DEMO AO VIVO" data-num="1">
       <div class="header-group">
-        <h1>GrafoParada: Mobilidade Inteligente no Grande Recife</h1>
-        <p class="subtitle">Malha GTFS Oficial CTM Grande Recife + Protótipo Preditivo ST-GCN.</p>
+        <h1>GrafoParada ao vivo: do GPS atual à janela de saída</h1>
+        <p class="subtitle">393 linhas reais do GTFS CTM Grande Recife · Tag <code>sem2</code>.</p>
       </div>
 
       <div class="two-cols">
         <div class="clean-list">
           <div>
             <div class="clean-item-label">Quem usa</div>
-            <div class="clean-item-val">Estudante ou trabalhador na Região Metropolitana do Recife</div>
+            <div class="clean-item-val">Passageiro ou trabalhador no Grande Recife</div>
           </div>
           <div>
             <div class="clean-item-label">Entrada real</div>
-            <div class="clean-item-val">Linha 522 (Dois Irmãos / UFRPE) ou qualquer das 400 linhas do GTFS</div>
+            <div class="clean-item-val">Localização GPS + destino (ex.: Camela ➔ Olinda ou linha GTFS)</div>
           </div>
           <div>
             <div class="clean-item-label">Saída na tela</div>
-            <div class="clean-item-val">Previsão em 4 min, assentos livres, letreiro LED e voz no fone</div>
+            <div class="clean-item-val">Rota com baldeações SEI, previsão de espera e voz PT-BR</div>
           </div>
           <div>
             <div class="clean-item-label">O que deixa fazer</div>
-            <div class="clean-item-val">Sair no minuto exato (06h09) sem mofar no ponto de ônibus</div>
+            <div class="clean-item-val">Escolher a linha certa e sair na hora segura sem esperar no vazio</div>
           </div>
         </div>
 
         <div class="demo-box">
-          <div class="demo-box-tag">Origem dos Dados (Transparência)</div>
-          <div class="demo-box-title">Malha Real vs Simulação</div>
-          <ul class="demo-box-list" style="font-size:0.9rem; line-height:1.5;">
-            <li>• <strong>Paradas & Trajetos:</strong> GTFS Oficial CTM</li>
-            <li>• <strong>Quadro de Horários:</strong> GTFS Oficial</li>
-            <li>• <strong>Atrasos de Treino:</strong> Simulação Sintética</li>
-            <li>• <strong>Demanda do Exemplo:</strong> Estimativa Ilustrativa</li>
-            <li>• <strong>Telemetria Contínua:</strong> Não pública no CTM</li>
-          </ul>
+          <div class="demo-box-tag">Sistema rodando ao vivo</div>
+          <div class="demo-box-title">grafoparadaweb.vercel.app</div>
+          <div style="font-size:0.95rem;color:var(--text-muted);">
+            Executado ao vivo no celular espelhado direto do repositório <code>lira-labs/workspace</code>.
+          </div>
+          <a href="https://grafoparadaweb.vercel.app" target="_blank" rel="noopener" class="demo-link">
+            Abrir Demo ao Vivo ↗
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 2: QUANTO CUSTA -->
+    <!-- SLIDE 2: QUANTO CUSTA (UMA IDEIA: MEDIDO NO REPO VS FLX.MD) -->
     <section class="slide" data-tag="02 / QUANTO CUSTA, MEDIDO" data-num="2">
       <div class="header-group">
-        <h1>Medição em CPU Local vs Estimativa Inicial de Arquitetura</h1>
-        <p class="subtitle">Tempo total e pico de memória medidos com <code>medir_custo_sem2.py</code>.</p>
+        <h1>Medido em execução real vs. estimado no <code>flx.md</code></h1>
+        <p class="subtitle"><code>medir_custo_sem2.py</code> · AMD Ryzen 7 5700G · Windows 11 · Python 3.12.15 · PyTorch 2.14.1+cpu</p>
       </div>
 
       <div class="two-cols">
         <div>
-          <div class="clean-item-label" style="margin-bottom:12px;">Medido nesta máquina (Core i7 / Python 3.12)</div>
-          <div class="big-number">4,98 ms · 12 KB</div>
-          <div class="big-number-sub">No aparelho (celular) — FSM cinemática v3</div>
+          <div class="clean-item-label" style="margin-bottom:12px;">Medido no repositório (execução real)</div>
+          <div class="big-number">0,96 ms · 324,7 MB</div>
+          <div class="big-number-sub">STGCN 20 nós em CPU (0,86 s treino 25 épocas · 2,22 KB heap)</div>
 
-          <div class="big-number">0,77 ms · 358 MB</div>
-          <div class="big-number-sub">No servidor (CPU) — STGCN em 20 paradas da PE-60</div>
+          <div class="big-number">56,68 µs · 11,02 KB</div>
+          <div class="big-number-sub">FSM cinemática V3 on-device (trajetória de 15 passos)</div>
         </div>
 
         <div>
-          <div class="clean-item-label" style="color:var(--text-muted);margin-bottom:12px;">Estimativa Inicial de Arquitetura</div>
+          <div class="clean-item-label" style="color:var(--text-muted);margin-bottom:12px;">Estimado no <code>flx.md</code></div>
           <div class="big-number" style="color:var(--text-muted);">&lt; 500 ms · ~300 MB</div>
-          <div class="big-number-sub">Teto teórico preliminar do projeto</div>
+          <div class="big-number-sub">STGCN em CPU (&lt; 10 s com treino) · R$ 0,00 local</div>
 
-          <div class="clean-item-label" style="margin-top:16px;margin-bottom:6px;">A diferença explicada</div>
-          <div style="font-size:0.95rem;color:var(--text);line-height:1.6;">
-            1. <strong>Tempo:</strong> A inferência em CPU pura levou 0,77 ms (centenas de vezes menor que o teto).<br>
-            2. <strong>Memória:</strong> 358 MB medidos do processo PyTorch segurando bibliotecas dinâmicas no SO.<br>
-            3. <strong>Custo financeiro:</strong> R$ 0,00 local; escala metropolitana requer backend dedicado.
+          <div class="big-number" style="font-size:2rem;color:var(--text-muted);">14,29 µs · 8,92 KB</div>
+          <div class="big-number-sub">App on-device no <code>flx.md</code> (passo único)</div>
+
+          <div style="font-size:0.95rem;color:var(--text);font-weight:600;">
+            Causa da diferença: runtime LibTorch/Windows retém 324,7 MB (+8,2% vs ~300 MB); inferência foi ~520× menor que 500 ms.
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 3: A FALHA REAL -->
+    <!-- SLIDE 3: A FALHA (UMA IDEIA: ENTRADA QUE ERRA, COMO SAIU, O CERTO, QUEM SOFRE) -->
     <section class="slide" data-tag="03 / A FALHA MOSTRADA DE PROPÓSITO" data-num="3">
       <div class="header-group">
-        <h1>Choque de Via: Over-smoothing na STGCN</h1>
-        <p class="subtitle">A entrada que erra, o que sai, a referência e quem sofre.</p>
+        <h1>Choque no Trevo de Ipojuca (Nó 10 · PE-60): como saiu vs. o certo</h1>
+        <p class="subtitle">Entrada: retenção abrupta de <code>45,0 min</code> no GPS enquanto o corredor estava em <code>10,0 min</code>.</p>
       </div>
 
       <div class="two-cols">
         <div>
-          <div class="clean-item-label" style="color:var(--crimson);margin-bottom:8px;">Como a IA previu (Super-suavização)</div>
-          <div class="big-number crimson">18 minutos</div>
-          <div style="font-size:1rem;color:var(--text);line-height:1.5;margin-bottom:20px;">
-            A STGCN suavizou o atraso pela malha gráfica com as paradas vizinhas. O número parece razoável, mas mente.
-          </div>
+          <div class="clean-item-label" style="color:var(--crimson);margin-bottom:8px;">Saída da STGCN (como saiu)</div>
+          <div class="big-number crimson">14,3 min</div>
+          <div class="big-number-sub" style="margin-bottom:16px;">Super-suavização apagou 30,7 min do choque súbito</div>
 
-          <div class="clean-item-label" style="color:var(--crimson);margin-bottom:4px;">Quem sofre o erro</div>
-          <div style="font-size:1rem;color:var(--text);line-height:1.5;">
-            O trabalhador na parada: confia no app, espera o ônibus que não vem e perde o turno da fábrica.
-          </div>
+          <div class="clean-item-label" style="color:var(--crimson);margin-bottom:4px;">Quem sofre esse erro</div>
+          <div class="clean-item-val">Trabalhador na PE-60: confia nos 14,3 min, perde o alternativo e perde o turno</div>
         </div>
 
         <div>
-          <div class="clean-item-label" style="color:var(--green);margin-bottom:8px;">Referência (Choque simulado na via)</div>
-          <div class="big-number green">45 minutos</div>
-          <div style="font-size:1rem;color:var(--text);line-height:1.5;margin-bottom:20px;">
-            Simulação de retenção severa ou bloqueio físico da rodovia no nó do trecho.
-          </div>
+          <div class="clean-item-label" style="color:var(--green);margin-bottom:8px;">O certo (GPS bruto + trava [?])</div>
+          <div class="big-number green">45,0 min</div>
+          <div class="big-number-sub" style="margin-bottom:16px;">Alerta crítico de interdição [?] na tela</div>
 
-          <div class="clean-item-label" style="color:var(--blue);margin-bottom:4px;">A proteção adotada</div>
-          <div style="font-size:1rem;color:var(--text);line-height:1.5;">
-            <strong>Trava híbrida:</strong> se |STGCN - Referência| &gt; 15 min, corta a IA e acende alerta de interdição [?] na tela.
-          </div>
+          <div class="clean-item-label" style="color:var(--blue);margin-bottom:4px;">O que revela (regra híbrida)</div>
+          <div class="clean-item-val">|GPS − STGCN| &gt; 15 min corta a IA e exibe o GPS bruto</div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 4: O QUE MUDOU -->
+    <!-- SLIDE 4: O QUE MUDOU DESDE O SEM1 (UMA IDEIA: ANTES, AGORA E POR QUÊ) -->
     <section class="slide" data-tag="04 / O QUE MUDOU DESDE O SEM1" data-num="4">
       <div class="header-group">
-        <h1>Decisão Justificada: Por Que Mantivemos a STGCN</h1>
-        <p class="subtitle">O que valia no sem1, o que vale agora e o teste em dados sintéticos de difusão.</p>
+        <h1>Por que mantive a STGCN depois de perder no <code>sem1</code></h1>
+        <p class="subtitle"><code>avaliar_piloto.py</code> (5 paradas) vs. <code>motor_evolucao_prototipo.py</code> (20 paradas · dados sintéticos)</p>
       </div>
 
       <div class="compare-block">
         <div class="compare-item">
-          <div class="compare-item-tag">No sem1 (Corredor curto · 5 paradas)</div>
-          <div class="compare-item-title">O cálculo linear simples bateu a STGCN (2,46 min vs 4,42 min).</div>
-          <div class="compare-item-sub">Dúvida legítima da banca: "Para que usar rede em grafo se a conta simples ganha?"</div>
+          <div class="compare-item-tag">No sem1 · corredor curto (5 paradas)</div>
+          <div class="compare-item-title">Conta linear simples venceu a STGCN: 2,46 min vs. 4,42 min (MAE)</div>
         </div>
 
         <div class="compare-item">
-          <div class="compare-item-tag active">Agora no sem2 (Malha GTFS expandida · 20 paradas)</div>
-          <div class="compare-item-title blue">A STGCN reduziu o erro para 1,51 min (contra 1,93 min da linear e 7,13 min da persistência).</div>
-          <div class="compare-item-sub"><strong>Decisão:</strong> Fica a STGCN. A GNN mitiga a explosão dimensional da linear (120 variáveis). Validação final em campo requer telemetria contínua.</div>
-          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:8px;">Protocolo: 70 casos treino / 50 casos teste (split temporal estrito sem vazamento, 5 seeds). ST-GCN supera a regressão OLS que sofre colinearidade em 20 nós x 6 lags.</div>
+          <div class="compare-item-tag active">Agora no sem2 · malha expandida (20 paradas PE-60 · simulação sintética)</div>
+          <div class="compare-item-title blue">Mantida por escala: STGCN 1,51 min vs. Linear 1,93 min vs. Persistência 7,13 min</div>
+          <div class="compare-item-sub">A linear achata 121 colunas para 70 treinos; validação em campo real ainda requer GPS contínuo do CTM.</div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 5: O FECHO -->
-    <section class="slide" data-tag="05 / FECHO & PRÓXIMO PASSO" data-num="5">
+    <!-- SLIDE 5: FECHO E PONTE PARA O SEM3 (UMA IDEIA) -->
+    <section class="slide" data-tag="05 / FECHO · PONTE PARA O SEM3" data-num="5">
       <div class="header-group">
-        <h1>A Falha de Hoje É a Medida do Experimento</h1>
-        <p class="subtitle">Seminário 3 (25/11): Experimento formal e medidas de campo na PE-60.</p>
+        <h1>A falha mostrada hoje vira a medida do <code>sem3</code></h1>
+        <p class="subtitle">25/11 · Experimento com a trava híbrida contra a STGCN pura</p>
       </div>
 
       <div class="compare-block">
         <div class="compare-item">
-          <div class="compare-item-tag active">O fecho do sem2</div>
-          <div class="compare-item-title">Roda no celular e na CPU local a custo zero, e a falha de over-smoothing é blindada pela regra.</div>
+          <div class="compare-item-tag active">Hoje no repositório</div>
+          <div class="compare-item-title">393 linhas GTFS, 0,96 ms na CPU, R$ 0,00 local e trava [?] pronta para choques súbitos</div>
         </div>
 
         <div class="compare-item">
-          <div class="compare-item-tag active">A medida do sem3 (25/11)</div>
-          <div class="compare-item-title" style="font-weight:600;font-size:1.35rem;">
-            Quantos choques de trânsito na PE-60 a trava híbrida consegue capturar contra o erro puro da IA.
-          </div>
-          <div class="compare-item-sub" style="margin-top:12px;">
-            Repositório: <code>github.com/lira-labs/workspace</code> · Tag: <code>sem2</code> · Deploy: <code>grafoparadaweb.vercel.app</code>
-          </div>
+          <div class="compare-item-tag active">No sem3 (25/11)</div>
+          <div class="compare-item-title blue">Quantos choques de via a trava híbrida captura contra o erro silencioso da STGCN</div>
+          <div class="compare-item-sub"><code>github.com/lira-labs/workspace</code> · <code>grafoparadaweb.vercel.app</code></div>
         </div>
       </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <span>AI4Good (UFRPE) · Prof. Lucas Silva Figueiredo | Cauã da Cunha Lira</span>
-      <span class="nav-hint">Slide <span id="slide-num">1</span> de 5 · Use <kbd>◀</kbd> <kbd>▶</kbd> ou <kbd>Espaço</kbd></span>
+      <span class="nav-hint">Slide <span id="slide-num">1</span> de 5 · <kbd>◀</kbd> <kbd>▶</kbd> ou clique</span>
     </footer>
 
   </div>

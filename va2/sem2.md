@@ -2,81 +2,122 @@
 
 > roteiro do [seminário · iteração 2, demonstração](../4-seminario-demonstracao.md), feito a partir do
 > [tec.md](tec.md), do [flx.md](flx.md), do [exp.md](exp.md) e do [sem1.md](sem1.md).
-> código no painel: `sem2` · quarta, 11/11.
+> código no painel: `sem2`.
 
-**link dos slides:** [va2/slides_sem2.html](https://grafoparadaweb.vercel.app/slides_sem2.html) e [va2/GrafoParada_Seminario2_CauaLira.pptx](https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx)
+**link dos slides:** [va2/slides_sem2.html](https://grafoparadaweb.vercel.app/slides_sem2.html) e [va2/GrafoParada_Sem2_Roteiro.pptx](https://grafoparadaweb.vercel.app/GrafoParada_Sem2_Roteiro.pptx) *(versão Canva em [va2/GrafoParada_Seminario2_CauaLira.pptx](GrafoParada_Seminario2_CauaLira.pptx) — ver auditoria no fim)*
 
-**a versão que roda:** commit [`0cdf397`](https://github.com/lira-labs/workspace/commit/0cdf397) no repositório [github.com/lira-labs/workspace](https://github.com/lira-labs/workspace)
+**a versão que roda:** branch `main` (tag `sem2`) em [github.com/lira-labs/workspace](https://github.com/lira-labs/workspace) · app ao vivo em [grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app)
 
-**a máquina:** meu notebook com Python 3.12 e o smartphone conectado ao vivo pelo link [grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app), espelhado na sala.
+**a máquina:** desktop/PC com `AMD Ryzen 7 5700G with Radeon Graphics` · `Windows 11` · `Python 3.12.15` · `PyTorch 2.14.1+cpu` + smartphone/navegador conectado em [grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app)
 
-**a gravação de reserva:** [va2/entrega_ai4good.mp4](https://github.com/lira-labs/workspace/blob/main/va2/entrega_ai4good.mp4), tomada contínua do ensaio sem cortes, anexada à release `sem2`.
+**a gravação de reserva:** [va2/entrega_ai4good.mp4](https://github.com/lira-labs/workspace/blob/main/va2/entrega_ai4good.mp4) *(regravar a segunda passada sem cortes na mesma máquina após concluir os Passos 3 e 4 na versão final)*
 
-## as quatro frases, sem IA
+---
 
-1. **a demo:** O estudante ou trabalhador no Grande Recife abre o app, consulta qualquer uma das 400 linhas reais do GTFS (como a Linha 522 da UFRPE ou a Linha 060), vê a previsão em 4 minutos e sai de casa no horário certo sem mofar no ponto de ônibus.
-2. **o custo:** No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch na CPU. A estimativa inicial de arquitetura previa menos de 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
-3. **a falha:** Num choque súbito com 45 minutos de retenção simulada na via, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde a prova ou o turno, e o erro ensina que choques pontuais exigem uma trava híbrida que corte a IA.
-4. **o que mudou:** No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN para testar em escala: na malha expandida de 20 paradas, em dados simulados por difusão espaço-temporal, a STGCN obteve 1,51 minuto de erro contra 1,93 minuto da regressão linear e 7,13 da persistência, mostrando que o grafo mitiga a explosão dimensional quando a rede cresce.
+## passo 1 · as quatro frases, sem IA
 
-## slide 1 · ponta a ponta · 80 s
+> `<!-- guia-ia -->`: **as quatro frases têm que ser suas, escritas e faladas por você sem ler (< 1 min ao todo).** Os tópicos abaixo trazem apenas os fatos e números reais medidos no repositório para você formular cada frase com suas palavras:
 
-- **aparece:** Na esquerda: Quem usa (Estudante/trabalhador no Grande Recife), Entrada real (Linha 522 Dois Irmãos / UFRPE e 400 linhas reais do GTFS CTM), Saída na tela (chegada em 4 min, assentos livres e voz) e O que deixa fazer (sair às 06h09 sem mofar no ponto). Na direita: O card da demonstração ao vivo rodando direto do repositório.
-- **a entrada:** Usuário na parada da UFRPE ou de qualquer corredor metropolitano, consultando linhas reais do GTFS e satélite Cittamobi ao vivo.
-- **eu falo:** "Esse é o GrafoParada rodando ao vivo do repositório. Aqui está o celular espelhado na tela: o passageiro ou estudante aqui na UFRPE precisa ir para o Derby ou Centro. Ele abre o app e tem na mão as 400 linhas reais do Grande Recife com traçado oficial e paradas do GTFS. A tela entrega a previsão exata da Linha 522: 4 minutos para chegar, na Plataforma 01, com assento garantido. Ele vê que deve sair às 06h09 para caminhar com calma e não ficar mofando no ponto escuro. Se ele pesquisar a Linha 060, a 2040 da CDU ou qualquer terminal do SEI, a rede carrega na hora com telemetria do Cittamobi. A previsão sai rápida, direto no aparelho, sem depender de carregar páginas pesadas."
+1. **a demo:** *[sua frase]* — Âncoras reais: passageiro/trabalhador no Grande Recife usa GPS dinâmico + destino no app (`393` linhas reais do GTFS CTM, Laya IA e rotas multi-etapas SEI) para ver qual ônibus/conexão pegar e a hora certa de sair sem esperar no vazio.
+2. **o custo:** *[sua frase]* — Âncoras reais (`medir_custo_sem2.py`): STGCN (20 nós) em CPU = **`0,96 ms`** e **`324,7 MB`** de Working Set físico (`2,22 KB` heap; treino 25 épocas = `0,86 s`); FSM on-device (15 passos) = **`56,68 µs`** e **`11,02 KB`**; contra o estimado no [`flx.md`](flx.md): **`< 0,5 s` (`500 ms`) / `~300 MB`** na STGCN (`< 10 s` com treino) e **`14,29 µs` / `8,92 KB`** no passo único on-device. R$ 0,00 local. Diferença explicada pelas DLLs do runtime LibTorch/Windows (`+8,2%` nos MB) e pela inferência ~520× menor que `500 ms`.
+3. **a falha:** *[sua frase]* — Âncoras reais (`medir_custo_sem2.py` · slide 3): entrada = bloqueio pontual de **`45,0 min`** no Nó 10 (Trevo de Ipojuca / PE-60); saída da STGCN = **`14,3 min`** (super-suavização); o certo = **`45,0 min`** + alerta `[?]`; quem sofre = trabalhador/estudante na PE-60 que perde o transporte alternativo e perde o turno. Ensina que `|GPS − STGCN| > 15 min` exige trava híbrida para cortar a IA.
+4. **o que mudou:** *[sua frase]* — Âncoras reais: no [`sem1.md`](sem1.md) / [`avaliar_piloto.py`](../code/grafoparada_tec/avaliar_piloto.py) (5 paradas), a regressão tabular (`2,46 min` MAE) bateu a STGCN (`4,42 min`); mantivemos a STGCN para testar escala em [`motor_evolucao_prototipo.py`](../code/grafoparada_tec/motor_evolucao_prototipo.py) (20 paradas da PE-60 em simulação sintética): a STGCN fez **`1,51 min`** contra **`1,93 min`** da linear tabular (121 colunas para 70 treinos) e **`7,13 min`** da persistência. Validação em rua real ainda depende de GPS contínuo do CTM.
 
-## slide 2 · quanto custa · 50 s
+---
 
-- **aparece:** Três colunas limpas: 4,98 ms e 12 KB no celular (on-device); 0,77 ms e 358 MB no servidor (CPU pura); e R$ 0,00 de custo financeiro local ao lado da estimativa inicial (< 500 ms e ~300 MB).
-- **medido:** Execução de `medir_custo_sem2.py`: FSM cinemática em 4,98 ms e 12 KB de RAM no dispositivo; STGCN em 0,77 ms de CPU e 358 MB de processo PyTorch no servidor local (Core i7 / Python 3.12).
-- **estimado no projeto:** < 500 ms por inferência e ~300 MB de memória RAM.
-- **eu falo:** "Esses números vieram da medição que rodou no repositório. No celular, o cálculo cinemático levou 4,98 milissegundos e gastou apenas 12 kilobytes de RAM, sem consumir bateria. No servidor local, a STGCN rodou em 0,77 milissegundo na CPU. A estimativa inicial previa até 500 milissegundos e 300 megabytes. A diferença no tempo é que a inferência em CPU pura é centenas de vezes mais rápida do que o teto estimado; e na memória, os 358 megabytes são o processo do PyTorch mantendo as bibliotecas dinâmicas carregadas, enquanto os tensores da rede ocupam menos de 100 kilobytes. O custo no ambiente de desenvolvimento é zero; para escala metropolitana, o dimensionamento prevê instâncias em contêiner com inferência a cada ciclo."
+## slide 1 · ponta a ponta · ~80 s
 
-## slide 3 · a falha · 60 s
+- **uma ideia:** a tela do sistema rodando ao vivo ([grafoparadaweb.vercel.app](https://grafoparadaweb.vercel.app)), com usuário, entrada real, saída e ação permitida.
+- **aparece:** quem usa, entrada real (GPS + destino entre `393 linhas` do GTFS CTM), saída na tela (rota SEI, previsão e voz PT-BR), o que deixa fazer + link da demo ao vivo.
+- **o sistema roda:** demonstrado ao vivo do repositório (sem vídeo pré-gravado como principal).
+- **pontos de apoio na sua fala (não ler):**
+  - abrir o app ao vivo no celular/tela na pergunta de localização (`Onde você está agora?`);
+  - rodar uma consulta real (ex.: Camela -> Ipojuca/Olinda ou linha do GTFS CTM + assistente Laya);
+  - mostrar a saída na tela e explicar em 1 frase o que o passageiro faz com ela antes de ir para o ponto.
 
-- **aparece:** A saída da IA sob super-suavização em destaque vermelho: 18 min. A retenção de referência do choque em destaque verde: 45 min. Embaixo: quem sofre o erro e a trava de segurança adotada.
-- **a entrada:** Simulação de retenção severa ou bloqueio físico da via, com atraso de referência de 45 minutos no trecho.
-- **a saída, como saiu:** A STGCN previu 18 minutos.
-- **o valor de referência:** 45 minutos de retenção abrupta.
-- **eu falo:** "Eu escolhi este caso de propósito porque ele erra de verdade. Simulamos uma retenção severa por bloqueio de pista onde o atraso de referência saltou para 45 minutos. Olhem a tela: a STGCN previu apenas 18 minutos. O número parece razoável, mas mente. Quem sofre é o trabalhador ou estudante: ele confia no '18 minutos', espera um ônibus que não vem e perde o turno ou a prova na universidade. O erro me ensinou que redes de grafo sofrem de super-suavização: a matriz do grafo dilui o atraso brusco com as paradas vizinhas desimpedidas. Por isso colocamos a trava híbrida: se o desvio entre a STGCN e a telemetria passar de 15 minutos, o app corta a IA e acende o alerta de interdição [?]. É exatamente essa falha que vamos medir no sem3."
+## slide 2 · quanto custa, medido · ~50 s
 
-## slide 4 · o que mudou desde o sem1 · 45 s
+- **uma ideia:** tempo total e pico de memória de uma execução real do repositório, lado a lado com o estimado no [`flx.md`](flx.md).
+- **saída real de `uv run --project code/grafoparada_tec python code/grafoparada_tec/medir_custo_sem2.py`:**
 
-- **aparece:** Duas linhas claras. "No sem1 (5 paradas): O cálculo linear simples bateu a STGCN (2,46 min vs 4,42 min)." e "Agora no sem2 (malha GTFS expandida · 20 paradas): A STGCN obteve 1,51 min (contra 1,93 min da linear e 7,13 min da persistência) em dados sintéticos de difusão."
-- **no sem1:** O cálculo simples bateu a STGCN em 5 paradas (2,46 min vs 4,42 min), e a banca questionou se valia a pena gastar memória com IA em grafo.
-- **agora:** Mantive a STGCN de propósito para testar a escala. Na malha de 20 paradas, em simulação de difusão por grafo, a STGCN venceu a linear por 0,42 min e reduziu 78% do erro contra a persistência.
-- **eu falo:** "No sem1, uma conta simples tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. Eu prometi testar na malha completa para ver se a rede se justificava. Mantive a STGCN e hoje trago a resposta: na malha expandida com 20 paradas da PE-60, em dados simulados por difusão espaço-temporal, a STGCN virou o jogo. O erro caiu para 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos. A regressão tabular sofre ao tentar calibrar 120 variáveis achatadas, enquanto o grafo preserva a esparsidade da via. Como os dados de atraso foram gerados por difusão sintética, a validação final em campo dependerá da abertura de telemetria contínua pelo consórcio."
+```text
+Maquina: AMD Ryzen 7 5700G with Radeon Graphics | SO: Windows 11
+Runtime: Python 3.12.15 | PyTorch 2.14.1+cpu (CPU)
 
-## slide 5 · o fecho · 25 s
+[1. ON-DEVICE / CELULAR - FSM CINEMATICA V3]
+  - Tempo medio por inferencia (500x): 56.68 us (0.0567 ms)
+  - Pico de heap Python por ciclo (tracemalloc): 11.02 KB
+  - Estimativa no flx.md: 14,29 us (passo unico) e 8,92 KB de RAM (validar_cinematica_parada.py)
 
-- **aparece:** O fecho do sem2: "Roda no celular e na CPU local a custo zero, e a falha de over-smoothing é blindada pela regra." Embaixo, a ponte pro sem3: "Seminário 3 (25/11): Quantos choques de trânsito na malha a trava híbrida consegue capturar contra o erro puro da IA."
-- **eu falo:** "O sistema roda no aparelho do passageiro e na CPU local a custo zero, com dados reais do Grande Recife. E a falha da IA não fica escondida: vira a regra de segurança que protege o passageiro. No dia 25, no sem3, eu trago a medida formal de quantos desses choques a trava consegue capturar."
+[2. SERVIDOR / STGCN 20 NOS PE-60 (CPU PYTORCH)]
+  - Parametros treinaveis: 34,627
+  - Tempo de treino (25 epocas, 64 amostras): 0.86 s
+  - Tempo medio por inferencia completa em CPU (200x): 0.96 ms
+  - Heap Python na inferencia (tracemalloc): 2.22 KB (0.002 MB)
+  - Pico de Working Set fisico total (C++/LibTorch + Python): 324.7 MB
+  - Estimado no flx.md: < 10 s (treino 25 epocas + inferencia); < 0,5 s (inferencia) e ~300 MB de RAM
+```
 
-**tempo total, cronometrado, com a demo rodando:** 4 min 10 s e 4 min 05 s, duas vezes seguidas, na mesma máquina. A segunda passada está gravada sem cortes como reserva.
+- **diferença explicada:** os tensores da inferência usam só `2,22 KB` em `0,96 ms` (~520× abaixo do teto de `500 ms`), mas o processo completo segura `324,7 MB` (`+8,2%` sobre `~300 MB`) por causa das bibliotecas dinâmicas do PyTorch/LibTorch carregadas no Windows. Na FSM de 15 passos (`56,68 µs` e `11,02 KB`), o tempo soma toda a trajetória contra `14,29 µs` do passo único no `flx.md`. Custo financeiro local: `R$ 0,00`.
 
-## ensaio cético · as 4 perguntas decisivas da banca
+## slide 3 · a falha mostrada · ~60 s
 
-> 💡 **Postura Mestra da Defesa:** *"A infraestrutura espacial é real. O experimento preditivo atual é sintético. Os resultados demonstram a viabilidade metodológica, não uma validação definitiva do trânsito real do Grande Recife."*
+- **uma ideia:** entrada que erra, saída errada, o certo ao lado e quem sofre.
+- **a entrada:** choque abrupto no Nó 10 (Trevo de Ipojuca · PE-60) com atraso de GPS em **`45,0 min`** (demais paradas em `10,0 min`).
+- **a saída, como saiu:** a STGCN previu **`14,3 min`** no Nó 10 (super-suavização apagou `30,7 min` do pico).
+- **o certo (ao lado):** **`45,0 min`** + selo de alerta **`[?]` Interdição** (`avaliar_trava_hibrida_defensiva` detecta `|45,0 − 14,3| = 30,7 min > 15,0 min` e força exibição do GPS bruto).
+- **quem sofre:** o trabalhador ou estudante na parada da PE-60 que confia no `14,3 min`, deixa passar o transporte alternativo e perde o turno/aula.
+- **demonstração no app:** botão *"Simular Choque / Interdição na Via (Demonstração da Falha · Sem2)"* exibe `14,3*` vs GPS bruto `45,0 min`.
 
-| Componente | Origem |
+## slide 4 · o que mudou desde o sem1 · ~45 s
+
+- **uma ideia:** o que valia no `sem1`, o que vale no `sem2` e o porquê.
+- **no sem1 (5 paradas · [`avaliar_piloto.py`](../code/grafoparada_tec/avaliar_piloto.py)):** regressão tabular de corredor (`2,46 min` MAE) bateu a STGCN (`4,42 min` MAE).
+- **agora no sem2 (20 paradas PE-60 · [`motor_evolucao_prototipo.py`](../code/grafoparada_tec/motor_evolucao_prototipo.py)):** mantivemos a STGCN para testar escala. Em dados sintéticos de difusão no corredor de 20 paradas (70 treino / 50 teste):
+  - Persistência: **`7,13 min`** MAE
+  - Regressão tabular achatada (121 colunas para 70 casos): **`1,93 min`** MAE
+  - STGCN com grafo Laplaciano: **`1,51 min`** MAE
+- **limite honesto:** a melhoria de MAE ocorreu em simulação sintética; validar o ganho em campo exige streaming contínuo de GPS/VEM do CTM.
+
+## slide 5 · fecho e ponte para o sem3 · ~25 s
+
+- **uma ideia:** resumo do que roda hoje e qual falha vira medida no `sem3` (`25/11`).
+- **aparece:** hoje (`393 linhas` GTFS reais, `0,96 ms` em CPU, `R$ 0,00` local, trava `[?]`) + pergunta do `sem3` (`25/11`): quantos choques de trânsito a trava híbrida captura contra a STGCN pura.
+
+---
+
+## passo 3 · ensaio cético (conversa nova) · PENDENTE
+
+> **Status:** `[ ]` **Pendente.** Abrir uma **conversa nova** (limpa, que não ajudou a montar este roteiro), colar suas **4 frases reais**, os slides e a saída de `medir_custo_sem2.py` usando o prompt abaixo, responder as 5 perguntas de cabeça e registrar aqui apenas a **pergunta mais difícil** e **o que mudou no roteiro/slide/demo por causa dela**.
+
+- **a pergunta mais difícil:** *[preencher após rodar o Passo 3 numa conversa nova]*
+- **o que mudei por causa dela:** *[preencher o que ajustou na frase, no slide ou na demo]*
+
+---
+
+## passo 4 · cronômetro e vídeo de reserva · PENDENTE
+
+> **Status:** `[ ]` **Pendente.** Cronometrar duas passadas seguidas em voz alta, de cabeça, entre **3 e 5 minutos**, com a demo rodando ao vivo na máquina da apresentação, e gravar a segunda passada sem cortes.
+
+- **passada 1 (tempo medido):** *[preencher após cronometrar]*
+- **passada 2 sem cortes (tempo medido):** *[preencher após cronometrar + atualizar `va2/entrega_ai4good.mp4` se a versão mudou]*
+
+---
+
+## itens de verificação (preencher só após passos 1, 3 e 4 reais)
+
+- [ ] **ponta a ponta, ao vivo:** usuário concreto, entrada real do problema, saída na tela e o que deixa fazer, rodando do repositório.
+- [ ] **quanto custa, medido:** tempo total (`0,96 ms` STGCN / `56,68 µs` FSM) e pico de memória (`324,7 MB` Working Set / `11,02 KB` FSM), máquina identificada (`AMD Ryzen 7 5700G`, `Python 3.12.15`), diferença para o `flx.md` explicada.
+- [ ] **a falha mostrada:** entrada (`45,0 min` Nó 10), saída errada (`14,3 min`), certo ao lado (`45,0 min` + `[?]`) e quem sofre (trabalhador/estudante na PE-60).
+- [ ] **o que mudou desde o sem1:** `sem1` (`2,46 vs 4,42` em 5 paradas) -> decisão de manter STGCN -> `sem2` (`1,51 vs 1,93 vs 7,13` em 20 paradas sintéticas) e limite de validação em campo.
+
+---
+
+## apêndice factual · transparência de dados (referência para a banca)
+
+| Componente | Origem real no repositório |
 | :--- | :--- |
-| Paradas, linhas e trajetos | GTFS oficial do Grande Recife (393 linhas, 15.239 paradas) |
-| Horários programados | GTFS oficial (`stop_times.txt`) |
-| Atrasos e retenções de treino | Dados sintéticos (difusão espaço-temporal via Laplaciana) |
-| Demanda latente do exemplo | Estimativa ilustrativa do protótipo (IC 90%) |
-| Telemetria contínua real | Não disponível publicamente pelo consórcio |
-
-### 1. "Se os dados são sintéticos, por que a ST-GCN venceu a regressão linear?"
-**Resposta:** "A ST-GCN venceu porque resolve a maldição da dimensionalidade. Em 5 paradas (Sem1), uma reta simples tinha poucas variáveis e aprendeu com facilidade. Ao expandir para 20 paradas no Sem2 com 6 lags temporais, na representação tabular o modelo recebe 120 variáveis de entrada (features) — 20 paradas por 6 defasagens temporais — e precisa aprender suas relações em uma estrutura achatada e altamente colinear. A ST-GCN, por sua vez, compartilha pesos espaciais via convolução espectral de Chebyshev sobre a topologia física da rodovia. Reconheço, contudo, que parte dessa vantagem advém da hipótese de difusão em rede utilizada no gerador sintético, o que reforça que o resultado demonstra eficiência estrutural do grafo, mas não substitui a validação de campo."
-
-### 2. "Como você validaria esse modelo com dados reais?"
-**Resposta:** "A validação real requer um convênio de pesquisa operacional com o CTM Grande Recife ou uma das concessionárias operadoras para acesso ao streaming de telemetria AVL/GPS dos transponders da frota e aos logs com timestamp e validador da bilhetagem eletrônica (VEM). Com esse fluxo, mapearíamos o histórico real de tempos entre paradas consecutivas, separaríamos os dados por divisão temporal estrita (ex: 4 semanas de treino, 1 semana de teste) e testaríamos a capacidade preditiva da ST-GCN sem depender de gerador sintético."
-
-### 3. "De onde vem a demanda latente da Central CTM?"
-**Resposta:** "A bilhetagem eletrônica da catraca registra apenas a demanda atendida e censurada: quem desiste na parada escura ou desiste da espera por superlotação não passa na catraca e vira invisível para o CTM. A demanda latente no GrafoParada é modelada combinando três fontes: (1) a série histórica censurada da catraca; (2) a declaração voluntária de rotina pendular no app pelo passageiro (amostragem on-device); e (3) a propagação espaço-temporal estimada pela ST-GCN ao longo dos nós adjacentes da malha. O modelo produz uma estimativa pontual da demanda, e a incerteza é calibrada (via calibração conformal) para gerar um intervalo de 90% usado na decisão operacional."
-
-### 4. "O que exatamente o projeto consegue afirmar hoje e o que ainda é hipótese?"
-**Resposta:** "O que afirmamos com dados concretos hoje: (1) Que é viável processar a malha metropolitana oficial inteira do Grande Recife (393 linhas, 15.239 paradas) com inferência ultrarrápida (0,77 ms na CPU e 4,98 ms on-device); (2) Que convoluções espaciais em grafo sofrem de super-suavização (over-smoothing) em choques bruscos de trânsito, exigindo obrigatoriamente uma trava híbrida que corte a IA se o desvio ultrapassar 15 min; (3) Que a formulação de despacho deve ser probabilística, baseada em P(Demanda > Capacidade). O que ainda é hipótese: A magnitude exata da redução do erro de previsão em tráfego metropolitano real, que depende do acesso a dados contínuos de GPS da frota."
-
-### 5. "Como o app aprende a rotina do passageiro e o que usamos para ajudá-lo na prática?"
-**Resposta:** "O aprendizado opera em duas camadas com privacidade radical (100% on-device, LGPD). Para o primeiro dia (cold start), o usuário escolhe seu turno em 1 toque (ex: Indústria Suape às 05h45). Para o uso contínuo, o motor local (`OnDeviceRoutineLearner`) monitora eventos onde o usuário permanece na parada por mais de 2,5 minutos via geofence passivo e acelerômetro; em 3 dias úteis, a clusterização temporal deslizante consolida o hábito (< 1 KB local, 0 bytes na nuvem). Na prática, usamos essa rotina para três apoios concretos: (1) **Janela Segura de Saída** ('saia às 06h08 e não às 05h45'), reduzindo a espera exposta no ponto escuro de 35 min para 5 min; (2) **Modo Bolso Seguro**, disparando alertas por voz no fone e vibração tátil para que o celular nunca precise sair do bolso em áreas de risco; e (3) **Alimentação Coletiva**, enviando apenas uma contagem anônima agregada à Central CTM para estimar demanda não-censurada na ST-GCN."
+| Paradas, linhas e trajetos | GTFS oficial do Grande Recife (`393 linhas`, `gtfs_real_network.json`) |
+| Medições de tempo, memória e falha | Execução local de `code/grafoparada_tec/medir_custo_sem2.py` |
+| Comparativo 5 vs 20 paradas | `avaliar_piloto.py` e `motor_evolucao_prototipo.py` (dados sintéticos de difusão) |
+| Telemetria contínua AVL/VEM | Não pública no CTM (dependência explícita para validação em campo) |

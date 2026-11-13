@@ -1,498 +1,316 @@
 # -*- coding: utf-8 -*-
 """
-Gerador de Slides Minimalista Brutalista / Suíço (Anti-AI-Slop)
-Padrão: Fundo Branco Puro (#FFFFFF), Tipografia Robusta, Regra dos Terços, Números Gigantes, >50% Whitespace.
-Sem ícones decorativos em círculos, sem gradientes vazios, sem cartões escuros de neon.
-
-Seminário 2 (AI4Good · UFRPE) · Cauã da Cunha Lira
+Gerador do Deck Oficial Sem2 (Minimalista Suíço · 1 Ideia por Slide · Sem Parágrafos)
+Alinhado estritamente aos 4 itens de verificação do Seminário 2 (AI4Good · UFRPE)
+e às medições reais de `medir_custo_sem2.py` / `motor_evolucao_prototipo.py`.
 """
 
 from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
-# 1. Configuração Widescreen 16:9
 prs = Presentation()
 prs.slide_width = Inches(13.333)
 prs.slide_height = Inches(7.5)
 blank_layout = prs.slide_layouts[6]
 
-# 2. Paleta Minimalista Editorial (Base Clara)
-BG_WHITE = RGBColor(255, 255, 255)      # Fundo Branco Puro #FFFFFF
-TEXT_BLACK = RGBColor(10, 10, 10)       # Preto Quase Puro #0A0A0A (Alto Contraste)
-TEXT_DARK = RGBColor(55, 65, 81)        # Cinza Chumbo #374151
-TEXT_MUTED = RGBColor(107, 114, 128)    # Cinza Médio #6B7280
-TEXT_LIGHT = RGBColor(156, 163, 175)    # Cinza Claro de Rodapé #9CA3AF
-LINE_BORDER = RGBColor(229, 231, 235)   # Linha Discreta #E5E7EB
+BG_WHITE = RGBColor(255, 255, 255)
+CARD_BG = RGBColor(248, 249, 250)
+TEXT_BLACK = RGBColor(17, 24, 39)
+TEXT_DARK = RGBColor(55, 65, 81)
+TEXT_MUTED = RGBColor(107, 114, 128)
+LINE_BORDER = RGBColor(229, 231, 235)
 
-# Cores de Sotaque Estritas (Usadas Apenas em Números e Palavras-Chave)
-KLEIN_BLUE = RGBColor(0, 47, 167)       # Azul Klein Clássico #002FA7
-BOTTEGA_GREEN = RGBColor(0, 135, 81)    # Verde Bottega #008751
-CRIMSON_RED = RGBColor(192, 0, 0)       # Carmim / Vermelho Sóbrio de Erro #C00000
+KLEIN_BLUE = RGBColor(0, 47, 167)
+BOTTEGA_GREEN = RGBColor(16, 124, 65)
+CRIMSON_RED = RGBColor(192, 0, 0)
 
 FONT_FAMILY = "Segoe UI"
 
-def create_slide_base(prs, tag_text, tag_color, title_text, subtitle_text, slide_index):
-    """Cria a base minimalista suíça do slide."""
+
+def add_base_slide(tag_text: str, tag_color: RGBColor, title_text: str, subtitle_text: str, slide_num: int):
     slide = prs.slides.add_slide(blank_layout)
 
-    # Fundo Branco Puro
     bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
     bg.fill.solid()
     bg.fill.fore_color.rgb = BG_WHITE
     bg.line.fill.background()
 
-    # Linha Superior Discreta de Separação
-    rule_top = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.9), Inches(0.48), Inches(11.533), Inches(0.015))
+    rule_top = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.85), Inches(0.48), Inches(11.63), Inches(0.015))
     rule_top.fill.solid()
     rule_top.fill.fore_color.rgb = LINE_BORDER
     rule_top.line.fill.background()
 
-    # Tag Monospace / Editorial
-    tag_box = slide.shapes.add_textbox(Inches(0.9), Inches(0.58), Inches(11.533), Inches(0.35))
-    tf_tag = tag_box.text_frame
-    tf_tag.word_wrap = True
-    p_tag = tf_tag.paragraphs[0]
-    p_tag.text = tag_text.upper()
-    p_tag.font.name = FONT_FAMILY
-    p_tag.font.size = Pt(10.5)
-    p_tag.font.bold = True
-    p_tag.font.color.rgb = tag_color
+    tb_tag = slide.shapes.add_textbox(Inches(0.85), Inches(0.58), Inches(11.63), Inches(0.32))
+    tf = tb_tag.text_frame
+    p = tf.paragraphs[0]
+    p.text = tag_text.upper()
+    p.font.name = FONT_FAMILY
+    p.font.size = Pt(11)
+    p.font.bold = True
+    p.font.color.rgb = tag_color
 
-    # Título Principal (40pt a 44pt, Bold, Preto Quase Puro)
-    title_box = slide.shapes.add_textbox(Inches(0.9), Inches(0.92), Inches(11.533), Inches(0.85))
-    tf_title = title_box.text_frame
-    tf_title.word_wrap = True
-    p_title = tf_title.paragraphs[0]
-    p_title.text = title_text
-    p_title.font.name = FONT_FAMILY
-    p_title.font.size = Pt(36)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_BLACK
+    tb_title = slide.shapes.add_textbox(Inches(0.85), Inches(0.95), Inches(11.63), Inches(0.85))
+    tf_t = tb_title.text_frame
+    tf_t.word_wrap = True
+    pt = tf_t.paragraphs[0]
+    pt.text = title_text
+    pt.font.name = FONT_FAMILY
+    pt.font.size = Pt(34)
+    pt.font.bold = True
+    pt.font.color.rgb = TEXT_BLACK
 
-    # Subtítulo (16pt a 18pt, Regular, Cinza Escuro)
-    sub_box = slide.shapes.add_textbox(Inches(0.9), Inches(1.82), Inches(11.533), Inches(0.45))
-    tf_sub = sub_box.text_frame
-    p_sub = tf_sub.paragraphs[0]
-    p_sub.text = subtitle_text
-    p_sub.font.name = FONT_FAMILY
-    p_sub.font.size = Pt(15.5)
-    p_sub.font.color.rgb = TEXT_DARK
+    tb_sub = slide.shapes.add_textbox(Inches(0.85), Inches(1.85), Inches(11.63), Inches(0.45))
+    tf_s = tb_sub.text_frame
+    tf_s.word_wrap = True
+    ps = tf_s.paragraphs[0]
+    ps.text = subtitle_text
+    ps.font.name = FONT_FAMILY
+    ps.font.size = Pt(15)
+    ps.font.color.rgb = TEXT_MUTED
 
-    # Rodapé Discreto
-    rule_bot = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.9), Inches(6.82), Inches(11.533), Inches(0.015))
+    rule_bot = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.85), Inches(6.82), Inches(11.63), Inches(0.015))
     rule_bot.fill.solid()
     rule_bot.fill.fore_color.rgb = LINE_BORDER
     rule_bot.line.fill.background()
 
-    foot_box = slide.shapes.add_textbox(Inches(0.9), Inches(6.9), Inches(11.533), Inches(0.35))
-    tf_foot = foot_box.text_frame
-    p_foot = tf_foot.paragraphs[0]
-    p_foot.text = f"AI4Good (UFRPE) · Prof. Lucas Silva Figueiredo | Cauã da Cunha Lira · Slide {slide_index} de 5"
-    p_foot.font.name = FONT_FAMILY
-    p_foot.font.size = Pt(9.5)
-    p_foot.font.color.rgb = TEXT_MUTED
+    tb_foot = slide.shapes.add_textbox(Inches(0.85), Inches(6.9), Inches(11.63), Inches(0.35))
+    pf = tb_foot.text_frame.paragraphs[0]
+    pf.text = f"AI4Good (UFRPE) · Prof. Lucas Silva Figueiredo | Cauã da Cunha Lira · Slide {slide_num} de 5"
+    pf.font.name = FONT_FAMILY
+    pf.font.size = Pt(10)
+    pf.font.color.rgb = TEXT_MUTED
 
     return slide
 
-# ==============================================================================
-# SLIDE 1: ABERTURA & DEMO AO VIVO (REGRA DOS TERÇOS)
-# ==============================================================================
-slide1 = create_slide_base(
-    prs=prs,
-    tag_text="01 / DEMONSTRAÇÃO AO VIVO · LINHA 199 (CAMELA ➔ TI CABO) · KIM ET AL. (2026)",
-    tag_color=KLEIN_BLUE,
-    title_text="A janela pessoal de saída elimina a espera e o abandono.",
-    subtitle_text="Da Rodovia PE-60 (Linha 199 Suape) às 400 linhas GTFS com Laya IA · Mitigando Balking e Reneging (Kim et al., 2026).",
-    slide_index=1
-)
 
-# 3 Colunas Limpas (Regra dos Terços)
-col_w = Inches(3.6)
-col_gap = Inches(0.36)
-col_top = Inches(2.55)
-
-cols_s1 = [
-    {
-        "tag": "O USUÁRIO REAL & CENSURA VEM",
-        "tag_color": TEXT_MUTED,
-        "hero": "Trabalhador às 06h10",
-        "hero_color": TEXT_BLACK,
-        "sub": "Turno Suape 05h45",
-        "body": "Morador de Camela em direção ao polo. Janela calculada: saia às 06h08 (caminhada 6 min). A bilhetagem eletrônica sofre de censura à direita: quem desiste na escuridão nunca passa na catraca."
-    },
-    {
-        "tag": "ACESSIBILIDADE & LAYA IA",
-        "tag_color": TEXT_MUTED,
-        "hero": "Laya IA & Voz pt-BR",
-        "hero_color": TEXT_BLACK,
-        "sub": "Voz Acolhedora & Favoritos",
-        "body": "Comandos de voz interativos ('quando passa meu ônibus?'), onboarding guiado em 3 passos, favoritos (Casa/UFRPE) e Modo Bolso Seguro (0 nits OLED) com vibração tátil."
-    },
-    {
-        "tag": "A TESE CENTRAL",
-        "tag_color": KLEIN_BLUE,
-        "hero": "48 Trabalhadores",
-        "hero_color": KLEIN_BLUE,
-        "sub": "Despacho da Frota no Vazio",
-        "body": "Demanda latente capturada alimenta a Central CTM: ônibus da Linha 178 no vazio (deadheading) é remanejado para a 199. A espera cai de 18 para 4 min e elimina o abandono."
-    }
-]
-
-for idx, col in enumerate(cols_s1):
-    c_left = Inches(0.9) + idx * (col_w + col_gap)
-
-    # Linha discreta de cabeçalho de coluna
-    rule = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, c_left, col_top, Inches(0.8), Inches(0.04))
-    rule.fill.solid()
-    rule.fill.fore_color.rgb = col["tag_color"]
-    rule.line.fill.background()
-
-    tb = slide1.shapes.add_textbox(c_left, col_top + Inches(0.12), col_w, Inches(3.9))
+def add_kv_block(slide, left, top, width, label, value, label_color=KLEIN_BLUE, val_size=18):
+    tb = slide.shapes.add_textbox(left, top, width, Inches(0.9))
     tf = tb.text_frame
     tf.word_wrap = True
-
-    p = tf.paragraphs[0]
-    p.text = col["tag"]
-    p.font.name = FONT_FAMILY
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = col["tag_color"]
-    p.space_after = Pt(10)
+    p1 = tf.paragraphs[0]
+    p1.text = label.upper()
+    p1.font.name = FONT_FAMILY
+    p1.font.size = Pt(10.5)
+    p1.font.bold = True
+    p1.font.color.rgb = label_color
+    p1.space_after = Pt(2)
 
     p2 = tf.add_paragraph()
-    p2.text = col["hero"]
+    p2.text = value
     p2.font.name = FONT_FAMILY
-    p2.font.size = Pt(21)
+    p2.font.size = Pt(val_size)
     p2.font.bold = True
-    p2.font.color.rgb = col["hero_color"]
+    p2.font.color.rgb = TEXT_BLACK
 
-    p3 = tf.add_paragraph()
-    p3.text = col["sub"]
-    p3.font.name = FONT_FAMILY
-    p3.font.size = Pt(12.5)
-    p3.font.bold = True
-    p3.font.color.rgb = TEXT_DARK
-    p3.space_after = Pt(12)
 
-    p4 = tf.add_paragraph()
-    p4.text = col["body"]
-    p4.font.name = FONT_FAMILY
-    p4.font.size = Pt(12)
-    p4.font.color.rgb = TEXT_DARK
+# SLIDE 1 · PONTA A PONTA (AO VIVO)
+s1 = add_base_slide(
+    "01 / PONTA A PONTA · DEMO AO VIVO",
+    KLEIN_BLUE,
+    "GrafoParada ao vivo: do GPS atual à janela de saída",
+    "393 linhas reais do GTFS CTM Grande Recife · Tag sem2",
+    1,
+)
+s1_items = [
+    ("Quem usa", "Passageiro ou trabalhador no Grande Recife"),
+    ("Entrada real", "Localização GPS + destino (ex.: Camela -> Olinda ou linha GTFS)"),
+    ("Saída na tela", "Rota com baldeações SEI, previsão de espera e voz PT-BR"),
+    ("O que deixa fazer", "Escolher a linha certa e sair na hora segura sem esperar no vazio"),
+]
+for idx, (lbl, val) in enumerate(s1_items):
+    add_kv_block(s1, Inches(0.85), Inches(2.55 + idx * 0.98), Inches(6.6), lbl, val, KLEIN_BLUE, 16.5)
 
-# ==============================================================================
-# SLIDE 2: O CUSTO (MEDIDO VS FLX.MD) · 3 NÚMEROS GIGANTES
-# ==============================================================================
-slide2 = create_slide_base(
-    prs=prs,
-    tag_text="02 / EFICIÊNCIA DE RUNTIME · MEDIÇÃO NO REPOSITÓRIO (0,77 MS)",
-    tag_color=KLEIN_BLUE,
-    title_text="A inferência em CPU foi 600× mais rápida e opera a custo zero.",
-    subtitle_text="Medição empírica no repositório (0,77 ms na CPU e 4,98 ms on-device) comprova soberania pública sem APIs pagas.",
-    slide_index=2
+box1 = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.9), Inches(2.6), Inches(4.55), Inches(3.2))
+box1.fill.solid()
+box1.fill.fore_color.rgb = CARD_BG
+box1.line.color.rgb = LINE_BORDER
+tb_b1 = s1.shapes.add_textbox(Inches(8.2), Inches(2.85), Inches(3.95), Inches(2.7))
+tf_b1 = tb_b1.text_frame
+tf_b1.word_wrap = True
+pb1 = tf_b1.paragraphs[0]
+pb1.text = "SISTEMA RODANDO AO VIVO"
+pb1.font.name = FONT_FAMILY
+pb1.font.size = Pt(11)
+pb1.font.bold = True
+pb1.font.color.rgb = KLEIN_BLUE
+pb1.space_after = Pt(8)
+pb2 = tf_b1.add_paragraph()
+pb2.text = "grafoparadaweb.vercel.app"
+pb2.font.name = FONT_FAMILY
+pb2.font.size = Pt(22)
+pb2.font.bold = True
+pb2.font.color.rgb = TEXT_BLACK
+pb2.space_after = Pt(12)
+pb3 = tf_b1.add_paragraph()
+pb3.text = "Demonstrado ao vivo no celular espelhado direto de github.com/lira-labs/workspace."
+pb3.font.name = FONT_FAMILY
+pb3.font.size = Pt(14)
+pb3.font.color.rgb = TEXT_DARK
+
+
+# SLIDE 2 · QUANTO CUSTA, MEDIDO VS FLX.MD
+s2 = add_base_slide(
+    "02 / QUANTO CUSTA, MEDIDO",
+    KLEIN_BLUE,
+    "Medido em execução real vs. estimado no flx.md",
+    "medir_custo_sem2.py · AMD Ryzen 7 5700G · Windows 11 · Python 3.12.15 · PyTorch 2.14.1+cpu",
+    2,
 )
 
-cols_s2 = [
-    {
-        "tag": "NO APARELHO (CELULAR)",
-        "number": "4,98 ms",
-        "num_color": KLEIN_BLUE,
-        "sub": "12,0 KB de Memória RAM",
-        "body": "FSM cinemática v3 com Soft-Voting em tempo real. Execução instantânea com zero dreno de bateria.\n\nflx estimava: 14,29 µs (passo de rotina) e 8,92 KB de RAM."
-    },
-    {
-        "tag": "NO SERVIDOR LOCAL (CTM)",
-        "number": "0,77 ms",
-        "num_color": KLEIN_BLUE,
-        "sub": "358 MB no Processo",
-        "body": "Inferência pura da STGCN em 20 nós da PE-60. Tensores ativos consom apenas 84 KB.\n\nflx estimava: < 500 ms e ~300 MB. A diferença: o PyTorch segura as libs dinâmicas no SO."
-    },
-    {
-        "tag": "CUSTO FINANCEIRO TOTAL",
-        "number": "R$ 0,00",
-        "num_color": BOTTEGA_GREEN,
-        "sub": "34.627 Parâmetros",
-        "body": "Roda em computador comum de escritório do consórcio CTM.\n\nZero dependência de APIs pagas em dólar, sem servidores caros em nuvem e 100% soberano."
-    }
-]
-
-for idx, col in enumerate(cols_s2):
-    c_left = Inches(0.9) + idx * (col_w + col_gap)
-
-    rule = slide2.shapes.add_shape(MSO_SHAPE.RECTANGLE, c_left, col_top, Inches(0.8), Inches(0.04))
-    rule.fill.solid()
-    rule.fill.fore_color.rgb = col["num_color"]
-    rule.line.fill.background()
-
-    tb = slide2.shapes.add_textbox(c_left, col_top + Inches(0.12), col_w, Inches(3.9))
-    tf = tb.text_frame
-    tf.word_wrap = True
-
-    p = tf.paragraphs[0]
-    p.text = col["tag"]
+# Coluna esquerda: Medido
+tb_m = s2.shapes.add_textbox(Inches(0.85), Inches(2.5), Inches(5.6), Inches(3.8))
+tfm = tb_m.text_frame
+tfm.word_wrap = True
+for text, size, bold, color, after in [
+    ("MEDIDO NO REPOSITÓRIO (EXECUÇÃO REAL)", 11, True, KLEIN_BLUE, 10),
+    ("0,96 ms · 324,7 MB", 38, True, TEXT_BLACK, 4),
+    ("STGCN 20 nós em CPU (0,86 s treino 25 épocas · 2,22 KB heap)", 13.5, False, TEXT_MUTED, 22),
+    ("56,68 µs · 11,02 KB", 38, True, TEXT_BLACK, 4),
+    ("FSM cinemática V3 on-device (trajetória de 15 passos)", 13.5, False, TEXT_MUTED, 0),
+]:
+    p = tfm.paragraphs[0] if len(tfm.paragraphs) == 1 and not tfm.paragraphs[0].text else tfm.add_paragraph()
+    p.text = text
     p.font.name = FONT_FAMILY
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = TEXT_MUTED
-    p.space_after = Pt(4)
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.space_after = Pt(after)
 
-    p2 = tf.add_paragraph()
-    p2.text = col["number"]
-    p2.font.name = FONT_FAMILY
-    p2.font.size = Pt(50)
-    p2.font.bold = True
-    p2.font.color.rgb = col["num_color"]
+# Coluna direita: flx.md + diferença
+tb_f = s2.shapes.add_textbox(Inches(6.95), Inches(2.5), Inches(5.5), Inches(3.9))
+tff = tb_f.text_frame
+tff.word_wrap = True
+for text, size, bold, color, after in [
+    ("ESTIMADO NO FLX.MD", 11, True, TEXT_MUTED, 10),
+    ("< 500 ms · ~300 MB", 38, True, TEXT_MUTED, 4),
+    ("STGCN em CPU (< 10 s com treino) · R$ 0,00 local", 13.5, False, TEXT_MUTED, 18),
+    ("14,29 µs · 8,92 KB", 28, True, TEXT_MUTED, 4),
+    ("App on-device no flx.md (passo único)", 13.5, False, TEXT_MUTED, 18),
+    ("Causa: runtime LibTorch/Windows retém 324,7 MB (+8,2% vs ~300 MB); inferência foi ~520x menor que 500 ms.", 14, True, TEXT_BLACK, 0),
+]:
+    p = tff.paragraphs[0] if len(tff.paragraphs) == 1 and not tff.paragraphs[0].text else tff.add_paragraph()
+    p.text = text
+    p.font.name = FONT_FAMILY
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.space_after = Pt(after)
 
-    p3 = tf.add_paragraph()
-    p3.text = col["sub"]
-    p3.font.name = FONT_FAMILY
-    p3.font.size = Pt(13)
-    p3.font.bold = True
-    p3.font.color.rgb = TEXT_BLACK
-    p3.space_after = Pt(12)
 
-    p4 = tf.add_paragraph()
-    p4.text = col["body"]
-    p4.font.name = FONT_FAMILY
-    p4.font.size = Pt(12)
-    p4.font.color.rgb = TEXT_DARK
-
-# ==============================================================================
-# SLIDE 3: A FALHA REAL · ONDE A REDE NEURAL MENTE (OVER-SMOOTHING)
-# ==============================================================================
-slide3 = create_slide_base(
-    prs=prs,
-    tag_text="03 / A FALHA REAL · YAP & CATS (2021) · PESO PSICOLÓGICO 1,68X",
-    tag_color=CRIMSON_RED,
-    title_text="A STGCN super-suaviza retenções; a trava híbrida corta a IA.",
-    subtitle_text="GAP de 27 min na PE-60 aciona trava defensiva (|Δ| > 15 min), mitigando a penalidade de 1,68× da espera forçada.",
-    slide_index=3
+# SLIDE 3 · A FALHA MOSTRADA DE PROPÓSITO
+s3 = add_base_slide(
+    "03 / A FALHA MOSTRADA DE PROPÓSITO",
+    CRIMSON_RED,
+    "Choque no Trevo de Ipojuca (Nó 10 · PE-60): como saiu vs. o certo",
+    "Entrada: retenção abrupta de 45,0 min no GPS enquanto o corredor estava em 10,0 min.",
+    3,
 )
 
-cols_s3 = [
-    {
-        "tag": "A SAÍDA DA IA (COMO SAIU)",
-        "number": "18 min [?]",
-        "num_color": CRIMSON_RED,
-        "sub": "Previsão Atenuada e Falsa",
-        "body": "A difusão Laplaciana dilui 45 min de retenção para 18 min falsos.\n\nAtraso não-anunciado acelera a desistência da espera (Passenger Reneging · Kim et al., 2026)."
-    },
-    {
-        "tag": "O DADO BRUTO DO SATÉLITE",
-        "number": "45 min",
-        "num_color": TEXT_BLACK,
-        "sub": "Penalidade Psicológica 1,68×",
-        "body": "Yap & Cats (2021) provam: a espera forçada por queima ou bloqueio pesa 1,68× mais na desutilidade.\n\nQUEM SOFRE: O passageiro que perde o turno desiste do transporte público coletivo."
-    },
-    {
-        "tag": "A SOLUÇÃO HÍBRIDA DO APP",
-        "number": "Trava [?]",
-        "num_color": KLEIN_BLUE,
-        "sub": "Selo de Interdição na Tela",
-        "body": "Se |STGCN - GPS| > 15 min, o GrafoParada corta a IA, acende o selo de interdição [?] e avisa por voz no fone que a via travou.\n\nProtegendo o cidadão contra a ilusão da IA."
-    }
-]
-
-for idx, col in enumerate(cols_s3):
-    c_left = Inches(0.9) + idx * (col_w + col_gap)
-
-    rule = slide3.shapes.add_shape(MSO_SHAPE.RECTANGLE, c_left, col_top, Inches(0.8), Inches(0.04))
-    rule.fill.solid()
-    rule.fill.fore_color.rgb = col["num_color"]
-    rule.line.fill.background()
-
-    tb = slide3.shapes.add_textbox(c_left, col_top + Inches(0.12), col_w, Inches(3.9))
-    tf = tb.text_frame
-    tf.word_wrap = True
-
-    p = tf.paragraphs[0]
-    p.text = col["tag"]
+tb_e1 = s3.shapes.add_textbox(Inches(0.85), Inches(2.55), Inches(5.6), Inches(3.8))
+tfe1 = tb_e1.text_frame
+tfe1.word_wrap = True
+for text, size, bold, color, after in [
+    ("SAÍDA DA STGCN (COMO SAIU)", 11, True, CRIMSON_RED, 8),
+    ("14,3 min", 48, True, CRIMSON_RED, 4),
+    ("Super-suavização apagou 30,7 min do choque súbito", 14, False, TEXT_MUTED, 28),
+    ("QUEM SOFRE ESSE ERRO", 11, True, CRIMSON_RED, 6),
+    ("Trabalhador na PE-60: confia nos 14,3 min, perde o alternativo e perde o turno.", 17, True, TEXT_BLACK, 0),
+]:
+    p = tfe1.paragraphs[0] if len(tfe1.paragraphs) == 1 and not tfe1.paragraphs[0].text else tfe1.add_paragraph()
+    p.text = text
     p.font.name = FONT_FAMILY
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = TEXT_MUTED
-    p.space_after = Pt(4)
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.space_after = Pt(after)
 
-    p2 = tf.add_paragraph()
-    p2.text = col["number"]
-    p2.font.name = FONT_FAMILY
-    p2.font.size = Pt(50)
-    p2.font.bold = True
-    p2.font.color.rgb = col["num_color"]
+tb_e2 = s3.shapes.add_textbox(Inches(6.95), Inches(2.55), Inches(5.5), Inches(3.8))
+tfe2 = tb_e2.text_frame
+tfe2.word_wrap = True
+for text, size, bold, color, after in [
+    ("O CERTO (GPS BRUTO + TRAVA [?])", 11, True, BOTTEGA_GREEN, 8),
+    ("45,0 min", 48, True, BOTTEGA_GREEN, 4),
+    ("Alerta crítico de interdição [?] na tela", 14, False, TEXT_MUTED, 28),
+    ("O QUE REVELA (REGRA HÍBRIDA)", 11, True, KLEIN_BLUE, 6),
+    ("|GPS - STGCN| > 15 min corta a IA e exibe o GPS bruto.", 17, True, TEXT_BLACK, 0),
+]:
+    p = tfe2.paragraphs[0] if len(tfe2.paragraphs) == 1 and not tfe2.paragraphs[0].text else tfe2.add_paragraph()
+    p.text = text
+    p.font.name = FONT_FAMILY
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.space_after = Pt(after)
 
-    p3 = tf.add_paragraph()
-    p3.text = col["sub"]
-    p3.font.name = FONT_FAMILY
-    p3.font.size = Pt(13)
-    p3.font.bold = True
-    p3.font.color.rgb = TEXT_BLACK
-    p3.space_after = Pt(12)
 
-    p4 = tf.add_paragraph()
-    p4.text = col["body"]
-    p4.font.name = FONT_FAMILY
-    p4.font.size = Pt(12)
-    p4.font.color.rgb = TEXT_DARK
-
-# ==============================================================================
-# SLIDE 4: O QUE MUDOU DESDE O SEM1 · DECISÃO TÉCNICA E ESCALA
-# ==============================================================================
-slide4 = create_slide_base(
-    prs=prs,
-    tag_text="04 / DECISÃO ARQUITETURAL · TOPOLOGIA ESPECTRAL CHEBYSHEV",
-    tag_color=KLEIN_BLUE,
-    title_text="Na malha expandida, o grafo bate baselines e reduz 78% do erro.",
-    subtitle_text="De derrota em 5 paradas (Sem1) para vitória na PE-60 (MAE = 1,51 min), superando a colinearidade de 120 variáveis da OLS.",
-    slide_index=4
+# SLIDE 4 · O QUE MUDOU DESDE O SEM1
+s4 = add_base_slide(
+    "04 / O QUE MUDOU DESDE O SEM1",
+    KLEIN_BLUE,
+    "Por que mantive a STGCN depois de perder no sem1",
+    "avaliar_piloto.py (5 paradas) vs. motor_evolucao_prototipo.py (20 paradas · dados sintéticos)",
+    4,
 )
 
-cols_s4 = [
-    {
-        "tag": "SEM1 · CORREDOR CURTO (5 PARADAS)",
-        "number": "2,46 min",
-        "num_color": TEXT_MUTED,
-        "sub": "Regressão Venceu a STGCN",
-        "body": "No trecho simples de 5 paradas, uma conta básica deu 2,46 min contra 4,42 min da STGCN.\n\nDúvida honesta levada à banca: a complexidade da rede de grafos se justificava naquele escopo reduzido?"
-    },
-    {
-        "tag": "SEM2 · MALHA DE 20 NÓS (PE-60)",
-        "number": "1,51 min",
-        "num_color": BOTTEGA_GREEN,
-        "sub": "vs 1,93 min da Linear (OLS)",
-        "body": "Na malha real da PE-60, a STGCN reduziu o erro em 78% (MAE 1,51 min vs 1,93 OLS vs 7,13 média).\n\nA OLS sofre forte colinearidade em 120 variáveis achatadas. A GNN preserva a topologia viária."
-    },
-    {
-        "tag": "TRANSPARÊNCIA CIENTÍFICA",
-        "number": "Topologia",
-        "num_color": KLEIN_BLUE,
-        "sub": "Invariância Espacial da Rede",
-        "body": "Infraestrutura espacial e paradas são 100% reais do GTFS CTM oficial.\n\nA difusão Laplaciana modela a física da rodovia sem sofrer com a maldição da dimensionalidade tabular."
-    }
-]
-
-for idx, col in enumerate(cols_s4):
-    c_left = Inches(0.9) + idx * (col_w + col_gap)
-
-    rule = slide4.shapes.add_shape(MSO_SHAPE.RECTANGLE, c_left, col_top, Inches(0.8), Inches(0.04))
-    rule.fill.solid()
-    rule.fill.fore_color.rgb = col["num_color"]
-    rule.line.fill.background()
-
-    tb = slide4.shapes.add_textbox(c_left, col_top + Inches(0.12), col_w, Inches(3.9))
-    tf = tb.text_frame
-    tf.word_wrap = True
-
-    p = tf.paragraphs[0]
-    p.text = col["tag"]
+tb_4 = s4.shapes.add_textbox(Inches(0.85), Inches(2.6), Inches(11.6), Inches(3.8))
+tf4 = tb_4.text_frame
+tf4.word_wrap = True
+for text, size, bold, color, after in [
+    ("NO SEM1 · CORREDOR CURTO (5 PARADAS)", 11.5, True, TEXT_MUTED, 6),
+    ("Conta linear simples venceu a STGCN: 2,46 min vs. 4,42 min (MAE)", 23, True, TEXT_BLACK, 34),
+    ("AGORA NO SEM2 · MALHA EXPANDIDA (20 PARADAS PE-60 · SIMULAÇÃO SINTÉTICA)", 11.5, True, KLEIN_BLUE, 6),
+    ("Mantida por escala: STGCN 1,51 min vs. Linear 1,93 min vs. Persistência 7,13 min", 23, True, KLEIN_BLUE, 10),
+    ("A linear achata 121 colunas para 70 treinos; validação em campo real ainda requer GPS contínuo do CTM.", 15, False, TEXT_MUTED, 0),
+]:
+    p = tf4.paragraphs[0] if len(tf4.paragraphs) == 1 and not tf4.paragraphs[0].text else tf4.add_paragraph()
+    p.text = text
     p.font.name = FONT_FAMILY
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = TEXT_MUTED
-    p.space_after = Pt(4)
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.space_after = Pt(after)
 
-    p2 = tf.add_paragraph()
-    p2.text = col["number"]
-    p2.font.name = FONT_FAMILY
-    p2.font.size = Pt(44 if len(col["number"]) > 7 else 50)
-    p2.font.bold = True
-    p2.font.color.rgb = col["num_color"]
 
-    p3 = tf.add_paragraph()
-    p3.text = col["sub"]
-    p3.font.name = FONT_FAMILY
-    p3.font.size = Pt(13)
-    p3.font.bold = True
-    p3.font.color.rgb = TEXT_BLACK
-    p3.space_after = Pt(12)
-
-    p4 = tf.add_paragraph()
-    p4.text = col["body"]
-    p4.font.name = FONT_FAMILY
-    p4.font.size = Pt(12)
-    p4.font.color.rgb = TEXT_DARK
-
-# ==============================================================================
-# SLIDE 5: O FECHO · IMPACTO REAL E PONTE PARA O SEMINÁRIO 3
-# ==============================================================================
-slide5 = create_slide_base(
-    prs=prs,
-    tag_text="05 / FECHO & CAMPO SEM3 · KIM ET AL. (2026) & YAP & CATS (2021)",
-    tag_color=BOTTEGA_GREEN,
-    title_text="A trava híbrida calibra o teste de campo contra o abandono.",
-    subtitle_text="Validação na PE-60 ancorada em Kim et al. (2026) e Yap & Cats (2021): protegendo tarifa social, diesel e privacidade.",
-    slide_index=5
+# SLIDE 5 · FECHO E PONTE PARA O SEM3
+s5 = add_base_slide(
+    "05 / FECHO · PONTE PARA O SEM3",
+    KLEIN_BLUE,
+    "A falha mostrada hoje vira a medida do sem3",
+    "25/11 · Experimento com a trava híbrida contra a STGCN pura",
+    5,
 )
 
-cols_s5 = [
-    {
-        "tag": "COMBUSTÍVEL E DIESEL",
-        "number": "14 L / h",
-        "num_color": BOTTEGA_GREEN,
-        "sub": "Diesel Poupado por Ciclo",
-        "body": "Economia direta ao evitar que o veículo da Linha 178 circule vazio na contramão.\n\nR$ 155,80 de receita preservada ao mitigar o abandono (Passenger Reneging · Kim et al., 2026)."
-    },
-    {
-        "tag": "BOLSO DO TRABALHADOR",
-        "number": "R$ 4,10",
-        "num_color": KLEIN_BLUE,
-        "sub": "VEM com Janela Blindada",
-        "body": "Guardião da integração temporal de 120 minutos no TI Cabo contra cobrança em duplicidade por queima.\n\nPrivacidade total: rotina do passageiro gravada no próprio aparelho em 166 bytes."
-    },
-    {
-        "tag": "SEMINÁRIO 3 · 25/11",
-        "number": "25 / 11",
-        "num_color": TEXT_BLACK,
-        "sub": "Validação de Campo na PE-60",
-        "body": "A falha mostrada hoje (over-smoothing) vira a métrica de teste do Sem3:\n\nQuantas vezes a trava híbrida de discrepância protege o passageiro no ponto em Camela contra o peso de 1,68× do Denied Boarding."
-    }
-]
-
-for idx, col in enumerate(cols_s5):
-    c_left = Inches(0.9) + idx * (col_w + col_gap)
-
-    rule = slide5.shapes.add_shape(MSO_SHAPE.RECTANGLE, c_left, col_top, Inches(0.8), Inches(0.04))
-    rule.fill.solid()
-    rule.fill.fore_color.rgb = col["num_color"]
-    rule.line.fill.background()
-
-    tb = slide5.shapes.add_textbox(c_left, col_top + Inches(0.12), col_w, Inches(3.9))
-    tf = tb.text_frame
-    tf.word_wrap = True
-
-    p = tf.paragraphs[0]
-    p.text = col["tag"]
+tb_5 = s5.shapes.add_textbox(Inches(0.85), Inches(2.6), Inches(11.6), Inches(3.8))
+tf5 = tb_5.text_frame
+tf5.word_wrap = True
+for text, size, bold, color, after in [
+    ("HOJE NO REPOSITÓRIO", 11.5, True, KLEIN_BLUE, 6),
+    ("393 linhas GTFS, 0,96 ms na CPU, R$ 0,00 local e trava [?] pronta para choques súbitos", 22, True, TEXT_BLACK, 34),
+    ("NO SEM3 (25/11)", 11.5, True, KLEIN_BLUE, 6),
+    ("Quantos choques de via a trava híbrida captura contra o erro silencioso da STGCN", 22, True, KLEIN_BLUE, 12),
+    ("github.com/lira-labs/workspace · grafoparadaweb.vercel.app", 14.5, False, TEXT_MUTED, 0),
+]:
+    p = tf5.paragraphs[0] if len(tf5.paragraphs) == 1 and not tf5.paragraphs[0].text else tf5.add_paragraph()
+    p.text = text
     p.font.name = FONT_FAMILY
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = TEXT_MUTED
-    p.space_after = Pt(4)
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.space_after = Pt(after)
 
-    p2 = tf.add_paragraph()
-    p2.text = col["number"]
-    p2.font.name = FONT_FAMILY
-    p2.font.size = Pt(50)
-    p2.font.bold = True
-    p2.font.color.rgb = col["num_color"]
 
-    p3 = tf.add_paragraph()
-    p3.text = col["sub"]
-    p3.font.name = FONT_FAMILY
-    p3.font.size = Pt(13)
-    p3.font.bold = True
-    p3.font.color.rgb = TEXT_BLACK
-    p3.space_after = Pt(12)
+outputs = [
+    Path("va2/GrafoParada_Sem2_Roteiro.pptx"),
+    Path("code/grafoparada_web/GrafoParada_Sem2_Roteiro.pptx"),
+]
+drive_dir = Path(r"G:\Meu Drive\IA_Projetos")
+if drive_dir.exists():
+    outputs.append(drive_dir / "GrafoParada_Sem2_Roteiro.pptx")
 
-    p4 = tf.add_paragraph()
-    p4.text = col["body"]
-    p4.font.name = FONT_FAMILY
-    p4.font.size = Pt(12)
-    p4.font.color.rgb = TEXT_DARK
-
-# Salvamento Final
-output_path = Path("va2/GrafoParada_Seminario2_CauaLira.pptx")
-prs.save(output_path)
-print(f"[SUCESSO] Apresentacao Minimalista Brutalista gerada com sucesso: {output_path} ({output_path.stat().st_size:,} bytes)!")
+for out in outputs:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    prs.save(out)
+    print(f"[OK] PPTX 16:9 salvo: {out} ({out.stat().st_size:,} bytes)")

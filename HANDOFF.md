@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 12/11/2026 23:24
+- **Última Atualização:** 13/11/2026 18:55
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -22,7 +22,7 @@
   - *🎨 Apresentação Oficial Canva (Link de Edição)*: [Editar no Canva](https://www.canva.com/d/kmsPgwKET9-NfgG) (`https://www.canva.com/d/kmsPgwKET9-NfgG`)
   - *👁️ Apresentação Canva (Link de Visualização)*: [Ver no Canva](https://www.canva.com/d/NATNJypc5jdvYra)
   - *📥 Download Direto PPTX (Export Oficial Canva - 13.1 MB)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
-  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`, `slides_canva_sem2.html` e `roteiro_fala_aula_hoje_sem2.html`
+  - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\GrafoParada_Sem2_Roteiro.pptx`, `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`, `slides_canva_sem2.html` e `roteiro_fala_aula_hoje_sem2.html`
   - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment em Produção)
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Versões de Identidade Visual*:
@@ -34,6 +34,15 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0b. Entrega Oficial `sem2` · Medições Reais, Slides Minimalistas (1 Ideia/Slide) e Sincronização de Falha
+- [x] **Medição Reprodutível Sem Viés (`code/grafoparada_tec/medir_custo_sem2.py`)**:
+  - Imports movidos para fora da janela cronometrada/tracemalloc da FSM e adição de `get_process_rss_mb()` + treino determinístico de 25 épocas (`torch.manual_seed(42)`) antes do caso de falha no Nó 10 (Trevo de Ipojuca / PE-60).
+  - Números medidos reais em `AMD Ryzen 7 5700G` (`Windows 11`, `Python 3.12.15`, `PyTorch 2.14.1+cpu`): STGCN 20 nós CPU = **`0,96 ms`** (`0,86 s` treino 25 épocas, `324,7 MB` Working Set físico, `2,22 KB` heap na inferência); FSM V3 on-device = **`56,68 µs`** e **`11,02 KB`**; Falha de super-suavização = **`14,3 min`** previstos pela STGCN vs **`45,0 min`** no GPS bruto (`delta = 30,7 min > 15,0 min`, acionando `ALERTA_AMARELO_OVER_SMOOTHING`).
+- [x] **Sincronização do App Web, Slides 16:9 e Roteiro (`index.html`, `slides_sem2.html`, `GrafoParada_Sem2_Roteiro.pptx`, `va2/sem2.md`)**:
+  - `simulateSlide3Failure()` em `code/grafoparada_web/index.html` ajustado para `14,3*` (`14,3 min` vs `45,0 min`), espelhando exatamente a saída real da STGCN no repositório.
+  - `va2/slides_sem2.html` e `code/grafoparada_web/slides_sem2.html` enxugados para **1 ideia por slide e zero parágrafos**, compilados em Widescreen 16:9 como `GrafoParada_Sem2_Roteiro.pptx` (`va2/`, `code/grafoparada_web/` e `G:\Meu Drive\IA_Projetos\`).
+  - `va2/sem2.md` atualizado com os números reais vs `va2/flx.md`, separando fatos do repositório das **4 frases próprias do aluno** (Passo 1), **ensaio cético em conversa nova** (Passo 3) e **2 passadas cronometradas ao vivo** (Passo 4).
 
 ### 0. Redesign Progressivo GrafoParada 2.0 + Laya IA Inteligente (GTFS Real & Transições)
 - [x] **Fluxo Progressivo com Transições Suaves (`index.html`)**:
