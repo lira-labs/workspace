@@ -174,6 +174,60 @@ else:
     print(f"  [FAIL] Falha na autorização de despacho operacional CTM: {despacho}")
 
 # ------------------------------------------------------------------------------
+# PARTE 5: FLUXO DE TELAS PROGRESSIVO & INTELIGÊNCIA GTFS DA LAYA IA
+# ------------------------------------------------------------------------------
+print("\n--- [BLOCO 5/5] Fluxo de Telas Progressivo & Inteligência Laya IA (GTFS) ---")
+
+ui_flow_checks = [
+    ("Tela 1 Início Contextual ('Está indo trabalhar...')", "app-screen-home"),
+    ("Pergunta Contextual Direta", "Está indo trabalhar ou estudar hoje?"),
+    ("Tela 2 Localização Guiada ('Onde você está agora?')", "app-screen-locate"),
+    ("Tela 5 Central CTM & Pesquisa", "app-screen-central"),
+    ("Controlador de Transição Suave (navigateToScreen)", "function navigateToScreen("),
+]
+for nome, fragmento in ui_flow_checks:
+    total_testes += 1
+    if fragmento in html:
+        print(f"  [PASS] {nome}")
+        aprovados += 1
+    else:
+        print(f"  [FAIL] {nome} - Fragmento ausente: '{fragmento}'")
+
+import json
+import subprocess
+
+node_eval = """
+const fs = require('fs');
+global.window = {};
+eval(fs.readFileSync(process.argv[1], 'utf8'));
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const tripCamelaIpojuca = window.RealTransit.answerLayaQuery('Gostaria de sair de Camela até Ipojuca. Vamos lá?');
+const nextCamela = window.RealTransit.answerLayaQuery('Qual o horário do próximo ônibus de Camela');
+const aiKnow = window.RealTransit.answerLayaQuery('Como funciona a IA ST-GCN?');
+console.log(JSON.stringify({ tripCamelaIpojuca, nextCamela, aiKnow }));
+"""
+engine_js = ROOT / "code" / "grafoparada_web" / "real_transit_engine.js"
+gtfs_json = ROOT / "code" / "grafoparada_web" / "data" / "gtfs_real_network.json"
+node_res = subprocess.run(["node", "-e", node_eval, str(engine_js), str(gtfs_json)], capture_output=True, text=True, encoding="utf-8")
+
+total_testes += 1
+if node_res.returncode == 0:
+    out = json.loads(node_res.stdout.strip())
+    t1 = out["tripCamelaIpojuca"]
+    t2 = out["nextCamela"]
+    t3 = out["aiKnow"]
+    ok_trip = (t1.get("routeCode") == "199") and ("199" in t1.get("html", "")) and ("Ipojuca" in t1.get("html", "")) and ("522" not in t1.get("html", ""))
+    ok_next = (t2.get("routeCode") == "199") and ("Camela" in t2.get("html", "")) and ("522" not in t2.get("html", ""))
+    ok_ai = ("1,51 min" in t3.get("html", "")) and ("Kim et al." in t3.get("html", ""))
+    if ok_trip and ok_next and ok_ai:
+        print("  [PASS] Laya IA GTFS Router: Camela->Ipojuca (Linha 199/198), Próximo Ônibus Camela (Linha 199, zero 522) & Conhecimento ST-GCN OK")
+        aprovados += 1
+    else:
+        print(f"  [FAIL] Resposta inválida da Laya IA: trip={ok_trip}, next={ok_next}, ai={ok_ai}")
+else:
+    print(f"  [FAIL] Erro Node.js executando Laya IA: {node_res.stderr}")
+
+# ------------------------------------------------------------------------------
 # RESUMO FINAL
 # ------------------------------------------------------------------------------
 taxa = (aprovados / total_testes) * 100.0

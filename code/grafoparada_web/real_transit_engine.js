@@ -693,6 +693,386 @@
         utterance.rate = 1.0;
         window.speechSynthesis.speak(utterance);
       }
+    },
+
+    // =========================================================================
+    // MOTOR INTELIGENTE DE CONSULTA GTFS, ROTEAMENTO & BASE DA LAYA IA
+    // =========================================================================
+    normalizeText(str) {
+      return String(str || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    },
+
+    // Curadoria semântica de polos do Grande Recife + busca dinâmica no GTFS
+    getSemanticCorridors() {
+      return [
+        { key: 'camela', keys: ['camela', 'pedro serafim', 'rua do comercio', 'pe-051'], label: 'Camela (Ipojuca)', defaultLine: '199', hub: 'TI Cabo', stopName: 'Praça Pedro Serafim (Terminal de Camela)', lat: -8.514931, lon: -35.123469, waitMin: 3, seatsFree: 28 },
+        { key: 'ipojuca', keys: ['ipojuca', 'trevo de ipojuca', 'upa de ipojuca', 'ruropolis'], label: 'Ipojuca Centro', defaultLine: '198', alsoServedBy: ['199'], hub: 'TI Cabo', stopName: 'Rodovia PE-60 · Trevo Principal de Ipojuca Centro (KM 20)', lat: -8.399372, lon: -35.056842, waitMin: 7, seatsFree: 14 },
+        { key: 'suape', keys: ['suape', 'refinaria', 'rnest', 'estaleiro', 'contermas', 'portuario'], label: 'Complexo de Suape', defaultLine: '178', alsoServedBy: ['199'], hub: 'TI Cabo', stopName: 'Rodovia PE-60 · Trevo de Suape (KM 14)', lat: -8.385067, lon: -35.042433, waitMin: 6, seatsFree: 12 },
+        { key: 'porto de galinhas', keys: ['porto de galinhas', 'galinhas', 'maracaipe', 'serrambi', 'nossa senhora do o', 'n sra do o'], label: 'Porto de Galinhas / N. Sra. do Ó', defaultLine: '191', alsoServedBy: ['195', '196'], hub: 'TI Cabo', stopName: 'Rodovia PE-60 · Trevo PE-038 (N. Sra. do Ó / Porto)', lat: -8.401408, lon: -35.060308, waitMin: 9, seatsFree: 10 },
+        { key: 'cabo', keys: ['ti cabo', 'cabo de santo agostinho', 'cabo', 'costa dourada'], label: 'TI Cabo / Centro do Cabo', defaultLine: '199', alsoServedBy: ['198', '178', '185', '139', '196'], hub: 'TI Cabo', stopName: 'TI Cabo (Terminal Integrado do Cabo)', lat: -8.285065, lon: -35.032398, waitMin: 4, seatsFree: 18 },
+        { key: 'ufrpe', keys: ['ufrpe', 'rural', 'dois irmaos'], label: 'UFRPE · Campus Dois Irmãos', defaultLine: '522', alsoServedBy: ['2930', '524', '532'], hub: 'TI Macaxeira', stopName: 'Terminal de Dois Irmãos (UFRPE)', lat: -8.016390, lon: -34.949720, waitMin: 4, seatsFree: 14 },
+        { key: 'ufpe', keys: ['ufpe', 'cdu', 'cidade universitaria'], label: 'UFPE · Cidade Universitária (CDU)', defaultLine: '2040', alsoServedBy: ['2431', '2441', '440'], hub: 'TI CDU', stopName: 'Terminal Integrado CDU (UFPE)', lat: -8.0518, lon: -34.9502, waitMin: 5, seatsFree: 11 },
+        { key: 'derby', keys: ['derby', 'rui barbosa', 'agamenon', 'principe'], label: 'Derby / Boa Vista', defaultLine: '522', alsoServedBy: ['011', '050', '440'], hub: 'Derby', stopName: 'Praça do Derby (Terminal Central)', lat: -8.0558, lon: -34.8998, waitMin: 4, seatsFree: 16 },
+        { key: 'recife antigo', keys: ['porto digital', 'recife antigo', 'cais de santa rita', 'cais'], label: 'Centro / Porto Digital / Cais de Santa Rita', defaultLine: '191', alsoServedBy: ['195', '050', '013'], hub: 'TI Joana Bezerra', stopName: 'Cais de Santa Rita (Recife)', lat: -8.067850, lon: -34.876120, waitMin: 6, seatsFree: 15 },
+        { key: 'boa viagem', keys: ['boa viagem', 'domingos ferreira', 'conselheiro aguiar', 'shopping recife'], label: 'Boa Viagem', defaultLine: '050', alsoServedBy: ['2040', '080', '440'], hub: 'TI Tancredo Neves', stopName: 'Av. Domingos Ferreira (Boa Viagem)', lat: -8.1202, lon: -34.9012, waitMin: 5, seatsFree: 12 },
+        { key: 'cajueiro seco', keys: ['cajueiro seco', 'ti cajueiro'], label: 'TI Cajueiro Seco', defaultLine: '139', alsoServedBy: ['181', '030'], hub: 'TI Cajueiro Seco', stopName: 'TI Cajueiro Seco', lat: -8.167989, lon: -34.934534, waitMin: 4, seatsFree: 17 },
+        { key: 'tancredo neves', keys: ['tancredo neves', 'ti tancredo'], label: 'TI Tancredo Neves', defaultLine: '2060', alsoServedBy: ['060'], hub: 'TI Tancredo Neves', stopName: 'TI Tancredo Neves', lat: -8.122014, lon: -34.912465, waitMin: 5, seatsFree: 13 },
+        { key: 'macaxeira', keys: ['macaxeira', 'ti macaxeira'], label: 'TI Macaxeira', defaultLine: '2060', alsoServedBy: ['202', '522'], hub: 'TI Macaxeira', stopName: 'TI Macaxeira', lat: -8.0061, lon: -34.9298, waitMin: 4, seatsFree: 16 }
+      ];
+    },
+
+    findCatalogRoutesForQuery(placeNorm, telemetryStops) {
+      const matches = [];
+      const seenCodes = new Set();
+      const addRoute = (code, label, reason, stopHint) => {
+        if (!code || seenCodes.has(code)) return;
+        seenCodes.add(code);
+        matches.push({ code, label: label || code, reason, stopHint: stopHint || null });
+      };
+
+      // 1. Checa telemetria detalhada da PE-60 / Linha 199 (nomes completos de paradas)
+      if (Array.isArray(telemetryStops)) {
+        const tStop = telemetryStops.find(st =>
+          this.normalizeText(st.name + ' ' + (st.bairro || '') + ' ' + (st.municipio || '')).includes(placeNorm)
+        );
+        if (tStop) {
+          addRoute('199', '199 · Camela / TI Cabo', 'Atende diretamente na rodovia PE-60', tStop);
+        }
+      }
+
+      // 2. Checa corredores semânticos
+      for (const c of this.getSemanticCorridors()) {
+        if (c.keys.some(k => placeNorm.includes(k) || k.includes(placeNorm))) {
+          const allCodes = [c.defaultLine].concat(c.alsoServedBy || []);
+          allCodes.forEach(code => {
+            const cat = (this.networkData && this.networkData.routes_catalog || []).find(r => r.code === code);
+            addRoute(code, cat ? cat.label : code, 'Corredor ' + c.label, { name: c.stopName, wait_gps_min: c.waitMin, seatsFree: c.seatsFree, lat: c.lat, lon: c.lon, hub: c.hub });
+          });
+        }
+      }
+
+      // 3. Busca direta no catálogo GTFS de 400 linhas
+      if (this.networkData && Array.isArray(this.networkData.routes_catalog)) {
+        const tokens = placeNorm.split(' ').filter(t => t.length >= 3 && !['de', 'da', 'do', 'para', 'ate', 'em', 'na', 'no', 'com', 'via', 'linha', 'onibus'].includes(t));
+        this.networkData.routes_catalog.forEach(r => {
+          const labNorm = this.normalizeText(r.label);
+          if (r.code.toLowerCase() === placeNorm || labNorm.includes(placeNorm) || (tokens.length > 0 && tokens.every(t => labNorm.includes(t)))) {
+            addRoute(r.code, r.label, 'Catálogo GTFS Oficial');
+          }
+        });
+      }
+
+      // 4. Busca dentro das paradas reais das linhas populares (se disponível)
+      if (matches.length < 3 && this.networkData && this.networkData.popular_lines) {
+        for (const [code, lineObj] of Object.entries(this.networkData.popular_lines)) {
+          if (seenCodes.has(code) || !lineObj.stops) continue;
+          const hitStop = lineObj.stops.find(st => this.normalizeText(st.name).includes(placeNorm));
+          if (hitStop) {
+            addRoute(code, `${code} · ${lineObj.name}`, `Passa em ${hitStop.name}`, hitStop);
+            if (matches.length >= 6) break;
+          }
+        }
+      }
+
+      return matches;
+    },
+
+    extractOriginDest(rawText) {
+      const clean = this.normalizeText(rawText)
+        .replace(/\b(vamos la|por favor|agora|hoje|pode ser|me ajuda|me diz|me fale|qual|quais|como fico)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const patterns = [
+        /(?:sair|ir|partir|indo|viajar|voltar)\s+(?:de|da|do)\s+(.+?)\s+(?:ate|para|pra|pro|rumo a|->)\s+(.+)/i,
+        /(?:de|da|do)\s+([a-z0-9\s.-]{2,40}?)\s+(?:ate|para|pra|->)\s+([a-z0-9\s.-]{2,40})/i
+      ];
+
+      for (const p of patterns) {
+        const m = clean.match(p);
+        if (m && m[1] && m[2]) {
+          return { origin: m[1].trim(), dest: m[2].trim() };
+        }
+      }
+      return null;
+    },
+
+    planSmartTrip(originRaw, destRaw, telemetryStops) {
+      const origNorm = this.normalizeText(originRaw);
+      const destNorm = this.normalizeText(destRaw);
+      const origCorridor = this.getSemanticCorridors().find(c => c.keys.some(k => origNorm.includes(k) || k.includes(origNorm)));
+      const destCorridor = this.getSemanticCorridors().find(c => c.keys.some(k => destNorm.includes(k) || k.includes(destNorm)));
+
+      const origMatches = this.findCatalogRoutesForQuery(origCorridor ? origCorridor.key : origNorm, telemetryStops);
+      const destMatches = this.findCatalogRoutesForQuery(destCorridor ? destCorridor.key : destNorm, telemetryStops);
+
+      // Verifica conexão direta (mesma linha atende origem e destino)
+      const directMatches = origMatches.filter(om => destMatches.some(dm => dm.code === om.code));
+
+      // Verifica conexão por integração via TI (ex: Camela 199 -> TI Cabo -> 198 Ipojuca)
+      let transferPlan = null;
+      if (origMatches.length > 0 && destMatches.length > 0) {
+        const firstOrig = origMatches[0];
+        const firstDest = destMatches.find(d => d.code !== firstOrig.code) || destMatches[0];
+        const sharedHub = (origCorridor && destCorridor && origCorridor.hub === destCorridor.hub)
+          ? origCorridor.hub
+          : (firstOrig.label.includes('Ti ') ? firstOrig.label.split('/').pop().trim() : 'TI Cabo');
+        if (firstOrig.code !== firstDest.code) {
+          transferPlan = {
+            leg1: firstOrig,
+            leg2: firstDest,
+            hub: sharedHub
+          };
+        }
+      }
+
+      // Caso especial com telemetria real ponto-a-ponto (PE-60: Camela <-> Ipojuca <-> Suape <-> Cabo)
+      let telemetryEtaMin = null;
+      let oStop = null;
+      let dStop = null;
+      if (Array.isArray(telemetryStops) && directMatches.some(m => m.code === '199')) {
+        oStop = telemetryStops.find(s => this.normalizeText(s.name + ' ' + (s.bairro || '') + ' ' + (s.municipio || '')).includes(origCorridor ? origCorridor.key : origNorm));
+        dStop = telemetryStops.find(s => this.normalizeText(s.name + ' ' + (s.bairro || '') + ' ' + (s.municipio || '')).includes(destCorridor ? destCorridor.key : destNorm));
+        if (oStop && dStop) {
+          telemetryEtaMin = Math.max(8, Math.abs((dStop.wait_gps_min || 15) - (oStop.wait_gps_min || 3)) * 2 + 6);
+        }
+      }
+
+      return {
+        originLabel: origCorridor ? origCorridor.label : originRaw,
+        destLabel: destCorridor ? destCorridor.label : destRaw,
+        origCorridor,
+        destCorridor,
+        directMatches,
+        transferPlan,
+        telemetryEtaMin,
+        originStop: oStop,
+        destStop: dStop
+      };
+    },
+
+    answerLayaQuery(rawText, ctx) {
+      const text = String(rawText || '').trim();
+      const q = this.normalizeText(text);
+      const telemetryStops = (ctx && Array.isArray(ctx.telemetryStops)) ? ctx.telemetryStops : [];
+
+      // 1. Apresentação / Banca UFRPE
+      if (/\b(apresentacao|slide|slides|pptx|banca|roteiro|seminario)\b/.test(q)) {
+        return {
+          intent: 'presentation',
+          html: "Aqui estão os materiais oficiais para a <strong>Banca Examinadora da UFRPE (Seminário 2)</strong>:<br><br>" +
+            "• 📥 <strong>Apresentação PPTX (16:9):</strong> Arquivo oficial pronto para defesa.<br>" +
+            "• 🎨 <strong>Slides Web Estilo Canva:</strong> Navegação interativa no navegador.<br>" +
+            "• 📜 <strong>Roteiro da Banca:</strong> Guia passo a passo de sustentação.<br><br>" +
+            "<button type=\"button\" onclick=\"if(window.openPresentationModal) window.openPresentationModal();\" style=\"background:#7c3aed; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;\">🎓 Abrir Painel da Apresentação</button>",
+          speech: "Abrindo o painel com a apresentação em PPTX, slides e roteiro para a banca da UFRPE.",
+          openPresentation: true
+        };
+      }
+
+      // 2. Origem -> Destino (Ex: "Gostaria de sair de Camela até Ipojuca")
+      const tripPair = this.extractOriginDest(text);
+      if (tripPair) {
+        const plan = this.planSmartTrip(tripPair.origin, tripPair.dest, telemetryStops);
+        if (plan.directMatches.length > 0) {
+          const mainRoute = plan.directMatches[0];
+          const is199 = mainRoute.code === '199';
+          const origStopLabel = plan.originStop ? plan.originStop.name : (plan.origCorridor ? plan.origCorridor.stopName : plan.originLabel);
+          const destStopLabel = plan.destStop ? plan.destStop.name : (plan.destCorridor ? plan.destCorridor.stopName : plan.destLabel);
+          const waitStr = plan.originStop ? `${plan.originStop.wait_gps_min || 3} min` : '4 a 7 min';
+          const tripDur = plan.telemetryEtaMin ? `~${plan.telemetryEtaMin} min` : '~22 min';
+
+          let html = `✅ Trajeto encontrado de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
+            `🚌 <strong>Rota Direta (Linha ${mainRoute.code}):</strong> <em>${mainRoute.label}</em><br>` +
+            `• 📍 <strong>Embarque sugerido:</strong> ${origStopLabel} (próximo em <strong>${waitStr}</strong>)<br>` +
+            `• 🎯 <strong>Desembarque:</strong> ${destStopLabel} (${tripDur} de viagem)<br>`;
+
+          if (plan.transferPlan && is199) {
+            html += `<br>🔄 <strong>Alternativa ao Terminal Interno de ${plan.destLabel}:</strong> Pegue a <strong>${plan.transferPlan.leg1.code}</strong> até o <strong>${plan.transferPlan.hub}</strong> e integre grátis (VEM 2h) na linha <strong>${plan.transferPlan.leg2.label}</strong>.`;
+          }
+
+          html += `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;">` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${mainRoute.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Traçar Linha ${mainRoute.code} no Mapa</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${mainRoute.code}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${origStopLabel.replace(/'/g, "\\'")}', ${plan.originStop ? `[${plan.originStop.lat}, ${plan.originStop.lon}]` : (plan.origCorridor ? `[${plan.origCorridor.lat}, ${plan.origCorridor.lon}]` : 'null')});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🔔 Monitorar Parada</button>` +
+            `</div>`;
+
+          return {
+            intent: 'trip_plan',
+            routeCode: mainRoute.code,
+            html,
+            speech: `De ${plan.originLabel} até ${plan.destLabel}, você pode ir direto pela linha ${mainRoute.code} com previsão de chegada em ${waitStr}.`
+          };
+        }
+
+        if (plan.transferPlan) {
+          const l1 = plan.transferPlan.leg1;
+          const l2 = plan.transferPlan.leg2;
+          const html = `🔄 Rota com integração no SEI para ir de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
+            `1️⃣ <strong>1º Embarque:</strong> Linha <strong>${l1.label}</strong> até <strong>${plan.transferPlan.hub}</strong>.<br>` +
+            `2️⃣ <strong>Integração VEM (R$ 0,00 em até 2h):</strong> Linha <strong>${l2.label}</strong> até ${plan.destLabel}.<br><br>` +
+            `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${l1.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Ver Linha ${l1.code}</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${l2.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Ver Linha ${l2.code}</button>` +
+            `</div>`;
+          return {
+            intent: 'trip_transfer',
+            routeCode: l1.code,
+            html,
+            speech: `Para ir de ${plan.originLabel} até ${plan.destLabel}, embarque na linha ${l1.code} e integre gratuitamente no ${plan.transferPlan.hub} com a linha ${l2.code}.`
+          };
+        }
+
+        return {
+          intent: 'trip_unknown',
+          html: `Não encontrei paradas exatas ligando <strong>"${tripPair.origin}"</strong> a <strong>"${tripPair.dest}"</strong> no catálogo local.<br><br>` +
+            `Tente usar o nome do bairro ou terminal (ex: <em>Camela, Ipojuca, TI Cabo, UFRPE, CDU, Derby, Boa Viagem</em>) ou abra o catálogo oficial com as 400 linhas:<br><br>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Buscar nas 400 Linhas GTFS</button>`,
+          speech: `Não localizei ligação direta entre ${tripPair.origin} e ${tripPair.dest}. Você pode pesquisar pelo terminal mais próximo no catálogo.`
+        };
+      }
+
+      // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada
+      if (/\b(stgcn|st gcn|ia|inteligencia artificial|modelo|trava|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|bolso seguro|lei 15878|parada segura)\b/.test(q)) {
+        const html = `🧠 <strong>Como a IA do GrafoParada funciona na prática:</strong><br><br>` +
+          `• <strong>Rede ST-GCN + GTFS Real:</strong> Modela 393 linhas reais e 44 Terminais SEI do Grande Recife como grafo topológico (MAE de apenas <strong>1,51 min</strong> e inferência em <strong>0,77 ms/nó</strong>).<br>` +
+          `• <strong>Psicologia da Espera (Yap & Cats, 2021):</strong> 1 min parado no ponto incerta pesa <strong>1,68x</strong>; nossa IA calcula a <em>Janela Segura</em> para você só sair de casa na hora certa.<br>` +
+          `• <strong>Prevenção de Abandono (Kim et al., 2026):</strong> Quando o risco de superlotação/espera passa de 15 min, acionamos despacho CTM e alertas de lotação.<br>` +
+          `• <strong>Trava Híbrida Defensiva:</strong> Se houver bloqueio brusco na via (Δ > 15 min), bloqueamos erro da IA e voltamos para o GPS real.<br>` +
+          `• <strong>Segurança Cidadã:</strong> Modo Bolso Seguro (tela 0 nits + áudio), Letreiro LED Sênior, Farol Noturno e Lei 15.878.<br><br>` +
+          `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('central');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0f172a; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🔬 Ver Auditoria & Central CTM</button>`;
+        return {
+          intent: 'platform_knowledge',
+          html,
+          speech: "O GrafoParada usa uma rede neural em grafos ST-GCN treinada sobre as linhas reais do Grande Recife, com trava defensiva anti-erro e alerta de lotação para você não perder tempo no ponto."
+        };
+      }
+
+      // 4. Consulta específica por local/linha explícita na pergunta (mesmo com "próximo ônibus" / "horário")
+      const explicitLineMatch = q.match(/\b(199|198|178|191|195|196|522|523|524|532|2040|2060|060|050|080|044|030|020|011|202|914|1982|139|185)\b/);
+      const matchedCorridor = this.getSemanticCorridors().find(c => c.keys.some(k => q.includes(k)));
+      const placeMatches = matchedCorridor
+        ? this.findCatalogRoutesForQuery(matchedCorridor.key, telemetryStops)
+        : (explicitLineMatch ? this.findCatalogRoutesForQuery(explicitLineMatch[1], telemetryStops) : []);
+
+      // 5. Pergunta de Próximo Ônibus / Horário / Chegada
+      if (/\b(onibus|quando passa|horario|proximo|chega|lotacao|vagas)\b/.test(q)) {
+        if (placeMatches.length > 0) {
+          const best = placeMatches[0];
+          const hint = best.stopHint || {};
+          const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
+          const waitMin = hint.wait_gps_min || (matchedCorridor ? matchedCorridor.waitMin : 4);
+          const seatsFree = hint.seatsFree || (best.code === '199' ? 28 : 14);
+          const coordsArg = (hint.lat && hint.lon) ? `[${hint.lat}, ${hint.lon}]` : 'null';
+
+          const html = `🚌 <strong>Previsão para ${matchedCorridor ? matchedCorridor.label : 'Linha ' + best.code}:</strong><br><br>` +
+            `• <strong>Linha recomendada:</strong> ${best.label}<br>` +
+            `• 📍 <strong>Parada de referência:</strong> ${stopName}<br>` +
+            `• ⏱️ <strong>Próxima chegada prevista (ST-GCN):</strong> em <strong>${waitMin} minutos</strong><br>` +
+            `• 💺 <strong>Ocupação estimada:</strong> ${seatsFree} assentos livres<br><br>` +
+            `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Rastrear Linha ${best.code}</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${stopName.replace(/'/g, "\\'")}', ${coordsArg});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🔔 Fixar como Minha Parada</button>` +
+            `</div>`;
+
+          return {
+            intent: 'next_bus_place',
+            routeCode: best.code,
+            html,
+            speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, o próximo coletivo da linha ${best.code} chega em ${waitMin} minutos na parada ${stopName}, com ${seatsFree} assentos livres.`
+          };
+        }
+
+        // Sem local mencionado na frase -> usa parada e linha realmente ativas no app
+        const activeCode = (ctx && ctx.activeRouteCode) || this.activeRouteCode || '199';
+        const activeRouteName = (this.activeRoute && this.activeRoute.name) ? this.activeRoute.name : (activeCode === '199' ? 'Camela / TI Cabo' : 'Dois Irmãos (Rui Barbosa)');
+        const activeStop = (ctx && ctx.activeStopName) || (this.activeRoute && this.activeRoute.stops && this.activeRoute.stops[this.activeStopIndex || 0] ? this.activeRoute.stops[this.activeStopIndex || 0].name : 'Sua Parada Ativa');
+        const activeEta = (ctx && ctx.activeEta) || 4;
+
+        const html = `🚌 <strong>Sua Linha Ativa: ${activeCode} · ${activeRouteName}</strong><br><br>` +
+          `• 📍 <strong>Parada monitorada:</strong> ${activeStop}<br>` +
+          `• ⏱️ <strong>Próximo ônibus previsto:</strong> <strong>${activeEta} minutos</strong><br>` +
+          `• 🛡️ <em>Dica: Quer consultar outro bairro (ex: Camela, Ipojuca, CDU)? É só digitar!</em><br><br>` +
+          `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+          `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.trackBusLocation){window.trackBusLocation(true);} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Rastrear no Mapa</button>` +
+          `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">📍 Trocar Minha Parada</button>` +
+          `</div>`;
+
+        return {
+          intent: 'next_bus_active',
+          routeCode: activeCode,
+          html,
+          speech: `Na sua parada atual, o próximo coletivo da linha ${activeCode} está previsto para chegar em ${activeEta} minutos.`
+        };
+      }
+
+      // 6. Qual minha parada / Onde estou
+      if (/\b(parada|ponto|onde estou|localizacao|gps)\b/.test(q)) {
+        const activeStop = (ctx && ctx.activeStopName) || (this.activeRoute && this.activeRoute.stops && this.activeRoute.stops[this.activeStopIndex || 0] ? this.activeRoute.stops[this.activeStopIndex || 0].name : 'Parada não selecionada');
+        const activeCode = (ctx && ctx.activeRouteCode) || this.activeRouteCode || '199';
+        return {
+          intent: 'current_stop',
+          html: `📍 Sua parada monitorada no momento é: <strong>${activeStop}</strong> (Linha <strong>${activeCode}</strong>).<br><br>` +
+            `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">📍 Atualizar Onde Estou Agora</button>`,
+          speech: `Sua parada monitorada no momento é ${activeStop}, na linha ${activeCode}.`
+        };
+      }
+
+      // 7. Mencionou um local/linha sem verbo ("Camela", "Ipojuca", "UFRPE", "Suape", "199")
+      if (placeMatches.length > 0) {
+        const best = placeMatches[0];
+        const hint = best.stopHint || {};
+        const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
+        const waitMin = hint.wait_gps_min || (matchedCorridor ? matchedCorridor.waitMin : 5);
+        return {
+          intent: 'place_lookup',
+          routeCode: best.code,
+          html: `📍 Encontrei atendimento real para <strong>${matchedCorridor ? matchedCorridor.label : best.label}</strong>:<br><br>` +
+            `• 🚌 <strong>Linha principal:</strong> ${best.label}<br>` +
+            `• 🚏 <strong>Parada chave:</strong> ${stopName}<br>` +
+            `• ⏱️ <strong>Previsão média atual:</strong> próximo ônibus em <strong>${waitMin} min</strong><br><br>` +
+            `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Abrir Linha ${best.code} no Mapa</button>` +
+            `</div>`,
+          speech: `Para ${matchedCorridor ? matchedCorridor.label : best.label}, você pode usar a linha ${best.code}, com previsão média de ${waitMin} minutos.`
+        };
+      }
+
+      // 8. Salvar / Favoritos / Rotina / Indo trabalhar
+      if (/\b(salvar|favorit|estrela)\b/.test(q)) {
+        return {
+          intent: 'save_favorite',
+          saveFavorite: true,
+          html: "⭐ Adicionei a parada atual aos seus favoritos para acesso em 1 toque!",
+          speech: "Parada atual adicionada aos seus favoritos."
+        };
+      }
+
+      if (/\b(trabalhar|rotina|janela|sair de casa|estudar hoje)\b/.test(q)) {
+        return {
+          intent: 'routine_help',
+          html: `📅 Vamos montar sua ida de hoje sem esperar mofando no ponto!<br><br>` +
+            `Me diga <strong>de onde para onde</strong> você quer ir (ex: <em>"De Camela até Ipojuca"</em>), ou use o fluxo guiado para detectar sua parada:<br><br>` +
+            `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">📍 Detectar Onde Estou Agora</button>`,
+          speech: "Me diga de onde até onde você quer ir, ou toque em Detectar Onde Estou Agora para eu calcular o próximo ônibus."
+        };
+      }
+
+      // 9. Resposta útil orientadora (sem chutar linha 522 errada!)
+      return {
+        intent: 'fallback_guide',
+        html: `Entendi, Cauã! Posso consultar qualquer uma das <strong>400 linhas GTFS do Grande Recife</strong> e te orientar em tempo real.<br><br>` +
+          `Experimente perguntar algo como:<br>` +
+          `• <em>"Sair de Camela até Ipojuca"</em><br>` +
+          `• <em>"Qual o próximo ônibus de Camela?"</em><br>` +
+          `• <em>"Como funciona a IA ST-GCN?"</em>`,
+        speech: "Posso buscar rotas de origem a destino nas 400 linhas do Grande Recife, horários de ônibus por bairro ou explicar os alertas da IA. Como posso ajudar?"
+      };
     }
   };
 

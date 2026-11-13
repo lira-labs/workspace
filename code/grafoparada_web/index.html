@@ -1570,6 +1570,287 @@
       background: #1e293b;
     }
 
+    /* =====================================================================
+       GRAFOPARADA 2.0: FLUXO PROGRESSIVO DE TELAS COM TRANSICOES SUAVES
+       ===================================================================== */
+    .btn-floating-laya {
+      display: none !important;
+    }
+
+    .app-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 60px;
+      z-index: 1003;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px 18px 26px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(26px, 0, 0);
+      transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1), transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .app-screen.screen-active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .app-screen.screen-exit-left {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(-26px, 0, 0);
+    }
+
+    @media (min-width: 601px) {
+      .app-screen {
+        padding-top: 42px;
+      }
+    }
+
+    .screen-header-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      gap: 10px;
+    }
+
+    .screen-back-btn {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #0f172a;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+    .screen-back-btn:active {
+      transform: scale(0.96);
+      background: #f1f5f9;
+    }
+
+    .home-brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 800;
+      width: fit-content;
+    }
+
+    .home-hero-title {
+      font-size: 25px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.18;
+      letter-spacing: -0.025em;
+      margin: 14px 0 8px;
+    }
+
+    .home-hero-sub {
+      font-size: 13.5px;
+      color: #475569;
+      line-height: 1.48;
+      margin-bottom: 22px;
+    }
+
+    .intent-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .intent-card {
+      width: 100%;
+      border-radius: 18px;
+      padding: 16px 16px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: inherit;
+      transition: transform 0.14s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      border: 1.5px solid #e2e8f0;
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+    .intent-card:active {
+      transform: scale(0.985);
+    }
+    .intent-card.intent-primary {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border-color: #047857;
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(5, 150, 105, 0.24);
+    }
+    .intent-card.intent-primary .intent-desc {
+      color: rgba(255, 255, 255, 0.88);
+    }
+    .intent-card.intent-ai {
+      background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%);
+      border-color: #bae6fd;
+    }
+    .intent-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .intent-card:not(.intent-primary) .intent-icon-box {
+      background: #f1f5f9;
+    }
+    .intent-card.intent-ai .intent-icon-box {
+      background: #e0f2fe;
+    }
+    .intent-title {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 2px;
+    }
+    .intent-desc {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.35;
+    }
+
+    .home-context-strip {
+      margin-top: 20px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .locate-preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 12px;
+    }
+    .locate-preset-btn {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+    }
+    .locate-preset-btn:hover, .locate-preset-btn.selected {
+      border-color: #059669;
+      background: #ecfdf5;
+    }
+    .locate-preset-btn:active {
+      transform: scale(0.97);
+    }
+
+    .locate-preview-card {
+      margin-top: 16px;
+      background: #ffffff;
+      border: 1.5px solid #a7f3d0;
+      border-radius: 18px;
+      padding: 15px;
+      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.10);
+    }
+
+    .central-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* LIMPEZA DO RADAR (TELA 3) & DO MODAL LAYA */
+    .top-floating-bar {
+      top: 10px;
+    }
+    @media (min-width: 601px) {
+      .top-floating-bar {
+        top: 38px;
+      }
+    }
+
+    #modal-laya .modal-card {
+      height: min(640px, 86dvh) !important;
+      max-height: 86dvh !important;
+      max-width: 420px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    #laya-chat-history {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow-y: auto !important;
+      padding: 14px 14px 20px !important;
+      scroll-behavior: smooth;
+    }
+    #laya-chat-input {
+      font-size: 13px !important;
+      padding: 9px 12px !important;
+      min-width: 0;
+    }
+
+    /* DESKTOP BAR MAIS LIMPO (SO ESSENCIAL NO TOPO) */
+    .desktop-outer-bar .btn-desktop-extra,
+    .desktop-outer-bar button[onclick*="openLostHelpModal"],
+    .desktop-outer-bar button[onclick*="openSeiTerminalsModal"],
+    .desktop-outer-bar button[onclick*="openVemModal"],
+    .desktop-outer-bar button[onclick*="openDispatchModal"],
+    .desktop-outer-bar button[onclick*="openRoutineModal"],
+    .desktop-outer-bar button[onclick*="logoutAndRestart"],
+    .desktop-outer-bar button[onclick*="toggleVoiceMute"],
+    .desktop-outer-bar button[onclick*="openAuditModal"] {
+      display: none !important;
+    }
+
+    /* TELA 3 (MAPA) DESPOLUIDA NO TOPO */
+    .top-floating-bar #badge-routine-status,
+    .top-floating-bar .top-pill[onclick*="openProfileModal"],
+    .top-floating-bar .top-pill[onclick*="openPresentationModal"],
+    .top-floating-bar .top-pill[onclick*="openDispatchModal"] {
+      display: none !important;
+    }
+
+    .map-floating-controls button[onclick*="zoomMapIn"],
+    .map-floating-controls button[onclick*="zoomMapOut"],
+    .map-floating-controls button[onclick*="openLayaModal"] {
+      display: none !important;
+    }
+
   </style>
 </head>
 <body>
@@ -1781,13 +2062,13 @@
             </div>
 
             <!-- LIVE ARRIVAL AT CURRENT STOP (ETA IMEDIATO & VOZ) -->
-            <div style="background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
               <div>
-                <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em;">
-                  🚌 Próximo Ônibus Linha 522:
+                <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em;" id="resting-line-prefix">
+                  🚌 Próximo Ônibus:
                 </div>
                 <div style="font-size:14.5px; font-weight:800; color:#065f46; margin-top:1px;">
-                  Chega em <span id="resting-eta-val">4</span> min <span style="font-size:11px; font-weight:600; color:#047857;">(06:14)</span>
+                  Chega em <span id="resting-eta-val">4</span> min <span style="font-size:11px; font-weight:600; color:#047857;">(Previsão ST-GCN)</span>
                 </div>
               </div>
               <div style="display:flex; gap:6px; align-items:center;">
@@ -1801,50 +2082,59 @@
             </div>
           </div>
 
-          <!-- CARD ROTINA PENDULAR INTELIGENTE -->
-          <div class="routine-commute-card" onclick="openRoutineModal()">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:15px;">📅</span>
-                <span style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Universitária</span>
+          <!-- CONTEÚDO SECUNDÁRIO EXPANSÍVEL (EVITA POLUIÇÃO VISUAL NA TELA DO MAPA) -->
+          <details id="resting-extra-tools" style="background:#ffffff; border:1px solid var(--border-color); border-radius:14px; padding:8px 12px; margin-bottom:8px;">
+            <summary style="font-size:12px; font-weight:800; color:#334155; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
+              <span>📅 Rotina, Atalhos Rápidos & Ajuda no Ponto</span>
+              <span style="font-size:10.5px; color:#059669;">Expandir ▾</span>
+            </summary>
+            <div style="margin-top:10px;">
+              <!-- CARD ROTINA PENDULAR INTELIGENTE -->
+              <div class="routine-commute-card" onclick="openRoutineModal()">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:15px;">📅</span>
+                    <span style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Diária</span>
+                  </div>
+                  <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">Rotina Ativa · 07h00</span>
+                </div>
+                <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:5px;" id="routine-title-desc">
+                  Camela Centro ➔ Ipojuca / TI Cabo (Linha 199)
+                </div>
+                <div style="font-size:11px; color:#475569; margin-top:3px; line-height:1.35;" id="routine-advice-desc">
+                  💡 <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia às <strong>06:09</strong> para pegar o coletivo das 06:14 sem mofar no ponto.
+                </div>
+                <div style="font-size:10.5px; color:#059669; font-weight:700; margin-top:4px;">
+                  👥 Rede conectada com 400 linhas reais e Terminais do Grande Recife.
+                </div>
               </div>
-              <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">UFRPE Ativa · 07h00</span>
-            </div>
-            <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:5px;" id="routine-title-desc">
-              Campus Dois Irmãos (UFRPE ➔ Derby / Centro)
-            </div>
-            <div style="font-size:11px; color:#475569; margin-top:3px; line-height:1.35;" id="routine-advice-desc">
-              💡 <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia às <strong>06:09</strong> para pegar o coletivo das 06:14 sem mofar no ponto.
-            </div>
-            <div style="font-size:10.5px; color:#059669; font-weight:700; margin-top:4px;">
-              👥 Rede conectada com 400 linhas reais e Terminais do Grande Recife.
-            </div>
-          </div>
 
-          <!-- 2 GIANT 1-TAP CARDS -->
-          <div class="travel-cards-row">
-            <button class="travel-card active-home" onclick="triggerTripAction('home')">
-              <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
-              <div class="travel-card-subtitle" id="home-card-sub">Derby / Rui Barbosa · 4 min</div>
-            </button>
+              <!-- 2 GIANT 1-TAP CARDS -->
+              <div class="travel-cards-row">
+                <button class="travel-card active-home" onclick="triggerTripAction('home')">
+                  <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
+                  <div class="travel-card-subtitle" id="home-card-sub">Camela · 4 min</div>
+                </button>
 
-            <button class="travel-card active-work" onclick="triggerTripAction('work')">
-              <div class="travel-card-title"><span>🎓</span> Campus UFRPE</div>
-              <div class="travel-card-subtitle" id="work-card-sub">Dois Irmãos · 22 min</div>
-            </button>
-          </div>
+                <button class="travel-card active-work" onclick="triggerTripAction('work')">
+                  <div class="travel-card-title"><span>💼</span> Trabalho / Estudo</div>
+                  <div class="travel-card-subtitle" id="work-card-sub">TI Cabo / UFRPE · 22 min</div>
+                </button>
+              </div>
 
-          <!-- LOST PERSON ASSISTANCE BUTTON -->
-          <div class="lost-help-card" onclick="openLostHelpModal()">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:20px;">🧭</span>
-              <div>
-                <div style="font-size:12.5px; font-weight:800; color:var(--danger-red);">Primeira vez aqui ou perdido?</div>
-                <div style="font-size:11px; color:var(--text-secondary);">Guia anti-pânico de plataforma e segurança</div>
+              <!-- LOST PERSON ASSISTANCE BUTTON -->
+              <div class="lost-help-card" onclick="openLostHelpModal()">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:20px;">🧭</span>
+                  <div>
+                    <div style="font-size:12.5px; font-weight:800; color:var(--danger-red);">Primeira vez aqui ou perdido?</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">Guia anti-pânico de plataforma e segurança</div>
+                  </div>
+                </div>
+                <span style="font-size:14px; font-weight:800; color:var(--danger-red);">➔</span>
               </div>
             </div>
-            <span style="font-size:14px; font-weight:800; color:var(--danger-red);">➔</span>
-          </div>
+          </details>
         </div>
 
         <!-- STATE B: ACTIVE ROUTE / BUS WAITING VIEW -->
@@ -2978,71 +3268,293 @@
       </div>
     </div>
 
-    <!-- 17. MODAL CONVERSACIONAL LAYA (ASSISTENTE IA POR VOZ E TEXTO) -->
+    <!-- 17. MODAL CONVERSACIONAL LAYA (ASSISTENTE IA INTELIGENTE + GTFS) -->
     <div id="modal-laya" class="modal-overlay" style="display:none; z-index:1100;">
-      <div class="modal-card" style="max-height:86vh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:440px;">
+      <div class="modal-card" style="height:min(640px, 86dvh); max-height:86dvh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:420px;">
         <!-- LAYA HEADER -->
-        <div style="background:linear-gradient(135deg, #0284c7 0%, #059669 100%); color:#ffffff; padding:16px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="background:linear-gradient(135deg, #0284c7 0%, #059669 100%); color:#ffffff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
           <div style="display:flex; align-items:center; gap:10px;">
             <div class="laya-avatar-mini" style="font-size:18px; border:2px solid #ffffff;">✨</div>
             <div>
               <div style="font-weight:800; font-size:15px; display:flex; align-items:center; gap:6px;">
                 Laya IA
-                <span style="font-size:10px; background:rgba(255,255,255,0.25); padding:2px 7px; border-radius:999px;">Voz & Rotinas</span>
+                <span style="font-size:10px; background:rgba(255,255,255,0.22); padding:2px 8px; border-radius:999px;">GTFS + ST-GCN</span>
               </div>
-              <div style="font-size:11px; opacity:0.9;">Sua assistente de transporte no Grande Recife</div>
+              <div style="font-size:11px; opacity:0.92;">Conectada às 400 linhas do Grande Recife</div>
             </div>
           </div>
           <button onclick="closeLayaModal()" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:800; font-size:14px;">✕</button>
         </div>
 
         <!-- CHAT HISTORY -->
-        <div id="laya-chat-history" style="flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; background:#f8fafc; min-height:240px; max-height:360px;">
+        <div id="laya-chat-history" style="flex:1 1 auto; overflow-y:auto; padding:14px 14px 20px; display:flex; flex-direction:column; gap:10px; background:#f8fafc; min-height:0;">
           <div class="laya-msg-bot">
-            👋 Olá, Cauã! Sou a <strong>Laya</strong>, sua assistente do GrafoParada. Como posso ajudar você agora? Toque no microfone para falar ou escolha uma ação rápida abaixo!
+            👋 Olá, Cauã! Conheço as <strong>400 linhas do Grande Recife</strong> e toda a inteligência do GrafoParada.<br><br>Pergunte de onde até onde quer ir (ex: <em>"De Camela até Ipojuca"</em>) ou qual o próximo ônibus da sua parada!
           </div>
         </div>
 
         <!-- QUICK PROMPTS HORIZONTAL SCROLL -->
-        <div style="display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; scrollbar-width:none;">
+        <div style="display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; scrollbar-width:none; flex-shrink:0;">
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Gostaria de sair de Camela até Ipojuca')">🚌 Camela ➔ Ipojuca</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual o próximo ônibus de Camela?')">⏰ Ônibus em Camela</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Como funciona a IA ST-GCN do GrafoParada?')">🧠 Como funciona a IA?</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual minha parada atual?')">📍 Minha Parada</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Apresentação da Banca UFRPE')" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe; font-weight:800;">🎓 Banca UFRPE</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quando passa meu ônibus?')">🚌 Próximo Ônibus</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual minha parada atual?')">🚏 Minha Parada</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quero ir para a UFRPE')">🎓 Ir para UFRPE</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Salvar parada nos favoritos')">⭐ Salvar Parada</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Como funciona a rotina?')">💡 Dicas de Rotina</button>
         </div>
 
         <!-- INPUT BAR (MIC + TEXT + SEND) -->
-        <div style="padding:10px 14px; background:#ffffff; border-top:1px solid #e2e8f0; display:flex; align-items:center; gap:8px;">
-          <button type="button" id="btn-laya-mic" class="laya-mic-btn" onclick="toggleLayaVoiceRecognition()" title="Falar com a Laya por voz">
+        <div style="padding:10px 12px; background:#ffffff; border-top:1px solid #e2e8f0; display:flex; align-items:center; gap:8px; flex-shrink:0;">
+          <button type="button" id="btn-laya-mic" class="laya-mic-btn" onclick="toggleLayaVoiceRecognition()" title="Falar com a Laya por voz" style="width:38px; height:38px; font-size:17px;">
             🎙️
           </button>
-          <input type="text" id="laya-chat-input" placeholder="Pergunte à Laya ou digite um comando..." class="field-input" style="font-size:12.5px; padding:10px 14px; border-radius:999px; margin-bottom:0;" onkeydown="if(event.key==='Enter') sendLayaTextMessage();" />
-          <button type="button" onclick="sendLayaTextMessage()" style="width:40px; height:40px; border-radius:50%; border:none; background:#0284c7; color:#ffffff; font-weight:800; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+          <input type="text" id="laya-chat-input" placeholder="Ex: De Camela até Ipojuca..." class="field-input" style="font-size:13px; padding:9px 12px; border-radius:999px; margin-bottom:0; min-width:0; flex:1;" onkeydown="if(event.key==='Enter') sendLayaTextMessage();" />
+          <button type="button" onclick="sendLayaTextMessage()" style="width:38px; height:38px; border-radius:50%; border:none; background:#0284c7; color:#ffffff; font-weight:800; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
             ➔
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 18. MOBILE BOTTOM TAB NAVIGATION (PROFESSIONAL 4-TAB SYSTEM) -->
+    <!-- =================================================================== -->
+    <!-- TELA 1: INÍCIO CONTEXTUAL INTELIGENTE ("ESTÁ INDO TRABALHAR HOJE?") -->
+    <!-- =================================================================== -->
+    <section id="app-screen-home" class="app-screen screen-active" aria-label="Início GrafoParada">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <span class="home-brand-pill">
+          <span class="pulse-dot"></span>
+          <span>GrafoParada · IA Metropolitana</span>
+        </span>
+        <button type="button" class="screen-back-btn" onclick="openProfileModal()" title="Perfil e Configurações">
+          ⚙️ Perfil
+        </button>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div id="home-dynamic-greeting" style="font-size:13px; font-weight:700; color:#059669;">Bom dia, Cauã 👋</div>
+        <h1 class="home-hero-title">Está indo trabalhar ou estudar hoje?</h1>
+        <p class="home-hero-sub">Me diga seu momento agora. Eu vou direto para a sua parada e aviso o próximo ônibus sem você mofar no ponto.</p>
+      </div>
+
+      <div class="intent-stack">
+        <button type="button" class="intent-card intent-primary" onclick="startGoingNowFlow()">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="intent-icon-box">🚌</div>
+            <div>
+              <div class="intent-title">Sim, estou indo agora</div>
+              <div class="intent-desc">Ir para onde estou e ver o ônibus próximo</div>
+            </div>
+          </div>
+          <span style="font-size:18px; font-weight:800;">➔</span>
+        </button>
+
+        <button type="button" class="intent-card" onclick="navigateToScreen('radar')">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="intent-icon-box">🗺️</div>
+            <div>
+              <div class="intent-title">Ver radar e mapa ao vivo</div>
+              <div class="intent-desc">Acompanhar minha linha e paradas em tempo real</div>
+            </div>
+          </div>
+          <span style="font-size:16px; color:#64748b; font-weight:800;">➔</span>
+        </button>
+
+        <button type="button" class="intent-card intent-ai" onclick="openLayaModal()">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="intent-icon-box">✨</div>
+            <div>
+              <div class="intent-title">Planejar rota com a Laya IA</div>
+              <div class="intent-desc">Ex: "Sair de Camela até Ipojuca" ou dúvidas de rotas</div>
+            </div>
+          </div>
+          <span style="font-size:16px; color:#0284c7; font-weight:800;">➔</span>
+        </button>
+      </div>
+
+      <div class="home-context-strip" id="home-active-summary">
+        <div>
+          <div style="font-size:10.5px; font-weight:800; color:#64748b; text-transform:uppercase;">Parada Monitorada</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a; margin-top:2px;" id="home-summary-line">Linha 199 / 522 · Pronta para radar</div>
+        </div>
+        <button type="button" onclick="navigateToScreen('locate')" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:999px; padding:6px 11px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap;">
+          📍 Alterar
+        </button>
+      </div>
+
+      <div style="margin-top:auto; padding-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" onclick="openRoutineModal()" style="flex:1; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit;">
+          📅 Minha Rotina
+        </button>
+        <button type="button" onclick="openPresentationModal()" style="flex:1; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:12px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#6d28d9; cursor:pointer; font-family:inherit;">
+          🎓 Banca UFRPE
+        </button>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TELA 2: LOCALIZAÇÃO GUIADA & PRÓXIMO ÔNIBUS ("ONDE VOCÊ ESTÁ?")     -->
+    <!-- =================================================================== -->
+    <section id="app-screen-locate" class="app-screen" aria-label="Onde Você Está">
+      <div class="screen-header-nav">
+        <button type="button" class="screen-back-btn" onclick="navigateToScreen('home')">‹ Voltar</button>
+        <span style="font-size:11.5px; font-weight:800; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; padding:4px 10px; border-radius:999px;">Passo 1 · Sua Parada</span>
+      </div>
+
+      <h2 style="font-size:21px; font-weight:800; color:#0f172a; line-height:1.2;">Onde você está agora?</h2>
+      <p style="font-size:12.5px; color:#475569; margin-top:5px;">Escolha seu ponto atual ou ative o GPS para eu selecionar sua linha e mostrar o ônibus mais próximo.</p>
+
+      <div id="locate-gps-status" style="margin-top:12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <span style="font-size:12px; font-weight:700; color:#0369a1;" id="locate-gps-text">📡 Toque para detectar pelo GPS ou escolha abaixo</span>
+        <button type="button" onclick="detectUserLocationForScreen2()" style="background:#0284c7; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; flex-shrink:0;">Detectar GPS</button>
+      </div>
+
+      <div class="locate-preset-grid">
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('camela', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏠 Camela</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 199 · Terminal / PE-60</div>
+        </button>
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ipojuca', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏛️ Ipojuca Centro</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 198 / 199 · KM 20</div>
+        </button>
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ufrpe', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🎓 UFRPE</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 522 · Dois Irmãos</div>
+        </button>
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('suape', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">⚓ Suape / Cabo</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 178 / 199 · TI Cabo</div>
+        </button>
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ufpe', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏫 UFPE / CDU</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 2040 · TI CDU</div>
+        </button>
+        <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('boa viagem', this)">
+          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏖️ Boa Viagem</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 050 · Agamenon</div>
+        </button>
+      </div>
+
+      <!-- CAMPO OPCIONAL DE DESTINO -->
+      <div style="margin-top:12px; display:flex; gap:6px; align-items:center;">
+        <input type="text" id="locate-dest-input" placeholder="Para onde você vai? (ex: Ipojuca, Derby...)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" onkeydown="if(event.key==='Enter') askLayaFromLocate();" />
+        <button type="button" onclick="askLayaFromLocate()" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">✨ Ver Rota</button>
+      </div>
+
+      <!-- PRÉVIA INTELIGENTE DO PRÓXIMO ÔNIBUS -->
+      <div class="locate-preview-card" id="locate-preview-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+          <div>
+            <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;" id="locate-preview-badge">Linha 199 · ST-GCN Online</div>
+            <div style="font-size:14.5px; font-weight:800; color:#0f172a; margin-top:2px;" id="locate-preview-stop">Praça Pedro Serafim (Camela)</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; color:#059669; line-height:1;" id="locate-preview-eta">3 min</div>
+            <div style="font-size:10.5px; font-weight:700; color:#64748b;" id="locate-preview-seats">28 assentos</div>
+          </div>
+        </div>
+        <div style="font-size:11.5px; color:#475569; margin-top:8px; line-height:1.35;" id="locate-preview-advice">
+          🛡️ Baixo risco de abandono · Recomendação: vá para a parada agora e confirme no radar.
+        </div>
+        <button type="button" onclick="confirmLocateAndOpenRadar()" style="margin-top:12px; width:100%; background:#059669; color:#ffffff; border:none; border-radius:12px; padding:12px 14px; font-size:13.5px; font-weight:800; cursor:pointer; font-family:inherit;">
+          🗺️ Acompanhar Ônibus no Mapa ➔
+        </button>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TELA 5: CENTRAL CTM, SEGURANÇA CIDADÃ & PESQUISA UFRPE             -->
+    <!-- =================================================================== -->
+    <section id="app-screen-central" class="app-screen" aria-label="Central GrafoParada">
+      <div class="screen-header-nav">
+        <button type="button" class="screen-back-btn" onclick="navigateToScreen('home')">‹ Início</button>
+        <span style="font-size:11.5px; font-weight:800; color:#334155;">Central & Pesquisa</span>
+      </div>
+
+      <h2 style="font-size:20px; font-weight:800; color:#0f172a; margin-bottom:4px;">Ferramentas & Gestão</h2>
+      <p style="font-size:12.5px; color:#475569; margin-bottom:16px;">Recursos avançados, segurança no ponto e defesa acadêmica reunidos em um só lugar.</p>
+
+      <div class="central-grid">
+        <button type="button" class="intent-card" onclick="openRoutineModal()">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div class="intent-icon-box">📅</div>
+            <div>
+              <div class="intent-title">Minha Rotina & Janela Segura</div>
+              <div class="intent-desc">Calcular horário exato de sair de casa</div>
+            </div>
+          </div>
+          <span>➔</span>
+        </button>
+
+        <button type="button" class="intent-card" onclick="openDispatchModal()">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div class="intent-icon-box">🏛️</div>
+            <div>
+              <div class="intent-title">Central CTM · Frota & Demanda</div>
+              <div class="intent-desc">Prevenção de abandono (Kim et al., 2026)</div>
+            </div>
+          </div>
+          <span>➔</span>
+        </button>
+
+        <button type="button" class="intent-card" onclick="openAuditModal()">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div class="intent-icon-box">🔬</div>
+            <div>
+              <div class="intent-title">Auditoria ST-GCN & Trava Híbrida</div>
+              <div class="intent-desc">Métricas MAE 1,51 min e 44 Terminais SEI</div>
+            </div>
+          </div>
+          <span>➔</span>
+        </button>
+
+        <button type="button" class="intent-card" onclick="openSeiTerminalsModal()">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div class="intent-icon-box">🚉</div>
+            <div>
+              <div class="intent-title">Terminais Integrados do SEI</div>
+              <div class="intent-desc">Consultar conexões e integração VEM (2h)</div>
+            </div>
+          </div>
+          <span>➔</span>
+        </button>
+
+        <button type="button" class="intent-card" onclick="openPresentationModal()" style="border-color:#ddd6fe; background:#f5f3ff;">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div class="intent-icon-box" style="background:#ede9fe;">🎓</div>
+            <div>
+              <div class="intent-title" style="color:#5b21b6;">Banca UFRPE (Seminário 2)</div>
+              <div class="intent-desc">PPTX oficial, Slides estilo Canva e Roteiro</div>
+            </div>
+          </div>
+          <span>➔</span>
+        </button>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;">
+          <button type="button" class="locate-preset-btn" onclick="activatePocketShield()">🎧 Modo Bolso</button>
+          <button type="button" class="locate-preset-btn" onclick="activateNightBeacon()">💡 Farol Noturno</button>
+          <button type="button" class="locate-preset-btn" onclick="openSafeDisembarkModal()">🌙 Lei 15.878</button>
+          <button type="button" class="locate-preset-btn" onclick="openLostHelpModal()">🧭 Guia Perdido</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18. MOBILE BOTTOM TAB NAVIGATION (CLEAN 4-TAB FLOW) -->
     <nav class="mobile-tab-nav" id="main-tab-nav">
-      <button class="mobile-tab-btn active" id="tab-nav-map" onclick="switchMainTab('map')" title="Mapa e Linhas Metropolitanas">
-        <span class="mobile-tab-icon">🗺️</span>
-        <span class="mobile-tab-label">Mapa & Linhas</span>
+      <button class="mobile-tab-btn active" id="tab-nav-home" onclick="navigateToScreen('home')" title="Tela Inicial">
+        <span class="mobile-tab-icon">🏠</span>
+        <span class="mobile-tab-label">Início</span>
       </button>
-      <button class="mobile-tab-btn" id="tab-nav-routine" onclick="switchMainTab('routine')" title="Minha Parada e Rotina">
-        <span class="mobile-tab-icon">🚏</span>
-        <span class="mobile-tab-label">Minha Parada</span>
+      <button class="mobile-tab-btn" id="tab-nav-map" onclick="navigateToScreen('radar')" title="Mapa e Radar de Ônibus">
+        <span class="mobile-tab-icon">🗺️</span>
+        <span class="mobile-tab-label">Mapa</span>
       </button>
       <button class="mobile-tab-btn" id="tab-nav-laya" onclick="switchMainTab('laya')" title="Assistente Inteligente Laya">
         <span class="mobile-tab-icon">✨</span>
         <span class="mobile-tab-label">Laya IA</span>
       </button>
-      <button class="mobile-tab-btn" id="tab-nav-dispatch" onclick="switchMainTab('dispatch')" title="Central CTM de Frota e Demanda Latente">
+      <button class="mobile-tab-btn" id="tab-nav-central" onclick="navigateToScreen('central')" title="Central CTM, Rotina e Banca">
         <span class="mobile-tab-icon">🏛️</span>
-        <span class="mobile-tab-label">Central CTM</span>
+        <span class="mobile-tab-label">Central</span>
       </button>
     </nav>
 
@@ -3080,13 +3592,17 @@
     });
 
     function checkAuthStatus() {
-      const isLogged = localStorage.getItem("grafoparada_logged");
-      if (isLogged === "true") {
-        loadUserData();
-        document.getElementById("modal-onboarding").style.display = "none";
-      } else {
-        document.getElementById("modal-onboarding").style.display = "flex";
-        showOnboardingSplash();
+      loadUserData();
+      const modal = document.getElementById("modal-onboarding");
+      if (modal) modal.style.display = "none";
+      if (!localStorage.getItem("grafoparada_logged")) {
+        localStorage.setItem("grafoparada_logged", "true");
+      }
+      if (typeof updateHomeGreeting === "function") {
+        updateHomeGreeting();
+      }
+      if (typeof navigateToScreen === "function") {
+        navigateToScreen("home", { silent: true });
       }
     }
 
@@ -4519,51 +5035,215 @@
     }
 
     // ==========================================
-    // ABAS DE NAVEGAÇÃO MOBILE (MAPA, MINHA PARADA, LAYA IA, CTM)
+    // CONTROLADOR DE TELAS & TRANSICOES SUAVES (GRAFOPARADA 2.0)
     // ==========================================
-    let activeMainTab = "map";
-    function switchMainTab(tab) {
-      activeMainTab = tab;
-      ["map", "routine", "laya", "dispatch"].forEach(function(t) {
-        const btn = document.getElementById("tab-nav-" + t);
-        if (btn) {
-          if (t === tab) btn.classList.add("active");
-          else btn.classList.remove("active");
+    let activeMainTab = "home";
+    let currentScreenId = "home";
+    let selectedOriginCorridorKey = "camela";
+
+    function navigateToScreen(screenId, opts) {
+      const target = screenId === "map" ? "radar" : screenId;
+      const prev = currentScreenId;
+      currentScreenId = target;
+      activeMainTab = target === "radar" ? "map" : target;
+
+      closeLayaModal();
+      if (typeof closeRoutineModal === "function") closeRoutineModal();
+      if (typeof closeDispatchModal === "function") closeDispatchModal();
+
+      const screens = ["home", "locate", "radar", "central"];
+      const prevIdx = screens.indexOf(prev);
+      const targetIdx = screens.indexOf(target);
+
+      ["home", "locate", "central"].forEach(function(id) {
+        const el = document.getElementById("app-screen-" + id);
+        if (!el) return;
+        el.classList.remove("screen-active", "screen-exit-left");
+        if (id === target) {
+          el.classList.add("screen-active");
+          el.scrollTop = 0;
+        } else if (id === prev && targetIdx > prevIdx) {
+          el.classList.add("screen-exit-left");
         }
       });
 
-      if (tab === "map") {
-        closeLayaModal();
-        closeRoutineModal();
-        closeDispatchModal();
+      // Atualiza barra inferior de navegação
+      ["home", "map", "laya", "central"].forEach(function(t) {
+        const btn = document.getElementById("tab-nav-" + t);
+        if (!btn) return;
+        if ((t === "map" && target === "radar") || t === target) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      if (target === "home") {
+        updateHomeGreeting();
+      } else if (target === "radar") {
         const sheet = document.getElementById("main-bottom-sheet");
         if (sheet) sheet.classList.remove("expanded");
         if (leafletMap) {
-          if (window.RealTransit && window.RealTransit.polylineLayer) {
-            try {
-              leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { padding: [50, 50], animate: true });
-            } catch(e) {}
-          } else {
-            recenterOnUser(false);
-          }
+          setTimeout(function() { leafletMap.invalidateSize(); }, 80);
+          setTimeout(function() {
+            leafletMap.invalidateSize();
+            if (window.RealTransit && window.RealTransit.polylineLayer && !(opts && opts.skipFit)) {
+              try {
+                leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { padding: [45, 45], maxZoom: 15, animate: true });
+              } catch(e) {}
+            }
+          }, 260);
         }
+      }
+    }
+
+    function updateHomeGreeting() {
+      const hour = new Date().getHours();
+      const greet = hour < 12 ? "Bom dia" : (hour < 18 ? "Boa tarde" : "Boa noite");
+      const u = (typeof getUserData === "function") ? getUserData() : {};
+      const firstName = (u && u.name) ? u.name.split(" ")[0] : "Cauã";
+      const greetEl = document.getElementById("home-dynamic-greeting");
+      if (greetEl) greetEl.textContent = greet + ", " + firstName + " 👋";
+
+      const summaryEl = document.getElementById("home-summary-line");
+      if (summaryEl && window.RealTransit && window.RealTransit.activeRoute) {
+        const code = window.RealTransit.activeRouteCode || "522";
+        const rName = window.RealTransit.activeRoute.name || "Rede Metropolitana";
+        summaryEl.textContent = "Linha " + code + " · " + rName;
+      }
+    }
+
+    function startGoingNowFlow() {
+      playSimpleChime();
+      navigateToScreen("locate");
+      detectUserLocationForScreen2();
+    }
+
+    function detectUserLocationForScreen2() {
+      const statusEl = document.getElementById("locate-gps-text");
+      if (statusEl) statusEl.textContent = "📡 Buscando sua posição atual...";
+
+      if (!navigator.geolocation) {
+        if (statusEl) statusEl.textContent = "📍 GPS indisponível — escolha seu ponto abaixo:";
+        selectLocatePreset(selectedOriginCorridorKey || "camela");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          if (typeof updateUserLocationMarker === "function") {
+            updateUserLocationMarker(lat, lon, false);
+          }
+
+          let nearestKey = "camela";
+          let bestDist = Infinity;
+          if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+            window.RealTransit.getSemanticCorridors().forEach(function(c) {
+              const d = Math.hypot((c.lat || 0) - lat, (c.lon || 0) - lon);
+              if (d < bestDist) {
+                bestDist = d;
+                nearestKey = c.key;
+              }
+            });
+          }
+
+          if (statusEl) statusEl.textContent = "✅ GPS ativo · Parada mais próxima identificada!";
+          selectLocatePreset(nearestKey);
+        },
+        function() {
+          if (statusEl) statusEl.textContent = "📍 Escolha onde você está para calcular o próximo ônibus:";
+          selectLocatePreset(selectedOriginCorridorKey || "camela");
+        },
+        { enableHighAccuracy: true, timeout: 4500 }
+      );
+    }
+
+    function selectLocatePreset(corridorKey, btnEl) {
+      selectedOriginCorridorKey = corridorKey;
+      document.querySelectorAll(".locate-preset-btn").forEach(function(b) {
+        b.classList.remove("selected");
+      });
+      if (btnEl) btnEl.classList.add("selected");
+
+      let corridor = null;
+      if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+        corridor = window.RealTransit.getSemanticCorridors().find(function(c) { return c.key === corridorKey; });
+      }
+      if (!corridor) return;
+
+      if (window.RealTransit && window.RealTransit.loadRoute) {
+        window.RealTransit.loadRoute(corridor.defaultLine);
+      }
+      if (typeof updateUserLocationMarker === "function" && corridor.lat && corridor.lon) {
+        updateUserLocationMarker(corridor.lat, corridor.lon, false);
+      }
+
+      const badgeEl = document.getElementById("locate-preview-badge");
+      const stopEl = document.getElementById("locate-preview-stop");
+      const etaEl = document.getElementById("locate-preview-eta");
+      const seatsEl = document.getElementById("locate-preview-seats");
+      const adviceEl = document.getElementById("locate-preview-advice");
+
+      if (badgeEl) badgeEl.textContent = "Linha " + corridor.defaultLine + " · ST-GCN Online";
+      if (stopEl) stopEl.textContent = corridor.stopName;
+      if (etaEl) etaEl.textContent = (corridor.waitMin || 4) + " min";
+      if (seatsEl) seatsEl.textContent = (corridor.seatsFree || 14) + " assentos";
+      if (adviceEl) {
+        const riskText = (corridor.waitMin || 4) <= 7
+          ? "🛡️ Baixo risco de abandono (Kim et al., 2026) · Ideal ir para a parada agora."
+          : "⚠️ Risco moderado de espera (1,68x Yap & Cats) · Fique atento ao radar antes de sair.";
+        adviceEl.textContent = riskText;
+      }
+
+      const prefixEl = document.getElementById("resting-line-prefix");
+      if (prefixEl) prefixEl.textContent = "🚌 Linha " + corridor.defaultLine + " · Próximo Ônibus:";
+
+      updateHomeGreeting();
+      playSimpleChime();
+    }
+
+    function askLayaFromLocate() {
+      const inp = document.getElementById("locate-dest-input");
+      const dest = inp ? inp.value.trim() : "";
+      if (!dest) {
+        openLayaModal();
+        return;
+      }
+      let originLabel = selectedOriginCorridorKey || "Camela";
+      if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+        const c = window.RealTransit.getSemanticCorridors().find(function(x) { return x.key === selectedOriginCorridorKey; });
+        if (c) originLabel = c.label.split("(")[0].trim();
+      }
+      openLayaModal();
+      handleLayaQuickPrompt("Gostaria de sair de " + originLabel + " até " + dest);
+    }
+
+    function confirmLocateAndOpenRadar() {
+      navigateToScreen("radar");
+      if (typeof showFloatingVoicePill === "function") {
+        showFloatingVoicePill("🚌 Radar ativado na sua parada. Acompanhe o coletivo ao vivo!");
+      }
+    }
+
+    function switchMainTab(tab) {
+      if (tab === "home") {
+        navigateToScreen("home");
+      } else if (tab === "map") {
+        navigateToScreen("radar");
       } else if (tab === "routine") {
-        closeLayaModal();
-        closeDispatchModal();
+        navigateToScreen("radar");
         const sheet = document.getElementById("main-bottom-sheet");
         if (sheet) sheet.classList.add("expanded");
-        const routineCard = document.querySelector(".routine-commute-card");
-        if (routineCard) {
-          routineCard.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
+        const extra = document.getElementById("resting-extra-tools");
+        if (extra) extra.setAttribute("open", "open");
       } else if (tab === "laya") {
-        closeRoutineModal();
-        closeDispatchModal();
+        if (typeof closeRoutineModal === "function") closeRoutineModal();
+        if (typeof closeDispatchModal === "function") closeDispatchModal();
         openLayaModal();
-      } else if (tab === "dispatch") {
-        closeLayaModal();
-        closeRoutineModal();
-        openDispatchModal();
+      } else if (tab === "central" || tab === "dispatch") {
+        navigateToScreen("central");
       }
     }
 
@@ -4574,6 +5254,8 @@
       if (navBtn) navBtn.classList.add("active");
       playSimpleChime();
       setTimeout(function() {
+        const hist = document.getElementById("laya-chat-history");
+        if (hist) hist.scrollTop = hist.scrollHeight;
         const inp = document.getElementById("laya-chat-input");
         if (inp) inp.focus();
       }, 150);
@@ -4584,11 +5266,13 @@
       if (modal) modal.style.display = "none";
       const navBtn = document.getElementById("tab-nav-laya");
       if (navBtn) navBtn.classList.remove("active");
-      if (activeMainTab === "laya") {
-        activeMainTab = "map";
-        const mapBtn = document.getElementById("tab-nav-map");
-        if (mapBtn) mapBtn.classList.add("active");
-      }
+      ["home", "map", "central"].forEach(function(t) {
+        const btn = document.getElementById("tab-nav-" + t);
+        if (!btn) return;
+        if ((t === "map" && currentScreenId === "radar") || t === currentScreenId) {
+          btn.classList.add("active");
+        }
+      });
     }
 
     // ==========================================
@@ -5015,7 +5699,12 @@
       bubble.className = sender === "user" ? "laya-msg-user" : "laya-msg-bot";
       bubble.innerHTML = msg;
       hist.appendChild(bubble);
-      hist.scrollTop = hist.scrollHeight;
+      requestAnimationFrame(function() {
+        hist.scrollTop = hist.scrollHeight;
+      });
+      setTimeout(function() {
+        hist.scrollTop = hist.scrollHeight;
+      }, 60);
     }
 
     function handleLayaQuickPrompt(promptText) {
@@ -5024,7 +5713,7 @@
       setTimeout(function() {
         hideLayaTypingIndicator();
         handleLayaCommand(promptText);
-      }, 400);
+      }, 320);
     }
 
     function sendLayaTextMessage() {
@@ -5032,7 +5721,7 @@
       if (!inp) return;
       const text = inp.value.trim();
       if (!text) {
-        appendLayaChatMessage("Olá! Como posso te orientar? Você pode me perguntar: <em>'Quando passa meu ônibus?'</em>, <em>'Qual minha parada?'</em>, <em>'Apresentação da Banca UFRPE'</em> ou tocar no microfone 🎙️ para falar comigo!", "bot");
+        appendLayaChatMessage("Olá! Pergunte algo como: <em>'De Camela até Ipojuca'</em>, <em>'Próximo ônibus de Camela'</em> ou toque no microfone 🎙️!", "bot");
         return;
       }
       inp.value = "";
@@ -5041,72 +5730,57 @@
       setTimeout(function() {
         hideLayaTypingIndicator();
         handleLayaCommand(text);
-      }, 450);
+      }, 350);
     }
 
     function handleLayaCommand(text) {
-      const q = text.toLowerCase();
-      let reply = "";
+      let activeStopName = "";
+      if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
+        const st = window.RealTransit.activeRoute.stops[window.RealTransit.activeStopIndex || 0];
+        if (st) activeStopName = st.name;
+      }
+      const restingEtaEl = document.getElementById("resting-eta-val");
+      const activeEta = restingEtaEl ? parseInt(restingEtaEl.textContent, 10) || 4 : 4;
+      const activeCode = (window.RealTransit && window.RealTransit.activeRouteCode) || activeRouteCode || "199";
 
-      if (q.includes("apresentação") || q.includes("apresentacao") || q.includes("slide") || q.includes("pptx") || q.includes("banca") || q.includes("roteiro") || q.includes("seminario") || q.includes("seminário")) {
-        reply = "Aqui estão os materiais oficiais para a <strong>Banca Examinadora da UFRPE (Seminário 2)</strong>:<br><br>" +
-          "• 📥 <strong>Apresentação PPTX:</strong> Arquivo oficial 16:9 (13.1 MB)<br>" +
-          "• 📊 <strong>Slides Web Interativos:</strong> Exibição Canva style no navegador<br>" +
-          "• 📜 <strong>Roteiro Pedagógico:</strong> Guia minuto a minuto de sustentação.<br><br>" +
-          "<button type=\"button\" onclick=\"openPresentationModal()\" style=\"background:#7c3aed; color:#fff; border:none; padding:7px 12px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer;\">🎓 Abrir Painel da Apresentação</button>";
-        openPresentationModal();
-      } else if (q.includes("ônibus") || q.includes("quando passa") || q.includes("horário") || q.includes("próximo") || q.includes("chega")) {
-        const line = window.RealTransit ? window.RealTransit.activeRouteCode : "522";
-        reply = "O próximo coletivo da linha <strong>" + line + "</strong> está a caminho e tem previsão de chegada em <strong>4 minutos</strong> na sua parada. Vagas livres estimadas: 14 assentos.<br><br>" +
-          "<button type=\"button\" onclick=\"trackBusLocation(true); closeLayaModal();\" style=\"background:#059669; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;\">🚌 Rastrear no Mapa</button>";
-      } else if (q.includes("parada") || q.includes("ponto") || q.includes("onde estou")) {
-        let stopName = "Terminal de Dois Irmãos (UFRPE)";
-        if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
-          const idx = window.RealTransit.activeStopIndex || 0;
-          const st = window.RealTransit.activeRoute.stops[idx];
-          if (st) stopName = st.name;
-        }
-        reply = "Você está na parada <strong>" + stopName + "</strong>. Ela está salva nas suas referências ativas!";
-      } else if (q.includes("salvar") || q.includes("favorit") || q.includes("estrela")) {
-        promptAddCurrentStopToFavorites();
-        reply = "Adicionei a parada atual aos seus favoritos! Agora você pode acessá-la em 1 toque na barra de atalhos rápidos.";
-      } else if (q.includes("ufrpe") || q.includes("rural") || q.includes("dois irmãos")) {
-        reply = "Entendido! Ajustei seu destino para <strong>UFRPE (Dois Irmãos)</strong>. Selecionei a linha <strong>522</strong> e tracei a rota no mapa.";
-        if (window.RealTransit) {
-          if (window.RealTransit.selectLine) window.RealTransit.selectLine("522");
-          else if (window.RealTransit.loadRoute) window.RealTransit.loadRoute("522");
-        }
-      } else if (q.includes("ufpe") || q.includes("cdu") || q.includes("cidade universitária")) {
-        reply = "Certo! Direcionando para a <strong>UFPE (CDU)</strong>. Atualizei as conexões prioritárias no mapa com a linha <strong>2040</strong>.";
-        if (window.RealTransit) {
-          if (window.RealTransit.selectLine) window.RealTransit.selectLine("2040");
-          else if (window.RealTransit.loadRoute) window.RealTransit.loadRoute("2040");
-        }
-      } else if (q.includes("trabalho") || q.includes("porto digital") || q.includes("recife antigo") || q.includes("cais")) {
-        reply = "Rota para o <strong>Porto Digital / Bairro do Recife</strong> ativada. Monitorando o corredor Agamenon / Cais de Santa Rita.";
-        if (window.RealTransit) {
-          if (window.RealTransit.selectLine) window.RealTransit.selectLine("199");
-          else if (window.RealTransit.loadRoute) window.RealTransit.loadRoute("199");
-        }
-      } else if (q.includes("tutorial") || q.includes("ajuda") || q.includes("como usar")) {
-        reply = "Abrindo o tutorial passo a passo para você aprender a usar todas as funções do GrafoParada!";
-        const modal = document.getElementById("modal-onboarding");
-        if (modal) {
-          document.getElementById("tutorial-step-1").style.display = "block";
-          document.getElementById("tutorial-step-2").style.display = "none";
-          document.getElementById("tutorial-step-3").style.display = "none";
-          document.getElementById("onboarding-step-splash").style.display = "block";
-          document.getElementById("onboarding-step-form").style.display = "none";
-          modal.style.display = "flex";
-        }
-      } else {
-        reply = "Entendi sua mensagem, Cauã! Posso te ajudar a saber o horário do próximo ônibus, calcular a janela de saída da sua casa, ou salvar suas paradas favoritas para trabalhar e estudar.";
+      let res = null;
+      if (window.RealTransit && typeof window.RealTransit.answerLayaQuery === "function") {
+        res = window.RealTransit.answerLayaQuery(text, {
+          telemetryStops: (typeof TELEMETRIA_199 !== "undefined" && TELEMETRIA_199.stops) ? TELEMETRIA_199.stops : [],
+          activeRouteCode: activeCode,
+          activeStopName: activeStopName,
+          activeEta: activeEta
+        });
       }
 
-      appendLayaChatMessage(reply, "bot");
-      const cleanSpeech = reply.replace(/<\/?[^>]+(>|$)/g, "");
-      playNaturalVoice(cleanSpeech);
+      if (res) {
+        if (res.routeCode && window.RealTransit && window.RealTransit.loadRoute) {
+          window.RealTransit.loadRoute(res.routeCode);
+        }
+        if (res.saveFavorite && typeof promptAddCurrentStopToFavorites === "function") {
+          promptAddCurrentStopToFavorites();
+        }
+        appendLayaChatMessage(res.html, "bot");
+        if (res.speech && typeof playNaturalVoice === "function") {
+          playNaturalVoice(res.speech);
+        }
+        return;
+      }
+
+      const fallbackReply = "Entendi sua mensagem! Posso buscar linhas GTFS de origem a destino (ex: Camela até Ipojuca) ou checar o próximo ônibus.";
+      appendLayaChatMessage(fallbackReply, "bot");
+      if (typeof playNaturalVoice === "function") playNaturalVoice(fallbackReply);
     }
+
+    window.navigateToScreen = navigateToScreen;
+    window.startGoingNowFlow = startGoingNowFlow;
+    window.selectLocatePreset = selectLocatePreset;
+    window.detectUserLocationForScreen2 = detectUserLocationForScreen2;
+    window.askLayaFromLocate = askLayaFromLocate;
+    window.confirmLocateAndOpenRadar = confirmLocateAndOpenRadar;
+    window.openLayaModal = openLayaModal;
+    window.closeLayaModal = closeLayaModal;
+    window.updateHomeGreeting = updateHomeGreeting;
 
     // ==========================================
     // ONBOARDING TUTORIAL COM LAYA IA
