@@ -4417,12 +4417,12 @@
       const badgeGps = document.getElementById("badge-gps-status");
 
       if (isSlide3FailureActive) {
-        etaNum.innerHTML = '<span style="color:var(--danger-red);">18*</span>';
+        etaNum.innerHTML = '<span style="color:var(--danger-red);">14,3*</span>';
         badgeGps.style.background = "var(--warning-bg)";
         badgeGps.style.color = "var(--warning-amber)";
-        badgeGps.innerHTML = '<span>⚠️</span> <strong>ALERTA DE FALHA (Slide 3):</strong> STGCN suavizou para 18 min · GPS Bruto = 45 min (Bloqueio Trevo Ipojuca)';
+        badgeGps.innerHTML = '<span>⚠️</span> <strong>ALERTA DE FALHA (Slide 3):</strong> STGCN suavizou para 14,3 min · GPS Bruto = 45,0 min (Bloqueio Trevo Ipojuca)';
 
-        playNaturalVoice("Atenção: Demonstração da falha do Seminário 2 ativa. A rede neural STGCN suavizou o atraso para 18 minutos devido à difusão espacial, mas o GPS bruto detectou bloqueio na PE-60 com 45 minutos. O GrafoParada alerta a divergência na tela para proteger o passageiro.");
+        playNaturalVoice("Atenção: Demonstração da falha do Seminário 2 ativa. A rede neural STGCN suavizou o atraso para 14,3 minutos, mas o GPS bruto detectou bloqueio no Trevo de Ipojuca com 45 minutos. A trava híbrida acendeu o alerta para proteger o passageiro.");
       } else {
         etaNum.textContent = "4";
         badgeGps.style.background = "var(--brand-green-bg)";
