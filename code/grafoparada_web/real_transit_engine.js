@@ -15,6 +15,7 @@
     userAdaptState: { status: 'initializing', stopName: null, distanceKm: null },
     map: null,
     polylineLayer: null,
+    extraLegsLayer: null,
     stopsLayer: null,
     busMarker: null,
     cittamobiCache: {},
@@ -140,8 +141,13 @@
       this.activeStopIndex = 0;
 
       // 1. Atualiza Traçado Geodésico Real (Polyline)
-      if (this.polylineLayer) {
+      if (this.polylineLayer && this.map) {
         this.map.removeLayer(this.polylineLayer);
+        this.polylineLayer = null;
+      }
+      if (this.extraLegsLayer && this.map) {
+        this.map.removeLayer(this.extraLegsLayer);
+        this.extraLegsLayer = null;
       }
 
       const coords = lineData.polyline || [];
@@ -185,6 +191,58 @@
 
       // 4. Consulta API ao Vivo do Cittamobi para Dados em Tempo Real da Frota
       this.fetchCittamobiLiveData(code);
+    },
+
+    // Plota uma jornada completa com múltiplas etapas (ex: Camela -> TI Cabo -> Recife -> Olinda)
+    renderMultiLegRoute(codes, hubNames) {
+      if (!this.map || !this.networkData || !this.networkData.popular_lines || !Array.isArray(codes) || codes.length === 0) return;
+
+      // Carrega a 1ª etapa para preencher o painel, letreiro e paradas iniciais
+      this.loadRoute(codes[0]);
+
+      if (this.extraLegsLayer) {
+        this.map.removeLayer(this.extraLegsLayer);
+      }
+      this.extraLegsLayer = L.layerGroup().addTo(this.map);
+
+      const legColors = ['#059669', '#0284c7', '#7c3aed', '#d97706'];
+      const bounds = L.latLngBounds([]);
+
+      codes.forEach((rawCode, idx) => {
+        const line = this.networkData.popular_lines[String(rawCode)] || this.networkData.popular_lines[this.aliases[rawCode] || rawCode];
+        if (!line || !Array.isArray(line.polyline) || line.polyline.length === 0) return;
+
+        const color = legColors[idx % legColors.length];
+        const poly = L.polyline(line.polyline, {
+          color,
+          weight: idx === 0 ? 5 : 4.5,
+          opacity: 0.9,
+          dashArray: idx > 0 ? '8, 6' : null
+        }).addTo(this.extraLegsLayer);
+        bounds.extend(poly.getBounds());
+      });
+
+      // Marca os Hubs/Terminais SEI de baldeação ao longo do trajeto
+      if (Array.isArray(hubNames) && Array.isArray(this.networkData.hub_graph)) {
+        hubNames.forEach((hName, hIdx) => {
+          const hubObj = this.networkData.hub_graph.find(h => h.name === hName);
+          if (!hubObj) return;
+          const badge = L.marker([hubObj.lat, hubObj.lon], {
+            icon: L.divIcon({
+              className: '',
+              html: `<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">🔄 ${hIdx + 1}: ${hubObj.name}</div>`,
+              iconAnchor: [45, 12]
+            })
+          }).addTo(this.extraLegsLayer);
+          bounds.extend(badge.getLatLng());
+        });
+      }
+
+      if (bounds.isValid()) {
+        try {
+          this.map.fitBounds(bounds, { padding: [45, 45], maxZoom: 14, animate: true });
+        } catch (e) {}
+      }
     },
 
     // Plota os marcadores das paradas com popups detalhados
@@ -1056,8 +1114,9 @@
 
       const patterns = [
         /(?:sair|ir|partir|indo|viajar|voltar)\s+(?:de|da|do)\s+(.+?)\s+(?:ate|para|pra|pro|rumo a|->)\s+(.+)/i,
-        /(?:de|da|do)\s+([a-z0-9\s.-]{2,45}?)\s+(?:ate|para|pra|->)\s+([a-z0-9\s.-]{2,45})/i,
-        /\b(daqui|aqui)\s+(?:ate|para|pra|pro|->)\s+([a-z0-9\s.-]{2,45})/i
+        /(?:de|da|do)\s+([a-z0-9\s.-]{2,45}?)\s+(?:ate|para|pra|pro|->)\s+([a-z0-9\s.-]{2,45})/i,
+        /\b(daqui|aqui)\s+(?:ate|para|pra|pro|->)\s+([a-z0-9\s.-]{2,45})/i,
+        /^([a-z0-9\s.-]{2,40}?)\s+(?:ate|para|pra|pro|->|rumo a)\s+([a-z0-9\s.-]{2,40})$/i
       ];
 
       for (const p of patterns) {
@@ -1107,46 +1166,185 @@
       const catDirect = origCatalog.filter(om => destCatalog.some(dm => dm.code === om.code));
       const directMatches = geoDirect.length > 0 ? geoDirect : catDirect;
 
-      // 3. Grafo Real de Conexões / Integrações em 1 Baldeação via hub_graph (45 hubs SEI/polos)
-      const transferCandidates = [];
-      if (this.networkData && Array.isArray(this.networkData.hub_graph) && origCatalog.length > 0 && destCatalog.length > 0) {
-        const origSet = new Set(origCatalog.filter(x => !x.isBacurau).slice(0, 15).map(x => x.code));
-        const destSet = new Set(destCatalog.filter(x => !x.isBacurau).slice(0, 15).map(x => x.code));
-        const origLookup = new Map(origCatalog.map(x => [x.code, x]));
-        const destLookup = new Map(destCatalog.map(x => [x.code, x]));
+      // 3. Grafo Real de Conexões / Integrações Multi-Etapas (2, 3 ou até 4 linhas) via hub_graph (45 hubs SEI)
+      const findConnectedMultiLegPaths = () => {
+        if (!this.networkData || !Array.isArray(this.networkData.hub_graph) || !origCatalog.length || !destCatalog.length) {
+          return [];
+        }
 
-        for (const hub of this.networkData.hub_graph) {
-          const hLines = hub.lines || [];
-          const leg1Code = hLines.find(c => origSet.has(c));
-          const leg2Code = hLines.find(c => destSet.has(c) && c !== leg1Code);
-          if (leg1Code && leg2Code) {
-            let score = 0;
-            if (origPlace && destPlace && origPlace.lat && destPlace.lat) {
-              const directDist = this.haversineKm(origPlace.lat, origPlace.lon, destPlace.lat, destPlace.lon);
-              const viaHubDist = this.haversineKm(origPlace.lat, origPlace.lon, hub.lat, hub.lon) + this.haversineKm(hub.lat, hub.lon, destPlace.lat, destPlace.lon);
-              score = viaHubDist - directDist;
+        const getLineMeta = (code) => {
+          const fromCat = origCatalog.find(x => x.code === code) || destCatalog.find(x => x.code === code);
+          if (fromCat) return fromCat;
+          const pop = this.networkData.popular_lines && this.networkData.popular_lines[code];
+          if (pop) return { code, label: `${code} · ${pop.name}`, name: pop.name };
+          const cat = (this.networkData.routes_catalog || []).find(r => r.code === code);
+          return { code, label: cat ? cat.label : code, name: cat ? cat.name : code };
+        };
+
+        const isNightOrRail = (code) => {
+          const pop = this.networkData.popular_lines && this.networkData.popular_lines[code];
+          const nm = (pop && pop.name) || code;
+          return /bacurau/i.test(nm) || /^vlt/i.test(code);
+        };
+
+        // Deduplica hubs colocalizados (ex: 'Ti Joana Bezarra' vs 'Ti Joana Bezerra')
+        const rawHubs = this.networkData.hub_graph.filter(h => Array.isArray(h.lines) && h.lines.length > 0);
+        const hubs = [];
+        for (const h of rawHubs) {
+          const existing = hubs.find(u => this.haversineKm(u.lat, u.lon, h.lat, h.lon) < 0.15);
+          if (existing) {
+            const merged = new Set(existing.lines.concat(h.lines));
+            existing.lines = Array.from(merged);
+            if (/^Ti\s+Joana\s+Bezerra$/i.test(h.name) || h.lines.length > existing.lines.length) {
+              existing.name = h.name;
             }
-            const isSEI = /^TI\s/i.test(hub.name);
-            transferCandidates.push({
-              leg1: origLookup.get(leg1Code),
-              leg2: destLookup.get(leg2Code),
-              hub: hub.name,
-              isSEI,
-              detourKm: score
-            });
+          } else {
+            hubs.push({ name: h.name, lat: h.lat, lon: h.lon, lines: [...h.lines] });
           }
         }
-        transferCandidates.sort((a, b) => (b.isSEI - a.isSEI) || (a.detourKm - b.detourKm));
-      }
 
-      let transferPlan = transferCandidates[0] || null;
-      if (!transferPlan && origCatalog.length > 0 && destCatalog.length > 0) {
-        const l1 = origCatalog[0];
-        const l2 = destCatalog.find(d => d.code !== l1.code) || destCatalog[0];
-        if (l1.code !== l2.code) {
-          transferPlan = { leg1: l1, leg2: l2, hub: (origPlace && origPlace.hub) || 'TI Joana Bezerra', isSEI: true };
+        const lineToHubs = new Map();
+        hubs.forEach(h => {
+          h.lines.forEach(code => {
+            if (!lineToHubs.has(code)) lineToHubs.set(code, []);
+            lineToHubs.get(code).push(h);
+          });
+        });
+
+        const origDay = origCatalog.filter(x => !isNightOrRail(x.code)).slice(0, 18);
+        const destDay = destCatalog.filter(x => !isNightOrRail(x.code)).slice(0, 18);
+        const origBus = origDay.length ? origDay : origCatalog.slice(0, 12);
+        const destBus = destDay.length ? destDay : destCatalog.slice(0, 12);
+        const destSet = new Set(destBus.map(x => x.code));
+        const destRank = new Map(destBus.map((x, idx) => [x.code, idx]));
+
+        const oLat = origPlace && origPlace.lat;
+        const oLon = origPlace && origPlace.lon;
+        const dLat = destPlace && destPlace.lat;
+        const dLon = destPlace && destPlace.lon;
+        const directKm = (oLat && dLat) ? this.haversineKm(oLat, oLon, dLat, dLon) : 0;
+
+        const isMajorHub = (name) => /^(Ti\s|Cais\s|Pra[cç]a do Derby|Terminal)/i.test(name);
+        const scoreHubList = (hubList) => {
+          let penalty = 0;
+          if (oLat && dLat && hubList.length > 0) {
+            let totalDist = this.haversineKm(oLat, oLon, hubList[0].lat, hubList[0].lon);
+            for (let i = 0; i < hubList.length - 1; i++) {
+              totalDist += this.haversineKm(hubList[i].lat, hubList[i].lon, hubList[i + 1].lat, hubList[i + 1].lon);
+            }
+            totalDist += this.haversineKm(hubList[hubList.length - 1].lat, hubList[hubList.length - 1].lon, dLat, dLon);
+            penalty += Math.max(0, totalDist - directKm);
+          }
+          hubList.forEach(h => {
+            penalty += isMajorHub(h.name) ? -2.0 : 3.5;
+          });
+          return penalty;
+        };
+
+        // 3A. Busca caminhos reais de 2 etapas (1 baldeação)
+        const twoLeg = [];
+        for (const hub of hubs) {
+          const l1Hit = origBus.find(o => hub.lines.includes(o.code));
+          if (!l1Hit) continue;
+          const l2Hit = destBus.find(d => d.code !== l1Hit.code && hub.lines.includes(d.code));
+          if (!l2Hit) continue;
+          const sc = scoreHubList([hub]);
+          twoLeg.push({
+            legs: [getLineMeta(l1Hit.code), getLineMeta(l2Hit.code)],
+            hubs: [hub.name],
+            hub: hub.name,
+            leg1: getLineMeta(l1Hit.code),
+            leg2: getLineMeta(l2Hit.code),
+            isSEI: isMajorHub(hub.name),
+            score: sc
+          });
         }
-      }
+        twoLeg.sort((a, b) => a.score - b.score);
+        if (twoLeg.length > 0) return twoLeg;
+
+        // 3B. Busca caminhos reais de 3 etapas (2 baldeações, ex: Camela -> TI Cabo -> Recife/Cais Sta Rita -> Olinda)
+        const threeLeg = [];
+        for (const o of origBus) {
+          const hubs1 = lineToHubs.get(o.code) || [];
+          for (const h1 of hubs1) {
+            const h1BusLines = h1.lines.filter(c => c !== o.code && !isNightOrRail(c));
+            for (const midCode of h1BusLines) {
+              const hubs2 = lineToHubs.get(midCode) || [];
+              for (const h2 of hubs2) {
+                if (h2.name === h1.name) continue;
+                const dHits = h2.lines.filter(c => c !== midCode && c !== o.code && destSet.has(c));
+                if (dHits.length === 0) continue;
+                dHits.sort((a, b) => (destRank.get(a) ?? 99) - (destRank.get(b) ?? 99));
+                const l3Code = dHits[0];
+
+                let sc = scoreHubList([h1, h2]);
+                // Prioriza linhas expressas entre hubs (ex: 185, 191, 195 ligando Cabo <-> Recife)
+                if (/^(185|191|195|050|080|2040|2060|1076|1100)$/.test(midCode)) sc -= 1.8;
+                if (/cais|santa rita/i.test(h2.name)) sc -= 1.2;
+
+                threeLeg.push({
+                  legs: [getLineMeta(o.code), getLineMeta(midCode), getLineMeta(l3Code)],
+                  hubs: [h1.name, h2.name],
+                  hub: h1.name,
+                  leg1: getLineMeta(o.code),
+                  leg2: getLineMeta(l3Code),
+                  isSEI: true,
+                  score: sc
+                });
+              }
+            }
+          }
+        }
+        threeLeg.sort((a, b) => a.score - b.score);
+        if (threeLeg.length > 0) return threeLeg;
+
+        // 3C. BFS genérico de até 4 etapas (3 baldeações) caso ainda haja regiões mais distantes
+        const queue = [];
+        const visitedHubs = new Set();
+        for (const o of origBus) {
+          for (const h1 of (lineToHubs.get(o.code) || [])) {
+            if (!visitedHubs.has(h1.name)) {
+              visitedHubs.add(h1.name);
+              queue.push({ hub: h1, legs: [o.code], hubNames: [h1.name] });
+            }
+          }
+        }
+        const bfsResults = [];
+        while (queue.length > 0 && bfsResults.length < 10) {
+          const curr = queue.shift();
+          const dMatch = destBus.find(d => !curr.legs.includes(d.code) && curr.hub.lines.includes(d.code));
+          if (dMatch) {
+            const fullCodes = curr.legs.concat([dMatch.code]);
+            bfsResults.push({
+              legs: fullCodes.map(getLineMeta),
+              hubs: curr.hubNames,
+              hub: curr.hubNames[0],
+              leg1: getLineMeta(fullCodes[0]),
+              leg2: getLineMeta(fullCodes[fullCodes.length - 1]),
+              isSEI: true,
+              score: fullCodes.length * 10
+            });
+            continue;
+          }
+          if (curr.legs.length >= 3) continue;
+          for (const nextCode of curr.hub.lines) {
+            if (isNightOrRail(nextCode) || curr.legs.includes(nextCode)) continue;
+            for (const nh of (lineToHubs.get(nextCode) || [])) {
+              if (visitedHubs.has(nh.name)) continue;
+              visitedHubs.add(nh.name);
+              queue.push({
+                hub: nh,
+                legs: curr.legs.concat([nextCode]),
+                hubNames: curr.hubNames.concat([nh.name])
+              });
+            }
+          }
+        }
+        return bfsResults;
+      };
+
+      const transferCandidates = findConnectedMultiLegPaths();
+      const transferPlan = transferCandidates[0] || null;
 
       // 4. Caso especial telemetria detalhada PE-60 (Camela <-> Ipojuca <-> Suape <-> Cabo)
       let telemetryEtaMin = null;
@@ -1193,7 +1391,7 @@
         };
       }
 
-      // 2. Origem -> Destino usando Grafo Completo de 393 Linhas + 45 Hubs SEI
+      // 2. Origem -> Destino usando Grafo Completo de 393 Linhas + 45 Hubs SEI (0 a 3 baldeações reais)
       const tripPair = this.extractOriginDest(text);
       if (tripPair) {
         const plan = this.planSmartTrip(tripPair.origin, tripPair.dest, telemetryStops);
@@ -1215,10 +1413,10 @@
           if (altLines) {
             html += `• 🔁 <strong>Outras linhas diretas:</strong> ${altLines}<br>`;
           }
-          if (plan.transferPlan && mainRoute.code === '199') {
-            html += `<br>🔄 <strong>Conexão SEI (Terminal Interno):</strong> Ou pegue a <strong>${plan.transferPlan.leg1.code}</strong> até <strong>${plan.transferPlan.hub}</strong> e integre grátis (VEM 2h) na <strong>${plan.transferPlan.leg2.label}</strong>.`;
-          } else if (plan.transferPlan && plan.transferPlan.isSEI) {
-            html += `<br>🔄 <strong>Opção integrada via ${plan.transferPlan.hub}:</strong> ${plan.transferPlan.leg1.code} ➔ ${plan.transferPlan.leg2.code} (VEM grátis em 2h).`;
+          if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length === 2 && mainRoute.code === '199') {
+            html += `<br>🔄 <strong>Conexão SEI (Terminal Interno):</strong> Ou pegue a <strong>${plan.transferPlan.legs[0].code}</strong> até <strong>${plan.transferPlan.hubs[0]}</strong> e integre grátis (VEM 2h) na <strong>${plan.transferPlan.legs[1].label}</strong>.`;
+          } else if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length === 2 && plan.transferPlan.isSEI) {
+            html += `<br>🔄 <strong>Opção integrada via ${plan.transferPlan.hubs[0]}:</strong> ${plan.transferPlan.legs[0].code} ➔ ${plan.transferPlan.legs[1].code} (VEM grátis em 2h).`;
           }
 
           html += `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;">` +
@@ -1235,22 +1433,47 @@
           };
         }
 
-        if (plan.transferPlan) {
-          const l1 = plan.transferPlan.leg1;
-          const l2 = plan.transferPlan.leg2;
-          const html = `🔄 <strong>Rota com Integração</strong> de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
-            `1️⃣ <strong>1º Embarque:</strong> Linha <strong>${l1.label}</strong> até <strong>${plan.transferPlan.hub}</strong>.<br>` +
-            `2️⃣ <strong>Integração VEM (R$ 0,00 em até 2h):</strong> Linha <strong>${l2.label}</strong> até ${plan.destLabel}.<br><br>` +
+        if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length >= 2) {
+          const legs = plan.transferPlan.legs;
+          const hubs = plan.transferPlan.hubs || [plan.transferPlan.hub];
+          const numEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣'];
+
+          let stepsHtml = '';
+          const legCodesArr = legs.map(l => l.code);
+          for (let i = 0; i < legs.length; i++) {
+            const targetPlace = i < hubs.length ? hubs[i] : plan.destLabel;
+            const actionPrefix = i === 0 ? 'Embarque inicial' : (i === legs.length - 1 ? 'Etapa final até o destino' : 'Conexão intermediária');
+            stepsHtml += `${numEmojis[i] || '➡️'} <strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${legs[i].label}</strong> até <strong>${targetPlace}</strong>.<br>`;
+          }
+
+          const legButtonsHtml = legs.map((l, idx) =>
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${l.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🚌 ${idx + 1}ª (${l.code})</button>`
+          ).join('');
+
+          const allCodesJson = JSON.stringify(legCodesArr).replace(/"/g, "'");
+          const allHubsJson = JSON.stringify(hubs).replace(/"/g, "'");
+
+          const html = `🔄 <strong>Rota Completa Conectada (${legs.length} Etapas)</strong> de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
+            stepsHtml +
+            `<div style="font-size:11px; color:#047857; font-weight:700; margin:6px 0 10px;">💳 Integração SEI / VEM: janela temporal de 2h válida entre terminais.</div>` +
             `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${l1.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Traçar 1ª Etapa (${l1.code})</button>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${l2.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Traçar 2ª Etapa (${l2.code})</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${allCodesJson}, ${allHubsJson});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Ver Rota Completa (${legs.length} Etapas)</button>` +
+            legButtonsHtml +
             `</div>`;
+
+          const speechSteps = legs.map((l, idx) => {
+            const target = idx < hubs.length ? hubs[idx] : plan.destLabel;
+            return `linha ${l.code} até ${target}`;
+          }).join(', e depois ');
+
           return {
             intent: 'trip_transfer',
-            routeCode: l1.code,
-            hub: plan.transferPlan.hub,
+            routeCode: legs[0].code,
+            legs: legCodesArr,
+            hubs,
+            hub: hubs[0],
             html,
-            speech: `Para ir de ${plan.originLabel} até ${plan.destLabel}, pegue a linha ${l1.code} até ${plan.transferPlan.hub} e integre na linha ${l2.code}.`
+            speech: `Rota completa de ${plan.originLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.`
           };
         }
 
@@ -1433,7 +1656,8 @@
               destination: plan.destLabel,
               directLines: (plan.directMatches || []).slice(0, 5).map(r => ({ code: r.code, name: r.name })),
               transferConnection: plan.transferPlan ? {
-                hub: plan.transferPlan.hub,
+                hubs: plan.transferPlan.hubs || [plan.transferPlan.hub],
+                legs: (plan.transferPlan.legs || []).map(l => ({ code: l.code, name: l.name })),
                 firstLine: plan.transferPlan.leg1 ? plan.transferPlan.leg1.code : null,
                 secondLine: plan.transferPlan.leg2 ? plan.transferPlan.leg2.code : null
               } : null

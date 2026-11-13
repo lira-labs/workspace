@@ -263,11 +263,13 @@ if node_res.returncode == 0:
     t3 = out["aiKnow"]
     ok_trip = (t1.get("routeCode") == "199") and ("199" in t1.get("html", "")) and ("Ipojuca" in t1.get("html", "")) and ("522" not in t1.get("html", ""))
     ok_rec_ol = (t_rec_ol.get("routeCode") in ["1967", "1971", "1983", "1100", "1992", "1973", "1913", "914"]) and ("Olinda" in t_rec_ol.get("html", "")) and ("522" not in t_rec_ol.get("html", ""))
-    ok_cam_ol = (t_cam_ol.get("intent") in ["trip_transfer", "trip_direct"]) and ("199" in t_cam_ol.get("html", "")) and ("522" not in t_cam_ol.get("html", ""))
+    cam_ol_legs = t_cam_ol.get("legs") or []
+    cam_ol_hubs = t_cam_ol.get("hubs") or []
+    ok_cam_ol = (t_cam_ol.get("intent") == "trip_transfer") and (len(cam_ol_legs) == 3) and (cam_ol_legs[0] == "199") and any("Cabo" in h for h in cam_ol_hubs) and any("Cais" in h or "Recife" in h for h in cam_ol_hubs) and ("522" not in t_cam_ol.get("html", ""))
     ok_next = (t2.get("routeCode") == "199") and ("Camela" in t2.get("html", "")) and ("522" not in t2.get("html", ""))
     ok_ai = ("1,51 min" in t3.get("html", "")) and ("Kim et al." in t3.get("html", ""))
     if ok_trip and ok_rec_ol and ok_cam_ol and ok_next and ok_ai:
-        print(f"  [PASS] Laya IA GTFS + Hub Graph: Camela->Ipojuca (199), Recife Antigo->Olinda ({t_rec_ol.get('routeCode')}), Camela->Olinda (integração SEI via 199) OK")
+        print(f"  [PASS] Laya IA GTFS + Hub Graph Multi-Etapas: Camela->Ipojuca (199), Recife Antigo->Olinda ({t_rec_ol.get('routeCode')}), Camela->Olinda ({' -> '.join(cam_ol_legs)} via {' -> '.join(cam_ol_hubs)}) OK")
         aprovados += 1
     else:
         print(f"  [FAIL] Laya IA GTFS invalid: cam_ipo={ok_trip}, rec_ol={ok_rec_ol} ({t_rec_ol.get('routeCode')}), cam_ol={ok_cam_ol} ({t_cam_ol.get('intent')}), next={ok_next}, ai={ok_ai}")

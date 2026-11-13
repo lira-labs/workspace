@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 12/11/2026 22:26
+- **Última Atualização:** 12/11/2026 22:45
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -46,7 +46,7 @@
 - [x] **Adaptação 100% Dinâmica à Localização Real + Banco Completo Ida/Volta + 45 Hubs SEI + WebMCP**:
   - Compilador `compilar_rede_real_gtfs.py` atualizado e reexecutado: extrai trajetos **IDA + VOLTA** (`return_coords`) de todas as `393` linhas reais em `gtfs_real_network.json` (`3116.6 KB`) e gera `hub_graph` com **45 Terminais/Hubs SEI** (ligando todas as linhas a até `0.45 km`).
   - Zero hardcoding na UFRPE/Rural (`522` / `100035` removidos do HTML estático e da inicialização): `adaptToUserLocation(lat, lon)` + `initUserLocation()` + `detectUserLocationForScreen2()` adaptam mapa, parada atual, linha, letreiro, ETA e Laya IA dinamicamente às coordenadas reais do usuário (ou mostram estado neutro `"Aguardando localização"` / `"Fora da RMR"`).
-  - Roteamento geoespacial completo na Laya IA (`getLinesNearPoint` + BFS 1 baldeação via `hub_graph`): resolve qualquer origem/destino na RMR (ex: `"Recife Antigo pra Olinda"` -> linhas diretas como `1971`/`1967`/`1983`/`1100`; `"Camela até Olinda"` -> integração SEI real em 2 pernas via `199`).
+  - Roteamento geoespacial multi-etapas na Laya IA (`getLinesNearPoint` + BFS de 0 a 3 baldeações reais via `hub_graph` + `renderMultiLegRoute` no mapa): resolve qualquer origem/destino na RMR sem cortar etapas intermediárias (ex: `"Recife Antigo pra Olinda"` -> linhas diretas como `1971`/`1967`/`1983`/`1100`; `"Camela pra Olinda"` -> rota completa em 3 etapas `199 -> Ti Cabo -> 185 -> Cais de Santa Rita -> 1971 -> Olinda`).
   - Suporte nativo ao **Google Chrome WebMCP** (`navigator.modelContext.registerTool` com `grafoparada_plan_route` e `grafoparada_find_nearest_stop` + atributo declarativo `toolname="grafoparada_plan_from_locate"`).
   - *Nota*: Vercel CLI retornou `Not authorized` localmente nesta máquina (login expirado); deploy na produção Vercel ocorre via integração GitHub (`main`) ou reautenticação `npx vercel login`.
   - Conhecimento da plataforma integrado (ST-GCN `1,51 min` MAE, `Yap & Cats 1,68x`, `Kim et al. 2026`, Trava Híbrida Defensiva).
