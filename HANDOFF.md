@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 12/11/2026 22:45
+- **Última Atualização:** 12/11/2026 23:02
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -46,9 +46,12 @@
 - [x] **Adaptação 100% Dinâmica à Localização Real + Banco Completo Ida/Volta + 45 Hubs SEI + WebMCP**:
   - Compilador `compilar_rede_real_gtfs.py` atualizado e reexecutado: extrai trajetos **IDA + VOLTA** (`return_coords`) de todas as `393` linhas reais em `gtfs_real_network.json` (`3116.6 KB`) e gera `hub_graph` com **45 Terminais/Hubs SEI** (ligando todas as linhas a até `0.45 km`).
   - Zero hardcoding na UFRPE/Rural (`522` / `100035` removidos do HTML estático e da inicialização): `adaptToUserLocation(lat, lon)` + `initUserLocation()` + `detectUserLocationForScreen2()` adaptam mapa, parada atual, linha, letreiro, ETA e Laya IA dinamicamente às coordenadas reais do usuário (ou mostram estado neutro `"Aguardando localização"` / `"Fora da RMR"`).
-  - Roteamento geoespacial multi-etapas na Laya IA (`getLinesNearPoint` + BFS de 0 a 3 baldeações reais via `hub_graph` + `renderMultiLegRoute` no mapa): resolve qualquer origem/destino na RMR sem cortar etapas intermediárias (ex: `"Recife Antigo pra Olinda"` -> linhas diretas como `1971`/`1967`/`1983`/`1100`; `"Camela pra Olinda"` -> rota completa em 3 etapas `199 -> Ti Cabo -> 185 -> Cais de Santa Rita -> 1971 -> Olinda`).
+  - Roteamento geoespacial multi-etapas sem limite artificial na Laya IA (`getLinesNearPoint` + busca ponderada estilo Dijkstra até 6 etapas / 4.500 expansões via `hub_graph` + `routeOptions` estilo Google Maps com caminhada em metros, tempo estimado e `renderMultiLegRoute` com percurso a pé pontilhado + baldeações + pino 🎯 Destino): cobre 36+ polos da RMR (Recife Antigo, Casa Caiada, Shopping Recife, UFPE/UFRPE, Porto de Galinhas, Camela, Olinda, Jaboatão, Paulista, Igarassu, etc.) e ancora automaticamente destinos implícitos (`"Quero ir para Casa Caiada"`) no GPS atual.
+  - GPS contínuo (`watchPosition`) + clique no mapa (`window.setCustomOriginPoint`) para definir origem manualmente sem sobreescritas + cartões de múltiplas opções clicáveis direto na Tela 2 (`#locate-route-options` + `selectGoogleMapsOption`).
+  - **Voz Natural PT-BR Upgrade**: `formatSpeechPortuguese` (expansão de `TI`, `ST-GCN`, `RMR`, `PE-60`, `min`, `km`, `m`), seleção ranqueada de vozes neurais (`Thalita`, `Francisca`, `Antonio`, `Google pt-BR`), divisão por sentenças contra corte no Chrome mobile e botões `🎭` (trocar voz) + `🔊/🔇` (mudo) no `#modal-laya`.
+  - **Transparência sobre "modelo Laya"**: No app hoje, `Laya` é a assistente inteligente + classificador System-1 (`classifyLayaDecision`) + roteador GTFS sobre os pesos **ST-GCN**; pesos neurais externos da Convai Innovations (`convaiinnovations/laya` / `onnx-community/laya-multilingual-ONNX`, `322M` params `mmBERT`) ainda NÃO estão embutidos (aguardando confirmação do Cauã se o professor solicitou Convai Laya via ONNX/Transformers.js ou se referia à assistente + ST-GCN).
   - Suporte nativo ao **Google Chrome WebMCP** (`navigator.modelContext.registerTool` com `grafoparada_plan_route` e `grafoparada_find_nearest_stop` + atributo declarativo `toolname="grafoparada_plan_from_locate"`).
-  - *Nota*: Vercel CLI retornou `Not authorized` localmente nesta máquina (login expirado); deploy na produção Vercel ocorre via integração GitHub (`main`) ou reautenticação `npx vercel login`.
+  - *Nota*: Deploy Vercel CLI funcionando diretamente dentro de `code/grafoparada_web` (`npx vercel --prod --yes`).
   - Conhecimento da plataforma integrado (ST-GCN `1,51 min` MAE, `Yap & Cats 1,68x`, `Kim et al. 2026`, Trava Híbrida Defensiva).
   - Corrigido layout e scroll do `#modal-laya` (`height: min(640px, 86dvh)`, `#laya-chat-history` com auto-scroll `requestAnimationFrame`) e encurtado placeholder (`"Ex: De Camela até Ipojuca..."`) para evitar cortes no mobile.
 - [x] **Gatekeeper & Testes Ampliados (`teste_rotinas_e_realocacao.py`)**:

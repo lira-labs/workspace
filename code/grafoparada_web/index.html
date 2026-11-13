@@ -1947,7 +1947,7 @@
 
         <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
           <div class="pulse-dot"></div>
-          <span id="top-line-label">522</span>
+          <span id="top-line-label">--</span>
         </div>
       </div>
 
@@ -1976,7 +1976,7 @@
     <div id="route-indicator-chip" class="route-indicator-chip">
       <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
         <span style="font-size:14px;">🚌</span>
-        <span id="route-chip-label" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:180px;">Linha 522 · Dois Irmãos</span>
+        <span id="route-chip-label" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:180px;">Detectando linha próxima...</span>
       </div>
       <div style="display:flex; gap:6px; align-items:center;">
         <button class="route-chip-btn" onclick="fitActiveRouteBounds()" title="Enquadrar todo o trajeto no mapa">👁️ Trajeto</button>
@@ -3277,12 +3277,16 @@
             <div>
               <div style="font-weight:800; font-size:15px; display:flex; align-items:center; gap:6px;">
                 Laya IA
-                <span style="font-size:10px; background:rgba(255,255,255,0.22); padding:2px 8px; border-radius:999px;">GTFS + ST-GCN</span>
+                <span style="font-size:10px; background:rgba(255,255,255,0.22); padding:2px 8px; border-radius:999px;">Rotas + Voz PT-BR</span>
               </div>
-              <div style="font-size:11px; opacity:0.92;">Conectada às 400 linhas do Grande Recife</div>
+              <div style="font-size:11px; opacity:0.92;">Conectada às 393 linhas reais e 45 terminais da RMR</div>
             </div>
           </div>
-          <button onclick="closeLayaModal()" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:800; font-size:14px;">✕</button>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" id="btn-laya-voice-style" onclick="cycleLayaVoice()" title="Trocar timbre de voz da Laya" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:14px;">🎭</button>
+            <button type="button" id="btn-laya-voice-mute" onclick="toggleLayaVoiceMute()" title="Ativar ou silenciar voz da Laya" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:14px;">🔊</button>
+            <button onclick="closeLayaModal()" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:800; font-size:14px;">✕</button>
+          </div>
         </div>
 
         <!-- CHAT HISTORY -->
@@ -3443,9 +3447,12 @@
 
       <!-- CAMPO OPCIONAL DE DESTINO (COM SUPORTE DECLARATIVO WEBMCP) -->
       <form toolname="grafoparada_plan_from_locate" tooldescription="Planeja rota de ônibus na RMR a partir da localização atual do usuário até o destino informado." onsubmit="event.preventDefault(); askLayaFromLocate();" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
-        <input type="text" id="locate-dest-input" name="destination" toolparamdescription="Bairro, terminal ou ponto de destino no Grande Recife (ex: Olinda, Ipojuca, Derby)" placeholder="Para onde você vai? (ex: Olinda, Ipojuca, Derby...)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" />
-        <button type="submit" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">✨ Ver Rota</button>
+        <input type="text" id="locate-dest-input" name="destination" toolparamdescription="Bairro, terminal ou ponto de destino no Grande Recife (ex: Olinda, Ipojuca, Derby)" placeholder="Para onde você vai? (ex: Olinda, Casa Caiada, UFPE...)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" />
+        <button type="submit" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">🗺️ Ver Opções</button>
       </form>
+
+      <!-- OPÇÕES DE ROTA ESTILO GOOGLE MAPS BASEADAS NA SUA LOCALIZAÇÃO -->
+      <div id="locate-route-options" style="display:none; margin-top:12px; flex-direction:column; gap:8px;"></div>
 
       <!-- PRÉVIA INTELIGENTE DO PRÓXIMO ÔNIBUS -->
       <div class="locate-preview-card" id="locate-preview-card">
@@ -3897,15 +3904,53 @@
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
             updateUserLocationMarker(lat, lon, false);
-            if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+            if (!window.grafoparadaManualOrigin && window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
               window.RealTransit.adaptToUserLocation(lat, lon, "GPS Inicial", { fit: true });
             }
           },
           function() {},
           { enableHighAccuracy: true, timeout: 6000 }
         );
+
+        try {
+          if (window.grafoparadaGeoWatchId != null && navigator.geolocation.clearWatch) {
+            navigator.geolocation.clearWatch(window.grafoparadaGeoWatchId);
+          }
+          let lastWatchedLat = defaultLat;
+          let lastWatchedLon = defaultLon;
+          window.grafoparadaGeoWatchId = navigator.geolocation.watchPosition(
+            function(pos) {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              updateUserLocationMarker(lat, lon, false);
+              if (window.grafoparadaManualOrigin) return;
+              const dLat = (lat - lastWatchedLat) * 111.32;
+              const dLon = (lon - lastWatchedLon) * 111.32 * Math.cos(lat * Math.PI / 180);
+              const movedKm = Math.sqrt(dLat * dLat + dLon * dLon);
+              if (movedKm >= 0.08 && window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+                lastWatchedLat = lat;
+                lastWatchedLon = lon;
+                window.RealTransit.adaptToUserLocation(lat, lon, "GPS Contínuo", { fit: false });
+              }
+            },
+            function() {},
+            { enableHighAccuracy: true, maximumAge: 15000, timeout: 12000 }
+          );
+        } catch(e) {}
       }
     }
+
+    window.setCustomOriginPoint = function(lat, lon) {
+      window.grafoparadaManualOrigin = true;
+      updateUserLocationMarker(lat, lon, true);
+      if (leafletMap) leafletMap.closePopup();
+      if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+        const res = window.RealTransit.adaptToUserLocation(lat, lon, "Ponto marcado no mapa", { fit: true });
+        if (typeof showFloatingVoicePill === "function" && res && res.best) {
+          showFloatingVoicePill("📍 Origem ajustada! Parada próxima na linha " + res.best.code + ".");
+        }
+      }
+    };
 
     function initMap() {
       try {
@@ -3942,6 +3987,18 @@
         // Inicializa a bolinha pulsante do usuário e a animação do ônibus
         initUserLocation();
         startLiveBusGlideAnimation();
+
+        // Permite tocar em qualquer ponto do mapa para ajustar a origem manualmente (útil em testes ou sem GPS)
+        leafletMap.on("click", function(e) {
+          if (!e || !e.latlng) return;
+          const cLat = e.latlng.lat.toFixed(6);
+          const cLon = e.latlng.lng.toFixed(6);
+          const popupHtml = '<div style="font-family:Inter,sans-serif; font-size:12px; min-width:170px;">' +
+            '<div style="font-weight:800; color:#0f172a; margin-bottom:6px;">📍 Definir localização aqui?</div>' +
+            '<button type="button" onclick="window.setCustomOriginPoint(' + cLat + ',' + cLon + ')" style="width:100%; background:#059669; color:#fff; border:none; border-radius:8px; padding:7px 10px; font-size:11.5px; font-weight:800; cursor:pointer;">Usar como minha origem</button>' +
+            '</div>';
+          L.popup().setLatLng(e.latlng).setContent(popupHtml).openOn(leafletMap);
+        });
 
         // Passagens de invalidação para garantir renderização perfeita
         setTimeout(function() { if (leafletMap) leafletMap.invalidateSize(); }, 100);
@@ -4601,6 +4658,7 @@
       }
       navigator.geolocation.getCurrentPosition(
         function(pos) {
+          window.grafoparadaManualOrigin = false;
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           if (leafletMap) {
@@ -5204,6 +5262,7 @@
 
       navigator.geolocation.getCurrentPosition(
         function(pos) {
+          window.grafoparadaManualOrigin = false;
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           if (typeof updateUserLocationMarker === "function") {
@@ -5248,6 +5307,7 @@
     }
 
     function selectLocatePreset(corridorKey, btnEl) {
+      window.grafoparadaManualOrigin = true;
       selectedOriginCorridorKey = corridorKey;
       document.querySelectorAll(".locate-preset-btn").forEach(function(b) {
         b.classList.remove("selected");
@@ -5290,13 +5350,21 @@
       playSimpleChime();
     }
 
+    let lastLocatePlanResult = null;
+
     function askLayaFromLocate() {
       const inp = document.getElementById("locate-dest-input");
+      const optionsBox = document.getElementById("locate-route-options");
       const dest = inp ? inp.value.trim() : "";
       if (!dest) {
+        if (optionsBox) {
+          optionsBox.style.display = "none";
+          optionsBox.innerHTML = "";
+        }
         openLayaModal();
         return;
       }
+
       let originLabel = "aqui";
       if (selectedOriginCorridorKey && window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
         const c = window.RealTransit.getSemanticCorridors().find(function(x) { return x.key === selectedOriginCorridorKey; });
@@ -5304,9 +5372,87 @@
       } else if (window.RealTransit && window.RealTransit.userAdaptState && window.RealTransit.userAdaptState.status === "adapted") {
         originLabel = window.RealTransit.userAdaptState.stopName || "aqui";
       }
+
+      const plan = (window.RealTransit && typeof window.RealTransit.planSmartTrip === "function")
+        ? window.RealTransit.planSmartTrip(originLabel, dest, typeof TELEMETRIA !== "undefined" ? TELEMETRIA : null)
+        : null;
+
+      if (plan && plan.routeOptions && plan.routeOptions.length > 0 && optionsBox) {
+        lastLocatePlanResult = plan;
+        const optCardsHtml = plan.routeOptions.map(function(opt, idx) {
+          const badgeColors = ["#059669", "#0284c7", "#7c3aed"];
+          const legsHtml = opt.legs.map(function(code, i) {
+            const hubBadge = (i < opt.hubs.length)
+              ? '<span style="font-size:10px; color:#64748b; font-weight:700;"> ➔ 🚉 ' + opt.hubs[i] + ' ➔ </span>'
+              : '';
+            return '<span style="display:inline-flex; align-items:center; background:' + badgeColors[i % badgeColors.length] + '; color:#fff; font-weight:800; font-size:11px; padding:2px 7px; border-radius:6px;">' + code + '</span>' + hubBadge;
+          }).join("");
+          const walkHtml = (typeof opt.walkMeters === "number")
+            ? '<span style="font-size:10.5px; color:#475569; font-weight:700;">🚶 ' + opt.walkMeters + 'm (' + (opt.walkMin || 1) + ' min a pé)</span>'
+            : '';
+          const tag = opt.tag || (idx === 0 ? "⚡ Mais rápida" : "Alternativa " + (idx + 1));
+          const highlightBorder = idx === 0 ? "1.5px solid #059669" : "1px solid #cbd5e1";
+          return '<div style="background:#ffffff; border:' + highlightBorder + '; border-radius:12px; padding:10px 12px; box-shadow:0 2px 8px rgba(15,23,42,0.05);">' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">' +
+              '<span style="font-size:10.5px; font-weight:800; color:' + (idx === 0 ? '#047857' : '#334155') + '; text-transform:uppercase;">' + tag + '</span>' +
+              '<span style="font-family:\'JetBrains Mono\',monospace; font-size:13px; font-weight:800; color:#0f172a;">⏱️ ~' + opt.totalMin + ' min</span>' +
+            '</div>' +
+            '<div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-bottom:6px;">' + legsHtml + '</div>' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">' +
+              walkHtml +
+              '<button type="button" onclick="selectGoogleMapsOption(' + idx + ')" style="background:#059669; color:#ffffff; border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:800; cursor:pointer; margin-left:auto;">🗺️ Traçar no Mapa</button>' +
+            '</div>' +
+          '</div>';
+        }).join("");
+
+        optionsBox.innerHTML =
+          '<div style="font-size:11.5px; font-weight:800; color:#0f172a;">🛣️ Sugestões de ' + plan.originLabel + ' até ' + plan.destLabel + ':</div>' +
+          optCardsHtml +
+          '<button type="button" onclick="openLocatePlanInLaya()" style="width:100%; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; border-radius:10px; padding:8px 12px; font-size:11.5px; font-weight:800; cursor:pointer;">✨ Ver guia completo com a Laya IA</button>';
+        optionsBox.style.display = "flex";
+        playSimpleChime();
+        return;
+      }
+
+      if (optionsBox) {
+        optionsBox.style.display = "none";
+        optionsBox.innerHTML = "";
+      }
       openLayaModal();
       handleLayaQuickPrompt("Quero ir de " + originLabel + " até " + dest);
     }
+
+    function selectGoogleMapsOption(idx) {
+      if (!lastLocatePlanResult || !lastLocatePlanResult.routeOptions || !lastLocatePlanResult.routeOptions[idx]) return;
+      const opt = lastLocatePlanResult.routeOptions[idx];
+      const oCoords = (lastLocatePlanResult.origCorridor && typeof lastLocatePlanResult.origCorridor.lat === "number")
+        ? [lastLocatePlanResult.origCorridor.lat, lastLocatePlanResult.origCorridor.lon]
+        : null;
+      const dCoords = (lastLocatePlanResult.destCorridor && typeof lastLocatePlanResult.destCorridor.lat === "number")
+        ? [lastLocatePlanResult.destCorridor.lat, lastLocatePlanResult.destCorridor.lon]
+        : null;
+
+      navigateToScreen("radar");
+      setTimeout(function() {
+        if (window.RealTransit && typeof window.RealTransit.renderMultiLegRoute === "function") {
+          window.RealTransit.renderMultiLegRoute(opt.legs, opt.hubs, oCoords, dCoords);
+        }
+        const msg = "Rota de " + lastLocatePlanResult.originLabel + " até " + lastLocatePlanResult.destLabel +
+          " traçada no mapa: linhas " + opt.legs.join(" e ") + ", tempo estimado de " + opt.totalMin + " minutos.";
+        if (typeof playNaturalVoice === "function") playNaturalVoice(msg);
+      }, 150);
+    }
+
+    function openLocatePlanInLaya() {
+      const inp = document.getElementById("locate-dest-input");
+      const dest = inp ? inp.value.trim() : "";
+      const originLabel = (lastLocatePlanResult && lastLocatePlanResult.originLabel) ? lastLocatePlanResult.originLabel : "aqui";
+      openLayaModal();
+      if (dest) handleLayaQuickPrompt("Quero ir de " + originLabel + " até " + dest);
+    }
+
+    window.selectGoogleMapsOption = selectGoogleMapsOption;
+    window.openLocatePlanInLaya = openLocatePlanInLaya;
 
     function confirmLocateAndOpenRadar() {
       navigateToScreen("radar");
@@ -5607,38 +5753,128 @@
       }, 300);
     }
 
-    // Síntese de voz com seleção de vozes neurais brasileiras naturais
+    // Síntese de voz brasileira natural + controle de timbre e prosódia humana (sem cortar falas)
     let cachedNaturalVoice = null;
-    function findBestNaturalVoice() {
-      if (!('speechSynthesis' in window)) return null;
-      const voices = window.speechSynthesis.getVoices() || [];
-      if (!voices.length) return null;
+    let layaVoiceMuted = (typeof localStorage !== "undefined" && localStorage.getItem("grafoparada_voice_muted") === "1");
+    let preferredVoiceIndex = (typeof localStorage !== "undefined" && Number(localStorage.getItem("grafoparada_voice_idx"))) || 0;
 
-      // 1. Prioriza vozes neurais brasileiras femininas/acolhedoras (Francisca, Luciana, Google pt-BR)
-      let best = voices.find(function(v) {
+    function getRankedPortugueseVoices() {
+      if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return [];
+
+      const ptVoices = voices.filter(function(v) {
+        return (v.lang || "").toLowerCase().startsWith("pt");
+      });
+      if (!ptVoices.length) return [];
+
+      const scored = ptVoices.map(function(v) {
         const n = (v.name || "").toLowerCase();
         const l = (v.lang || "").toLowerCase();
-        return (l === "pt-br" || l === "pt_br") && (n.includes("natural") || n.includes("neural") || n.includes("francisca") || n.includes("luciana") || n.includes("google"));
+        let s = 0;
+        if (l === "pt-br" || l === "pt_br") s += 35;
+        if (n.includes("thalita") || n.includes("francisca") || n.includes("giovanna") || n.includes("brenda") || n.includes("leticia") || n.includes("antonio") || n.includes("humberto")) s += 110;
+        if (n.includes("natural") || n.includes("neural") || n.includes("online") || n.includes("wavenet") || n.includes("enhanced") || n.includes("google")) s += 85;
+        if (n.includes("luciana") || n.includes("felipe") || n.includes("maria") || n.includes("raquel")) s += 55;
+        if (!v.localService) s += 20;
+        if (n.includes("espeak") || n.includes("compact") || n.includes("robot")) s -= 60;
+        return { voice: v, score: s };
       });
-
-      // 2. Qualquer pt-BR neural
-      if (!best) {
-        best = voices.find(function(v) {
-          const l = (v.lang || "").toLowerCase();
-          return (l === "pt-br" || l === "pt_br");
-        });
-      }
-
-      // 3. Qualquer português
-      if (!best) {
-        best = voices.find(function(v) {
-          return (v.lang || "").toLowerCase().startsWith("pt");
-        });
-      }
-      return best;
+      scored.sort(function(a, b) { return b.score - a.score; });
+      return scored.map(function(item) { return item.voice; });
     }
 
-    if (typeof window !== "undefined" && 'speechSynthesis' in window) {
+    function findBestNaturalVoice() {
+      const ranked = getRankedPortugueseVoices();
+      if (!ranked.length) return null;
+      const idx = ((preferredVoiceIndex % ranked.length) + ranked.length) % ranked.length;
+      return ranked[idx];
+    }
+
+    function formatSpeechPortuguese(raw) {
+      if (!raw) return "";
+      let s = String(raw);
+      s = s.replace(/<[^>]+>/g, " ");
+      s = s.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, " ");
+      s = s.replace(/➔|→|->/g, ", depois ");
+      s = s.replace(/\bTI\s+/g, "Terminal Integrado ");
+      s = s.replace(/\bST-GCN\b/gi, "rede neural espaço-temporal");
+      s = s.replace(/\bRMR\b/g, "Região Metropolitana do Recife");
+      s = s.replace(/\bGTFS\b/gi, "base oficial de linhas");
+      s = s.replace(/\bETA\b/gi, "previsão de chegada");
+      s = s.replace(/\bMAE\b/gi, "erro médio absoluto");
+      s = s.replace(/\bCTM\b/g, "Consórcio Grande Recife");
+      s = s.replace(/\bUFRPE\b/g, "Universidade Federal Rural de Pernambuco");
+      s = s.replace(/\bUFPE\b/g, "Universidade Federal de Pernambuco");
+      s = s.replace(/\bCDU\b/g, "C D U");
+      s = s.replace(/\bPE-(\d+)\b/gi, "P E $1");
+      s = s.replace(/\bBR-(\d+)\b/gi, "B R $1");
+      s = s.replace(/\b(\d+)\s*min\b/gi, "$1 minutos");
+      s = s.replace(/\b(\d+)\s*km\b/gi, "$1 quilômetros");
+      s = s.replace(/\b(\d+)\s*m\b/gi, "$1 metros");
+      s = s.replace(/\s+/g, " ").trim();
+      return s;
+    }
+
+    function splitSpeechSentences(text) {
+      const parts = text.split(/(?<=[.!?;])\s+/);
+      const chunks = [];
+      let current = "";
+      for (let i = 0; i < parts.length; i++) {
+        const piece = parts[i].trim();
+        if (!piece) continue;
+        if ((current + " " + piece).length <= 165) {
+          current = current ? (current + " " + piece) : piece;
+        } else {
+          if (current) chunks.push(current);
+          current = piece;
+        }
+      }
+      if (current) chunks.push(current);
+      return chunks.length ? chunks : [text];
+    }
+
+    function syncLayaVoiceButtons() {
+      const muteBtn = document.getElementById("btn-laya-voice-mute");
+      if (muteBtn) {
+        muteBtn.textContent = layaVoiceMuted ? "🔇" : "🔊";
+        muteBtn.title = layaVoiceMuted ? "Voz silenciada (toque para ativar)" : "Voz ativa (toque para silenciar)";
+      }
+    }
+
+    function toggleLayaVoiceMute() {
+      layaVoiceMuted = !layaVoiceMuted;
+      try { localStorage.setItem("grafoparada_voice_muted", layaVoiceMuted ? "1" : "0"); } catch(e) {}
+      syncLayaVoiceButtons();
+      if (layaVoiceMuted && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        showFloatingVoicePill("🔇 Voz da Laya silenciada.");
+      } else {
+        playNaturalVoice("Voz ativada. Estou pronta para guiar sua viagem.");
+      }
+    }
+
+    function cycleLayaVoice() {
+      const ranked = getRankedPortugueseVoices();
+      if (!ranked.length) {
+        showFloatingVoicePill("ℹ️ Apenas a voz padrão do aparelho está disponível neste navegador.");
+        return;
+      }
+      preferredVoiceIndex = (preferredVoiceIndex + 1) % ranked.length;
+      try { localStorage.setItem("grafoparada_voice_idx", String(preferredVoiceIndex)); } catch(e) {}
+      cachedNaturalVoice = ranked[preferredVoiceIndex];
+      layaVoiceMuted = false;
+      try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
+      syncLayaVoiceButtons();
+      const shortName = (cachedNaturalVoice.name || "Voz PT-BR").split("-")[0].trim();
+      playNaturalVoice("Olá! Agora você está ouvindo a Laya com a voz " + shortName + ".");
+    }
+
+    window.toggleLayaVoiceMute = toggleLayaVoiceMute;
+    window.cycleLayaVoice = cycleLayaVoice;
+    window.formatSpeechPortuguese = formatSpeechPortuguese;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.onvoiceschanged = function() {
         cachedNaturalVoice = findBestNaturalVoice();
       };
@@ -5647,23 +5883,32 @@
     function playNaturalVoice(text) {
       if (!text) return;
       showFloatingVoicePill(text);
+      if (layaVoiceMuted) return;
+
+      const spoken = formatSpeechPortuguese(text);
+      if (!spoken) return;
 
       try {
-        if ('speechSynthesis' in window) {
+        if ("speechSynthesis" in window) {
           window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.lang = 'pt-BR';
-          utter.rate = 0.98; // Cadência natural e acolhedora
-          utter.pitch = 1.02;
+          const voice = findBestNaturalVoice();
+          cachedNaturalVoice = voice;
+          const chunks = splitSpeechSentences(spoken);
 
-          if (!cachedNaturalVoice) {
-            cachedNaturalVoice = findBestNaturalVoice();
+          let idx = 0;
+          function speakNextChunk() {
+            if (layaVoiceMuted || idx >= chunks.length) return;
+            const utter = new SpeechSynthesisUtterance(chunks[idx++]);
+            utter.lang = "pt-BR";
+            utter.rate = 1.01;
+            utter.pitch = 1.03;
+            if (voice) utter.voice = voice;
+            utter.onend = function() {
+              speakNextChunk();
+            };
+            window.speechSynthesis.speak(utter);
           }
-          if (cachedNaturalVoice) {
-            utter.voice = cachedNaturalVoice;
-          }
-
-          window.speechSynthesis.speak(utter);
+          speakNextChunk();
         }
       } catch (e) {
         console.warn("Audio synthesis error:", e);

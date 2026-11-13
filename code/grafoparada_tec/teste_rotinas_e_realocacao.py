@@ -195,11 +195,19 @@ for nome, fragmento in ui_flow_checks:
         print(f"  [FAIL] {nome} - Fragmento ausente: '{fragmento}'")
 
 total_testes += 1
-if ("Terminal de Dois Irmãos (UFRPE / Rui Barbosa)" not in html) and ("CÓD 100035" not in html):
-    print("  [PASS] Zero Hardcoding Rural: HTML inicial neutro e 100% adaptativo ao GPS")
+if (
+    ("Terminal de Dois Irmãos (UFRPE / Rui Barbosa)" not in html)
+    and ("CÓD 100035" not in html)
+    and ('id="top-line-label">522<' not in html)
+    and ("Detectando linha próxima..." in html)
+    and ("formatSpeechPortuguese" in html)
+    and ("locate-route-options" in html)
+    and ("selectGoogleMapsOption" in html)
+):
+    print("  [PASS] Zero Hardcoding Rural + Google Maps Route Options + Voz PT-BR presentes no HTML")
     aprovados += 1
 else:
-    print("  [FAIL] HTML inicial ainda contém parada fixa na UFRPE/Dois Irmãos")
+    print("  [FAIL] HTML inicial contém parada fixa ou faltam blocos Maps/Voz")
 
 import json
 import subprocess
@@ -232,6 +240,8 @@ const nextCamela = window.RealTransit.answerLayaQuery('Qual o horário do próxi
 const aiKnow = window.RealTransit.answerLayaQuery('Como funciona a IA ST-GCN?');
 
 const adaptRecife = window.RealTransit.adaptToUserLocation(-8.0631, -34.8711, 'Recife Antigo');
+const tripImplicitFromRecife = window.RealTransit.answerLayaQuery('Quero ir para Casa Caiada');
+const planIburaShopping = window.RealTransit.planSmartTrip('Ibura', 'Shopping Recife');
 const adaptCamela = window.RealTransit.adaptToUserLocation(-8.5149, -35.1235, 'Camela');
 const adaptSp = window.RealTransit.adaptToUserLocation(-23.5505, -46.6333, 'SP');
 window.RealTransit.registerWebMCPTools();
@@ -242,6 +252,8 @@ console.log(JSON.stringify({
   tripCamelaOlinda,
   nextCamela,
   aiKnow,
+  tripImplicitFromRecife,
+  planIburaShopping,
   adaptRecife,
   adaptCamela,
   adaptSp,
@@ -261,18 +273,23 @@ if node_res.returncode == 0:
     t_cam_ol = out["tripCamelaOlinda"]
     t2 = out["nextCamela"]
     t3 = out["aiKnow"]
+    t_imp = out.get("tripImplicitFromRecife") or {}
+    p_ibu = out.get("planIburaShopping") or {}
     ok_trip = (t1.get("routeCode") == "199") and ("199" in t1.get("html", "")) and ("Ipojuca" in t1.get("html", "")) and ("522" not in t1.get("html", ""))
     ok_rec_ol = (t_rec_ol.get("routeCode") in ["1967", "1971", "1983", "1100", "1992", "1973", "1913", "914"]) and ("Olinda" in t_rec_ol.get("html", "")) and ("522" not in t_rec_ol.get("html", ""))
     cam_ol_legs = t_cam_ol.get("legs") or []
     cam_ol_hubs = t_cam_ol.get("hubs") or []
-    ok_cam_ol = (t_cam_ol.get("intent") == "trip_transfer") and (len(cam_ol_legs) == 3) and (cam_ol_legs[0] == "199") and any("Cabo" in h for h in cam_ol_hubs) and any("Cais" in h or "Recife" in h for h in cam_ol_hubs) and ("522" not in t_cam_ol.get("html", ""))
+    cam_ol_opts = t_cam_ol.get("routeOptions") or []
+    ok_cam_ol = (t_cam_ol.get("intent") == "trip_transfer") and (len(cam_ol_legs) >= 3) and (cam_ol_legs[0] == "199") and any("Cabo" in h for h in cam_ol_hubs) and (len(cam_ol_opts) >= 1) and ("522" not in t_cam_ol.get("html", ""))
     ok_next = (t2.get("routeCode") == "199") and ("Camela" in t2.get("html", "")) and ("522" not in t2.get("html", ""))
     ok_ai = ("1,51 min" in t3.get("html", "")) and ("Kim et al." in t3.get("html", ""))
-    if ok_trip and ok_rec_ol and ok_cam_ol and ok_next and ok_ai:
-        print(f"  [PASS] Laya IA GTFS + Hub Graph Multi-Etapas: Camela->Ipojuca (199), Recife Antigo->Olinda ({t_rec_ol.get('routeCode')}), Camela->Olinda ({' -> '.join(cam_ol_legs)} via {' -> '.join(cam_ol_hubs)}) OK")
+    ok_imp = (t_imp.get("intent") in ("trip_direct", "trip_transfer")) and (len(t_imp.get("routeOptions") or []) >= 1) and ("Casa Caiada" in t_imp.get("html", ""))
+    ok_ibu = bool(p_ibu.get("origCorridor")) and bool(p_ibu.get("destCorridor")) and (len(p_ibu.get("routeOptions") or []) >= 1)
+    if ok_trip and ok_rec_ol and ok_cam_ol and ok_next and ok_ai and ok_imp and ok_ibu:
+        print(f"  [PASS] Laya IA Ilimitada + Opções GPS: Camela->Ipojuca (199), Camela->Olinda ({' -> '.join(cam_ol_legs)}, {len(cam_ol_opts)} opções), Destino Implícito->Casa Caiada, Ibura->Shopping Recife OK")
         aprovados += 1
     else:
-        print(f"  [FAIL] Laya IA GTFS invalid: cam_ipo={ok_trip}, rec_ol={ok_rec_ol} ({t_rec_ol.get('routeCode')}), cam_ol={ok_cam_ol} ({t_cam_ol.get('intent')}), next={ok_next}, ai={ok_ai}")
+        print(f"  [FAIL] Laya IA GTFS invalid: cam_ipo={ok_trip}, rec_ol={ok_rec_ol}, cam_ol={ok_cam_ol}, next={ok_next}, ai={ok_ai}, imp={ok_imp}, ibu={ok_ibu}")
 else:
     print(f"  [FAIL] Erro Node.js executando Laya IA: {node_res.stderr}")
 

@@ -193,8 +193,8 @@
       this.fetchCittamobiLiveData(code);
     },
 
-    // Plota uma jornada completa com múltiplas etapas (ex: Camela -> TI Cabo -> Recife -> Olinda)
-    renderMultiLegRoute(codes, hubNames) {
+    // Plota uma jornada completa estilo Google Maps (caminhada + etapas de ônibus + baldeações + destino)
+    renderMultiLegRoute(codes, hubNames, originCoords, destCoords) {
       if (!this.map || !this.networkData || !this.networkData.popular_lines || !Array.isArray(codes) || codes.length === 0) return;
 
       // Carrega a 1ª etapa para preencher o painel, letreiro e paradas iniciais
@@ -205,21 +205,68 @@
       }
       this.extraLegsLayer = L.layerGroup().addTo(this.map);
 
-      const legColors = ['#059669', '#0284c7', '#7c3aed', '#d97706'];
+      const legColors = ['#059669', '#0284c7', '#7c3aed', '#d97706', '#e11d48'];
       const bounds = L.latLngBounds([]);
+
+      const findClosestPt = (pts, target) => {
+        if (!Array.isArray(pts) || !pts.length || !Array.isArray(target)) return null;
+        let best = pts[0];
+        let bestD = Infinity;
+        for (const p of pts) {
+          const lat = Array.isArray(p) ? p[0] : p.lat;
+          const lon = Array.isArray(p) ? p[1] : p.lon;
+          const d = this.haversineKm(target[0], target[1], lat, lon);
+          if (d < bestD) { bestD = d; best = [lat, lon]; }
+        }
+        return best;
+      };
+
+      const startRef = Array.isArray(originCoords) ? originCoords : (this.userAdaptState && this.userAdaptState.lat ? [this.userAdaptState.lat, this.userAdaptState.lon] : null);
 
       codes.forEach((rawCode, idx) => {
         const line = this.networkData.popular_lines[String(rawCode)] || this.networkData.popular_lines[this.aliases[rawCode] || rawCode];
-        if (!line || !Array.isArray(line.polyline) || line.polyline.length === 0) return;
+        if (!line) return;
+        const pts = (Array.isArray(line.polyline) && line.polyline.length > 0)
+          ? line.polyline
+          : (Array.isArray(line.return_coords) ? line.return_coords : []);
+        if (!pts.length) return;
+
+        // Caminhada tracejada da localização atual até a 1ª parada de embarque
+        if (idx === 0 && startRef) {
+          const boardPt = findClosestPt(line.stops && line.stops.length ? line.stops : pts, startRef);
+          if (boardPt) {
+            const walkStart = L.polyline([startRef, boardPt], {
+              color: '#334155',
+              weight: 3.5,
+              opacity: 0.85,
+              dashArray: '4, 7'
+            }).addTo(this.extraLegsLayer);
+            bounds.extend(walkStart.getBounds());
+          }
+        }
 
         const color = legColors[idx % legColors.length];
-        const poly = L.polyline(line.polyline, {
+        const poly = L.polyline(pts, {
           color,
           weight: idx === 0 ? 5 : 4.5,
           opacity: 0.9,
           dashArray: idx > 0 ? '8, 6' : null
         }).addTo(this.extraLegsLayer);
         bounds.extend(poly.getBounds());
+
+        // Caminhada tracejada final até o destino escolhido
+        if (idx === codes.length - 1 && Array.isArray(destCoords)) {
+          const alightPt = findClosestPt(line.stops && line.stops.length ? line.stops : pts, destCoords);
+          if (alightPt) {
+            const walkEnd = L.polyline([alightPt, destCoords], {
+              color: '#334155',
+              weight: 3.5,
+              opacity: 0.85,
+              dashArray: '4, 7'
+            }).addTo(this.extraLegsLayer);
+            bounds.extend(walkEnd.getBounds());
+          }
+        }
       });
 
       // Marca os Hubs/Terminais SEI de baldeação ao longo do trajeto
@@ -236,6 +283,17 @@
           }).addTo(this.extraLegsLayer);
           bounds.extend(badge.getLatLng());
         });
+      }
+
+      if (Array.isArray(destCoords)) {
+        const destPin = L.marker(destCoords, {
+          icon: L.divIcon({
+            className: '',
+            html: `<div style="background:#e11d48; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">🎯 Destino</div>`,
+            iconAnchor: [35, 12]
+          })
+        }).addTo(this.extraLegsLayer);
+        bounds.extend(destPin.getLatLng());
       }
 
       if (bounds.isValid()) {
@@ -933,43 +991,66 @@
       return ctx;
     },
 
-    // Catálogo amplo de polos reais da RMR com coordenadas exatas
+    // Catálogo georreferenciado amplo da RMR (bairros, praias, shoppings, universidades, hospitais e terminais)
     getSemanticCorridors() {
       return [
-        { key: 'recife antigo', keys: ['recife antigo', 'bairro do recife', 'marco zero', 'porto digital', 'pcr', 'alfredo lisboa', 'rio branco', 'forte do brum'], label: 'Recife Antigo / Marco Zero', defaultLine: '1967', alsoServedBy: ['1971', '1100', '1983', '117'], hub: 'Cais de Santa Rita / PCR', stopName: 'Cais de Santa Rita / Av. Alfredo Lisboa (Recife Antigo)', lat: -8.0631, lon: -34.8711, waitMin: 5, seatsFree: 16 },
-        { key: 'cais de santa rita', keys: ['cais de santa rita', 'cais santa rita', 'dantas barreto'], label: 'Cais de Santa Rita (Centro)', defaultLine: '191', alsoServedBy: ['195', '1971', '1983', '050'], hub: 'Cais de Santa Rita', stopName: 'Terminal Cais de Santa Rita (Centro)', lat: -8.0680, lon: -34.8765, waitMin: 4, seatsFree: 18 },
-        { key: 'olinda', keys: ['olinda', 'carmo', 'varadouro', 'sitio historico', 'praca do carmo', 'alto da se', 'amparo'], label: 'Olinda (Carmo / Sítio Histórico)', defaultLine: '1967', alsoServedBy: ['1971', '1983', '1992', '1973', '1100'], hub: 'TI PE-15 / Carmo', stopName: 'Praça do Carmo / Sítio Histórico de Olinda', lat: -8.0125, lon: -34.8520, waitMin: 5, seatsFree: 14 },
-        { key: 'bairro novo', keys: ['bairro novo', 'casa caiada', 'jardim atlantico', 'beira mar olinda', 'getulio vargas olinda'], label: 'Olinda (Bairro Novo / Casa Caiada)', defaultLine: '1973', alsoServedBy: ['1992', '1994', '1974', '1982'], hub: 'TI Rio Doce / TI PE-15', stopName: 'Av. Getúlio Vargas (Bairro Novo / Casa Caiada)', lat: -7.9940, lon: -34.8420, waitMin: 4, seatsFree: 15 },
-        { key: 'rio doce', keys: ['rio doce', 'ti rio doce', 'janga', 'pau amarelo'], label: 'Olinda / TI Rio Doce', defaultLine: '1983', alsoServedBy: ['030', '1966', '2930', '1987'], hub: 'TI Rio Doce', stopName: 'TI Rio Doce (Olinda)', lat: -7.9598, lon: -34.8415, waitMin: 4, seatsFree: 19 },
+        { key: 'recife antigo', keys: ['recife antigo', 'bairro do recife', 'marco zero', 'porto digital', 'pcr', 'alfredo lisboa', 'rio branco', 'forte do brum'], label: 'Recife Antigo / Marco Zero', defaultLine: '1967', alsoServedBy: ['1971', '1100', '1983', '117'], hub: 'Cais de Santa Rita / PCR', stopName: 'Av. Alfredo Lisboa / Marco Zero (Recife Antigo)', lat: -8.0631, lon: -34.8711, waitMin: 5, seatsFree: 16 },
+        { key: 'cais de santa rita', keys: ['cais de santa rita', 'cais santa rita', 'santa rita', 'dantas barreto', 'centro do recife', 'santo antonio', 'sao jose', 'recife centro'], label: 'Cais de Santa Rita (Centro do Recife)', defaultLine: '191', alsoServedBy: ['185', '195', '1971', '1983', '050'], hub: 'Cais de Santa Rita', stopName: 'Terminal Cais de Santa Rita (Centro)', lat: -8.0680, lon: -34.8765, waitMin: 4, seatsFree: 18 },
+        { key: 'olinda', keys: ['olinda', 'carmo', 'varadouro', 'sitio historico', 'praca do carmo', 'alto da se', 'amparo'], label: 'Olinda (Carmo / Sítio Histórico)', defaultLine: '1971', alsoServedBy: ['1967', '1983', '1992', '1973', '1100'], hub: 'Praça do Carmo / TI PE-15', stopName: 'Praça do Carmo / Sítio Histórico de Olinda', lat: -8.0125, lon: -34.8520, waitMin: 5, seatsFree: 14 },
+        { key: 'bairro novo', keys: ['bairro novo', 'casa caiada', 'jardim atlantico', 'beira mar olinda', 'getulio vargas', 'patteo olinda', 'shopping patteo'], label: 'Olinda (Bairro Novo / Casa Caiada)', defaultLine: '1973', alsoServedBy: ['1992', '1994', '1974', '1982'], hub: 'TI Rio Doce / TI PE-15', stopName: 'Av. Getúlio Vargas (Bairro Novo / Casa Caiada)', lat: -7.9940, lon: -34.8420, waitMin: 4, seatsFree: 15 },
+        { key: 'janga', keys: ['janga', 'pau amarelo', 'maria farinha', 'nossa senhora da conceicao'], label: 'Paulista (Janga / Pau Amarelo)', defaultLine: '1992', alsoServedBy: ['1982', '1994', '1983'], hub: 'TI Rio Doce', stopName: 'Av. Cláudio José Gueiros Leite (Janga / Pau Amarelo)', lat: -7.9348, lon: -34.8285, waitMin: 6, seatsFree: 15 },
+        { key: 'rio doce', keys: ['rio doce', 'ti rio doce', 'maranguape'], label: 'Olinda / TI Rio Doce', defaultLine: '1983', alsoServedBy: ['030', '1966', '2930', '1987'], hub: 'TI Rio Doce', stopName: 'TI Rio Doce (Olinda)', lat: -7.9598, lon: -34.8415, waitMin: 4, seatsFree: 19 },
         { key: 'pe-15', keys: ['pe-15', 'pe 15', 'ti pe-15', 'ti pe 15', 'fragoso', 'ouro preto'], label: 'TI PE-15 (Olinda)', defaultLine: '1100', alsoServedBy: ['050', '1966', '1913', '914'], hub: 'TI PE-15', stopName: 'Terminal Integrado PE-15', lat: -7.9912, lon: -34.8576, waitMin: 3, seatsFree: 20 },
-        { key: 'xamba', keys: ['xamba', 'ti xamba', 'peixinhos'], label: 'TI Xambá (Olinda)', defaultLine: '812', alsoServedBy: ['861', '881'], hub: 'TI Xambá', stopName: 'Terminal Integrado Xambá', lat: -8.0078, lon: -34.8655, waitMin: 5, seatsFree: 16 },
-        { key: 'paulista', keys: ['paulista', 'pelopidas', 'ti pelopidas', 'abreu e lima', 'igarassu'], label: 'Paulista / TI Pelópidas', defaultLine: '1076', alsoServedBy: ['1907', '1967', '1977'], hub: 'TI Pelópidas Silveira', stopName: 'TI Pelópidas Silveira (Paulista)', lat: -7.9408, lon: -34.8732, waitMin: 5, seatsFree: 17 },
+        { key: 'xamba', keys: ['xamba', 'ti xamba', 'peixinhos', 'aguazinha', 'aguas compridas'], label: 'TI Xambá (Olinda)', defaultLine: '812', alsoServedBy: ['861', '881'], hub: 'TI Xambá', stopName: 'Terminal Integrado Xambá', lat: -8.0078, lon: -34.8655, waitMin: 5, seatsFree: 16 },
+        { key: 'paulista', keys: ['paulista', 'pelopidas', 'ti pelopidas', 'shopping north way', 'north way'], label: 'Paulista / TI Pelópidas', defaultLine: '1907', alsoServedBy: ['1967', '1977', '1950'], hub: 'TI Pelópidas Silveira', stopName: 'TI Pelópidas Silveira (Paulista)', lat: -7.9408, lon: -34.8732, waitMin: 5, seatsFree: 17 },
+        { key: 'abreu e lima', keys: ['abreu e lima', 'ti abreu e lima', 'caetes'], label: 'Abreu e Lima', defaultLine: '1967', alsoServedBy: ['1913', '1962'], hub: 'TI Abreu e Lima', stopName: 'TI Abreu e Lima (BR-101 Norte)', lat: -7.9114, lon: -34.9025, waitMin: 6, seatsFree: 15 },
+        { key: 'igarassu', keys: ['igarassu', 'ti igarassu', 'itapissuma', 'itamaraca', 'cruz de reboucas'], label: 'Igarassu / Itamaracá', defaultLine: '1967', alsoServedBy: ['1969', '1904'], hub: 'TI Igarassu', stopName: 'TI Igarassu (Terminal Norte)', lat: -7.8342, lon: -34.9068, waitMin: 7, seatsFree: 16 },
         { key: 'camela', keys: ['camela', 'pedro serafim', 'rua do comercio', 'pe-051'], label: 'Camela (Ipojuca)', defaultLine: '199', alsoServedBy: [], hub: 'TI Cabo', stopName: 'Praça Pedro Serafim (Terminal de Camela)', lat: -8.514931, lon: -35.123469, waitMin: 3, seatsFree: 28 },
         { key: 'ipojuca', keys: ['ipojuca', 'trevo de ipojuca', 'upa de ipojuca', 'ruropolis'], label: 'Ipojuca Centro', defaultLine: '198', alsoServedBy: ['199'], hub: 'TI Cabo', stopName: 'Rodovia PE-60 · Trevo Principal de Ipojuca Centro (KM 20)', lat: -8.399372, lon: -35.056842, waitMin: 7, seatsFree: 14 },
         { key: 'suape', keys: ['suape', 'refinaria', 'rnest', 'estaleiro', 'contermas', 'portuario'], label: 'Complexo de Suape', defaultLine: '178', alsoServedBy: ['199'], hub: 'TI Cabo', stopName: 'Rodovia PE-60 · Trevo de Suape (KM 14)', lat: -8.385067, lon: -35.042433, waitMin: 6, seatsFree: 12 },
-        { key: 'porto de galinhas', keys: ['porto de galinhas', 'galinhas', 'maracaipe', 'serrambi', 'nossa senhora do o', 'n sra do o'], label: 'Porto de Galinhas / N. Sra. do Ó', defaultLine: '191', alsoServedBy: ['195', '196'], hub: 'TI Cabo', stopName: 'Rodovia PE-60 · Trevo PE-038 (N. Sra. do Ó / Porto)', lat: -8.401408, lon: -35.060308, waitMin: 9, seatsFree: 10 },
-        { key: 'cabo', keys: ['ti cabo', 'cabo de santo agostinho', 'cabo', 'costa dourada'], label: 'TI Cabo / Centro do Cabo', defaultLine: '199', alsoServedBy: ['198', '178', '185', '139', '196'], hub: 'TI Cabo', stopName: 'TI Cabo (Terminal Integrado do Cabo)', lat: -8.285065, lon: -35.032398, waitMin: 4, seatsFree: 18 },
-        { key: 'ufrpe', keys: ['ufrpe', 'rural', 'dois irmaos'], label: 'UFRPE · Campus Dois Irmãos', defaultLine: '522', alsoServedBy: ['2930', '524', '532'], hub: 'TI Macaxeira', stopName: 'Terminal de Dois Irmãos (UFRPE)', lat: -8.016390, lon: -34.949720, waitMin: 4, seatsFree: 14 },
-        { key: 'ufpe', keys: ['ufpe', 'cdu', 'cidade universitaria', 'varzea'], label: 'UFPE · Cidade Universitária (CDU)', defaultLine: '2040', alsoServedBy: ['2431', '2441', '440', '202'], hub: 'TI CDU', stopName: 'Terminal Integrado CDU (UFPE)', lat: -8.0518, lon: -34.9502, waitMin: 5, seatsFree: 11 },
-        { key: 'derby', keys: ['derby', 'rui barbosa', 'agamenon', 'principe', 'boa vista', 'conde da boa vista', 'hospicio'], label: 'Derby / Boa Vista', defaultLine: '522', alsoServedBy: ['011', '050', '440', '1973', '1987'], hub: 'Praça do Derby', stopName: 'Praça do Derby (Terminal Central)', lat: -8.0558, lon: -34.8950, waitMin: 4, seatsFree: 16 },
-        { key: 'joana bezerra', keys: ['joana bezerra', 'ti joana', 'coelhos', 'imip'], label: 'TI Joana Bezerra', defaultLine: '080', alsoServedBy: ['101', '104', '1981', '2043'], hub: 'TI Joana Bezerra', stopName: 'Terminal Integrado Joana Bezerra', lat: -8.0689, lon: -34.8958, waitMin: 3, seatsFree: 20 },
-        { key: 'boa viagem', keys: ['boa viagem', 'domingos ferreira', 'conselheiro aguiar', 'shopping recife', 'pina'], label: 'Boa Viagem', defaultLine: '050', alsoServedBy: ['2040', '080', '440', '032'], hub: 'TI Tancredo Neves', stopName: 'Av. Domingos Ferreira (Boa Viagem)', lat: -8.1202, lon: -34.9012, waitMin: 5, seatsFree: 12 },
-        { key: 'cajueiro seco', keys: ['cajueiro seco', 'ti cajueiro', 'prazeres', 'piedade', 'candeias'], label: 'TI Cajueiro Seco / Jaboatão Sul', defaultLine: '139', alsoServedBy: ['181', '030', '064'], hub: 'TI Cajueiro Seco', stopName: 'TI Cajueiro Seco', lat: -8.167989, lon: -34.934534, waitMin: 4, seatsFree: 17 },
-        { key: 'tancredo neves', keys: ['tancredo neves', 'ti tancredo', 'aeroporto', 'imbiribeira'], label: 'TI Tancredo Neves / Aeroporto', defaultLine: '2060', alsoServedBy: ['060', '140', '185'], hub: 'TI Tancredo Neves', stopName: 'TI Tancredo Neves', lat: -8.122014, lon: -34.912465, waitMin: 5, seatsFree: 13 },
-        { key: 'macaxeira', keys: ['macaxeira', 'ti macaxeira', 'casa amarela', 'encruzilhada'], label: 'TI Macaxeira / Casa Amarela', defaultLine: '2060', alsoServedBy: ['202', '522', '516', '330'], hub: 'TI Macaxeira', stopName: 'TI Macaxeira', lat: -8.0061, lon: -34.9298, waitMin: 4, seatsFree: 16 },
-        { key: 'barro', keys: ['barro', 'ti barro', 'camaragibe', 'jaboatao', 'afogados', 'ti recife'], label: 'TI Barro / Afogados / Oeste', defaultLine: '202', alsoServedBy: ['101', '914', '291'], hub: 'TI Barro', stopName: 'TI Barro', lat: -8.0882, lon: -34.9459, waitMin: 5, seatsFree: 15 }
+        { key: 'gaibu', keys: ['gaibu', 'enseada dos corais', 'itapuama', 'paiva', 'praia do paiva', 'enseada'], label: 'Cabo (Gaibu / Enseada / Paiva)', defaultLine: '158', alsoServedBy: ['191', '195', '196'], hub: 'TI Cabo', stopName: 'Trevo de Gaibu / Enseada dos Corais', lat: -8.3270, lon: -34.9565, waitMin: 8, seatsFree: 14 },
+        { key: 'porto de galinhas', keys: ['porto de galinhas', 'galinhas', 'maracaipe', 'serrambi', 'nossa senhora do o', 'n sra do o', 'muro alto'], label: 'Porto de Galinhas / N. Sra. do Ó', defaultLine: '191', alsoServedBy: ['195', '196'], hub: 'TI Cabo', stopName: 'Porto de Galinhas / Rodovia PE-038', lat: -8.401408, lon: -35.060308, waitMin: 9, seatsFree: 10 },
+        { key: 'cabo', keys: ['ti cabo', 'cabo de santo agostinho', 'cabo', 'costa dourada', 'shopping costa dourada'], label: 'TI Cabo / Centro do Cabo', defaultLine: '185', alsoServedBy: ['199', '198', '178', '139', '196'], hub: 'TI Cabo', stopName: 'TI Cabo (Terminal Integrado do Cabo)', lat: -8.285065, lon: -35.032398, waitMin: 4, seatsFree: 18 },
+        { key: 'pontezinha', keys: ['pontezinha', 'ponte dos carvalhos', 'ti prazeres', 'prazeres'], label: 'Jaboatão (Prazeres / Pontezinha)', defaultLine: '185', alsoServedBy: ['139', '140', '160'], hub: 'TI Cajueiro Seco', stopName: 'Av. Barreto de Menezes / TI Prazeres', lat: -8.1656, lon: -34.9371, waitMin: 5, seatsFree: 16 },
+        { key: 'piedade', keys: ['piedade', 'candeias', 'barra de jangada', 'shopping guararapes', 'guararapes'], label: 'Jaboatão Praias (Piedade / Candeias)', defaultLine: '071', alsoServedBy: ['020', '064', '030', '061'], hub: 'TI Cajueiro Seco', stopName: 'Av. Bernardo Vieira de Melo (Piedade / Candeias)', lat: -8.1725, lon: -34.9185, waitMin: 5, seatsFree: 14 },
+        { key: 'cajueiro seco', keys: ['cajueiro seco', 'ti cajueiro'], label: 'TI Cajueiro Seco / Jaboatão Sul', defaultLine: '139', alsoServedBy: ['181', '030', '064'], hub: 'TI Cajueiro Seco', stopName: 'TI Cajueiro Seco', lat: -8.167989, lon: -34.934534, waitMin: 4, seatsFree: 17 },
+        { key: 'boa viagem', keys: ['boa viagem', 'domingos ferreira', 'conselheiro aguiar', 'shopping recife', 'padaria boa viagem', 'segundo jardim'], label: 'Boa Viagem / Shopping Recife', defaultLine: '050', alsoServedBy: ['2040', '080', '440', '032', '026'], hub: 'TI Tancredo Neves', stopName: 'Av. Domingos Ferreira / Shopping Recife (Boa Viagem)', lat: -8.1202, lon: -34.9012, waitMin: 5, seatsFree: 12 },
+        { key: 'pina', keys: ['pina', 'brasilia teimosa', 'rio mar', 'riomar', 'shopping riomar', 'cabanga'], label: 'Pina / Shopping RioMar', defaultLine: '011', alsoServedBy: ['026', '032', '044', '080'], hub: 'TI Joana Bezerra', stopName: 'Via Mangue / Shopping RioMar (Pina)', lat: -8.0861, lon: -34.8942, waitMin: 4, seatsFree: 15 },
+        { key: 'tancredo neves', keys: ['tancredo neves', 'ti tancredo', 'aeroporto', 'ti aeroporto', 'imbiribeira', 'largo da paz'], label: 'TI Tancredo Neves / Aeroporto', defaultLine: '2060', alsoServedBy: ['060', '140', '185', '115'], hub: 'TI Tancredo Neves', stopName: 'TI Tancredo Neves / Aeroporto', lat: -8.122014, lon: -34.912465, waitMin: 5, seatsFree: 13 },
+        { key: 'ibura', keys: ['ibura', 'ur-11', 'ur 11', 'ur-01', 'jordao', 'cohab'], label: 'Ibura / Jordão', defaultLine: '102', alsoServedBy: ['103', '110', '120', '2060'], hub: 'TI Tancredo Neves', stopName: 'Ibura / Av. Dois Rios', lat: -8.1165, lon: -34.9482, waitMin: 6, seatsFree: 14 },
+        { key: 'ufrpe', keys: ['ufrpe', 'rural', 'dois irmaos', 'horto', 'parque dois irmaos'], label: 'UFRPE · Campus Dois Irmãos', defaultLine: '522', alsoServedBy: ['2930', '524', '532'], hub: 'TI Macaxeira', stopName: 'Terminal de Dois Irmãos (UFRPE)', lat: -8.016390, lon: -34.949720, waitMin: 4, seatsFree: 14 },
+        { key: 'ufpe', keys: ['ufpe', 'cdu', 'cidade universitaria', 'ti cdu', 'hospital das clinicas'], label: 'UFPE · Cidade Universitária (CDU)', defaultLine: '2040', alsoServedBy: ['2431', '2441', '440', '202'], hub: 'TI CDU', stopName: 'Terminal Integrado CDU (UFPE)', lat: -8.0518, lon: -34.9502, waitMin: 5, seatsFree: 11 },
+        { key: 'varzea', keys: ['varzea', 'caxanga', 'engenho do meio', 'iputinga', 'torroes', 'cdu'], label: 'Várzea / Caxangá', defaultLine: '202', alsoServedBy: ['440', '2040', '2431'], hub: 'TI Caxangá', stopName: 'Av. Caxangá / Praça da Várzea', lat: -8.0468, lon: -34.9595, waitMin: 5, seatsFree: 14 },
+        { key: 'derby', keys: ['derby', 'rui barbosa', 'agamenon', 'principe', 'boa vista', 'conde da boa vista', 'hospicio', 'restauracao', 'hospital da restauracao', 'soledade', 'unicap'], label: 'Derby / Boa Vista / Conde da Boa Vista', defaultLine: '522', alsoServedBy: ['011', '050', '440', '1973', '1987'], hub: 'Praça do Derby', stopName: 'Praça do Derby / Av. Conde da Boa Vista', lat: -8.0558, lon: -34.8950, waitMin: 4, seatsFree: 16 },
+        { key: 'espinheiro', keys: ['espinheiro', 'gracas', 'aflitos', 'encruzilhada', 'jaqueira', 'rosa e silva', 'parnamirim'], label: 'Graças / Espinheiro / Encruzilhada', defaultLine: '522', alsoServedBy: ['516', '640', '2920', '710'], hub: 'Praça do Derby', stopName: 'Av. Rosa e Silva / Espinheiro', lat: -8.0412, lon: -34.8965, waitMin: 4, seatsFree: 15 },
+        { key: 'casa amarela', keys: ['casa amarela', 'casa forte', 'apipucos', 'monteiro', 'shopping plaza', 'plaza'], label: 'Casa Amarela / Casa Forte', defaultLine: '516', alsoServedBy: ['520', '522', '532', '640'], hub: 'TI Macaxeira', stopName: 'Estrada do Arraial / Casa Amarela', lat: -8.0255, lon: -34.9188, waitMin: 5, seatsFree: 15 },
+        { key: 'macaxeira', keys: ['macaxeira', 'ti macaxeira', 'nova descoberta', 'vasco da gama'], label: 'TI Macaxeira', defaultLine: '2060', alsoServedBy: ['202', '522', '516', '330'], hub: 'TI Macaxeira', stopName: 'TI Macaxeira', lat: -8.0061, lon: -34.9298, waitMin: 4, seatsFree: 16 },
+        { key: 'joana bezerra', keys: ['joana bezerra', 'ti joana', 'coelhos', 'imip', 'ilha do leite'], label: 'TI Joana Bezerra / IMIP', defaultLine: '080', alsoServedBy: ['101', '104', '1981', '2043'], hub: 'TI Joana Bezerra', stopName: 'Terminal Integrado Joana Bezerra', lat: -8.0689, lon: -34.8958, waitMin: 3, seatsFree: 20 },
+        { key: 'afogados', keys: ['afogados', 'ti afogados', 'madalena', 'torre', 'real da torre', 'shopping tacaruna', 'tacaruna'], label: 'Afogados / Madalena / Tacaruna', defaultLine: '050', alsoServedBy: ['2040', '914', '330'], hub: 'TI Afogados', stopName: 'Largo de Afogados / TI Afogados', lat: -8.0785, lon: -34.9065, waitMin: 4, seatsFree: 16 },
+        { key: 'barro', keys: ['barro', 'ti barro', 'tejipio', 'sancho', 'ti recife'], label: 'TI Barro / TI Recife', defaultLine: '202', alsoServedBy: ['101', '914', '291'], hub: 'TI Barro', stopName: 'TI Barro', lat: -8.0882, lon: -34.9459, waitMin: 5, seatsFree: 15 },
+        { key: 'jaboatao', keys: ['jaboatao', 'jaboatao centro', 'ti jaboatao', 'cavaleiro', 'ti cavaleiro', 'moreno'], label: 'Jaboatão Centro / Cavaleiro', defaultLine: '200', alsoServedBy: ['219', '272', '242'], hub: 'TI Jaboatão', stopName: 'TI Jaboatão Centro', lat: -8.1128, lon: -35.0148, waitMin: 5, seatsFree: 16 },
+        { key: 'camaragibe', keys: ['camaragibe', 'ti camaragibe', 'sao lourenco', 'timbi', 'aldeia'], label: 'Camaragibe / São Lourenço', defaultLine: '2490', alsoServedBy: ['2420', '2450', '2441'], hub: 'TI Camaragibe', stopName: 'TI Camaragibe', lat: -8.0235, lon: -34.9788, waitMin: 4, seatsFree: 18 }
       ];
     },
 
-    // Resolve nome de lugar, terminal ou "aqui" para { label, lat, lon, corridor }
+    // Resolve nome de lugar, terminal, parada GTFS ou "aqui" para { label, lat, lon, stopName }
     resolvePlaceLocation(rawPlace) {
       const pNorm = this.normalizeText(rawPlace);
       if (!pNorm) return null;
 
       // Suporte explícito a "aqui / onde estou / minha localizacao"
-      if (/\b(aqui|daqui|onde estou|minha parada|minha localizacao)\b/.test(pNorm)) {
-        const lat = (this.userAdaptState && this.userAdaptState.lat) || (window.userCurrentCoords && window.userCurrentCoords[0]);
-        const lon = (this.userAdaptState && this.userAdaptState.lon) || (window.userCurrentCoords && window.userCurrentCoords[1]);
+      if (/^(aqui|daqui|onde estou|minha parada|minha localizacao|meu local|atual)$/.test(pNorm) || /\b(minha localizacao|onde estou|daqui)\b/.test(pNorm)) {
+        let lat = (this.userAdaptState && this.userAdaptState.lat) || (window.userCurrentCoords && window.userCurrentCoords[0]);
+        let lon = (this.userAdaptState && this.userAdaptState.lon) || (window.userCurrentCoords && window.userCurrentCoords[1]);
+        if ((!lat || !lon) && typeof localStorage !== 'undefined') {
+          try {
+            const last = JSON.parse(localStorage.getItem('grafoparada_last_coords') || 'null');
+            if (last && typeof last.lat === 'number' && typeof last.lon === 'number') {
+              lat = last.lat;
+              lon = last.lon;
+            }
+          } catch (e) {}
+        }
         if (lat && lon) {
           return {
             key: 'current_gps',
@@ -979,14 +1060,21 @@
             stopName: (this.userAdaptState && this.userAdaptState.stopName) || 'Sua parada atual'
           };
         }
+        return null;
       }
 
-      // Match em polos semânticos da RMR
+      // 1. Match em polos georreferenciados da RMR (evita match falso de palavras curtas)
       const corridors = this.getSemanticCorridors();
-      const exactCorridor = corridors.find(c => c.keys.some(k => pNorm === k || pNorm.includes(k) || k.includes(pNorm)));
+      const wordSafeMatch = (haystack, key) => {
+        if (haystack === key) return true;
+        if (key.length >= 4 && haystack.includes(key)) return true;
+        return new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(haystack);
+      };
+      const exactCorridor = corridors.find(c => c.keys.some(k => wordSafeMatch(pNorm, k)))
+        || (pNorm.length >= 5 ? corridors.find(c => c.keys.some(k => k.includes(pNorm))) : null);
       if (exactCorridor) return exactCorridor;
 
-      // Match nos 45 Hubs do Grafo SEI ou 44 Terminais SEI do GTFS
+      // 2. Match nos 45 Hubs do Grafo SEI ou 44 Terminais SEI do GTFS
       if (this.networkData && Array.isArray(this.networkData.hub_graph)) {
         const hubHit = this.networkData.hub_graph.find(h => this.normalizeText(h.name).includes(pNorm));
         if (hubHit) {
@@ -997,6 +1085,23 @@
         const tiHit = this.networkData.terminals_sei.find(t => this.normalizeText(t.name).includes(pNorm));
         if (tiHit) {
           return { key: tiHit.name, label: tiHit.name.split(' - ')[0], lat: tiHit.lat, lon: tiHit.lon, stopName: tiHit.name };
+        }
+      }
+
+      // 3. Match dinâmico em paradas nomeadas e nomes das 393 linhas reais GTFS
+      if (this.networkData && this.networkData.popular_lines && pNorm.length >= 4) {
+        for (const line of Object.values(this.networkData.popular_lines)) {
+          const lineNameNorm = this.normalizeText(line.name);
+          if (lineNameNorm.includes(pNorm) && Array.isArray(line.stops) && line.stops.length > 0) {
+            const matchedStop = line.stops.find(s => !/^\d+$/.test(s.name) && this.normalizeText(s.name).includes(pNorm)) || line.stops[line.stops.length - 1];
+            return {
+              key: pNorm,
+              label: `${rawPlace} (${line.code})`,
+              lat: matchedStop.lat,
+              lon: matchedStop.lon,
+              stopName: !/^\d+$/.test(matchedStop.name) ? matchedStop.name : `Parada ${line.name}`
+            };
+          }
         }
       }
 
@@ -1108,7 +1213,7 @@
 
     extractOriginDest(rawText) {
       const clean = this.normalizeText(rawText)
-        .replace(/\b(vamos la|por favor|agora|hoje|pode ser|me ajuda|me diz|me fale|qual|quais|como fico|preciso|quero)\b/g, ' ')
+        .replace(/\b(vamos la|por favor|agora|hoje|pode ser|me ajuda|me diz|me fale|qual|quais|como fico|preciso|quero|gostaria)\b/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 
@@ -1128,6 +1233,45 @@
       return null;
     },
 
+    // Extrai destino quando a pessoa fala só para onde vai (usa localização GPS atual como origem)
+    extractDestinationOnly(rawText) {
+      const q = this.normalizeText(rawText);
+      if (!q || /\b(proximo onibus|horario|quando passa|onde estou|minha parada|stgcn|como funciona|banca|slides|pptx)\b/.test(q)) {
+        return null;
+      }
+      const m = q.match(/(?:ir|indo|chegar|chego|me leva|levar|rota|trajeto|caminho|onibus|busao|pegar)\s+(?:ate|para|pra|pro|no|na|ao|em)\s+(.+)/i)
+        || q.match(/^(?:para|pra|pro|ate)\s+(.+)/i);
+      if (m && m[1]) {
+        const cand = m[1].replace(/\b(por favor|hoje|agora|de onibus)\b/g, '').trim();
+        if (cand.length >= 3 && this.resolvePlaceLocation(cand)) {
+          return cand;
+        }
+      }
+      // Se o texto curto já for exatamente um bairro/terminal conhecido (ex: "Olinda", "Shopping Recife")
+      if (q.split(' ').length <= 4 && !/\?/.test(rawText) && this.resolvePlaceLocation(q)) {
+        return q;
+      }
+      return null;
+    },
+
+    // Classificador estruturado estilo Laya System-1 (choice / score / noul)
+    classifyLayaDecision(rawText) {
+      const q = this.normalizeText(rawText);
+      const isUrgent = /\b(agora|rapido|urgente|atrasado|perdido|socorro|lotado|queima|espera)\b/.test(q);
+      const hasTrip = Boolean(this.extractOriginDest(rawText) || this.extractDestinationOnly(rawText));
+      const choice = hasTrip
+        ? 'route_planning'
+        : (/\b(proximo|horario|quando passa|minha parada|onde estou)\b/.test(q) ? 'local_arrival'
+          : (/\b(stgcn|ia|webmcp|yap|kim|como funciona)\b/.test(q) ? 'platform_science' : 'general_help'));
+      return {
+        engine: 'laya_gtfs_heuristic_v2',
+        decision_type: 'choice+score+noul',
+        choice,
+        urgency_score: isUrgent ? 3 : 1,
+        needs_location_noul: hasTrip || choice === 'local_arrival'
+      };
+    },
+
     planSmartTrip(originRaw, destRaw, telemetryStops) {
       const origNorm = this.normalizeText(originRaw);
       const destNorm = this.normalizeText(destRaw);
@@ -1140,18 +1284,26 @@
       let destGeoLines = [];
 
       if (origPlace && destPlace && origPlace.lat && destPlace.lat) {
-        origGeoLines = this.getLinesNearPoint(origPlace.lat, origPlace.lon, 1.15);
-        destGeoLines = this.getLinesNearPoint(destPlace.lat, destPlace.lon, 1.15);
+        origGeoLines = this.getLinesNearPoint(origPlace.lat, origPlace.lon, 1.2);
+        destGeoLines = this.getLinesNearPoint(destPlace.lat, destPlace.lon, 1.2);
 
         const destMap = new Map(destGeoLines.map(d => [d.code, d]));
         origGeoLines.forEach(o => {
           const dMatch = destMap.get(o.code);
           if (dMatch) {
+            const rideDistKm = this.haversineKm(origPlace.lat, origPlace.lon, destPlace.lat, destPlace.lon);
+            const walkM = Math.round(o.distanceKm * 1000);
+            const walkMin = Math.max(1, Math.round(walkM / 78));
+            const rideMin = Math.max(8, Math.round((rideDistKm / 20) * 60) + 5);
             geoDirect.push({
               code: o.code,
               label: o.label,
               name: o.name,
               isBacurau: o.isBacurau,
+              walkMeters: walkM,
+              walkMin,
+              rideMin,
+              totalMin: walkMin + 4 + rideMin,
               totalWalkKm: o.distanceKm + dMatch.distanceKm,
               reason: `Liga ${origPlace.label} a ${destPlace.label}`
             });
@@ -1166,8 +1318,8 @@
       const catDirect = origCatalog.filter(om => destCatalog.some(dm => dm.code === om.code));
       const directMatches = geoDirect.length > 0 ? geoDirect : catDirect;
 
-      // 3. Grafo Real de Conexões / Integrações Multi-Etapas (2, 3 ou até 4 linhas) via hub_graph (45 hubs SEI)
-      const findConnectedMultiLegPaths = () => {
+      // 3. Grafo Ilimitado Ponderado (Dijkstra / Multi-Opções Google Maps) sobre todas as 393 linhas + 45 Hubs SEI
+      const findUnlimitedMultiOptionPaths = () => {
         if (!this.networkData || !Array.isArray(this.networkData.hub_graph) || !origCatalog.length || !destCatalog.length) {
           return [];
         }
@@ -1187,14 +1339,12 @@
           return /bacurau/i.test(nm) || /^vlt/i.test(code);
         };
 
-        // Deduplica hubs colocalizados (ex: 'Ti Joana Bezarra' vs 'Ti Joana Bezerra')
         const rawHubs = this.networkData.hub_graph.filter(h => Array.isArray(h.lines) && h.lines.length > 0);
         const hubs = [];
         for (const h of rawHubs) {
           const existing = hubs.find(u => this.haversineKm(u.lat, u.lon, h.lat, h.lon) < 0.15);
           if (existing) {
-            const merged = new Set(existing.lines.concat(h.lines));
-            existing.lines = Array.from(merged);
+            existing.lines = Array.from(new Set(existing.lines.concat(h.lines)));
             if (/^Ti\s+Joana\s+Bezerra$/i.test(h.name) || h.lines.length > existing.lines.length) {
               existing.name = h.name;
             }
@@ -1215,138 +1365,152 @@
         const destDay = destCatalog.filter(x => !isNightOrRail(x.code)).slice(0, 18);
         const origBus = origDay.length ? origDay : origCatalog.slice(0, 12);
         const destBus = destDay.length ? destDay : destCatalog.slice(0, 12);
-        const destSet = new Set(destBus.map(x => x.code));
         const destRank = new Map(destBus.map((x, idx) => [x.code, idx]));
 
         const oLat = origPlace && origPlace.lat;
         const oLon = origPlace && origPlace.lon;
         const dLat = destPlace && destPlace.lat;
         const dLon = destPlace && destPlace.lon;
-        const directKm = (oLat && dLat) ? this.haversineKm(oLat, oLon, dLat, dLon) : 0;
-
         const isMajorHub = (name) => /^(Ti\s|Cais\s|Pra[cç]a do Derby|Terminal)/i.test(name);
-        const scoreHubList = (hubList) => {
-          let penalty = 0;
-          if (oLat && dLat && hubList.length > 0) {
-            let totalDist = this.haversineKm(oLat, oLon, hubList[0].lat, hubList[0].lon);
-            for (let i = 0; i < hubList.length - 1; i++) {
-              totalDist += this.haversineKm(hubList[i].lat, hubList[i].lon, hubList[i + 1].lat, hubList[i + 1].lon);
-            }
-            totalDist += this.haversineKm(hubList[hubList.length - 1].lat, hubList[hubList.length - 1].lon, dLat, dLon);
-            penalty += Math.max(0, totalDist - directKm);
-          }
-          hubList.forEach(h => {
-            penalty += isMajorHub(h.name) ? -2.0 : 3.5;
-          });
-          return penalty;
+
+        const estimateTimeCost = (fromLat, fromLon, toLat, toLon, transferCount, hubName, midCode) => {
+          const distKm = (fromLat && toLat) ? this.haversineKm(fromLat, fromLon, toLat, toLon) : 6;
+          let minCost = Math.max(5, (distKm / 20.0) * 60);
+          if (transferCount > 0) minCost += isMajorHub(hubName) ? 7.5 : 13.0;
+          if (midCode && /^(185|191|195|050|080|2040|2060|1076|1100)$/.test(midCode)) minCost -= 2.5;
+          if (hubName && /cais|santa rita/i.test(hubName)) minCost -= 1.5;
+          return minCost;
         };
 
-        // 3A. Busca caminhos reais de 2 etapas (1 baldeação)
-        const twoLeg = [];
-        for (const hub of hubs) {
-          const l1Hit = origBus.find(o => hub.lines.includes(o.code));
-          if (!l1Hit) continue;
-          const l2Hit = destBus.find(d => d.code !== l1Hit.code && hub.lines.includes(d.code));
-          if (!l2Hit) continue;
-          const sc = scoreHubList([hub]);
-          twoLeg.push({
-            legs: [getLineMeta(l1Hit.code), getLineMeta(l2Hit.code)],
-            hubs: [hub.name],
-            hub: hub.name,
-            leg1: getLineMeta(l1Hit.code),
-            leg2: getLineMeta(l2Hit.code),
-            isSEI: isMajorHub(hub.name),
-            score: sc
-          });
-        }
-        twoLeg.sort((a, b) => a.score - b.score);
-        if (twoLeg.length > 0) return twoLeg;
-
-        // 3B. Busca caminhos reais de 3 etapas (2 baldeações, ex: Camela -> TI Cabo -> Recife/Cais Sta Rita -> Olinda)
-        const threeLeg = [];
+        // Exploração tipo Dijkstra sem teto fixo de baldeações (até 6 pernas / sem ciclos)
+        const pq = [];
         for (const o of origBus) {
-          const hubs1 = lineToHubs.get(o.code) || [];
-          for (const h1 of hubs1) {
-            const h1BusLines = h1.lines.filter(c => c !== o.code && !isNightOrRail(c));
-            for (const midCode of h1BusLines) {
-              const hubs2 = lineToHubs.get(midCode) || [];
-              for (const h2 of hubs2) {
-                if (h2.name === h1.name) continue;
-                const dHits = h2.lines.filter(c => c !== midCode && c !== o.code && destSet.has(c));
-                if (dHits.length === 0) continue;
-                dHits.sort((a, b) => (destRank.get(a) ?? 99) - (destRank.get(b) ?? 99));
-                const l3Code = dHits[0];
-
-                let sc = scoreHubList([h1, h2]);
-                // Prioriza linhas expressas entre hubs (ex: 185, 191, 195 ligando Cabo <-> Recife)
-                if (/^(185|191|195|050|080|2040|2060|1076|1100)$/.test(midCode)) sc -= 1.8;
-                if (/cais|santa rita/i.test(h2.name)) sc -= 1.2;
-
-                threeLeg.push({
-                  legs: [getLineMeta(o.code), getLineMeta(midCode), getLineMeta(l3Code)],
-                  hubs: [h1.name, h2.name],
-                  hub: h1.name,
-                  leg1: getLineMeta(o.code),
-                  leg2: getLineMeta(l3Code),
-                  isSEI: true,
-                  score: sc
-                });
-              }
-            }
-          }
-        }
-        threeLeg.sort((a, b) => a.score - b.score);
-        if (threeLeg.length > 0) return threeLeg;
-
-        // 3C. BFS genérico de até 4 etapas (3 baldeações) caso ainda haja regiões mais distantes
-        const queue = [];
-        const visitedHubs = new Set();
-        for (const o of origBus) {
+          const walkMin = o.distanceKm ? Math.max(1, Math.round((o.distanceKm * 1000) / 78)) : 2;
           for (const h1 of (lineToHubs.get(o.code) || [])) {
-            if (!visitedHubs.has(h1.name)) {
-              visitedHubs.add(h1.name);
-              queue.push({ hub: h1, legs: [o.code], hubNames: [h1.name] });
-            }
+            const legCost = walkMin + 4 + estimateTimeCost(oLat, oLon, h1.lat, h1.lon, 1, h1.name, o.code);
+            pq.push({
+              hub: h1,
+              legs: [o.code],
+              hubs: [h1.name],
+              costMin: legCost,
+              walkMeters: o.distanceKm ? Math.round(o.distanceKm * 1000) : 120,
+              walkMin
+            });
           }
         }
-        const bfsResults = [];
-        while (queue.length > 0 && bfsResults.length < 10) {
-          const curr = queue.shift();
-          const dMatch = destBus.find(d => !curr.legs.includes(d.code) && curr.hub.lines.includes(d.code));
-          if (dMatch) {
-            const fullCodes = curr.legs.concat([dMatch.code]);
-            bfsResults.push({
+
+        const completed = [];
+        const bestHubVisits = new Map();
+        let expansions = 0;
+
+        while (pq.length > 0 && expansions < 4500 && completed.length < 30) {
+          pq.sort((a, b) => a.costMin - b.costMin);
+          const curr = pq.shift();
+          expansions += 1;
+
+          // Verifica se o hub atual já conecta diretamente com alguma linha do destino
+          const dHits = destBus.filter(d => !curr.legs.includes(d.code) && curr.hub.lines.includes(d.code));
+          if (dHits.length > 0) {
+            dHits.sort((a, b) => (destRank.get(a.code) ?? 99) - (destRank.get(b.code) ?? 99));
+            const bestLast = dHits[0];
+            const finalLegMin = estimateTimeCost(curr.hub.lat, curr.hub.lon, dLat, dLon, 0, curr.hub.name, bestLast.code);
+            const totalMin = Math.round(curr.costMin + finalLegMin);
+            const fullCodes = curr.legs.concat([bestLast.code]);
+            completed.push({
               legs: fullCodes.map(getLineMeta),
-              hubs: curr.hubNames,
-              hub: curr.hubNames[0],
+              hubs: curr.hubs,
+              hub: curr.hubs[0],
               leg1: getLineMeta(fullCodes[0]),
               leg2: getLineMeta(fullCodes[fullCodes.length - 1]),
               isSEI: true,
-              score: fullCodes.length * 10
+              walkMeters: curr.walkMeters,
+              walkMin: curr.walkMin,
+              totalMin,
+              score: totalMin
             });
-            continue;
+            // Não aborta imediatamente — continua explorando para gerar alternativas Google Maps
+            if (completed.length >= 18) break;
           }
-          if (curr.legs.length >= 3) continue;
-          for (const nextCode of curr.hub.lines) {
-            if (isNightOrRail(nextCode) || curr.legs.includes(nextCode)) continue;
+
+          if (curr.legs.length >= 5) continue; // Segurança anti-loop sem limitar rotas reais de 3, 4 ou 5 etapas
+
+          const visitKey = `${curr.hub.name}:${curr.legs.length}`;
+          const visitCount = bestHubVisits.get(visitKey) || 0;
+          if (visitCount >= 3) continue;
+          bestHubVisits.set(visitKey, visitCount + 1);
+
+          const nextCandidates = curr.hub.lines.filter(c => !isNightOrRail(c) && !curr.legs.includes(c));
+          for (const nextCode of nextCandidates.slice(0, 22)) {
             for (const nh of (lineToHubs.get(nextCode) || [])) {
-              if (visitedHubs.has(nh.name)) continue;
-              visitedHubs.add(nh.name);
-              queue.push({
+              if (curr.hubs.includes(nh.name)) continue;
+              const stepCost = estimateTimeCost(curr.hub.lat, curr.hub.lon, nh.lat, nh.lon, 1, nh.name, nextCode);
+              pq.push({
                 hub: nh,
                 legs: curr.legs.concat([nextCode]),
-                hubNames: curr.hubNames.concat([nh.name])
+                hubs: curr.hubs.concat([nh.name]),
+                costMin: curr.costMin + stepCost,
+                walkMeters: curr.walkMeters,
+                walkMin: curr.walkMin
               });
             }
           }
         }
-        return bfsResults;
+
+        completed.sort((a, b) => (a.legs.length - b.legs.length) * 4 + (a.totalMin - b.totalMin));
+
+        // Seleciona até 3 opções verdadeiramente distintas (por combinação de terminais ou linha)
+        const diverse = [];
+        const signatures = new Set();
+        for (const c of completed) {
+          const sig = `${c.legs[0].code}|${c.hubs.join('>')}`;
+          if (!signatures.has(sig)) {
+            signatures.add(sig);
+            diverse.push(c);
+            if (diverse.length >= 5) break;
+          }
+        }
+        return diverse;
       };
 
-      const transferCandidates = findConnectedMultiLegPaths();
+      const transferCandidates = findUnlimitedMultiOptionPaths();
       const transferPlan = transferCandidates[0] || null;
 
-      // 4. Caso especial telemetria detalhada PE-60 (Camela <-> Ipojuca <-> Suape <-> Cabo)
+      // 4. Consolida lista unificada de Opções estilo Google Maps (diretas + integradas)
+      const routeOptions = [];
+      const nonBacurauDirect = directMatches.filter(m => !m.isBacurau);
+      const rankedDirect = nonBacurauDirect.length ? nonBacurauDirect : directMatches;
+
+      rankedDirect.slice(0, 2).forEach((d, idx) => {
+        routeOptions.push({
+          tag: idx === 0 ? '⭐ Mais Rápida (Direta)' : '🚌 Linha Alternativa Direta',
+          isDirect: true,
+          codes: [d.code],
+          legs: [d],
+          hubs: [],
+          walkMeters: d.walkMeters || 120,
+          walkMin: d.walkMin || 2,
+          totalMin: d.totalMin || 26
+        });
+      });
+
+      transferCandidates.forEach((t) => {
+        if (routeOptions.length >= 3) return;
+        const alreadySame = routeOptions.some(o => o.codes.join(',') === t.legs.map(l => l.code).join(','));
+        if (!alreadySame) {
+          routeOptions.push({
+            tag: routeOptions.length === 0 ? '⭐ Melhor Rota Conectada' : `🔄 Via ${t.hubs[0]}`,
+            isDirect: false,
+            codes: t.legs.map(l => l.code),
+            legs: t.legs,
+            hubs: t.hubs,
+            walkMeters: t.walkMeters || 120,
+            walkMin: t.walkMin || 2,
+            totalMin: t.totalMin || (t.legs.length * 24)
+          });
+        }
+      });
+
+      // 5. Caso especial telemetria detalhada PE-60 (Camela <-> Ipojuca <-> Suape <-> Cabo)
       let telemetryEtaMin = null;
       let oStop = null;
       let dStop = null;
@@ -1355,6 +1519,7 @@
         dStop = telemetryStops.find(s => this.normalizeText(s.name + ' ' + (s.bairro || '') + ' ' + (s.municipio || '')).includes(destPlace ? destPlace.key : destNorm));
         if (oStop && dStop) {
           telemetryEtaMin = Math.max(8, Math.abs((dStop.wait_gps_min || 15) - (oStop.wait_gps_min || 3)) * 2 + 6);
+          if (routeOptions[0] && routeOptions[0].isDirect) routeOptions[0].totalMin = telemetryEtaMin + 4;
         }
       }
 
@@ -1366,6 +1531,7 @@
         directMatches,
         transferPlan,
         transferAlternatives: transferCandidates.slice(0, 3),
+        routeOptions,
         telemetryEtaMin,
         originStop: oStop,
         destStop: dStop
@@ -1376,25 +1542,68 @@
       const text = String(rawText || '').trim();
       const q = this.normalizeText(text);
       const telemetryStops = (ctx && Array.isArray(ctx.telemetryStops)) ? ctx.telemetryStops : [];
+      const layaDecision = this.classifyLayaDecision(text);
 
       // 1. Apresentação / Banca UFRPE
       if (/\b(apresentacao|slide|slides|pptx|banca|roteiro|seminario)\b/.test(q)) {
         return {
           intent: 'presentation',
+          decision: layaDecision,
           html: "Aqui estão os materiais oficiais para a <strong>Banca Examinadora da UFRPE (Seminário 2)</strong>:<br><br>" +
             "• 📥 <strong>Apresentação PPTX (16:9):</strong> Arquivo oficial pronto para defesa.<br>" +
             "• 🎨 <strong>Slides Web Estilo Canva:</strong> Navegação interativa no navegador.<br>" +
             "• 📜 <strong>Roteiro da Banca:</strong> Guia passo a passo de sustentação.<br><br>" +
             "<button type=\"button\" onclick=\"if(window.openPresentationModal) window.openPresentationModal();\" style=\"background:#7c3aed; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;\">🎓 Abrir Painel da Apresentação</button>",
-          speech: "Abrindo o painel com a apresentação em PPTX, slides e roteiro para a banca da UFRPE.",
+          speech: "Abrindo o painel com a apresentação em P P T X, slides e roteiro para a banca da UFRPE.",
           openPresentation: true
         };
       }
 
-      // 2. Origem -> Destino usando Grafo Completo de 393 Linhas + 45 Hubs SEI (0 a 3 baldeações reais)
-      const tripPair = this.extractOriginDest(text);
+      // 2. Planejamento estilo Google Maps (Origem explícita -> Destino OU GPS Atual -> Destino)
+      let tripPair = this.extractOriginDest(text);
+      let implicitFromHere = false;
+      if (!tripPair) {
+        const singleDest = this.extractDestinationOnly(text);
+        if (singleDest) {
+          tripPair = { origin: 'aqui', dest: singleDest };
+          implicitFromHere = true;
+        }
+      }
+
       if (tripPair) {
         const plan = this.planSmartTrip(tripPair.origin, tripPair.dest, telemetryStops);
+        if (implicitFromHere && (!plan.origCorridor || !plan.origCorridor.lat)) {
+          return {
+            intent: 'need_location',
+            decision: layaDecision,
+            html: `📍 Quero traçar sua rota até <strong>${plan.destLabel}</strong> partindo de onde você está!<br><br>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções estilo Google Maps:<br><br>` +
+              `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">📍 Informar Onde Estou Agora</button>`,
+            speech: `Para traçar sua rota até ${plan.destLabel}, primeiro me diga onde você está agora ou ative seu GPS.`
+          };
+        }
+
+        const origCoordsArr = (plan.origCorridor && plan.origCorridor.lat) ? `[${plan.origCorridor.lat}, ${plan.origCorridor.lon}]` : 'null';
+        const destCoordsArr = (plan.destCorridor && plan.destCorridor.lat) ? `[${plan.destCorridor.lat}, ${plan.destCorridor.lon}]` : 'null';
+        const formatDuration = (mins) => mins >= 60 ? `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}min` : `~${mins} min`;
+
+        const renderOptionsCardsHtml = (options) => {
+          return options.slice(0, 3).map((opt, idx) => {
+            const codesJson = JSON.stringify(opt.codes).replace(/"/g, "'");
+            const hubsJson = JSON.stringify(opt.hubs || []).replace(/"/g, "'");
+            const pills = opt.codes.map(c => `<span style="background:#0f172a; color:#fff; padding:1px 6px; border-radius:5px; font-size:10.5px; font-weight:800;">${c}</span>`).join(' <span style="color:#64748b;">➔</span> ');
+            const isPrimary = idx === 0;
+            return `<div style="background:${isPrimary ? '#f0fdf4' : '#ffffff'}; border:1.5px solid ${isPrimary ? '#86efac' : '#e2e8f0'}; border-radius:12px; padding:8px 10px; margin-top:7px;">` +
+              `<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">` +
+                `<span style="font-size:10.5px; font-weight:800; color:${isPrimary ? '#047857' : '#334155'};">${opt.tag}</span>` +
+                `<span style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:800; color:#0f172a;">⏱️ ${formatDuration(opt.totalMin)}</span>` +
+              `</div>` +
+              `<div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-bottom:5px;">${pills}</div>` +
+              `<div style="font-size:10.5px; color:#475569; margin-bottom:6px;">🚶 ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.join(' ➔ ') : 'Viagem direta sem troca'}</div>` +
+              `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${codesJson}, ${hubsJson}, ${origCoordsArr}, ${destCoordsArr});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="width:100%; background:${isPrimary ? '#059669' : '#0284c7'}; color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🗺️ Traçar Opção ${idx + 1} no Mapa</button>` +
+              `</div>`;
+          }).join('');
+        };
+
         if (plan.directMatches.length > 0) {
           const nonBacurau = plan.directMatches.filter(m => !m.isBacurau);
           const ranked = nonBacurau.length > 0 ? nonBacurau : plan.directMatches;
@@ -1403,9 +1612,9 @@
           const origStopLabel = plan.originStop ? plan.originStop.name : (plan.origCorridor && plan.origCorridor.stopName) || plan.originLabel;
           const destStopLabel = plan.destStop ? plan.destStop.name : (plan.destCorridor && plan.destCorridor.stopName) || plan.destLabel;
           const waitStr = plan.originStop ? `${plan.originStop.wait_gps_min || 3} min` : '4 a 7 min';
-          const tripDur = plan.telemetryEtaMin ? `~${plan.telemetryEtaMin} min` : '~22 a 30 min';
+          const tripDur = plan.telemetryEtaMin ? `~${plan.telemetryEtaMin} min` : formatDuration(mainRoute.totalMin || 25);
 
-          let html = `✅ Trajeto direto encontrado de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
+          let html = `✅ <strong>Rotas de ${plan.originLabel} até ${plan.destLabel}:</strong><br><br>` +
             `🚌 <strong>Melhor Linha Direta (${mainRoute.code}):</strong> <em>${mainRoute.label}</em><br>` +
             `• 📍 <strong>Embarque:</strong> ${origStopLabel} (próximo em <strong>${waitStr}</strong>)<br>` +
             `• 🎯 <strong>Desembarque:</strong> ${destStopLabel} (${tripDur})<br>`;
@@ -1413,30 +1622,26 @@
           if (altLines) {
             html += `• 🔁 <strong>Outras linhas diretas:</strong> ${altLines}<br>`;
           }
-          if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length === 2 && mainRoute.code === '199') {
-            html += `<br>🔄 <strong>Conexão SEI (Terminal Interno):</strong> Ou pegue a <strong>${plan.transferPlan.legs[0].code}</strong> até <strong>${plan.transferPlan.hubs[0]}</strong> e integre grátis (VEM 2h) na <strong>${plan.transferPlan.legs[1].label}</strong>.`;
-          } else if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length === 2 && plan.transferPlan.isSEI) {
-            html += `<br>🔄 <strong>Opção integrada via ${plan.transferPlan.hubs[0]}:</strong> ${plan.transferPlan.legs[0].code} ➔ ${plan.transferPlan.legs[1].code} (VEM grátis em 2h).`;
+          if (plan.routeOptions && plan.routeOptions.length > 0) {
+            html += `<div style="margin-top:6px; font-size:11px; font-weight:800; color:#334155;">📋 Sugestões estilo Maps (${plan.routeOptions.length} opções):</div>` +
+              renderOptionsCardsHtml(plan.routeOptions);
           }
-
-          html += `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;">` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${mainRoute.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Traçar Linha ${mainRoute.code} no Mapa</button>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${mainRoute.code}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${origStopLabel.replace(/'/g, "\\'")}', ${plan.origCorridor && plan.origCorridor.lat ? `[${plan.origCorridor.lat}, ${plan.origCorridor.lon}]` : 'null'});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🔔 Monitorar Parada</button>` +
-            `</div>`;
 
           return {
             intent: 'trip_plan',
+            decision: layaDecision,
             routeCode: mainRoute.code,
             directOptions: ranked.slice(0, 4).map(r => r.code),
+            routeOptions: plan.routeOptions,
             html,
-            speech: `De ${plan.originLabel} até ${plan.destLabel}, você tem ligação direta pela linha ${mainRoute.code}, além de ${Math.max(0, ranked.length - 1)} outras opções diretas no mapa.`
+            speech: `De ${plan.originLabel} até ${plan.destLabel}, a melhor opção é a linha direta ${mainRoute.code}, chegando ao destino em cerca de ${mainRoute.totalMin || 25} minutos. Também listei ${Math.max(0, plan.routeOptions.length - 1)} rotas alternativas.`
           };
         }
 
         if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length >= 2) {
           const legs = plan.transferPlan.legs;
           const hubs = plan.transferPlan.hubs || [plan.transferPlan.hub];
-          const numEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣'];
+          const numEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
 
           let stepsHtml = '';
           const legCodesArr = legs.map(l => l.code);
@@ -1446,34 +1651,30 @@
             stepsHtml += `${numEmojis[i] || '➡️'} <strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${legs[i].label}</strong> até <strong>${targetPlace}</strong>.<br>`;
           }
 
-          const legButtonsHtml = legs.map((l, idx) =>
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${l.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🚌 ${idx + 1}ª (${l.code})</button>`
-          ).join('');
+          const optionsHtml = (plan.routeOptions && plan.routeOptions.length > 0)
+            ? `<div style="margin-top:8px; font-size:11px; font-weight:800; color:#334155;">📋 Opções de Rota (Caminhada + Ônibus):</div>` + renderOptionsCardsHtml(plan.routeOptions)
+            : '';
 
-          const allCodesJson = JSON.stringify(legCodesArr).replace(/"/g, "'");
-          const allHubsJson = JSON.stringify(hubs).replace(/"/g, "'");
-
-          const html = `🔄 <strong>Rota Completa Conectada (${legs.length} Etapas)</strong> de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
+          const html = `🔄 <strong>Rota Completa (${legs.length} Etapas)</strong> de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
             stepsHtml +
-            `<div style="font-size:11px; color:#047857; font-weight:700; margin:6px 0 10px;">💳 Integração SEI / VEM: janela temporal de 2h válida entre terminais.</div>` +
-            `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${allCodesJson}, ${allHubsJson});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Ver Rota Completa (${legs.length} Etapas)</button>` +
-            legButtonsHtml +
-            `</div>`;
+            `<div style="font-size:11px; color:#047857; font-weight:700; margin-top:6px;">💳 Integração SEI / VEM: janela de 2h entre terminais integrados.</div>` +
+            optionsHtml;
 
           const speechSteps = legs.map((l, idx) => {
             const target = idx < hubs.length ? hubs[idx] : plan.destLabel;
             return `linha ${l.code} até ${target}`;
-          }).join(', e depois ');
+          }).join(', depois ');
 
           return {
             intent: 'trip_transfer',
+            decision: layaDecision,
             routeCode: legs[0].code,
             legs: legCodesArr,
             hubs,
             hub: hubs[0],
+            routeOptions: plan.routeOptions,
             html,
-            speech: `Rota completa de ${plan.originLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.`
+            speech: `Tracei sua rota de ${plan.originLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.`
           };
         }
 
