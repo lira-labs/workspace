@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>GrafoParada · Ônibus Seguro no Grande Recife</title>
+  <link rel="icon" type="image/png" href="img/icon_grafoparada.png" />
+  <link rel="apple-touch-icon" href="img/icon_grafoparada.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
@@ -2045,7 +2047,7 @@
                 <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual:</span>
                 <button id="btn-fav-star" onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; cursor:pointer; font-size:15px;" title="Favoritar parada">⭐</button>
               </div>
-              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas as Paradas (<span id="stops-count-label">48</span>) ▲</button>
+              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas as Paradas (<span id="stops-count-label">--</span>) ▲</button>
             </div>
             <div id="current-stop-name" style="color:var(--text-main);">
               <div style="display:flex; align-items:center; gap:6px;">
@@ -2242,7 +2244,7 @@
         <!-- STOPS LIST ACCORDION (VISIBLE WHEN EXPANDED) -->
         <div id="sheet-stops-list" style="margin-top:14px; border-top:1px solid var(--border-color); padding-top:14px;">
           <div style="font-size:12.5px; font-weight:800; margin-bottom:10px; color:var(--text-secondary); text-transform:uppercase;">
-            Paradas Físicas do Trajeto (<span id="stops-count-label">43</span>):
+            Paradas Físicas do Trajeto (<span id="sheet-stops-count-label">--</span>):
           </div>
           <div id="stops-container" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
@@ -4119,7 +4121,9 @@
     function renderStopsAccordion(telemetria) {
       const container = document.getElementById("stops-container");
       const labelCount = document.getElementById("stops-count-label");
+      const sheetLabelCount = document.getElementById("sheet-stops-count-label");
       if (labelCount) labelCount.textContent = telemetria.stops.length;
+      if (sheetLabelCount) sheetLabelCount.textContent = telemetria.stops.length;
       if (!container) return;
 
       // Group stops by trecho
@@ -5379,18 +5383,24 @@
 
       if (plan && plan.routeOptions && plan.routeOptions.length > 0 && optionsBox) {
         lastLocatePlanResult = plan;
+        const esc = (window.RealTransit && typeof window.RealTransit.escapeHtml === "function")
+          ? window.RealTransit.escapeHtml.bind(window.RealTransit)
+          : function(s) { return String(s || "").replace(/[&<>"']/g, function(c) { return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" })[c]; }); };
+
         const optCardsHtml = plan.routeOptions.map(function(opt, idx) {
           const badgeColors = ["#059669", "#0284c7", "#7c3aed"];
-          const legsHtml = opt.legs.map(function(code, i) {
-            const hubBadge = (i < opt.hubs.length)
-              ? '<span style="font-size:10px; color:#64748b; font-weight:700;"> ➔ 🚉 ' + opt.hubs[i] + ' ➔ </span>'
+          const codes = (opt.codes && opt.codes.length) ? opt.codes : (opt.legs || []).map(function(l) { return l && l.code ? l.code : String(l); });
+          const hubs = opt.hubs || [];
+          const legsHtml = codes.map(function(code, i) {
+            const hubBadge = (i < hubs.length)
+              ? '<span style="font-size:10px; color:#64748b; font-weight:700;"> ➔ 🚉 ' + esc(hubs[i]) + ' ➔ </span>'
               : '';
-            return '<span style="display:inline-flex; align-items:center; background:' + badgeColors[i % badgeColors.length] + '; color:#fff; font-weight:800; font-size:11px; padding:2px 7px; border-radius:6px;">' + code + '</span>' + hubBadge;
+            return '<span style="display:inline-flex; align-items:center; background:' + badgeColors[i % badgeColors.length] + '; color:#fff; font-weight:800; font-size:11px; padding:2px 7px; border-radius:6px;">' + esc(code) + '</span>' + hubBadge;
           }).join("");
           const walkHtml = (typeof opt.walkMeters === "number")
             ? '<span style="font-size:10.5px; color:#475569; font-weight:700;">🚶 ' + opt.walkMeters + 'm (' + (opt.walkMin || 1) + ' min a pé)</span>'
             : '';
-          const tag = opt.tag || (idx === 0 ? "⚡ Mais rápida" : "Alternativa " + (idx + 1));
+          const tag = esc(opt.tag || (idx === 0 ? "⚡ Mais rápida" : "Alternativa " + (idx + 1)));
           const highlightBorder = idx === 0 ? "1.5px solid #059669" : "1px solid #cbd5e1";
           return '<div style="background:#ffffff; border:' + highlightBorder + '; border-radius:12px; padding:10px 12px; box-shadow:0 2px 8px rgba(15,23,42,0.05);">' +
             '<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">' +
@@ -5406,7 +5416,7 @@
         }).join("");
 
         optionsBox.innerHTML =
-          '<div style="font-size:11.5px; font-weight:800; color:#0f172a;">🛣️ Sugestões de ' + plan.originLabel + ' até ' + plan.destLabel + ':</div>' +
+          '<div style="font-size:11.5px; font-weight:800; color:#0f172a;">🛣️ Sugestões de ' + esc(plan.originLabel) + ' até ' + esc(plan.destLabel) + ':</div>' +
           optCardsHtml +
           '<button type="button" onclick="openLocatePlanInLaya()" style="width:100%; background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; border-radius:10px; padding:8px 12px; font-size:11.5px; font-weight:800; cursor:pointer;">✨ Ver guia completo com a Laya IA</button>';
         optionsBox.style.display = "flex";
@@ -5425,6 +5435,7 @@
     function selectGoogleMapsOption(idx) {
       if (!lastLocatePlanResult || !lastLocatePlanResult.routeOptions || !lastLocatePlanResult.routeOptions[idx]) return;
       const opt = lastLocatePlanResult.routeOptions[idx];
+      const legCodes = (opt.codes && opt.codes.length) ? opt.codes : (opt.legs || []).map(function(l) { return l && l.code ? l.code : String(l); });
       const oCoords = (lastLocatePlanResult.origCorridor && typeof lastLocatePlanResult.origCorridor.lat === "number")
         ? [lastLocatePlanResult.origCorridor.lat, lastLocatePlanResult.origCorridor.lon]
         : null;
@@ -5432,13 +5443,13 @@
         ? [lastLocatePlanResult.destCorridor.lat, lastLocatePlanResult.destCorridor.lon]
         : null;
 
-      navigateToScreen("radar");
+      navigateToScreen("radar", { skipFit: true });
       setTimeout(function() {
         if (window.RealTransit && typeof window.RealTransit.renderMultiLegRoute === "function") {
-          window.RealTransit.renderMultiLegRoute(opt.legs, opt.hubs, oCoords, dCoords);
+          window.RealTransit.renderMultiLegRoute(legCodes, opt.hubs || [], oCoords, dCoords);
         }
         const msg = "Rota de " + lastLocatePlanResult.originLabel + " até " + lastLocatePlanResult.destLabel +
-          " traçada no mapa: linhas " + opt.legs.join(" e ") + ", tempo estimado de " + opt.totalMin + " minutos.";
+          " traçada no mapa: linhas " + legCodes.join(" e ") + ", tempo estimado de " + opt.totalMin + " minutos.";
         if (typeof playNaturalVoice === "function") playNaturalVoice(msg);
       }, 150);
     }
@@ -6030,7 +6041,11 @@
       if (!hist) return;
       const bubble = document.createElement("div");
       bubble.className = sender === "user" ? "laya-msg-user" : "laya-msg-bot";
-      bubble.innerHTML = msg;
+      if (sender === "user") {
+        bubble.textContent = msg;
+      } else {
+        bubble.innerHTML = msg;
+      }
       hist.appendChild(bubble);
       requestAnimationFrame(function() {
         hist.scrollTop = hist.scrollHeight;

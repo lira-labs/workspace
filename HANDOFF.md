@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 12/11/2026 23:02
+- **Última Atualização:** 12/11/2026 23:24
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -14,7 +14,7 @@
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
   - Subagentes Especializados Ativos: `backend-engineer`, `frontend-engineer`, `qa-integration-engineer`, `visual-design-critic`, `slide-master-canva`.
 - **Contratos Compartilhados (OpenAPI v2.1.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy:** 37/37 Testes Automatizados em 5 Etapas (100% PASS)
+- **Gatekeeper Pré-Deploy:** `pre_flight_check.py` (37/37 PASS) + Suíte Pytest Unitária/Científica/Matriz 1.260 O-D/Segurança XSS/E2E Chrome Headless (26/26 PASS)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -54,8 +54,13 @@
   - *Nota*: Deploy Vercel CLI funcionando diretamente dentro de `code/grafoparada_web` (`npx vercel --prod --yes`).
   - Conhecimento da plataforma integrado (ST-GCN `1,51 min` MAE, `Yap & Cats 1,68x`, `Kim et al. 2026`, Trava Híbrida Defensiva).
   - Corrigido layout e scroll do `#modal-laya` (`height: min(640px, 86dvh)`, `#laya-chat-history` com auto-scroll `requestAnimationFrame`) e encurtado placeholder (`"Ex: De Camela até Ipojuca..."`) para evitar cortes no mobile.
-- [x] **Gatekeeper & Testes Ampliados (`teste_rotinas_e_realocacao.py`)**:
-  - Adicionado Bloco 5 validando fluxo de telas progressivo e execuções reais em Node.js do roteador GTFS da Laya (`34/34 testes PASS` no `pre_flight_check.py`).
+- [x] **Bateria Completa de Testes Unitários, Contrato, Segurança, Matriz O-D & E2E Real em Browser (`test_unitarios_cientificos.py`, `test_e2e_e_motor.py`)**:
+  - **26/26 testes `pytest` PASS** + **37/37 `pre_flight_check.py` PASS**, cobrindo:
+    * Modelos A1 (`PerceivedWaitModel 1.68x`, `PassengerRenegingModel`, `TravaHibridaDefensiva 15 min`, `DespachoCTM`), **STGCN PyTorch** (`forward`/`backward`, Laplaciana simétrica), geodésia `haversine_m` e contratos OpenAPI `v2.1.0`.
+    * Integridade de todas as `393` linhas GTFS (bounding box de PE), `45` hubs SEI, zero links locais `404` e zero IDs HTML duplicados.
+    * **Matriz Completa `36 × 35 = 1.260` pares O-D da RMR**: `1.260/1.260 (100%)` resolvidos sem loops após substituição do corte `.slice(0, 22)` por grafo condensado com heurística A\* (`_getCondensedHubGraph`).
+    * Correção de bugs reais revelados pela bateria: `[object Object]` na Tela 2 (`askLayaFromLocate` / `selectGoogleMapsOption`), DOM XSS no chat da Laya e cartões (`escapeHtml` + `textContent`), ID duplicado `stops-count-label`, matching normalizado de pinos de baldeação (`renderMultiLegRoute`) e `404 /favicon.ico` (`<link rel="icon">`).
+    * **E2E real em Google Chrome Headless via CDP + HTTP local** (`390×844` Mobile e `1280×800` Desktop): fluxo completo sem `console.error`, exceções JS ou overflow horizontal.
 - **Nota de Ambiente:** A validação automatizada via `chrome_devtools` não pôde conectar porque o Chrome na máquina estava sem remote debugging (`DevToolsActivePort` ausente); recomenda-se validar visualmente após deploy ou habilitar `chrome://inspect/#remote-debugging` para inspeção futura.
 
 ### 1. Reestruturação do Sistema Multiagente e Purga de Agentes Legados

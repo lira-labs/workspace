@@ -28,7 +28,10 @@ import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import edge_tts
+try:
+    import edge_tts
+except ImportError:
+    edge_tts = None
 
 import networkx as nx
 import numpy as np

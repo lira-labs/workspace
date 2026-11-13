@@ -41,6 +41,90 @@
       '11': '011'
     },
 
+    escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    },
+
+    _getCondensedHubGraph() {
+      if (!this.networkData || !Array.isArray(this.networkData.hub_graph)) return null;
+      if (this._condensedGraph && this._condensedGraph.sourceRef === this.networkData.hub_graph) {
+        return this._condensedGraph;
+      }
+
+      const isNightOrRail = (code) => {
+        const pop = this.networkData.popular_lines && this.networkData.popular_lines[code];
+        const nm = (pop && pop.name) || code;
+        return /bacurau/i.test(nm) || /^vlt/i.test(code);
+      };
+      const isTrunkCode = (c) => /^(185|191|195|199|198|157|050|080|2040|2060|1076|1100|1971|1967|1983|1992)$/.test(c);
+      const isMajorHub = (name) => /^(Ti\s|Cais\s|Pra[cç]a do Derby|Terminal)/i.test(name);
+
+      const rawHubs = this.networkData.hub_graph.filter(h => Array.isArray(h.lines) && h.lines.length > 0);
+      const hubs = [];
+      for (const h of rawHubs) {
+        const existing = hubs.find(u => this.haversineKm(u.lat, u.lon, h.lat, h.lon) < 0.15);
+        if (existing) {
+          existing.lines = Array.from(new Set(existing.lines.concat(h.lines)));
+          if (/^Ti\s+Joana\s+Bezerra$/i.test(h.name) || h.lines.length > existing.lines.length) {
+            existing.name = h.name;
+          }
+        } else {
+          hubs.push({ idx: hubs.length, name: h.name, lat: h.lat, lon: h.lon, lines: [...h.lines], lineSet: new Set(h.lines) });
+        }
+      }
+      hubs.forEach(h => { h.lineSet = new Set(h.lines); });
+
+      const lineToHubIndices = new Map();
+      hubs.forEach((h, idx) => {
+        h.lines.forEach(code => {
+          if (!lineToHubIndices.has(code)) lineToHubIndices.set(code, []);
+          lineToHubIndices.get(code).push(idx);
+        });
+      });
+
+      const edges = hubs.map(() => []);
+      for (let u = 0; u < hubs.length; u++) {
+        const hubU = hubs[u];
+        const bestByTarget = new Map();
+        for (const code of hubU.lines) {
+          if (isNightOrRail(code)) continue;
+          const neighbors = lineToHubIndices.get(code) || [];
+          const trunkScore = isTrunkCode(code) ? 0 : 1;
+          for (const v of neighbors) {
+            if (v === u) continue;
+            if (!bestByTarget.has(v)) {
+              bestByTarget.set(v, { code, trunkScore, alts: [] });
+            } else {
+              const cur = bestByTarget.get(v);
+              if (trunkScore < cur.trunkScore) {
+                cur.alts.unshift(cur.code);
+                cur.code = code;
+                cur.trunkScore = trunkScore;
+              } else if (cur.alts.length < 1 && cur.code !== code) {
+                cur.alts.push(code);
+              }
+            }
+          }
+        }
+        bestByTarget.forEach((info, v) => {
+          const hubV = hubs[v];
+          const distKm = this.haversineKm(hubU.lat, hubU.lon, hubV.lat, hubV.lon);
+          let stepMin = Math.max(5, (distKm / 20.0) * 60) + (isMajorHub(hubV.name) ? 7.5 : 13.0);
+          if (isTrunkCode(info.code)) stepMin -= 2.5;
+          if (/cais|santa rita/i.test(hubV.name)) stepMin -= 1.5;
+          edges[u].push({ targetIdx: v, code: info.code, stepMin: Math.max(3, stepMin) });
+        });
+      }
+
+      this._condensedGraph = { sourceRef: this.networkData.hub_graph, hubs, lineToHubIndices, edges };
+      return this._condensedGraph;
+    },
+
     // Inicialização da Engine
     async init(leafletMap) {
       this.map = leafletMap;
@@ -272,12 +356,17 @@
       // Marca os Hubs/Terminais SEI de baldeação ao longo do trajeto
       if (Array.isArray(hubNames) && Array.isArray(this.networkData.hub_graph)) {
         hubNames.forEach((hName, hIdx) => {
-          const hubObj = this.networkData.hub_graph.find(h => h.name === hName);
+          const normH = this.normalizeText(hName);
+          const hubObj = this.networkData.hub_graph.find(h => h.name === hName) ||
+            this.networkData.hub_graph.find(h => {
+              const hn = this.normalizeText(h.name);
+              return hn.includes(normH) || normH.includes(hn);
+            });
           if (!hubObj) return;
           const badge = L.marker([hubObj.lat, hubObj.lon], {
             icon: L.divIcon({
               className: '',
-              html: `<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">🔄 ${hIdx + 1}: ${hubObj.name}</div>`,
+              html: `<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">🔄 ${hIdx + 1}: ${this.escapeHtml(hubObj.name)}</div>`,
               iconAnchor: [45, 12]
             })
           }).addTo(this.extraLegsLayer);
@@ -429,7 +518,9 @@
     renderStopsDrawer(stops) {
       const container = document.getElementById('stops-container');
       const countLabel = document.getElementById('stops-count-label');
+      const sheetCountLabel = document.getElementById('sheet-stops-count-label');
       if (countLabel) countLabel.textContent = String(stops.length);
+      if (sheetCountLabel) sheetCountLabel.textContent = String(stops.length);
       if (!container) return;
 
       let html = '';
@@ -1318,9 +1409,10 @@
       const catDirect = origCatalog.filter(om => destCatalog.some(dm => dm.code === om.code));
       const directMatches = geoDirect.length > 0 ? geoDirect : catDirect;
 
-      // 3. Grafo Ilimitado Ponderado (Dijkstra / Multi-Opções Google Maps) sobre todas as 393 linhas + 45 Hubs SEI
+      // 3. Grafo Ilimitado Ponderado (A* sobre grafo condensado de 45 Hubs SEI cobrindo todas as 393 linhas)
       const findUnlimitedMultiOptionPaths = () => {
-        if (!this.networkData || !Array.isArray(this.networkData.hub_graph) || !origCatalog.length || !destCatalog.length) {
+        const graph = this._getCondensedHubGraph();
+        if (!graph || !origCatalog.length || !destCatalog.length) {
           return [];
         }
 
@@ -1339,32 +1431,11 @@
           return /bacurau/i.test(nm) || /^vlt/i.test(code);
         };
 
-        const rawHubs = this.networkData.hub_graph.filter(h => Array.isArray(h.lines) && h.lines.length > 0);
-        const hubs = [];
-        for (const h of rawHubs) {
-          const existing = hubs.find(u => this.haversineKm(u.lat, u.lon, h.lat, h.lon) < 0.15);
-          if (existing) {
-            existing.lines = Array.from(new Set(existing.lines.concat(h.lines)));
-            if (/^Ti\s+Joana\s+Bezerra$/i.test(h.name) || h.lines.length > existing.lines.length) {
-              existing.name = h.name;
-            }
-          } else {
-            hubs.push({ name: h.name, lat: h.lat, lon: h.lon, lines: [...h.lines] });
-          }
-        }
-
-        const lineToHubs = new Map();
-        hubs.forEach(h => {
-          h.lines.forEach(code => {
-            if (!lineToHubs.has(code)) lineToHubs.set(code, []);
-            lineToHubs.get(code).push(h);
-          });
-        });
-
-        const origDay = origCatalog.filter(x => !isNightOrRail(x.code)).slice(0, 18);
-        const destDay = destCatalog.filter(x => !isNightOrRail(x.code)).slice(0, 18);
-        const origBus = origDay.length ? origDay : origCatalog.slice(0, 12);
-        const destBus = destDay.length ? destDay : destCatalog.slice(0, 12);
+        const { hubs, lineToHubIndices, edges } = graph;
+        const origDay = origCatalog.filter(x => !isNightOrRail(x.code));
+        const destDay = destCatalog.filter(x => !isNightOrRail(x.code));
+        const origBus = origDay.length ? origDay : origCatalog;
+        const destBus = destDay.length ? destDay : destCatalog;
         const destRank = new Map(destBus.map((x, idx) => [x.code, idx]));
 
         const oLat = origPlace && origPlace.lat;
@@ -1372,6 +1443,10 @@
         const dLat = destPlace && destPlace.lat;
         const dLon = destPlace && destPlace.lon;
         const isMajorHub = (name) => /^(Ti\s|Cais\s|Pra[cç]a do Derby|Terminal)/i.test(name);
+
+        const heuristicToDest = (lat, lon) => (dLat && dLon && lat && lon)
+          ? this.haversineKm(lat, lon, dLat, dLon) * 1.9
+          : 0;
 
         const estimateTimeCost = (fromLat, fromLon, toLat, toLon, transferCount, hubName, midCode) => {
           const distKm = (fromLat && toLat) ? this.haversineKm(fromLat, fromLon, toLat, toLon) : 6;
@@ -1382,44 +1457,60 @@
           return minCost;
         };
 
-        // Exploração tipo Dijkstra sem teto fixo de baldeações (até 6 pernas / sem ciclos)
-        const pq = [];
+        // Deduplica sementes por hub inicial (máx 2 melhores linhas de embarque por hub)
+        // Evita explosão combinatória em polos centrais com 100+ linhas e garante cobertura de todo o grafo
+        const seedsByHub = new Map();
         for (const o of origBus) {
           const walkMin = o.distanceKm ? Math.max(1, Math.round((o.distanceKm * 1000) / 78)) : 2;
-          for (const h1 of (lineToHubs.get(o.code) || [])) {
+          const walkMeters = o.distanceKm ? Math.round(o.distanceKm * 1000) : 120;
+          for (const h1Idx of (lineToHubIndices.get(o.code) || [])) {
+            const h1 = hubs[h1Idx];
             const legCost = walkMin + 4 + estimateTimeCost(oLat, oLon, h1.lat, h1.lon, 1, h1.name, o.code);
-            pq.push({
-              hub: h1,
-              legs: [o.code],
-              hubs: [h1.name],
-              costMin: legCost,
-              walkMeters: o.distanceKm ? Math.round(o.distanceKm * 1000) : 120,
-              walkMin
-            });
+            const arr = seedsByHub.get(h1Idx) || [];
+            if (arr.length < 2) {
+              arr.push({
+                hubIdx: h1Idx,
+                legs: [o.code],
+                hubNames: [h1.name],
+                costMin: legCost,
+                fScore: legCost + heuristicToDest(h1.lat, h1.lon),
+                walkMeters,
+                walkMin
+              });
+              seedsByHub.set(h1Idx, arr);
+            }
           }
         }
+
+        const pq = [];
+        seedsByHub.forEach(arr => arr.forEach(s => pq.push(s)));
 
         const completed = [];
         const bestHubVisits = new Map();
         let expansions = 0;
 
-        while (pq.length > 0 && expansions < 4500 && completed.length < 30) {
-          pq.sort((a, b) => a.costMin - b.costMin);
-          const curr = pq.shift();
+        while (pq.length > 0 && expansions < 800 && completed.length < 20) {
+          let bestPos = 0;
+          for (let i = 1; i < pq.length; i++) {
+            if (pq[i].fScore < pq[bestPos].fScore) bestPos = i;
+          }
+          const curr = pq[bestPos];
+          pq[bestPos] = pq[pq.length - 1];
+          pq.pop();
           expansions += 1;
 
-          // Verifica se o hub atual já conecta diretamente com alguma linha do destino
-          const dHits = destBus.filter(d => !curr.legs.includes(d.code) && curr.hub.lines.includes(d.code));
+          const hub = hubs[curr.hubIdx];
+          const dHits = destBus.filter(d => !curr.legs.includes(d.code) && hub.lineSet.has(d.code));
           if (dHits.length > 0) {
             dHits.sort((a, b) => (destRank.get(a.code) ?? 99) - (destRank.get(b.code) ?? 99));
             const bestLast = dHits[0];
-            const finalLegMin = estimateTimeCost(curr.hub.lat, curr.hub.lon, dLat, dLon, 0, curr.hub.name, bestLast.code);
+            const finalLegMin = estimateTimeCost(hub.lat, hub.lon, dLat, dLon, 0, hub.name, bestLast.code);
             const totalMin = Math.round(curr.costMin + finalLegMin);
             const fullCodes = curr.legs.concat([bestLast.code]);
             completed.push({
               legs: fullCodes.map(getLineMeta),
-              hubs: curr.hubs,
-              hub: curr.hubs[0],
+              hubs: curr.hubNames,
+              hub: curr.hubNames[0],
               leg1: getLineMeta(fullCodes[0]),
               leg2: getLineMeta(fullCodes[fullCodes.length - 1]),
               isSEI: true,
@@ -1428,37 +1519,34 @@
               totalMin,
               score: totalMin
             });
-            // Não aborta imediatamente — continua explorando para gerar alternativas Google Maps
-            if (completed.length >= 18) break;
+            if (completed.length >= 14) break;
           }
 
-          if (curr.legs.length >= 5) continue; // Segurança anti-loop sem limitar rotas reais de 3, 4 ou 5 etapas
+          if (curr.legs.length >= 5) continue;
 
-          const visitKey = `${curr.hub.name}:${curr.legs.length}`;
-          const visitCount = bestHubVisits.get(visitKey) || 0;
-          if (visitCount >= 3) continue;
-          bestHubVisits.set(visitKey, visitCount + 1);
+          const visitCount = bestHubVisits.get(curr.hubIdx) || 0;
+          if (visitCount >= 2) continue;
+          bestHubVisits.set(curr.hubIdx, visitCount + 1);
 
-          const nextCandidates = curr.hub.lines.filter(c => !isNightOrRail(c) && !curr.legs.includes(c));
-          for (const nextCode of nextCandidates.slice(0, 22)) {
-            for (const nh of (lineToHubs.get(nextCode) || [])) {
-              if (curr.hubs.includes(nh.name)) continue;
-              const stepCost = estimateTimeCost(curr.hub.lat, curr.hub.lon, nh.lat, nh.lon, 1, nh.name, nextCode);
-              pq.push({
-                hub: nh,
-                legs: curr.legs.concat([nextCode]),
-                hubs: curr.hubs.concat([nh.name]),
-                costMin: curr.costMin + stepCost,
-                walkMeters: curr.walkMeters,
-                walkMin: curr.walkMin
-              });
-            }
+          for (const edge of edges[curr.hubIdx]) {
+            if (curr.legs.includes(edge.code)) continue;
+            const nh = hubs[edge.targetIdx];
+            if (curr.hubNames.includes(nh.name)) continue;
+            const nextCost = curr.costMin + edge.stepMin;
+            pq.push({
+              hubIdx: edge.targetIdx,
+              legs: curr.legs.concat([edge.code]),
+              hubNames: curr.hubNames.concat([nh.name]),
+              costMin: nextCost,
+              fScore: nextCost + heuristicToDest(nh.lat, nh.lon),
+              walkMeters: curr.walkMeters,
+              walkMin: curr.walkMin
+            });
           }
         }
 
         completed.sort((a, b) => (a.legs.length - b.legs.length) * 4 + (a.totalMin - b.totalMin));
 
-        // Seleciona até 3 opções verdadeiramente distintas (por combinação de terminais ou linha)
         const diverse = [];
         const signatures = new Set();
         for (const c of completed) {
@@ -1572,11 +1660,13 @@
 
       if (tripPair) {
         const plan = this.planSmartTrip(tripPair.origin, tripPair.dest, telemetryStops);
+        const safeOrig = this.escapeHtml(plan.originLabel);
+        const safeDest = this.escapeHtml(plan.destLabel);
         if (implicitFromHere && (!plan.origCorridor || !plan.origCorridor.lat)) {
           return {
             intent: 'need_location',
             decision: layaDecision,
-            html: `📍 Quero traçar sua rota até <strong>${plan.destLabel}</strong> partindo de onde você está!<br><br>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções estilo Google Maps:<br><br>` +
+            html: `📍 Quero traçar sua rota até <strong>${safeDest}</strong> partindo de onde você está!<br><br>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções estilo Google Maps:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">📍 Informar Onde Estou Agora</button>`,
             speech: `Para traçar sua rota até ${plan.destLabel}, primeiro me diga onde você está agora ou ative seu GPS.`
           };
@@ -1614,10 +1704,10 @@
           const waitStr = plan.originStop ? `${plan.originStop.wait_gps_min || 3} min` : '4 a 7 min';
           const tripDur = plan.telemetryEtaMin ? `~${plan.telemetryEtaMin} min` : formatDuration(mainRoute.totalMin || 25);
 
-          let html = `✅ <strong>Rotas de ${plan.originLabel} até ${plan.destLabel}:</strong><br><br>` +
-            `🚌 <strong>Melhor Linha Direta (${mainRoute.code}):</strong> <em>${mainRoute.label}</em><br>` +
-            `• 📍 <strong>Embarque:</strong> ${origStopLabel} (próximo em <strong>${waitStr}</strong>)<br>` +
-            `• 🎯 <strong>Desembarque:</strong> ${destStopLabel} (${tripDur})<br>`;
+          let html = `✅ <strong>Rotas de ${safeOrig} até ${safeDest}:</strong><br><br>` +
+            `🚌 <strong>Melhor Linha Direta (${this.escapeHtml(mainRoute.code)}):</strong> <em>${this.escapeHtml(mainRoute.label)}</em><br>` +
+            `• 📍 <strong>Embarque:</strong> ${this.escapeHtml(origStopLabel)} (próximo em <strong>${waitStr}</strong>)<br>` +
+            `• 🎯 <strong>Desembarque:</strong> ${this.escapeHtml(destStopLabel)} (${tripDur})<br>`;
 
           if (altLines) {
             html += `• 🔁 <strong>Outras linhas diretas:</strong> ${altLines}<br>`;
@@ -1648,14 +1738,14 @@
           for (let i = 0; i < legs.length; i++) {
             const targetPlace = i < hubs.length ? hubs[i] : plan.destLabel;
             const actionPrefix = i === 0 ? 'Embarque inicial' : (i === legs.length - 1 ? 'Etapa final até o destino' : 'Conexão intermediária');
-            stepsHtml += `${numEmojis[i] || '➡️'} <strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${legs[i].label}</strong> até <strong>${targetPlace}</strong>.<br>`;
+            stepsHtml += `${numEmojis[i] || '➡️'} <strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${this.escapeHtml(legs[i].label)}</strong> até <strong>${this.escapeHtml(targetPlace)}</strong>.<br>`;
           }
 
           const optionsHtml = (plan.routeOptions && plan.routeOptions.length > 0)
             ? `<div style="margin-top:8px; font-size:11px; font-weight:800; color:#334155;">📋 Opções de Rota (Caminhada + Ônibus):</div>` + renderOptionsCardsHtml(plan.routeOptions)
             : '';
 
-          const html = `🔄 <strong>Rota Completa (${legs.length} Etapas)</strong> de <strong>${plan.originLabel}</strong> até <strong>${plan.destLabel}</strong>:<br><br>` +
+          const html = `🔄 <strong>Rota Completa (${legs.length} Etapas)</strong> de <strong>${safeOrig}</strong> até <strong>${safeDest}</strong>:<br><br>` +
             stepsHtml +
             `<div style="font-size:11px; color:#047857; font-weight:700; margin-top:6px;">💳 Integração SEI / VEM: janela de 2h entre terminais integrados.</div>` +
             optionsHtml;
@@ -1680,7 +1770,7 @@
 
         return {
           intent: 'trip_unknown',
-          html: `Não encontrei paradas mapeadas entre <strong>"${tripPair.origin}"</strong> e <strong>"${tripPair.dest}"</strong>.<br><br>` +
+          html: `Não encontrei paradas mapeadas entre <strong>"${this.escapeHtml(tripPair.origin)}"</strong> e <strong>"${this.escapeHtml(tripPair.dest)}"</strong>.<br><br>` +
             `Experimente nomes de bairros ou terminais (ex: <em>Recife Antigo, Olinda, Bairro Novo, TI PE-15, Camela, Ipojuca, UFRPE, Boa Viagem</em>) ou abra as 400 linhas:<br><br>` +
             `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Buscar nas 400 Linhas GTFS</button>`,
           speech: `Não localizei ligação entre ${tripPair.origin} e ${tripPair.dest}. Tente informar o terminal ou bairro mais próximo.`
