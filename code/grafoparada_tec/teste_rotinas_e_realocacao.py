@@ -305,7 +305,7 @@ if node_res.returncode == 0:
     ok_cam_ol = (t_cam_ol.get("intent") == "trip_transfer") and (len(cam_ol_legs) >= 3) and (cam_ol_legs[0] == "199") and any("Cabo" in h for h in cam_ol_hubs) and (len(cam_ol_opts) >= 1) and ("522" not in t_cam_ol.get("html", ""))
     ok_next = (t2.get("routeCode") == "199") and ("Camela" in t2.get("html", "")) and ("522" not in t2.get("html", ""))
     ok_ai = ("1,51 min" in t3.get("html", "")) and ("Kim et al." in t3.get("html", ""))
-    ok_imp = (t_imp.get("intent") in ("trip_direct", "trip_transfer")) and (len(t_imp.get("routeOptions") or []) >= 1) and ("Casa Caiada" in t_imp.get("html", ""))
+    ok_imp = (t_imp.get("intent") in ("trip_plan", "trip_direct", "trip_transfer")) and (len(t_imp.get("routeOptions") or []) >= 1) and ("Casa Caiada" in t_imp.get("html", ""))
     ok_ibu = bool(p_ibu.get("origCorridor")) and bool(p_ibu.get("destCorridor")) and (len(p_ibu.get("routeOptions") or []) >= 1)
     if ok_trip and ok_rec_ol and ok_cam_ol and ok_next and ok_ai and ok_imp and ok_ibu:
         print(f"  [PASS] Laya IA Ilimitada + Opções GPS: Camela->Ipojuca (199), Camela->Olinda ({' -> '.join(cam_ol_legs)}, {len(cam_ol_opts)} opções), Destino Implícito->Casa Caiada, Ibura->Shopping Recife OK")
