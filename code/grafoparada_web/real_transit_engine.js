@@ -14,6 +14,7 @@
     activeDirection: 'ida',
     activeBoardingIndex: 0,
     activeStopIndex: 0,
+    activeBusCoordIndex: 0,
     userAdaptState: {
       status: 'initializing',
       stopName: null,
@@ -365,9 +366,9 @@
       }
 
       const coords = dirData.polyline || [];
+      let splitIdx = 0;
       if (coords.length > 0 && this.map) {
         // Divide a polilinha no ponto mais próximo à parada de embarque (Passado esmaecido vs Restante da sua parada até o destino)
-        let splitIdx = 0;
         if (boardIdx > 0 && dirData.stops[boardIdx]) {
           const bStop = dirData.stops[boardIdx];
           let minP = Infinity;
@@ -404,7 +405,8 @@
 
         try {
           this.map.fitBounds(this.polylineLayer.getBounds(), {
-            padding: [50, 50],
+            paddingTopLeft: [24, 140],
+            paddingBottomRight: [24, 245],
             maxZoom: 15,
             animate: true
           });
@@ -418,12 +420,16 @@
         this.renderStopMarkers(dirData.stops, boardIdx);
       }
 
-      // 2.1 Sincroniza Marcador do Usuário e Ônibus ao Vivo
+      // 2.1 Sincroniza Marcador do Usuário e Ônibus ao Vivo (separado da pill Seu Embarque)
       if (typeof window.connectUserToActiveStop === 'function' && window.userCurrentCoords) {
         window.connectUserToActiveStop(window.userCurrentCoords[0], window.userCurrentCoords[1]);
       }
       if (typeof window.updateLiveBusMarker === 'function' && coords.length > 2) {
-        const bp = coords[Math.min(Math.max(2, boardIdx), coords.length - 1)];
+        const anchorIdx = Math.max(boardIdx, splitIdx);
+        const span = Math.max(1, (coords.length - 1) - anchorIdx);
+        const targetIdx = Math.min(coords.length - 2, anchorIdx + Math.max(6, Math.floor(span * 0.35)));
+        this.activeBusCoordIndex = targetIdx;
+        const bp = coords[targetIdx] || coords[Math.floor(coords.length / 2)];
         window.updateLiveBusMarker(bp[0], bp[1], code, 4, 14);
       }
 
@@ -544,7 +550,7 @@
           const badge = L.marker([hubObj.lat, hubObj.lon], {
             icon: L.divIcon({
               className: '',
-              html: `<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">🔄 ${hIdx + 1}: ${this.escapeHtml(hubObj.name)}</div>`,
+              html: `<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">Conexão ${hIdx + 1}: ${this.escapeHtml(hubObj.name)}</div>`,
               iconAnchor: [45, 12]
             })
           }).addTo(this.extraLegsLayer);
@@ -556,7 +562,7 @@
         const destPin = L.marker(destCoords, {
           icon: L.divIcon({
             className: '',
-            html: `<div style="background:#e11d48; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">🎯 Destino</div>`,
+            html: `<div style="background:#e11d48; color:#fff; border:2px solid #fff; border-radius:999px; padding:3px 8px; font-size:10.5px; font-weight:800; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3);">Destino</div>`,
             iconAnchor: [35, 12]
           })
         }).addTo(this.extraLegsLayer);
@@ -565,7 +571,12 @@
 
       if (bounds.isValid()) {
         try {
-          this.map.fitBounds(bounds, { padding: [45, 45], maxZoom: 14, animate: true });
+          this.map.fitBounds(bounds, {
+            paddingTopLeft: [24, 140],
+            paddingBottomRight: [24, 245],
+            maxZoom: 14,
+            animate: true
+          });
         } catch (e) {}
       }
     },
@@ -580,21 +591,27 @@
         const isBoard = idx === boardIdx;
         const isPassed = idx < boardIdx;
         const isTerminal = idx === 0 || idx === stops.length - 1;
+        const isActiveSel = idx === self.activeStopIndex && !isBoard && !isTerminal;
         const dirColor = self.activeDirection === 'volta' ? '#0284c7' : '#059669';
         const iconHtml = isBoard
           ? `<div style="background:${dirColor}; color:#fff; border:2px solid #fff; border-radius:999px; padding:2px 8px; font-size:10px; font-weight:800; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; box-shadow:0 4px 12px rgba(0,0,0,0.35);"><span style="width:6px;height:6px;border-radius:50%;background:#ffffff;display:inline-block;"></span>Seu Embarque</div>`
           : (isTerminal
             ? '<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; box-shadow:0 3px 10px rgba(0,0,0,0.3);">T</div>'
-            : `<div style="background:#ffffff; color:${isPassed ? '#94a3b8' : dirColor}; border:2px solid ${isPassed ? '#cbd5e1' : dirColor}; opacity:${isPassed ? '0.45' : '1'}; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,0.18);">${idx + 1}</div>`);
+            : (isActiveSel
+              ? `<div style="background:${dirColor}; color:#ffffff; border:2px solid #ffffff; border-radius:50%; width:18px; height:18px; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:800; box-shadow:0 3px 8px rgba(15,23,42,0.3);">${idx + 1}</div>`
+              : `<div style="background:#ffffff; border:2px solid ${isPassed ? '#cbd5e1' : dirColor}; opacity:${isPassed ? '0.5' : '0.95'}; border-radius:50%; width:9px; height:9px; box-shadow:0 1px 3px rgba(15,23,42,0.2);"></div>`));
 
         const customIcon = L.divIcon({
           className: '',
           html: iconHtml,
-          iconSize: isBoard ? [98, 22] : (isTerminal ? [22, 22] : [16, 16]),
-          iconAnchor: isBoard ? [49, 26] : (isTerminal ? [11, 11] : [8, 8])
+          iconSize: isBoard ? [98, 22] : (isTerminal ? [22, 22] : (isActiveSel ? [18, 18] : [9, 9])),
+          iconAnchor: isBoard ? [49, 28] : (isTerminal ? [11, 11] : (isActiveSel ? [9, 9] : [4.5, 4.5]))
         });
 
-        const marker = L.marker([st.lat, st.lon], { icon: customIcon, zIndexOffset: isBoard ? 900 : 0 });
+        const marker = L.marker([st.lat, st.lon], {
+          icon: customIcon,
+          zIndexOffset: isBoard ? 950 : (isActiveSel ? 600 : (isTerminal ? 400 : 0))
+        });
         const displayStopName = (st.name && !/^\d+$/.test(String(st.name).trim()))
           ? st.name
           : `Parada ${st.stop_id}`;
@@ -611,7 +628,7 @@
               Embarcar nesta Parada ➔
             </button>
             <button onclick="window.setMyBoardingStop('${displayStopName.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}]); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#0f172a; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer; margin-top:4px;">
-              🔔 Fixar como Minha Parada
+              Fixar como Minha Parada
             </button>
           </div>
         `;
@@ -637,26 +654,26 @@
       const dirLabel = dirData.dir === 'volta' ? 'VOLTA' : 'IDA';
       const remainingCount = Math.max(0, activeStops.length - 1 - index);
 
-      // Atualiza o card de parada atual com sentido claro + paradas restantes a partir dela
+      // Atualiza o card de parada atual em 2 linhas compactas para caber no Bottom Sheet em repouso (205px)
       const nameEl = document.getElementById('current-stop-name');
       if (nameEl) {
         const toggleDirBtn = dirData.hasVolta
-          ? `<button type="button" onclick="window.RealTransit.toggleDirection()" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:6px; padding:2px 8px; font-size:10px; font-weight:800; cursor:pointer;">⇄ Sentido ${dirData.dir === 'volta' ? 'Ida' : 'Volta'}</button>`
+          ? `<button type="button" onclick="window.RealTransit.toggleDirection()" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:6px; padding:2px 7px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap;">⇄ ${dirData.dir === 'volta' ? 'Ida' : 'Volta'}</button>`
           : '';
+        const pinStopBtn = `<button type="button" onclick="window.setMyBoardingStop('${cleanStopLabel.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}])" style="background:#f0fdf4; color:#047857; border:1px solid #86efac; border-radius:6px; padding:2px 7px; font-size:10px; font-weight:800; cursor:pointer; white-space:nowrap;">Fixar ponto</button>`;
         nameEl.innerHTML = `
-          <div style="display:flex; flex-direction:column; gap:2px;">
-            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px;">
-              <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
-                <span style="font-size:10px; font-weight:800; background:${dirData.dir === 'volta' ? '#dbeafe' : '#dcfce7'}; color:${dirData.dir === 'volta' ? '#1d4ed8' : '#15803d'}; padding:2px 6px; border-radius:5px;">SENTIDO ${dirLabel}</span>
-                <span style="font-size:10.5px; font-weight:800; color:#0f172a;">Parada #${index + 1} · ${remainingCount} à frente</span>
+          <div style="display:flex; flex-direction:column; gap:3px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; flex-wrap:nowrap;">
+              <div style="display:flex; align-items:center; gap:5px; min-width:0; overflow:hidden; white-space:nowrap;">
+                <span style="font-size:10px; font-weight:800; background:${dirData.dir === 'volta' ? '#dbeafe' : '#dcfce7'}; color:${dirData.dir === 'volta' ? '#1d4ed8' : '#15803d'}; padding:2px 6px; border-radius:5px; flex-shrink:0;">SENTIDO ${dirLabel}</span>
+                <span style="font-size:10.5px; font-weight:800; color:#0f172a; overflow:hidden; text-overflow:ellipsis;">Parada #${index + 1} · ${remainingCount} à frente</span>
               </div>
-              ${toggleDirBtn}
+              <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                ${toggleDirBtn}
+                ${pinStopBtn}
+              </div>
             </div>
-            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:2px;">${cleanStopLabel}</div>
-            <div style="font-size:11px; color:var(--text-secondary);">Indo para: <strong>${dirData.headsign || this.activeRoute.name}</strong> · Cód ${st.stop_id}</div>
-            <button onclick="window.setMyBoardingStop('${cleanStopLabel.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}])" style="margin-top:6px; background:#f0fdf4; color:#047857; border:1px solid #86efac; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:5px;">
-              Avisar quando o ônibus estiver perto desta parada
-            </button>
+            <div style="font-size:13px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cleanStopLabel} <span style="font-size:11px; font-weight:600; color:var(--text-secondary);">· ${dirData.headsign || this.activeRoute.name} (#${st.stop_id})</span></div>
           </div>
         `;
       }
@@ -669,6 +686,9 @@
       if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
 
       if (panTo && this.map) {
+        if (this.stopsLayer) {
+          this.renderStopMarkers(activeStops, this.activeBoardingIndex);
+        }
         this.map.panTo([st.lat, st.lon], { animate: true, duration: 0.5 });
       }
 
@@ -694,7 +714,7 @@
       if (destTitle) destTitle.textContent = `${lineData.name} · Sentido ${dirData.headsign || dirTag}`;
 
       const activeHeader = document.getElementById('active-trip-header');
-      if (activeHeader) activeHeader.textContent = `🚌 Linha ${lineData.code} (${dirTag}) ➔ ${dirData.headsign || lineData.name}`;
+      if (activeHeader) activeHeader.textContent = `Linha ${lineData.code} (${dirTag}) ➔ ${dirData.headsign || lineData.name}`;
 
       const firstStop = stops[boardIdx] ? stops[boardIdx].name.split('/')[0].trim() : 'Sua Parada';
       const lastStop = stops.length > 1 ? stops[stops.length - 1].name.split('/')[0].trim() : 'Ponto Final';
@@ -731,7 +751,7 @@
           <div style="background:${isSel ? '#ecfdf5' : 'var(--bg-page)'}; border:${isSel ? `2px solid ${dirColor}` : '1px solid var(--border-color)'}; opacity:${isPassed ? '0.62' : '1'}; border-radius:12px; padding:10px 12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s ease;" onclick="window.RealTransit.selectStop(${idx}, true)">
             <div style="max-width:75%;">
               <div style="display:flex; align-items:center; gap:5px; margin-bottom:2px; flex-wrap:wrap;">
-                <span style="font-size:10px; font-weight:800; background:${isBoard ? dirColor : '#f1f5f9'}; color:${isBoard ? '#ffffff' : '#475569'}; padding:1px 6px; border-radius:4px;">${isBoard ? '📍 EMBARQUE #' + (idx + 1) : '#' + String(idx + 1).padStart(2, '0')}</span>
+                <span style="font-size:10px; font-weight:800; background:${isBoard ? dirColor : '#f1f5f9'}; color:${isBoard ? '#ffffff' : '#475569'}; padding:1px 6px; border-radius:4px;">${isBoard ? 'SEU EMBARQUE #' + (idx + 1) : '#' + String(idx + 1).padStart(2, '0')}</span>
                 <span style="font-size:10px; font-weight:800; color:#0369a1;">CÓD ${st.stop_id}</span>
               </div>
               <div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25;">${stLabel}</div>
@@ -816,10 +836,10 @@
           </div>
 
           <div style="margin-bottom:12px;">
-            <input type="text" id="modal-line-search-input" placeholder="🔍 Digite o número ou nome da linha..." oninput="window.RealTransit.filterModalLines(this.value)" style="width:100%; padding:10px 14px; border-radius:12px; border:1.5px solid #cbd5e1; font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; outline:none; box-sizing:border-box;">
+            <input type="text" id="modal-line-search-input" placeholder="Digite o número ou nome da linha..." oninput="window.RealTransit.filterModalLines(this.value)" style="width:100%; padding:10px 14px; border-radius:12px; border:1.5px solid #cbd5e1; font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; outline:none; box-sizing:border-box;">
           </div>
 
-          <div style="font-size:11.5px; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;" id="modal-lines-list-header">🔥 Linhas com Traçado & Paradas 100% Reais:</div>
+          <div style="font-size:11.5px; font-weight:800; color:#64748b; text-transform:uppercase; margin-bottom:8px;" id="modal-lines-list-header">Linhas com Traçado & Paradas 100% Reais:</div>
           <div id="modal-lines-list" style="display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1; padding-right:4px;"></div>
         </div>
       `;
@@ -841,25 +861,25 @@
       const q = (query || '').trim().toLowerCase();
 
       const popular = [
-        { code: '522', name: 'Dois Irmãos (Rui Barbosa / UFRPE)', icon: '🎓' },
-        { code: '2060', name: 'TI Tancredo Neves / TI Macaxeira (Linha 060)', icon: '⚡' },
-        { code: '2040', name: 'CDU / Boa Viagem / Caxangá', icon: '🌊' },
-        { code: '050', name: 'PE-15 / Boa Viagem (Agamenon Magalhães)', icon: '🏙️' },
-        { code: '202', name: 'Barro / Macaxeira (Várzea)', icon: '🔄' },
-        { code: '1982', name: 'Conjunto Beira Mar / Derby', icon: '🏖️' },
-        { code: '080', name: 'TI Joana Bezerra / Boa Viagem', icon: '🚇' },
-        { code: '914', name: 'TI PE-15 / TI Afogados', icon: '🚊' },
-        { code: '044', name: 'Massangana / Boa Vista', icon: '🛍️' },
-        { code: '030', name: 'TI Rio Doce / Barra de Jangada', icon: '🌴' },
-        { code: '191', name: 'Recife / Porto de Galinhas', icon: '🏖️' },
-        { code: '199', name: 'Camela / TI Cabo', icon: '🏭' },
-        { code: '178', name: 'Porto de Suape / TI Cabo', icon: '⚓' }
+        { code: '522', name: 'Dois Irmãos (Rui Barbosa / UFRPE)' },
+        { code: '2060', name: 'TI Tancredo Neves / TI Macaxeira (Linha 060)' },
+        { code: '2040', name: 'CDU / Boa Viagem / Caxangá' },
+        { code: '050', name: 'PE-15 / Boa Viagem (Agamenon Magalhães)' },
+        { code: '202', name: 'Barro / Macaxeira (Várzea)' },
+        { code: '1982', name: 'Conjunto Beira Mar / Derby' },
+        { code: '080', name: 'TI Joana Bezerra / Boa Viagem' },
+        { code: '914', name: 'TI PE-15 / TI Afogados' },
+        { code: '044', name: 'Massangana / Boa Vista' },
+        { code: '030', name: 'TI Rio Doce / Barra de Jangada' },
+        { code: '191', name: 'Recife / Porto de Galinhas' },
+        { code: '199', name: 'Camela / TI Cabo' },
+        { code: '178', name: 'Porto de Suape / TI Cabo' }
       ];
 
       let items = [];
 
       if (!q) {
-        if (headerEl) headerEl.textContent = '🔥 Principais Linhas Metropolitanas:';
+        if (headerEl) headerEl.textContent = 'Principais Linhas Metropolitanas:';
         items = popular;
       } else {
         if (headerEl) headerEl.textContent = `Resultados para "${query}":`;
@@ -868,8 +888,7 @@
           if (r.code.toLowerCase().includes(q) || r.label.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) {
             items.push({
               code: r.code,
-              name: r.name,
-              icon: '🚌'
+              name: r.name
             });
           }
         });
@@ -878,8 +897,7 @@
       if (items.length === 0) {
         listEl.innerHTML = `
           <div style="padding:24px 16px; text-align:center; color:#64748b;">
-            <div style="font-size:24px; margin-bottom:6px;">🔍</div>
-            <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha encontrada para "${query}"</div>
+            <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha encontrada para "${this.escapeHtml(query)}"</div>
             <div style="font-size:11.5px; color:#64748b; line-height:1.45; margin-bottom:12px;">Verifique o número da linha (ex: 522, 060, 2040) ou o nome do corredor (ex: Dois Irmãos, Derby, CDU).</div>
             <button onclick="document.getElementById('modal-line-search-input').value=''; window.RealTransit.filterModalLines('');" style="background:#0284c7; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">
               Ver Linhas Populares
@@ -889,13 +907,15 @@
         return;
       }
 
+      const busSvgBadge = `<span style="width:28px; height:28px; border-radius:8px; background:#e0f2fe; color:#0284c7; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="gp-svg" style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg></span>`;
+
       listEl.innerHTML = items.slice(0, 30).map(p => `
         <div onclick="window.RealTransit.loadRoute('${p.code}'); document.getElementById('line-picker-modal').style.display='none';" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.15s ease;">
           <div style="display:flex; align-items:center; gap:10px; max-width:80%;">
-            <span style="font-size:18px;">${p.icon || '🚌'}</span>
+            ${busSvgBadge}
             <div>
               <div style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.2;">${p.code} · ${p.name}</div>
-              <div style="font-size:11px; color:#64748b; margin-top:2px;">Dados Oficiais GTFS CTM</div>
+              <div style="font-size:11px; color:#64748b; margin-top:2px;">Dados Oficiais GTFS</div>
             </div>
           </div>
           <span style="font-size:12px; font-weight:800; color:#059669;">Ver ➔</span>
@@ -951,7 +971,7 @@
           <div style="display:flex; align-items:center; gap:8px; min-width:0;">
             <svg class="gp-svg" style="width:14px;height:14px;color:#ffffff;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="15" cy="18" r="2"/></svg>
             <div style="font-size:11.5px; font-weight:800; color:#ffffff;">
-              Linha ${routeCode} · Grade Horária Oficial CTM
+              Linha ${routeCode} · Grade Horária Oficial GTFS
             </div>
           </div>
           <span style="font-size:10px; font-weight:800; background:rgba(255,255,255,0.2); color:#ffffff; padding:2px 7px; border-radius:4px; white-space:nowrap; flex-shrink:0;">GTFS Oficial</span>
@@ -1029,7 +1049,7 @@
             results.push({
               type: 'route',
               title: r.label,
-              sub: 'Linha Oficial CTM Grande Recife',
+              sub: 'Linha Oficial GTFS Grande Recife',
               code: r.code
             });
           }
