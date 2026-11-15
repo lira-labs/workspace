@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 18:25
+- **Última Atualização:** 15/11/2026 20:01
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -34,6 +34,21 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0h. Polimento Full-App 360°, Otimização do Motor O-D & Bloqueadores Visuais Desktop (15/11/2026)
+- **Ciclo Completo Multiagente + Gatekeeper + Crítico Visual Independente:**
+  - **Desempenho do Motor GTFS (`code/grafoparada_web/real_transit_engine.js`):** Adicionada memoização limitada `_nearPointCache` em `getLinesNearPoint()`, reduzindo `test_matriz_completa_1260_pares_od_xss_gps_e_voz` (2.352 pares O-D) de ~56 s para **3,45 s**. Corrigido retorno `intent: 'trip_plan'` e guarda de `window.isSlide3FailureActive` em `loadRoute()` / `fetchCittamobiLiveData()` para impedir sobrescrita assíncrona do banner de Trava Híbrida.
+  - **Laya IA & Voz PT-BR (`real_transit_engine.js` + `index.html`):** Prioridade absoluta para linha explícita e detecção de lotação/espera (`Yap & Cats 1.68x` + `Kim et al.`), 4 sub-intenções científicas (`PE-60 Nó 10`, `Lei 15.878`, `Cittamobi vs ST-GCN + VEM 2h`, `Arquitetura`), `.laya-msg-footer` com selo `ST-GCN 0,96 ms · GTFS CTM` + botão `Ouvir`, `#btn-laya-voice-mute` com SVG inline, remoção de emojis em cartões dinâmicos e padding em `.laya-msg-bot code`.
+  - **Correções Críticas em Desktop (`#desktop-ctm-workspace` & Slide 3) e Modais Mobile (`code/grafoparada_web/index.html`):**
+    - `applyDesktopCtmScenario()` corrigido para atualizar `#ctm-live-status-tag`, `#ctm-live-status-text`, `#ctm-kpi-alerts-val` e `#ctm-kpi-reserve-val` sem quebra de linha; cabeçalho e margens compactados para exibir as 2 linhas da Fila de Despachos em `1280×800` sem corte vertical.
+    - `simulateSlide3Failure()` agora mantém `.slide3-failure-active #resting-reallocation-banner` visível em repouso e sincroniza `#map-live-bus-tag` para `199 · GPS 45 min (IA 14,3*)` sem contradição com `Em 14,3* min`.
+    - `#modal-routine` reorganizado em ordem estrita `1 -> 2 -> 3 -> 4 -> 5` com `4. Parada de Saída` em largura total; `#modal-sei-terminals` com subtítulo único; Tela 4 (`Farol Noturno` e `Queima de Ponto`) dinâmica e livre de emojis.
+  - **Verificação Final Pós-Edição (`100% APROVADO`):**
+    - `pre_flight_check.py`: **40/40 PASS (100,0%)** (inclui Node VM em `index.html` e `real_transit_engine.js`).
+    - `pytest -v code/grafoparada_tec`: **26/26 PASS (35,64 s)** sem falhas nem skips.
+    - Stress test Laya (`stress_test_laya.js`): **16/16 PASS**.
+    - Auditoria Visual Chrome Headless CDP (`390×844` e `1280×800`, 18 estados): **APROVADO** (`overflowX = 0`, `duplicateIds = 0`, `console_errors = 0`, `exceptions = 0`).
+  - **Em Avaliação com o Usuário (sem alterar voz em produção ainda):** Levantamento empírico de TTS PT-BR para nova identidade da Laya em andamento (`scratch/voice_lab/`) antes da aprovação final de Cauã.
 
 ### 0g. Redesign e Descolisão da Tela de Mapa Ao Vivo (`radar`, Direção A) (15/11/2026)
 - **Ciclo Multiagente Completo Executado:** `ux-spec-planner` (Explore + Diagnóstico de 6 pontos em `03_mapa_ao_vivo_mobile.png`) -> `frontend-map-engine` (`code/grafoparada_web/real_transit_engine.js`) + `frontend-layout-ui` (`code/grafoparada_web/index.html`) -> `qa-gatekeeper` -> `visual-design-critic` (2 rodadas no Chrome Headless `390×844` Mobile e `1280×800` Desktop até aprovação estrita).

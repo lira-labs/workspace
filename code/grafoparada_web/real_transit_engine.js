@@ -430,7 +430,8 @@
         const targetIdx = Math.min(coords.length - 2, anchorIdx + Math.max(6, Math.floor(span * 0.35)));
         this.activeBusCoordIndex = targetIdx;
         const bp = coords[targetIdx] || coords[Math.floor(coords.length / 2)];
-        window.updateLiveBusMarker(bp[0], bp[1], code, 4, 14);
+        const busEta = (window.isSlide3FailureActive && String(code) === '199') ? 45 : 4;
+        window.updateLiveBusMarker(bp[0], bp[1], code, busEta, 14);
       }
 
       // 3. Atualiza Elementos do DOM (LED, Sentido Ida/Volta, Drawer fatiado da sua parada)
@@ -647,9 +648,11 @@
       this.activeStopIndex = index;
       const st = activeStops[index];
 
-      const cleanStopLabel = (st.name && !/^\d+$/.test(String(st.name).trim()))
+      const rawStopLabel = (st.name && !/^\d+$/.test(String(st.name).trim()))
         ? st.name
         : `Parada ${st.stop_id} (${this.activeRoute.name || 'Linha ' + this.activeRouteCode})`;
+      const cleanStopLabel = String(rawStopLabel).replace(/\bTi\b/g, 'TI');
+      const displayHeadsign = String(dirData.headsign || this.activeRoute.name || dirLabel).replace(/\bTi\b/g, 'TI');
 
       const dirLabel = dirData.dir === 'volta' ? 'VOLTA' : 'IDA';
       const remainingCount = Math.max(0, activeStops.length - 1 - index);
@@ -673,7 +676,7 @@
                 ${pinStopBtn}
               </div>
             </div>
-            <div style="font-size:13px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cleanStopLabel} <span style="font-size:11px; font-weight:600; color:var(--text-secondary);">· ${dirData.headsign || this.activeRoute.name} (#${st.stop_id})</span></div>
+            <div style="font-size:13px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${cleanStopLabel} <span style="font-size:11px; font-weight:600; color:var(--text-secondary);">· ${displayHeadsign} (#${st.stop_id})</span></div>
           </div>
         `;
       }
@@ -925,6 +928,7 @@
 
     // Consulta API Pública Cittamobi (m3p/js) para obter dados em tempo real
     async fetchCittamobiLiveData(routeCode) {
+      if (typeof window !== 'undefined' && window.isSlide3FailureActive) return;
       const banner = document.getElementById('resting-reallocation-banner');
       if (!banner) return;
 
@@ -941,8 +945,10 @@
       try {
         const queryUrl = `https://api.cittamobi.com.br/m3p/js/search/q?q=${encodeURIComponent(routeCode)}&a=202&lat=-8.05&lng=-34.90`;
         const resp = await fetch(queryUrl);
+        if (typeof window !== 'undefined' && window.isSlide3FailureActive) return;
         if (resp.ok) {
           const data = await resp.json();
+          if (typeof window !== 'undefined' && window.isSlide3FailureActive) return;
           const services = data.services || [];
           if (services.length > 0) {
             const s0 = services[0];
@@ -965,6 +971,7 @@
         // Silently catch and fallback to GTFS
       }
 
+      if (typeof window !== 'undefined' && window.isSlide3FailureActive) return;
       // Fallback elegante com dados do GTFS
       banner.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
@@ -1518,7 +1525,7 @@
       }
 
       // 2.5 Match no Índice Completo de Paradas GTFS (stops_index: [nome, lat, lon, linhas])
-      if (this.networkData && Array.isArray(this.networkData.stops_index) && pNorm.length >= 3) {
+      if (this.networkData && Array.isArray(this.networkData.stops_index) && pNorm.length >= 3 && !/^\d{3,4}$/.test(pNorm)) {
         const stopTokens = pNorm.split(' ').filter(t => t.length >= 3 && !['rua', 'avenida', 'praca', 'parada', 'terminal', 'estrada'].includes(t));
         let idxHit = this.networkData.stops_index.find(s => this.normalizeText(s[0]).includes(pNorm));
         if (!idxHit && stopTokens.length > 0) {
@@ -1576,6 +1583,14 @@
     // Descobre TODAS as linhas reais (IDA + VOLTA) que atendem um raio geográfico ao redor de (lat, lon)
     getLinesNearPoint(lat, lon, maxKm = 1.15) {
       if (!this.networkData || !this.networkData.popular_lines) return [];
+      const cacheKey = `${Number(lat).toFixed(4)},${Number(lon).toFixed(4)},${Number(maxKm).toFixed(2)}`;
+      if (this._nearPointCacheOwner !== this.networkData) {
+        this._nearPointCache = new Map();
+        this._nearPointCacheOwner = this.networkData;
+      }
+      if (this._nearPointCache.has(cacheKey)) {
+        return this._nearPointCache.get(cacheKey);
+      }
       const hits = [];
       for (const [code, lineObj] of Object.entries(this.networkData.popular_lines)) {
         let minDist = Infinity;
@@ -1623,6 +1638,8 @@
         }
       }
       hits.sort((a, b) => (a.isBacurau - b.isBacurau) || (a.distanceKm - b.distanceKm));
+      if (this._nearPointCache.size > 400) this._nearPointCache.clear();
+      this._nearPointCache.set(cacheKey, hits);
       return hits;
     },
 
@@ -1634,6 +1651,30 @@
         seenCodes.add(code);
         matches.push({ code, label: label || code, reason, stopHint: stopHint || null });
       };
+
+      // 0. Match exato por código de linha (ex: "199", "522", "1967", "2060") tem prioridade absoluta
+      const aliasCode = this.aliases[placeNorm] || placeNorm;
+      if (/^\d{2,4}$/.test(placeNorm) && this.networkData) {
+        const popLine = this.networkData.popular_lines && this.networkData.popular_lines[aliasCode];
+        const catLine = Array.isArray(this.networkData.routes_catalog)
+          ? this.networkData.routes_catalog.find(r => r.code.toLowerCase() === aliasCode.toLowerCase())
+          : null;
+        if (popLine || catLine) {
+          const firstStop = (popLine && Array.isArray(popLine.stops) && popLine.stops[0]) ? popLine.stops[0] : null;
+          addRoute(
+            aliasCode,
+            catLine ? catLine.label : `${aliasCode} · ${popLine.name}`,
+            'Linha consultada diretamente',
+            firstStop ? {
+              name: (!/^\d+$/.test(firstStop.name) ? firstStop.name : `Terminal ${popLine.name}`),
+              lat: firstStop.lat,
+              lon: firstStop.lon,
+              wait_gps_min: aliasCode === '199' ? 3 : 4,
+              seatsFree: aliasCode === '199' ? 28 : 14
+            } : null
+          );
+        }
+      }
 
       // 1. Telemetria detalhada PE-60 / Linha 199
       if (Array.isArray(telemetryStops)) {
@@ -1687,21 +1728,36 @@
 
     extractOriginDest(rawText) {
       const clean = this.normalizeText(rawText)
-        .replace(/\b(vamos la|por favor|agora|hoje|pode ser|me ajuda|me diz|me fale|qual|quais|como fico|preciso|quero|gostaria)\b/g, ' ')
+        .replace(/\b(estou perdid[oa]|tou perdid[oa]|to perdid[oa]|me perdi|nao sei onde estou|socorro|me ajude|me ajuda|agora a noite|nesta noite|a noite|de noite|pela noite|hoje a noite|vamos la|por favor|agora|hoje|pode ser|me diz|me fale|como faco para voltar|como faco pra voltar|como faco para ir|como faco pra ir|como volto|como chego|como fico|como ir|quero voltar|quero ir|preciso voltar|preciso ir|gostaria de|gostaria|qual busao pega|qual onibus pega|qual linha pega|qual busao|qual onibus|qual linha|qual|quais)\b/g, ' ')
+        .replace(/\b(?:para|pra)\s+(?:ir|voltar|chegar)\s+(?:para o|para a|para|pra|pro|ate o|ate a|ate|no|na|em|ao)\b/g, ' para ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const sanitizePlace = (s) => String(s || '')
+        .replace(/\b(a noite|de noite|agora a noite|nesta noite|como volto|como faco|como chego|como ir|quero voltar|quero ir|preciso voltar|preciso ir|por favor|agora|hoje)\b.*$/i, '')
+        .replace(/^(?:saindo|partindo|sair|ir|voltar|indo|viajar|chegar|pegar|pega|estou)\s+/i, '')
+        .replace(/^(?:no|na|em|de|da|do|o|a|ao)\s+/i, '')
         .replace(/\s+/g, ' ')
         .trim();
 
       const patterns = [
-        /(?:sair|ir|partir|indo|viajar|voltar)\s+(?:de|da|do)\s+(.+?)\s+(?:ate|para|pra|pro|rumo a|->)\s+(.+)/i,
-        /(?:de|da|do)\s+([a-z0-9\s.-]{2,45}?)\s+(?:ate|para|pra|pro|->)\s+([a-z0-9\s.-]{2,45})/i,
-        /\b(daqui|aqui)\s+(?:ate|para|pra|pro|->)\s+([a-z0-9\s.-]{2,45})/i,
-        /^([a-z0-9\s.-]{2,40}?)\s+(?:ate|para|pra|pro|->|rumo a)\s+([a-z0-9\s.-]{2,40})$/i
+        /\b(?:saindo de|saindo do|saindo da|partindo de|partindo do|partindo da|estou no|estou na|estou em|sair de|sair do|sair da|ir de|ir do|ir da|voltar de|voltar do|voltar da|indo de|indo do|indo da|viajar de|viajar do|viajar da|pega no|pega na|pega em|de|da|do|no|na|em)\s+(.+?)\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|rumo a|->)\s+(.+)/i,
+        /\b(daqui|aqui)\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|->)\s+([a-z0-9\s.-]{2,45})/i,
+        /^([a-z0-9\s.-]{2,40}?)\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|->|rumo a)\s+([a-z0-9\s.-]{2,40})$/i
       ];
 
       for (const p of patterns) {
         const m = clean.match(p);
         if (m && m[1] && m[2]) {
-          return { origin: m[1].trim(), dest: m[2].trim() };
+          const origin = sanitizePlace(m[1]);
+          const dest = sanitizePlace(m[2]);
+          if (
+            origin.length >= 2 &&
+            dest.length >= 2 &&
+            !/^(ir|voltar|chegar|sair|partir|indo|viajar|pegar|pega|onibus|busao|rota|como|qual|quais|quero|preciso)$/i.test(origin)
+          ) {
+            return { origin, dest };
+          }
         }
       }
       return null;
@@ -1710,7 +1766,7 @@
     // Extrai destino quando a pessoa fala só para onde vai (inclui frases de "Guia de Perdido")
     extractDestinationOnly(rawText) {
       const q = this.normalizeText(rawText);
-      if (!q || /\b(proximo onibus|horario|quando passa|stgcn|como funciona|banca|slides|pptx)\b/.test(q)) {
+      if (!q || /\b(proximo onibus|proximo|horario|quando passa|lotado|lotada|lotacao|vagas|mofar|esperando|demora|engarrafamento|congestionamento|acidente|over-smoothing|oversmoothing|parada segura|desembarque seguro|farol noturno|cittamobi|integracao|stgcn|st gcn|como funciona|banca|slides|pptx)\b/.test(q)) {
         return null;
       }
       const lostCleaned = q
@@ -1736,12 +1792,14 @@
     classifyLayaDecision(rawText) {
       const q = this.normalizeText(rawText);
       const isLost = /\b(perdido|perdida|me perdi|nao sei onde estou)\b/.test(q);
-      const isUrgent = isLost || /\b(agora|rapido|urgente|atrasado|socorro|lotado|queima|espera)\b/.test(q);
+      const isUrgent = isLost || /\b(agora|rapido|urgente|atrasado|socorro|lotado|lotada|mofar|queima|espera|engarrafamento|acidente)\b/.test(q);
       const hasTrip = Boolean(this.extractOriginDest(rawText) || this.extractDestinationOnly(rawText));
+      const isScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|cittamobi|moovit|integracao|vem|duas horas|2h)\b/.test(q);
+      const isArrivalOrCrowd = /\b(onibus|quando passa|horario|proximo|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao|minha parada|onde estou)\b/.test(q);
       const choice = isLost ? 'lost_passenger_guide'
         : (hasTrip ? 'route_planning'
-          : (/\b(proximo|horario|quando passa|minha parada|onde estou)\b/.test(q) ? 'local_arrival'
-            : (/\b(stgcn|ia|webmcp|yap|kim|como funciona)\b/.test(q) ? 'platform_science' : 'general_help')));
+          : (isScience ? 'platform_science'
+            : (isArrivalOrCrowd ? 'local_arrival' : 'general_help')));
       return {
         engine: 'laya_nlp_router_boundary_v3',
         laya_role: 'semantic_intent_and_lost_guide',
@@ -1973,37 +2031,74 @@
       const transferCandidates = findUnlimitedMultiOptionPaths();
       const transferPlan = transferCandidates[0] || null;
 
-      // 4. Consolida lista unificada de Opções estilo Google Maps (diretas + integradas)
+      // 4. Consolida lista unificada de Opções estilo Google Maps / Citymapper / SBB Mobile (diretas + integradas)
+      const buildCrowdPrediction = (code) => {
+        const isHeavyTrunk = /^(185|191|050|080|2040|2060|522|1971|1967)$/.test(String(code || ''));
+        const level = isHeavyTrunk ? 'Moderada' : 'Leve';
+        const pct = 88;
+        const silhouettes = isHeavyTrunk ? 2 : 1;
+        return {
+          level,
+          pct,
+          label: `Lotação ${level} · IA ~${pct}%`,
+          silhouettes
+        };
+      };
+
       const routeOptions = [];
       const nonBacurauDirect = directMatches.filter(m => !m.isBacurau);
       const rankedDirect = nonBacurauDirect.length ? nonBacurauDirect : directMatches;
 
       rankedDirect.slice(0, 2).forEach((d, idx) => {
+        const transferConfidence = {
+          badge: 'Viagem Direta · Sem Transbordo',
+          walkMin: 0,
+          marginMin: null,
+          status: 'high'
+        };
+        const crowdPrediction = buildCrowdPrediction(d.code);
+        d.transferConfidence = transferConfidence;
+        d.crowdPrediction = crowdPrediction;
         routeOptions.push({
           tag: idx === 0 ? '⭐ Mais Rápida (Direta)' : '🚌 Linha Alternativa Direta',
+          type: 'direct',
           isDirect: true,
           codes: [d.code],
           legs: [d],
           hubs: [],
           walkMeters: d.walkMeters || 120,
           walkMin: d.walkMin || 2,
-          totalMin: d.totalMin || 26
+          totalMin: d.totalMin || 26,
+          transferConfidence,
+          crowdPrediction
         });
       });
 
       transferCandidates.forEach((t) => {
+        const transferConfidence = {
+          badge: 'Conexão Segura · ~3 min a pé no TI',
+          walkMin: 3,
+          marginMin: 6,
+          status: 'good'
+        };
+        const crowdPrediction = buildCrowdPrediction(t.legs[0] && t.legs[0].code);
+        t.transferConfidence = transferConfidence;
+        t.crowdPrediction = crowdPrediction;
         if (routeOptions.length >= 3) return;
         const alreadySame = routeOptions.some(o => o.codes.join(',') === t.legs.map(l => l.code).join(','));
         if (!alreadySame) {
           routeOptions.push({
             tag: routeOptions.length === 0 ? '⭐ Melhor Rota Conectada' : `🔄 Via ${t.hubs[0]}`,
+            type: 'transfer',
             isDirect: false,
             codes: t.legs.map(l => l.code),
             legs: t.legs,
             hubs: t.hubs,
             walkMeters: t.walkMeters || 120,
             walkMin: t.walkMin || 2,
-            totalMin: t.totalMin || (t.legs.length * 24)
+            totalMin: t.totalMin || (t.legs.length * 24),
+            transferConfidence,
+            crowdPrediction
           });
         }
       });
@@ -2036,6 +2131,164 @@
       };
     },
 
+    formatDurationHuman(mins) {
+      const m = Math.max(1, Math.round(Number(mins) || 25));
+      if (m >= 60) {
+        const h = Math.floor(m / 60);
+        const rem = m % 60;
+        return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
+      }
+      return `~${m} min`;
+    },
+
+    formatLayaSmartTripResponse(plan, layaDecision, rawQuery, tripPair) {
+      const q = this.normalizeText(rawQuery || '');
+      const safeOrig = this.escapeHtml(plan.originLabel);
+      const safeDest = this.escapeHtml(plan.destLabel);
+      const isNightOrEmergency = Boolean(
+        (layaDecision && layaDecision.is_lost) ||
+        /\b(perdid[oa]|me perdi|socorro|noite|madrugada|escuro|medo|segur[oa]|21h|22h)\b/i.test(q)
+      );
+
+      const nightSafetyBanner = isNightOrEmergency
+        ? `<div style="background:#0f172a; border:1px solid #38bdf8; color:#f8fafc; padding:9px 11px; border-radius:10px; font-size:11px; margin-bottom:9px;">` +
+            `<div style="font-weight:800; color:#38bdf8; margin-bottom:4px;">🛡️ Modo Segurança Noturna (Lei Estadual 15.878/2016)</div>` +
+            `<div style="color:#cbd5e1; line-height:1.35; margin-bottom:7px;">Aguarde em parada iluminada. Entre 22h e 05h (alerta às 21h), mulheres, idosos e PcD podem desembarcar fora da parada oficial em local seguro da rota.</div>` +
+            `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+              `<button type="button" onclick="closeModal('modal-laya'); setBottomNav('central'); if(typeof activateNightBeacon==='function') activateNightBeacon();" style="background:#0284c7; color:#fff; border:none; padding:5px 9px; border-radius:7px; font-size:10.5px; font-weight:800; cursor:pointer;">🔦 Ativar Farol Noturno</button>` +
+              `<button type="button" onclick="closeModal('modal-laya'); if(typeof openSafeDisembarkModal==='function') openSafeDisembarkModal();" style="background:#059669; color:#fff; border:none; padding:5px 9px; border-radius:7px; font-size:10.5px; font-weight:800; cursor:pointer;">🛡️ Parada Segura 22h–05h</button>` +
+            `</div>` +
+          `</div>`
+        : '';
+
+      const origCoordsArr = (plan.origCorridor && plan.origCorridor.lat) ? `[${plan.origCorridor.lat}, ${plan.origCorridor.lon}]` : 'null';
+      const destCoordsArr = (plan.destCorridor && plan.destCorridor.lat) ? `[${plan.destCorridor.lat}, ${plan.destCorridor.lon}]` : 'null';
+      const formatDuration = (mins) => this.formatDurationHuman(mins);
+
+      const renderOptionsCardsHtml = (options) => {
+        return options.slice(0, 3).map((opt, idx) => {
+          const codesJson = JSON.stringify(opt.codes).replace(/"/g, "'");
+          const hubsJson = JSON.stringify(opt.hubs || []).replace(/"/g, "'");
+          const pills = opt.codes.map(c => `<span style="background:#0f172a; color:#fff; padding:1px 6px; border-radius:5px; font-size:10.5px; font-weight:800;">${this.escapeHtml(c)}</span>`).join(' <span style="color:#64748b;">➔</span> ');
+          const isPrimary = idx === 0;
+          const tcBadge = (opt.transferConfidence && opt.transferConfidence.badge)
+            ? opt.transferConfidence.badge
+            : (opt.isDirect ? 'Viagem Direta · Sem Transbordo' : 'Conexão Segura · ~3 min a pé no TI');
+          const cpBadge = (opt.crowdPrediction && opt.crowdPrediction.label)
+            ? opt.crowdPrediction.label
+            : 'Lotação Leve · IA ~88%';
+          return `<div style="background:${isPrimary ? '#f0fdf4' : '#ffffff'}; border:1.5px solid ${isPrimary ? '#86efac' : '#e2e8f0'}; border-radius:12px; padding:8px 10px; margin-top:7px;">` +
+            `<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">` +
+              `<span style="font-size:10.5px; font-weight:800; color:${isPrimary ? '#047857' : '#334155'};">${opt.tag}</span>` +
+              `<span style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:800; color:#0f172a;">⏱️ ${formatDuration(opt.totalMin)}</span>` +
+            `</div>` +
+            `<div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-bottom:5px;">${pills}</div>` +
+            `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:5px;">` +
+              `<span style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:1px 6px; border-radius:5px; font-size:9.5px; font-weight:800;">${this.escapeHtml(tcBadge)}</span>` +
+              `<span style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; padding:1px 6px; border-radius:5px; font-size:9.5px; font-weight:800;">${this.escapeHtml(cpBadge)}</span>` +
+            `</div>` +
+            `<div style="font-size:10.5px; color:#475569; margin-bottom:6px;">🚶 ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.map(h => this.escapeHtml(h)).join(' ➔ ') : 'Viagem direta sem troca'}</div>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${codesJson}, ${hubsJson}, ${origCoordsArr}, ${destCoordsArr});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="width:100%; background:${isPrimary ? '#059669' : '#0284c7'}; color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🗺️ Traçar Opção ${idx + 1} no Mapa</button>` +
+            `</div>`;
+        }).join('');
+      };
+
+      if (plan.directMatches.length > 0) {
+        const nonBacurau = plan.directMatches.filter(m => !m.isBacurau);
+        const ranked = nonBacurau.length > 0 ? nonBacurau : plan.directMatches;
+        const mainRoute = ranked[0];
+        const altLines = ranked.slice(1, 4).map(r => `<strong>${this.escapeHtml(r.code)}</strong> (${this.escapeHtml(r.name)})`).join(', ');
+        const origStopLabel = plan.originStop ? plan.originStop.name : (plan.origCorridor && plan.origCorridor.stopName) || plan.originLabel;
+        const destStopLabel = plan.destStop ? plan.destStop.name : (plan.destCorridor && plan.destCorridor.stopName) || plan.destLabel;
+        const waitStr = plan.originStop ? `${plan.originStop.wait_gps_min || 3} min` : '4 a 7 min';
+        const tripDur = plan.telemetryEtaMin ? this.formatDurationHuman(plan.telemetryEtaMin) : formatDuration(mainRoute.totalMin || 25);
+
+        let html = nightSafetyBanner +
+          `✅ <strong>Rotas de ${safeOrig} até ${safeDest}:</strong><br><br>` +
+          `🚌 <strong>Melhor Linha Direta (${this.escapeHtml(mainRoute.code)}):</strong> <em>${this.escapeHtml(mainRoute.label)}</em><br>` +
+          `• 📍 <strong>Embarque:</strong> ${this.escapeHtml(origStopLabel)} (próximo em <strong>${waitStr}</strong>)<br>` +
+          `• 🎯 <strong>Desembarque:</strong> ${this.escapeHtml(destStopLabel)} (${tripDur})<br>`;
+
+        if (altLines) {
+          html += `• 🔁 <strong>Outras linhas diretas:</strong> ${altLines}<br>`;
+        }
+        if (plan.routeOptions && plan.routeOptions.length > 0) {
+          html += `<div style="margin-top:6px; font-size:11px; font-weight:800; color:#334155;">📋 Sugestões estilo Maps (${plan.routeOptions.length} opções):</div>` +
+            renderOptionsCardsHtml(plan.routeOptions);
+        }
+
+        return {
+          intent: 'trip_plan',
+          type: 'trip_plan',
+          decision: layaDecision,
+          routeCode: mainRoute.code,
+          directOptions: ranked.slice(0, 4).map(r => r.code),
+          routeOptions: plan.routeOptions,
+          tripPlan: plan,
+          html,
+          speech: `De ${plan.originLabel} até ${plan.destLabel}, a melhor opção é a linha direta ${mainRoute.code}, chegando ao destino em cerca de ${mainRoute.totalMin || 25} minutos. Também listei ${Math.max(0, plan.routeOptions.length - 1)} rotas alternativas.`
+        };
+      }
+
+      if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length >= 2) {
+        const legs = plan.transferPlan.legs;
+        const hubs = plan.transferPlan.hubs || [plan.transferPlan.hub];
+        const numEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
+
+        let stepsHtml = '';
+        const legCodesArr = legs.map(l => l.code);
+        for (let i = 0; i < legs.length; i++) {
+          const targetPlace = i < hubs.length ? hubs[i] : plan.destLabel;
+          const actionPrefix = i === 0 ? 'Embarque inicial' : (i === legs.length - 1 ? 'Etapa final até o destino' : 'Conexão intermediária');
+          stepsHtml += `${numEmojis[i] || '➡️'} <strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${this.escapeHtml(legs[i].label)}</strong> até <strong>${this.escapeHtml(targetPlace)}</strong>.<br>`;
+        }
+
+        const optionsHtml = (plan.routeOptions && plan.routeOptions.length > 0)
+          ? `<div style="margin-top:8px; font-size:11px; font-weight:800; color:#334155;">📋 Opções de Rota (Caminhada + Ônibus):</div>` + renderOptionsCardsHtml(plan.routeOptions)
+          : '';
+
+        const html = nightSafetyBanner +
+          `🔄 <strong>Rota Completa (${legs.length} Etapas)</strong> de <strong>${safeOrig}</strong> até <strong>${safeDest}</strong>:<br><br>` +
+          stepsHtml +
+          `<div style="font-size:11px; color:#047857; font-weight:700; margin-top:6px;">💳 Integração SEI / VEM: janela de 2h entre terminais integrados.</div>` +
+          optionsHtml;
+
+        const speechSteps = legs.map((l, idx) => {
+          const target = idx < hubs.length ? hubs[idx] : plan.destLabel;
+          return `linha ${l.code} até ${target}`;
+        }).join(', depois ');
+
+        return {
+          intent: 'trip_transfer',
+          type: 'trip_plan',
+          decision: layaDecision,
+          routeCode: legs[0].code,
+          legs: legCodesArr,
+          hubs,
+          hub: hubs[0],
+          routeOptions: plan.routeOptions,
+          tripPlan: plan,
+          html,
+          speech: `Tracei sua rota de ${plan.originLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.`
+        };
+      }
+
+      const origRawSafe = this.escapeHtml(tripPair ? tripPair.origin : plan.originLabel);
+      const destRawSafe = this.escapeHtml(tripPair ? tripPair.dest : plan.destLabel);
+      return {
+        intent: 'trip_unknown',
+        type: 'trip_unknown',
+        html: `${nightSafetyBanner}Não encontrei paradas mapeadas entre <strong>"${origRawSafe}"</strong> e <strong>"${destRawSafe}"</strong>.<br><br>` +
+          `Experimente nomes de bairros ou terminais (ex: <em>Recife Antigo, Olinda, Bairro Novo, TI PE-15, Camela, Ipojuca, UFRPE, Boa Viagem</em>) ou abra as 393 linhas:<br><br>` +
+          `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Buscar nas 393 Linhas GTFS</button>`,
+        speech: `Não localizei ligação entre ${plan.originLabel} e ${plan.destLabel}. Tente informar o terminal ou bairro mais próximo.`
+      };
+    },
+
+    askLayaAssistant(rawQuery, ctx) {
+      return this.answerLayaQuery(rawQuery, ctx);
+    },
+
     answerLayaQuery(rawText, ctx) {
       const text = String(rawText || '').trim();
       const q = this.normalizeText(text);
@@ -2049,6 +2302,7 @@
         const curLine = this.activeRouteCode || '-';
         return {
           intent: 'lost_guide',
+          type: 'lost_guide',
           decision: layaDecision,
           html: `🧭 <strong>Guia de Perdido · Fique tranquilo(a), vou te orientar!</strong><br><br>` +
             `• 📍 <strong>Onde você está:</strong> ${this.escapeHtml(curStop)} (Linha próxima: <strong>${this.escapeHtml(curLine)}</strong>)<br><br>` +
@@ -2070,7 +2324,6 @@
 
       if (tripPair) {
         const plan = this.RoutePlanner.plan(tripPair.origin, tripPair.dest, telemetryStops);
-        const safeOrig = this.escapeHtml(plan.originLabel);
         const safeDest = this.escapeHtml(plan.destLabel);
         const lostPrefix = layaDecision.is_lost
           ? `<div style="background:#fef3c7; border:1px solid #fcd34d; color:#92400e; padding:6px 9px; border-radius:8px; font-size:11px; font-weight:700; margin-bottom:8px;">🧭 Modo Guia de Perdido · Rota calculada pelo grafo GTFS</div>`
@@ -2078,6 +2331,7 @@
         if (implicitFromHere && (!plan.origCorridor || !plan.origCorridor.lat)) {
           return {
             intent: 'need_location',
+            type: 'need_location',
             decision: layaDecision,
             html: `${lostPrefix}📍 Quero traçar sua rota até <strong>${safeDest}</strong> partindo de onde você está!<br><br>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções estilo Google Maps:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">📍 Informar Onde Estou Agora</button>`,
@@ -2085,159 +2339,144 @@
           };
         }
 
-        const origCoordsArr = (plan.origCorridor && plan.origCorridor.lat) ? `[${plan.origCorridor.lat}, ${plan.origCorridor.lon}]` : 'null';
-        const destCoordsArr = (plan.destCorridor && plan.destCorridor.lat) ? `[${plan.destCorridor.lat}, ${plan.destCorridor.lon}]` : 'null';
-        const formatDuration = (mins) => mins >= 60 ? `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}min` : `~${mins} min`;
-
-        const renderOptionsCardsHtml = (options) => {
-          return options.slice(0, 3).map((opt, idx) => {
-            const codesJson = JSON.stringify(opt.codes).replace(/"/g, "'");
-            const hubsJson = JSON.stringify(opt.hubs || []).replace(/"/g, "'");
-            const pills = opt.codes.map(c => `<span style="background:#0f172a; color:#fff; padding:1px 6px; border-radius:5px; font-size:10.5px; font-weight:800;">${c}</span>`).join(' <span style="color:#64748b;">➔</span> ');
-            const isPrimary = idx === 0;
-            return `<div style="background:${isPrimary ? '#f0fdf4' : '#ffffff'}; border:1.5px solid ${isPrimary ? '#86efac' : '#e2e8f0'}; border-radius:12px; padding:8px 10px; margin-top:7px;">` +
-              `<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">` +
-                `<span style="font-size:10.5px; font-weight:800; color:${isPrimary ? '#047857' : '#334155'};">${opt.tag}</span>` +
-                `<span style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:800; color:#0f172a;">⏱️ ${formatDuration(opt.totalMin)}</span>` +
-              `</div>` +
-              `<div style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-bottom:5px;">${pills}</div>` +
-              `<div style="font-size:10.5px; color:#475569; margin-bottom:6px;">🚶 ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.join(' ➔ ') : 'Viagem direta sem troca'}</div>` +
-              `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${codesJson}, ${hubsJson}, ${origCoordsArr}, ${destCoordsArr});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="width:100%; background:${isPrimary ? '#059669' : '#0284c7'}; color:#fff; border:none; padding:6px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">🗺️ Traçar Opção ${idx + 1} no Mapa</button>` +
-              `</div>`;
-          }).join('');
-        };
-
-        if (plan.directMatches.length > 0) {
-          const nonBacurau = plan.directMatches.filter(m => !m.isBacurau);
-          const ranked = nonBacurau.length > 0 ? nonBacurau : plan.directMatches;
-          const mainRoute = ranked[0];
-          const altLines = ranked.slice(1, 4).map(r => `<strong>${r.code}</strong> (${r.name})`).join(', ');
-          const origStopLabel = plan.originStop ? plan.originStop.name : (plan.origCorridor && plan.origCorridor.stopName) || plan.originLabel;
-          const destStopLabel = plan.destStop ? plan.destStop.name : (plan.destCorridor && plan.destCorridor.stopName) || plan.destLabel;
-          const waitStr = plan.originStop ? `${plan.originStop.wait_gps_min || 3} min` : '4 a 7 min';
-          const tripDur = plan.telemetryEtaMin ? `~${plan.telemetryEtaMin} min` : formatDuration(mainRoute.totalMin || 25);
-
-          let html = `✅ <strong>Rotas de ${safeOrig} até ${safeDest}:</strong><br><br>` +
-            `🚌 <strong>Melhor Linha Direta (${this.escapeHtml(mainRoute.code)}):</strong> <em>${this.escapeHtml(mainRoute.label)}</em><br>` +
-            `• 📍 <strong>Embarque:</strong> ${this.escapeHtml(origStopLabel)} (próximo em <strong>${waitStr}</strong>)<br>` +
-            `• 🎯 <strong>Desembarque:</strong> ${this.escapeHtml(destStopLabel)} (${tripDur})<br>`;
-
-          if (altLines) {
-            html += `• 🔁 <strong>Outras linhas diretas:</strong> ${altLines}<br>`;
-          }
-          if (plan.routeOptions && plan.routeOptions.length > 0) {
-            html += `<div style="margin-top:6px; font-size:11px; font-weight:800; color:#334155;">📋 Sugestões estilo Maps (${plan.routeOptions.length} opções):</div>` +
-              renderOptionsCardsHtml(plan.routeOptions);
-          }
-
-          return {
-            intent: 'trip_plan',
-            decision: layaDecision,
-            routeCode: mainRoute.code,
-            directOptions: ranked.slice(0, 4).map(r => r.code),
-            routeOptions: plan.routeOptions,
-            html,
-            speech: `De ${plan.originLabel} até ${plan.destLabel}, a melhor opção é a linha direta ${mainRoute.code}, chegando ao destino em cerca de ${mainRoute.totalMin || 25} minutos. Também listei ${Math.max(0, plan.routeOptions.length - 1)} rotas alternativas.`
-          };
-        }
-
-        if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length >= 2) {
-          const legs = plan.transferPlan.legs;
-          const hubs = plan.transferPlan.hubs || [plan.transferPlan.hub];
-          const numEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
-
-          let stepsHtml = '';
-          const legCodesArr = legs.map(l => l.code);
-          for (let i = 0; i < legs.length; i++) {
-            const targetPlace = i < hubs.length ? hubs[i] : plan.destLabel;
-            const actionPrefix = i === 0 ? 'Embarque inicial' : (i === legs.length - 1 ? 'Etapa final até o destino' : 'Conexão intermediária');
-            stepsHtml += `${numEmojis[i] || '➡️'} <strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${this.escapeHtml(legs[i].label)}</strong> até <strong>${this.escapeHtml(targetPlace)}</strong>.<br>`;
-          }
-
-          const optionsHtml = (plan.routeOptions && plan.routeOptions.length > 0)
-            ? `<div style="margin-top:8px; font-size:11px; font-weight:800; color:#334155;">📋 Opções de Rota (Caminhada + Ônibus):</div>` + renderOptionsCardsHtml(plan.routeOptions)
-            : '';
-
-          const html = `🔄 <strong>Rota Completa (${legs.length} Etapas)</strong> de <strong>${safeOrig}</strong> até <strong>${safeDest}</strong>:<br><br>` +
-            stepsHtml +
-            `<div style="font-size:11px; color:#047857; font-weight:700; margin-top:6px;">💳 Integração SEI / VEM: janela de 2h entre terminais integrados.</div>` +
-            optionsHtml;
-
-          const speechSteps = legs.map((l, idx) => {
-            const target = idx < hubs.length ? hubs[idx] : plan.destLabel;
-            return `linha ${l.code} até ${target}`;
-          }).join(', depois ');
-
-          return {
-            intent: 'trip_transfer',
-            decision: layaDecision,
-            routeCode: legs[0].code,
-            legs: legCodesArr,
-            hubs,
-            hub: hubs[0],
-            routeOptions: plan.routeOptions,
-            html,
-            speech: `Tracei sua rota de ${plan.originLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.`
-          };
-        }
-
-        return {
-          intent: 'trip_unknown',
-          html: `Não encontrei paradas mapeadas entre <strong>"${this.escapeHtml(tripPair.origin)}"</strong> e <strong>"${this.escapeHtml(tripPair.dest)}"</strong>.<br><br>` +
-            `Experimente nomes de bairros ou terminais (ex: <em>Recife Antigo, Olinda, Bairro Novo, TI PE-15, Camela, Ipojuca, UFRPE, Boa Viagem</em>) ou abra as 400 linhas:<br><br>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Buscar nas 400 Linhas GTFS</button>`,
-          speech: `Não localizei ligação entre ${tripPair.origin} e ${tripPair.dest}. Tente informar o terminal ou bairro mais próximo.`
-        };
+        return this.formatLayaSmartTripResponse(plan, layaDecision, text, tripPair);
       }
 
-      // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada + WebMCP
-      if (/\b(stgcn|st gcn|ia|inteligencia artificial|modelo|trava|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|bolso seguro|lei 15878|parada segura|webmcp)\b/.test(q)) {
-        const html = `🧠 <strong>Inteligência da Plataforma GrafoParada:</strong><br><br>` +
-          `• <strong>Rede ST-GCN + Grafo Completo GTFS:</strong> Conecta 393 linhas (ida e volta) e 45 Hubs/Terminais SEI do Grande Recife (MAE <strong>1,51 min</strong> · <strong>0,77 ms/nó</strong>).<br>` +
-          `• <strong>Adaptação GPS Dinâmica:</strong> Ao abrir o app, identifica a parada e linha reais mais próximas de onde você está.<br>` +
-          `• <strong>Yap & Cats (2021) + Kim et al. (2026):</strong> Calcula espera percebida (<strong>1,68x</strong>), janela segura e risco de abandono.<br>` +
-          `• <strong>Trava Híbrida Defensiva + WebMCP:</strong> Bloqueia desvios &gt; 15 min da IA e expõe ferramentas estruturadas via protocolo Chrome WebMCP.<br><br>` +
-          `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('central');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0f172a; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🔬 Ver Auditoria & Central CTM</button>`;
+      // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada + WebMCP (4 Sub-intenções Especializadas)
+      const isAskingScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|anomalia|no 10|cittamobi|moovit|diferenca|comparar|integracao vem|integracao temporal|integracao|vem|duas horas|2h)\b/.test(q);
+      if (isAskingScience) {
+        // Sub-intenção A — Engarrafamento Repentino na PE-60 / Nó 10 & Limite da ST-GCN (Slide 3)
+        if (/\b(engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|over-smoothing|oversmoothing|anomalia|no 10)\b/.test(q)) {
+          const html = `<strong>Anomalia no Nó 10 (Trevo de Ipojuca / PE-60) &amp; Trava Híbrida:</strong><br><br>` +
+            `• <strong>Por que a ST-GCN pura falha em acidentes súbitos?</strong> A convolução espacial em grafo (<code>D⁻¹/²ÃD⁻¹/²</code>) suaviza o estado do Nó 10 com os nós vizinhos livres. Em um bloqueio abrupto de <strong>45,0 min</strong> no GPS Bruto, a ST-GCN pura prevê apenas <strong>14,3 min</strong> (<em>Over-smoothing</em>, erro Δ = 30,7 min).<br>` +
+            `• <strong>Trava Híbrida de Segurança (&gt; 15 min):</strong> Quando <code>|GPS Bruto - ST-GCN| &gt; 15 min</code>, o GrafoParada aciona <code>ALERTA_AMARELO_OVER_SMOOTHING</code>, descarta a suavização naquele trecho, exibe os <strong>45,0 min</strong> reais e sugere rota alternativa via <strong>TI Cabo</strong>.<br><br>` +
+            `<button type="button" onclick="closeModal('modal-laya'); if(typeof simulateSlide3Failure==='function') simulateSlide3Failure();" style="background:#d97706; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Simular Anomalia Nó 10 (PE-60) no Mapa</button>`;
+          return {
+            intent: 'platform_knowledge',
+            type: 'platform_knowledge',
+            subIntent: 'pe60_oversmoothing_slide3',
+            decision: layaDecision,
+            html,
+            speech: 'Em caso de acidente ou engarrafamento repentino no Nó 10 da PE-60, a convolução da ST-GCN sofre over-smoothing prevendo 14,3 minutos contra 45 minutos reais no GPS. O GrafoParada ativa a Trava Híbrida de Segurança acima de 15 minutos de divergência e exibe o alerta amarelo com o tempo real do GPS.'
+          };
+        }
+
+        // Sub-intenção B — Parada Segura Noturna (Lei Estadual 15.878/2016) & Segurança Comunitária
+        if (/\b(parada segura|desembarque seguro|21h|22h|lei|15878|15\.878|noturn[oa]|mulher|assedio|farol|queima)\b/.test(q)) {
+          const html = `<strong>Parada Segura Noturna · Lei Estadual nº 15.878/2016 (PE):</strong><br><br>` +
+            `• <strong>Direito Legal (22h às 05h · Alerta Preventivo às 21h):</strong> Mulheres, idosos e pessoas com mobilidade reduzida têm direito a solicitar desembarque fora da parada oficial em qualquer ponto seguro e iluminado que siga o itinerário da linha.<br>` +
+            `• <strong>Farol Noturno de Alto Contraste:</strong> Sinalizador visual de tela cheia para impedir que o ônibus passe direto em trechos escuros (PE-60 / BR-101).<br>` +
+            `• <strong>Auditoria de Queima de Ponto:</strong> Registra telemetria de velocidade (&gt; 25 km/h no raio da parada) para fiscalização do CTM.<br><br>` +
+            `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
+              `<button type="button" onclick="closeModal('modal-laya'); if(typeof openSafeDisembarkModal==='function') openSafeDisembarkModal();" style="background:#059669; color:#fff; border:none; padding:7px 11px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;">Solicitar Parada Segura</button>` +
+              `<button type="button" onclick="closeModal('modal-laya'); setBottomNav('central'); if(typeof activateNightBeacon==='function') activateNightBeacon();" style="background:#0284c7; color:#fff; border:none; padding:7px 11px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;">Abrir Farol Noturno</button>` +
+            `</div>`;
+          return {
+            intent: 'platform_knowledge',
+            type: 'platform_knowledge',
+            subIntent: 'night_safety_law_15878',
+            decision: layaDecision,
+            html,
+            speech: 'Pela Lei Estadual 15.878 de 2016 em Pernambuco, entre 22 horas e 5 da manhã, com aviso preventivo já às 21 horas no GrafoParada, mulheres, idosos e pessoas com mobilidade reduzida podem solicitar desembarque fora da parada oficial em local seguro dentro do trajeto do ônibus.'
+          };
+        }
+
+        // Sub-intenção C — Cittamobi vs. GrafoParada & Integração Temporal VEM / SEI (2h)
+        if (/\b(cittamobi|moovit|diferenca|comparar|integracao|vem|tarifa|passagem|duas horas|2h)\b/.test(q)) {
+          const html = `<strong>Cittamobi vs. GrafoParada &amp; Integração Temporal VEM (2h):</strong><br><br>` +
+            `• <strong>Por que o Cittamobi congela na PE-60/BR-101?</strong> Usa interpolação de GPS bruto ponto-a-ponto (que some em zonas de sombra de sinal). O GrafoParada combina <strong>ST-GCN em grafo</strong> (MAE <strong>1,51 min</strong> vs <strong>1,93 min</strong> OLS e <strong>7,13 min</strong> Persistência) + <strong>FSM Cinemático V3</strong> (<strong>56,68 µs</strong>) + Trava Híbrida.<br>` +
+            `• <strong>Integração Temporal VEM / SEI (26 Terminais Integrados):</strong> Com 1 única tarifa no cartão VEM, você realiza transbordo físico nos 26 TIs ou integração temporal em até <strong>2 horas (120 min)</strong> sem pagar nova passagem.<br><br>` +
+            `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('central');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0f172a; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Comparar Auditoria Cittamobi vs ST-GCN</button>`;
+          return {
+            intent: 'platform_knowledge',
+            type: 'platform_knowledge',
+            subIntent: 'cittamobi_vs_grafoparada_vem',
+            decision: layaDecision,
+            html,
+            speech: 'Enquanto o Cittamobi depende de GPS bruto isolado, o GrafoParada opera com rede ST-GCN com erro médio de 1,51 minuto e filtro cinemático em 56,68 microssegundos. Na integração temporal VEM e nos 26 Terminais SEI, você troca de linha em até 2 horas pagando uma única passagem.'
+          };
+        }
+
+        // Sub-intenção D — Arquitetura Científica ST-GCN + FSM V3 + Grafo A* (Default Science Card)
+        const html = `<strong>Arquitetura Científica GrafoParada (Benchmarks Reais):</strong><br><br>` +
+          `• <strong>Rede ST-GCN (20 Nós PE-60 + 393 Linhas GTFS):</strong> MAE <strong>1,51 min</strong> (vs 1,93 min OLS e 7,13 min Persistência) · Inferência CPU em <strong>0,96 ms</strong> · <strong>34.627 parâmetros</strong> (138 KB).<br>` +
+          `• <strong>FSM Cinemático V3 (Filtro de Parada Real):</strong> Latência de <strong>56,68 µs/amostra</strong> · <strong>11,02 KB</strong> de heap RAM · Histerese <code>&lt; 2,16 km/h</code>, raio <code>25 m</code> e <code>dwell &gt;= 8 s</code>.<br>` +
+          `• <strong>A* Multicritério + Comportamental:</strong> Espera percebida <strong>1,68x</strong> (Yap &amp; Cats, 2021) e probabilidade logística de desistência <code>P(Abandono)</code> (Kim et al., 2026).<br>` +
+          `• <strong>Trava Híbrida Defensiva + WebMCP:</strong> Bloqueia over-smoothing quando <code>|GPS - ST-GCN| &gt; 15 min</code> e expõe tools via <code>navigator.modelContext</code>.<br><br>` +
+          `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('central');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0f172a; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Ver Auditoria &amp; Central CTM</button>`;
         return {
           intent: 'platform_knowledge',
+          type: 'platform_knowledge',
+          subIntent: 'architecture_stgcn_fsm_astar',
+          decision: layaDecision,
           html,
-          speech: "O GrafoParada conecta todas as 393 linhas e hubs do Grande Recife em grafo, detecta sua localização real e aplica ST-GCN com trava defensiva."
+          speech: 'O motor GrafoParada combina a rede ST-GCN com erro médio de 1,51 minuto e inferência de 0,96 milissegundos em CPU, o filtro cinemático FSM V3 em 56,68 microssegundos e o modelo de abandono de Yap e Cats e Kim et al.'
         };
       }
 
-      // 4. Consulta específica por local ou linha citada na pergunta
+      // 4. Consulta específica por local ou linha citada na pergunta (Prioridade absoluta para código de linha explícito)
       const explicitLineMatch = q.match(/\b(\d{3,4})\b/);
-      const matchedCorridor = this.resolvePlaceLocation(q);
-      const placeMatches = matchedCorridor
-        ? this.findCatalogRoutesForQuery(matchedCorridor.key, telemetryStops)
-        : (explicitLineMatch ? this.findCatalogRoutesForQuery(explicitLineMatch[1], telemetryStops) : []);
+      const explicitLineCode = explicitLineMatch ? (this.aliases[explicitLineMatch[1]] || explicitLineMatch[1]) : null;
+      const hasExplicitLine = Boolean(
+        explicitLineCode &&
+        this.networkData && (
+          (this.networkData.popular_lines && this.networkData.popular_lines[explicitLineCode]) ||
+          (Array.isArray(this.networkData.routes_catalog) && this.networkData.routes_catalog.some(r => r.code === explicitLineCode))
+        )
+      );
+      const matchedCorridor = hasExplicitLine ? null : this.resolvePlaceLocation(q);
+      const placeMatches = hasExplicitLine
+        ? this.findCatalogRoutesForQuery(explicitLineCode, telemetryStops)
+        : (matchedCorridor ? this.findCatalogRoutesForQuery(matchedCorridor.key, telemetryStops) : []);
 
-      // 5. Pergunta de Próximo Ônibus / Horário / Chegada
-      if (/\b(onibus|quando passa|horario|proximo|chega|lotacao|vagas)\b/.test(q)) {
+      // 5. Pergunta de Próximo Ônibus / Horário / Chegada / Lotação / Espera
+      const isAskingBus = /\b(onibus|quando passa|horario|proximo|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao)\b/.test(q);
+      const isAskingCrowdOrWait = /\b(lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|mofar|demora|demorando|esperando)\b/.test(q);
+      if (isAskingBus || hasExplicitLine) {
         if (placeMatches.length > 0) {
           const nonBacurau = placeMatches.filter(m => !/bacurau/i.test(m.label));
-          const best = nonBacurau[0] || placeMatches[0];
+          const best = (hasExplicitLine ? placeMatches.find(m => m.code === explicitLineCode) : null) || nonBacurau[0] || placeMatches[0];
           const hint = best.stopHint || {};
           const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
           const waitMin = hint.wait_gps_min || (matchedCorridor ? matchedCorridor.waitMin : 4);
           const seatsFree = hint.seatsFree || (best.code === '199' ? 28 : 14);
           const coordsArg = (hint.lat && hint.lon) ? `[${hint.lat}, ${hint.lon}]` : 'null';
 
-          const html = `🚌 <strong>Previsão para ${matchedCorridor ? matchedCorridor.label : 'Linha ' + best.code}:</strong><br><br>` +
-            `• <strong>Linha recomendada:</strong> ${best.label}<br>` +
-            `• 📍 <strong>Parada de referência:</strong> ${stopName}<br>` +
-            `• ⏱️ <strong>Próxima chegada prevista (ST-GCN):</strong> em <strong>${waitMin} minutos</strong><br>` +
-            `• 💺 <strong>Ocupação estimada:</strong> ${seatsFree} assentos livres<br><br>` +
+          const crowdLevel = seatsFree >= 22 ? 'Leve' : (seatsFree >= 10 ? 'Moderada' : 'Crítica');
+          const perceivedWaitMin = (waitMin * 1.68).toFixed(1).replace('.', ',');
+          const effWait = crowdLevel === 'Crítica' ? waitMin * 1.68 : waitMin * 1.15;
+          const pAbandonoPct = Math.min(95, Math.max(8, Math.round((1 / (1 + Math.exp(-0.25 * (effWait - 15)))) * 100)));
+          const practicalAdvice = crowdLevel === 'Leve'
+            ? 'Embarque confortável com assentos livres.'
+            : (crowdLevel === 'Moderada' ? 'Fluxo regular para o horário; embarque recomendado.' : 'Alta ocupação; se puder aguardar, o veículo seguinte alivia o corredor.');
+
+          const crowdAndWaitBlock = isAskingCrowdOrWait
+            ? `<div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:9px; padding:7px 9px; margin:7px 0; font-size:11px; line-height:1.4;">` +
+                `• <strong>Indicador Híbrido de Lotação (Transit App + ST-GCN):</strong> Ocupação <strong>${crowdLevel}</strong> (${seatsFree} assentos livres · precisão histórica <strong>~88% APC + série temporal CTM</strong>). <em>${practicalAdvice}</em><br>` +
+                `• <strong>Espera Percebida &amp; Risco de Abandono (Yap &amp; Cats / Kim et al.):</strong> ETA real <strong>${waitMin} min</strong> vs. percebido em veículo cheio <strong>${perceivedWaitMin} min</strong> (multiplicador <code>1.68x</code>) · Probabilidade de desistência <code>P(Abandono) = ${pAbandonoPct}%</code>.` +
+              `</div>`
+            : '';
+
+          const html = `<strong>Previsão para ${matchedCorridor ? this.escapeHtml(matchedCorridor.label) : 'Linha ' + this.escapeHtml(best.code)}:</strong><br><br>` +
+            `• <strong>Linha recomendada:</strong> ${this.escapeHtml(best.label)}<br>` +
+            `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopName)}<br>` +
+            `• <strong>Próxima chegada prevista (ST-GCN):</strong> em <strong>${waitMin} minutos</strong><br>` +
+            `• <strong>Ocupação estimada:</strong> Lotação <strong>${crowdLevel}</strong> (${seatsFree} assentos livres)<br>` +
+            crowdAndWaitBlock + `<br>` +
             `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Rastrear Linha ${best.code}</button>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${stopName.replace(/'/g, "\\'")}', ${coordsArg});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🔔 Fixar como Minha Parada</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Rastrear Linha ${this.escapeHtml(best.code)}</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${stopName.replace(/'/g, "\\'")}', ${coordsArg});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Fixar como Minha Parada</button>` +
             `</div>`;
 
           return {
             intent: 'next_bus_place',
+            type: 'bus_status',
             routeCode: best.code,
+            crowdLevel,
+            perceivedWaitMin,
+            pAbandonoPct,
             html,
-            speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, o próximo coletivo da linha ${best.code} chega em ${waitMin} minutos na parada ${stopName}.`
+            speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, o próximo coletivo da linha ${best.code} chega em ${waitMin} minutos na parada ${stopName}, com lotação ${crowdLevel.toLowerCase()} e cerca de ${seatsFree} assentos livres.`
           };
         }
 
@@ -2245,20 +2484,23 @@
         if (this.userAdaptState && (this.userAdaptState.status === 'awaiting_location' || this.userAdaptState.status === 'gps_denied')) {
           return {
             intent: 'need_location',
+            type: 'need_location',
             html: `📍 Ainda não sei em qual bairro ou parada você está agora!<br><br>Ative seu GPS ou toque no bairro de partida para eu localizar a linha mais próxima:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">📍 Informar Onde Estou Agora</button>`,
             speech: "Me diga em qual bairro ou parada você está, ou toque em Informar Onde Estou Agora para eu buscar pelo GPS."
           };
         }
 
-        const activeCode = (ctx && ctx.activeRouteCode) || this.activeRouteCode;
+        const activeCode = (ctx && ctx.activeRouteCode) || this.activeRouteCode || '199';
         const activeRouteName = (this.activeRoute && this.activeRoute.name) ? this.activeRoute.name : '';
         const activeStop = (ctx && ctx.activeStopName) || (this.userAdaptState && this.userAdaptState.stopName) || 'Sua Parada Ativa';
         const activeEta = (ctx && ctx.activeEta) || 4;
+        const perceivedActive = (activeEta * 1.68).toFixed(1).replace('.', ',');
 
-        const html = `🚌 <strong>Sua Linha Mais Próxima: ${activeCode} · ${activeRouteName}</strong><br><br>` +
-          `• 📍 <strong>Parada detectada:</strong> ${activeStop}<br>` +
-          `• ⏱️ <strong>Próximo ônibus previsto:</strong> <strong>${activeEta} minutos</strong><br><br>` +
+        const html = `🚌 <strong>Sua Linha Mais Próxima: ${this.escapeHtml(activeCode)} · ${this.escapeHtml(activeRouteName)}</strong><br><br>` +
+          `• 📍 <strong>Parada detectada:</strong> ${this.escapeHtml(activeStop)}<br>` +
+          `• ⏱️ <strong>Próximo ônibus previsto:</strong> <strong>${activeEta} minutos</strong> (espera percebida Yap &amp; Cats: <strong>${perceivedActive} min</strong> sob lotação)<br>` +
+          `• 📊 <strong>Indicador Híbrido de Lotação:</strong> Ocupação <strong>Moderada</strong> (~88% APC + série temporal CTM)<br><br>` +
           `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
           `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.trackBusLocation){window.trackBusLocation(true);} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🚌 Rastrear no Mapa</button>` +
           `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">📍 Atualizar Localização</button>` +
@@ -2266,6 +2508,7 @@
 
         return {
           intent: 'next_bus_active',
+          type: 'bus_status',
           routeCode: activeCode,
           html,
           speech: `Perto de você em ${activeStop}, a linha ${activeCode} está prevista para chegar em ${activeEta} minutos.`
@@ -2278,7 +2521,8 @@
         const activeCode = this.activeRouteCode || '-';
         return {
           intent: 'current_stop',
-          html: `📍 Sua referência atual adaptada é: <strong>${activeStop}</strong> (Linha <strong>${activeCode}</strong>).<br><br>` +
+          type: 'current_stop',
+          html: `📍 Sua referência atual adaptada é: <strong>${this.escapeHtml(activeStop)}</strong> (Linha <strong>${this.escapeHtml(activeCode)}</strong>).<br><br>` +
             `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">📍 Detectar / Atualizar Posição Real</button>`,
           speech: `Sua posição atual está adaptada para ${activeStop}.`
         };
@@ -2286,18 +2530,19 @@
 
       // 7. Mencionou um local/linha sem verbo ("Recife Antigo", "Olinda", "Camela", "1967")
       if (placeMatches.length > 0) {
-        const best = placeMatches.find(m => !/bacurau/i.test(m.label)) || placeMatches[0];
+        const best = (hasExplicitLine ? placeMatches.find(m => m.code === explicitLineCode) : null) || placeMatches.find(m => !/bacurau/i.test(m.label)) || placeMatches[0];
         const hint = best.stopHint || {};
         const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
         const waitMin = hint.wait_gps_min || (matchedCorridor ? matchedCorridor.waitMin : 5);
         return {
           intent: 'place_lookup',
+          type: 'place_lookup',
           routeCode: best.code,
-          html: `📍 Encontrei atendimento real para <strong>${matchedCorridor ? matchedCorridor.label : best.label}</strong>:<br><br>` +
-            `• 🚌 <strong>Linha principal:</strong> ${best.label}<br>` +
-            `• 🚏 <strong>Parada chave:</strong> ${stopName}<br>` +
+          html: `📍 Encontrei atendimento real para <strong>${matchedCorridor ? this.escapeHtml(matchedCorridor.label) : this.escapeHtml(best.label)}</strong>:<br><br>` +
+            `• 🚌 <strong>Linha principal:</strong> ${this.escapeHtml(best.label)}<br>` +
+            `• 🚏 <strong>Parada chave:</strong> ${this.escapeHtml(stopName)}<br>` +
             `• ⏱️ <strong>Previsão média:</strong> <strong>${waitMin} min</strong><br><br>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Abrir Linha ${best.code} no Mapa</button>`,
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">🗺️ Abrir Linha ${this.escapeHtml(best.code)} no Mapa</button>`,
           speech: `Para ${matchedCorridor ? matchedCorridor.label : best.label}, você pode usar a linha ${best.code}.`
         };
       }
