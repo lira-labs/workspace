@@ -145,10 +145,10 @@ A telessaúde já faz parte da realidade brasileira e, desde 2022, é autorizada
 
 \begin{figure}[H]
 \centering
-\caption{Posto de saúde no sertão conectado por satélite a um hospital na cidade.}
+\caption{Consulta médica por telemedicina conectando profissional de saúde e paciente à distância.}
 \label{fig:posto}
-\includegraphics[width=0.88\textwidth]{figures/posto_sertao.jpg}
-\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\includegraphics[width=0.85\textwidth]{figures/telemedicina_consulta.jpg}
+\fonte{Intel Free Press, via Wikimedia Commons (CC BY-SA 2.0).}
 \end{figure}
 
 Junto com a conexão vem uma preocupação que pouca gente enxerga: a segurança dos dados de saúde. Um prontuário, um exame do coração ou um ultrassom de pré-natal são informações que continuam sensíveis pelo resto da vida da pessoa. A Lei Geral de Proteção de Dados (LGPD) inclusive coloca esse tipo de informação na categoria de dado sensível, que precisa de cuidado redobrado \cite{brasil2018lgpd}. Hoje esses dados viajam protegidos pela criptografia atual, como o RSA e as curvas elípticas, que funcionam bem contra os computadores que temos agora.
@@ -157,10 +157,28 @@ Acontece que essa proteção tem prazo de validade. Quando os computadores quân
 
 \begin{figure}[H]
 \centering
-\caption{O ataque ``colha agora, descriptografe depois'': os dados roubados hoje são guardados até existir um computador quântico capaz de abri-los. Os cadeados pós-quânticos (em azul) resistem.}
+\caption{O ataque ``colha agora, descriptografe depois'': dados protegidos apenas pela criptografia atual ficam vulneráveis no futuro, enquanto a proteção pós-quântica resiste.}
 \label{fig:colha}
-\includegraphics[width=0.85\textwidth]{figures/colha_agora.jpg}
-\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\begin{tikzpicture}[
+    node distance=0.85cm and 0.9cm,
+    etapa/.style={draw=azul, line width=0.9pt, rounded corners=4pt, fill=azul!6,
+                  minimum height=1.25cm, text width=3.3cm, align=center, font=\footnotesize},
+    alerta/.style={draw=laranja, line width=0.9pt, rounded corners=4pt, fill=laranja!10,
+                   minimum height=1.25cm, text width=3.3cm, align=center, font=\footnotesize},
+    seguro/.style={draw=verdeborda, line width=0.9pt, rounded corners=4pt, fill=verdeborda!10,
+                   minimum height=1.1cm, text width=11.8cm, align=center, font=\footnotesize},
+    seta/.style={->, >=Stealth, line width=1pt, color=azul}
+]
+\node[etapa] (hoje) {\textbf{1. Hoje (Coleta)}\\[2pt]Tráfego cifrado com RSA/ECC é copiado na rede};
+\node[alerta, right=of hoje] (guarda) {\textbf{2. Guarda por anos}\\[2pt]Atacante armazena os arquivos sem conseguir ler};
+\node[alerta, right=of guarda] (futuro) {\textbf{3. Futuro quântico}\\[2pt]Computador quântico quebra a chave antiga e lê tudo};
+
+\draw[seta] (hoje) -- (guarda);
+\draw[->, >=Stealth, line width=1pt, color=laranja] (guarda) -- (futuro);
+
+\node[seguro, below=0.75cm of guarda] (pqc) {\textbf{Com a arquitetura proposta (ML-KEM + X25519):} mesmo que o atacante copie e guarde o tráfego hoje, a chave pós-quântica resiste aos computadores quânticos no futuro.};
+\end{tikzpicture}
+\fonte{elaborada pelo autor (2026).}
 \end{figure}
 
 \citeonline{mosca2018cybersecurity} explica esse risco com uma conta bem simples. Pense em três tempos: $X$ é quanto tempo um dado precisa ficar em segredo, $Y$ é quanto tempo levamos para trocar toda a nossa criptografia, e $Z$ é quanto tempo falta para surgir um computador quântico capaz de quebrá-la. Se
@@ -350,13 +368,11 @@ A arquitetura foi pensada em quatro camadas que seguem o caminho do dado, desde 
 \draw[arrow] (cloud) -- (med);
 
 % Camada transversal Zero Trust
-\coordinate (zl) at ($(eq.south west)+(0,-2.0)$);
-\coordinate (zr) at ($(cloud.south east)+(-3.6,-2.0)$);
-\node[draw=roxo, line width=1pt, fill=roxo!10, rounded corners=4pt, minimum height=0.9cm,
-      fit={($(eq.south west)+(0,-1.6)$) ($(sat.south east)+(0,-2.4)$)}, inner sep=0pt] (zt) {};
-\node[font=\small, color=roxo, align=center] at (zt.center) {\textbf{CAMADA TRANSVERSAL -- ZERO TRUST}\quad\footnotesize cada aparelho, profissional e médico é conferido a cada pedido};
+\node[draw=roxo, line width=1pt, fill=roxo!10, rounded corners=4pt, minimum height=1.2cm,
+      fit={($(eq.south west)+(0,-1.25)$) ($(sat.south east)+(0,-2.45)$)}, inner sep=0pt] (zt) {};
+\node[font=\small, color=roxo, align=center, text width=11.5cm] at (zt.center) {\textbf{CAMADA TRANSVERSAL -- ZERO TRUST}\\[2pt]\footnotesize cada aparelho, profissional e médico é conferido a cada pedido};
 \foreach \n in {eq, edge, sat} { \draw[roxo, dashed, line width=0.8pt] (\n.south) -- (\n.south |- zt.north); }
-\draw[roxo, dashed, line width=0.8pt] (med.west) -| ($(zt.east)+(0,0)$);
+\draw[roxo, dashed, line width=0.8pt] (med.west) -- (med.west -| zt.east);
 \end{tikzpicture}}
 \fonte{elaborada pelo autor (2026).}
 \end{figure}
@@ -424,34 +440,34 @@ Seu José, de 67 anos, chega ao posto de um distrito do sertão sentindo uma dor
 
 \begin{figure}[H]
 \centering
-\caption{Cenário 1: Seu José faz um eletrocardiograma no posto enquanto o cardiologista acompanha por vídeo.}
+\caption{Cenário 1: aparelho clínico de eletrocardiograma (ECG) utilizado no atendimento ao paciente.}
 \label{fig:jose}
-\includegraphics[width=0.85\textwidth]{figures/seu_jose_ecg.jpg}
-\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\includegraphics[width=0.78\textwidth]{figures/ecg_clinico.jpg}
+\fonte{Zeeshan2907, via Wikimedia Commons (CC BY-SA 4.0).}
 \end{figure}
 
 \subsection*{Cenário 2 -- Pré-natal na comunidade ribeirinha}
 
-Uma gestante faz um ultrassom com um aparelho de bolso durante a visita mensal da equipe de saúde a uma comunidade à beira do rio (Figura~\ref{fig:ribeirinha}). O arquivo é grande, então o servidor de borda comprime e envia no fim do dia, quando o posto usa menos a internet. O exame fica guardado no prontuário dela no hospital de referência, protegido por muitos anos, já que esse tipo de informação continua sendo íntima ao longo de toda a vida da mãe e da criança.
+Uma gestante faz um ultrassom com um aparelho de bolso durante a visita mensal da equipe de saúde a uma comunidade à beira do rio, atendida por uma Unidade Básica de Saúde Fluvial (Figura~\ref{fig:ribeirinha}). O arquivo é grande, então o servidor de borda comprime e envia no fim do dia, quando o posto usa menos a internet. O exame fica guardado no prontuário dela no hospital de referência, protegido por muitos anos, já que esse tipo de informação continua sendo íntima ao longo de toda a vida da mãe e da criança.
 
 \begin{figure}[H]
 \centering
-\caption{Cenário 2: ultrassom de pré-natal num posto ribeirinho conectado por satélite.}
+\caption{Cenário 2: Unidade Básica de Saúde Fluvial (UBSF) atendendo comunidades ribeirinhas no Brasil.}
 \label{fig:ribeirinha}
-\includegraphics[width=0.85\textwidth]{figures/ribeirinha_prenatal.jpg}
-\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\includegraphics[width=0.85\textwidth]{figures/ubs_fluvial.jpg}
+\fonte{Hallel, 2021, via Wikimedia Commons (CC BY-SA 4.0).}
 \end{figure}
 
 \subsection*{Cenário 3 -- Chuva forte e queda do sinal}
 
-Durante uma tempestade, o sinal do satélite cai por algumas horas. O posto não para de atender, porque os aparelhos continuam conversando com o servidor de borda, que guarda tudo numa fila (Figura~\ref{fig:chuva}). Quando o sinal volta, o servidor envia os atendimentos acumulados, sempre com a mesma proteção pós-quântica.
+Durante uma tempestade, o sinal do satélite cai por algumas horas. O posto não para de atender, porque os aparelhos continuam conversando com o servidor de borda --- um computador compacto de baixo consumo, como um Raspberry Pi ou Mini PC (Figura~\ref{fig:chuva}) --- que guarda tudo numa fila local. Quando o sinal volta, o servidor envia os atendimentos acumulados, sempre com a mesma proteção pós-quântica.
 
 \begin{figure}[H]
 \centering
-\caption{Cenário 3: mesmo sem sinal do satélite, o servidor de borda mantém o posto funcionando.}
+\caption{Cenário 3: exemplo de placa compacta de baixo consumo (Raspberry Pi 4) usada como servidor de borda local.}
 \label{fig:chuva}
-\includegraphics[width=0.85\textwidth]{figures/chuva_borda.jpg}
-\fonte{elaborada pelo autor com auxílio de IA generativa (2026).}
+\includegraphics[width=0.78\textwidth]{figures/edge_raspberry_pi.jpg}
+\fonte{Libreravi, via Wikimedia Commons (CC BY-SA 4.0).}
 \end{figure}
 
 \subsection*{Cenário 4 -- Tentativa de ``colha agora, descriptografe depois''}
