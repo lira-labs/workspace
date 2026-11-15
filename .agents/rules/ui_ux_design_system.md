@@ -17,3 +17,5 @@ Antes de editar ou criar telas em `code/grafoparada_web/`:
    - **Zero placeholders `--` ou `-- min` soltos:** todo dado ausente ou pendente deve apresentar estado explícito (carregando GPS, GPS negado com seleção manual, ou sem ônibus ao vivo com consulta de grade).
 4. **Transparência Semântica Obrigatória:**
    - Toda métrica exibida ao usuário ou gestor deve deixar claro se é **Dado Real** (verde `#059669`), **Previsão ST-GCN** (roxo `#7C3AED`) ou **Simulação** (âmbar `#D97706`).
+5. **Execução Multiagente Automática (Sem `/teamwork` ou `/plan`):**
+   - Sempre que houver tarefa em `code/grafoparada_web/`, o agente coordenador DEVE seguir `.agents/workflows/develop-frontend-feature.md` acionando os subagentes de `.agents/agents/` via `invoke_subagent` automaticamente: `ux-spec-planner` (Explore/Spec/Mobbin) → `frontend-layout-ui` / `frontend-map-engine` (Execução) → `qa-gatekeeper` (`pre_flight_check.py` + `pytest`) → `visual-design-critic` (auditoria visual em `390x844` e `1280x800`).

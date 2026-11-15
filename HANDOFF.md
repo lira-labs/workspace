@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 14:48
+- **Última Atualização:** 15/11/2026 15:17
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -12,7 +12,7 @@
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
 - **Harness Auditor / Crítico:** DeepSeek Harness (`core/harness/deepseek/`)
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
-  - Subagentes Especializados Ativos: `backend-engineer`, `frontend-engineer`, `qa-integration-engineer`, `visual-design-critic`, `slide-master-canva`.
+  - Subagentes Especializados Ativos (`.agents/agents/`): `ux-spec-planner`, `frontend-layout-ui`, `frontend-map-engine`, `backend-engineer`, `qa-gatekeeper`, `visual-design-critic` (acionamento automático garantido em `AGENTS.md` e `.agents/rules/ui_ux_design_system.md`).
 - **Contratos Compartilhados (OpenAPI v2.1.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
 - **Gatekeeper Pré-Deploy:** `pre_flight_check.py` (40/40 PASS) + Suíte Pytest Unitária/Científica/Matriz 2.352 O-D/Segurança XSS/E2E Chrome Headless (26/26 PASS) + Hooks Antigravity (`.agents/hooks.json`)
 - **Ambientes Sincronizados:**
@@ -40,8 +40,8 @@
   - `frontend-ux-spec/SKILL.md`: fluxo *Explore -> Spec -> Plan* (*Beyond Vibe Coding*), exigindo contrato visual de 5 estados antes de editar código.
   - `frontend-grafoparada-ui/SKILL.md`: padrão técnico de `.gp-svg`, `.gp-badge-*`, 3 modos e blindagem XSS em `code/grafoparada_web/`.
   - `visual-critic-audit/SKILL.md` + `scripts/audit_ui_cdp.py`: auditor automatizado Chrome Headless CDP (`390×844` Mobile + `1280×800` Desktop) com bloqueio para `overflow > 0` e erros de console.
-- **Agentes Especializados Persistentes em `.agents/agents/` e Workflow:**
-  - Criados os perfis versionados `ux-spec-planner.md`, `frontend-layout-ui.md`, `frontend-map-engine.md`, `visual-design-critic.md`, `qa-gatekeeper.md` e `backend-engineer.md`, além do workflow `.agents/workflows/develop-frontend-feature.md`.
+- **Agentes Especializados Persistentes em `.agents/agents/` e Disparo Automático:**
+  - Criados os perfis versionados `ux-spec-planner.md`, `frontend-layout-ui.md`, `frontend-map-engine.md`, `visual-design-critic.md`, `qa-gatekeeper.md` e `backend-engineer.md`, além do workflow `.agents/workflows/develop-frontend-feature.md` e regra automática obrigatória em `AGENTS.md` + `.agents/rules/ui_ux_design_system.md` (sem exigir `/teamwork` ou `/plan`).
 - **Capturas Visuais Exportadas (`design-references/current_screenshots/`):**
   - Geradas 8 capturas atualizadas via `audit_ui_cdp.py` (`01_home_mobile.png` até `08_desktop_pesquisa_banca.png`, `overflow=0`, `0` erros JS/console) prontas para revisão com Mobbin ou crítica externa.
 - **Auto-Deploy Vercel Validado (`code/grafoparada_web`):**
