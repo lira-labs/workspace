@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 00:11
+- **Última Atualização:** 15/11/2026 14:48
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -34,6 +34,18 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0e. Antigravity OS de Frontend (`.agents/`), Pipeline Multiagente & Capturas Atuais (15/11/2026)
+- **Skills Modulares em `.agents/skills/`:**
+  - `frontend-ux-spec/SKILL.md`: fluxo *Explore -> Spec -> Plan* (*Beyond Vibe Coding*), exigindo contrato visual de 5 estados antes de editar código.
+  - `frontend-grafoparada-ui/SKILL.md`: padrão técnico de `.gp-svg`, `.gp-badge-*`, 3 modos e blindagem XSS em `code/grafoparada_web/`.
+  - `visual-critic-audit/SKILL.md` + `scripts/audit_ui_cdp.py`: auditor automatizado Chrome Headless CDP (`390×844` Mobile + `1280×800` Desktop) com bloqueio para `overflow > 0` e erros de console.
+- **Agentes Especializados Persistentes em `.agents/agents/` e Workflow:**
+  - Criados os perfis versionados `ux-spec-planner.md`, `frontend-layout-ui.md`, `frontend-map-engine.md`, `visual-design-critic.md`, `qa-gatekeeper.md` e `backend-engineer.md`, além do workflow `.agents/workflows/develop-frontend-feature.md`.
+- **Capturas Visuais Exportadas (`design-references/current_screenshots/`):**
+  - Geradas 8 capturas atualizadas via `audit_ui_cdp.py` (`01_home_mobile.png` até `08_desktop_pesquisa_banca.png`, `overflow=0`, `0` erros JS/console) prontas para revisão com Mobbin ou crítica externa.
+- **Auto-Deploy Vercel Validado (`code/grafoparada_web`):**
+  - Projeto conectado a `lira-labs/workspace` com `Root Directory = code/grafoparada_web` (deploy produção `dpl_GAP84b4mMjUbWCvSccDvLJQ4bn8R` publicado automaticamente após push na `main`).
 
 ### 0d. Refatoração Visual Anti-AI-Slop, 3 Modos e Auditoria Visual E2E (14/11/2026)
 - **Sistema de Referências & Design Tokens (`design-references/README.md`, `design-references/ui-tokens.json`, `.agents/rules/ui_ux_design_system.md`):**
