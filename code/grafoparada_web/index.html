@@ -49,10 +49,14 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
-      width: 100vw;
+    html, body {
+      width: 100%;
+      max-width: 100vw;
       height: 100dvh;
       overflow: hidden;
+    }
+
+    body {
       background: #0f172a;
       background-image: radial-gradient(circle at 50% 10%, #1e293b 0%, #0b0f19 100%);
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -269,33 +273,32 @@
 
     .top-pills-row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+      gap: 5px;
+      max-width: 100%;
+      overflow: visible;
       padding-bottom: 2px;
-    }
-    .top-pills-row::-webkit-scrollbar {
-      display: none;
     }
 
     .top-pill {
       pointer-events: auto;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(12px);
       border: 1.5px solid var(--border-color);
       border-radius: 999px;
-      padding: 7px 12px;
+      padding: 5px 10px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       box-shadow: var(--shadow-floating);
-      font-size: 13px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--text-main);
       cursor: pointer;
       user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .status-badge-pill {
@@ -304,14 +307,17 @@
       border: 1.5px solid var(--brand-green-border);
       color: var(--brand-green-dark);
       border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 12px;
+      padding: 5px 10px;
+      font-size: 11.5px;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       box-shadow: var(--shadow-floating);
       cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: auto;
     }
 
     /* SEARCH BAR (MELHORIA 1: AUTOCOMPLETE RÁPIDO) */
@@ -391,7 +397,7 @@
     /* MODERN MAP FLOATING CONTROLS (GLASS ISLAND) */
     .map-floating-controls {
       position: absolute;
-      bottom: 295px;
+      bottom: 274px;
       right: 12px;
       z-index: 999;
       display: flex;
@@ -561,7 +567,7 @@
       box-shadow: var(--shadow-sheet);
       border-top: 1px solid var(--border-color);
       transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      max-height: 232px;
+      max-height: 205px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -910,9 +916,11 @@
     }
 
     .sheet-body {
-      padding: 6px 16px 24px;
+      padding: 8px 16px 32px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
       flex: 1;
     }
 
@@ -1589,25 +1597,31 @@
       background: #f8fafc;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 20px 18px 26px;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+      padding: 20px 18px 28px;
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transform: translate3d(26px, 0, 0);
-      transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1), transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translate3d(0, 10px, 0);
+      transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .app-screen.screen-active {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
       transform: translate3d(0, 0, 0);
     }
 
     .app-screen.screen-exit-left {
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transform: translate3d(-26px, 0, 0);
+      transform: translate3d(0, -8px, 0);
     }
 
     @media (min-width: 601px) {
@@ -1682,8 +1696,8 @@
 
     .intent-card {
       width: 100%;
-      border-radius: 18px;
-      padding: 16px 16px;
+      border-radius: 14px;
+      padding: 13px 15px;
       text-align: left;
       cursor: pointer;
       display: flex;
@@ -1692,46 +1706,53 @@
       gap: 12px;
       font-family: inherit;
       transition: transform 0.14s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-      border: 1.5px solid #e2e8f0;
+      border: 1px solid #e2e8f0;
       background: #ffffff;
       color: #0f172a;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+    .intent-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
     }
     .intent-card:active {
       transform: scale(0.985);
     }
     .intent-card.intent-primary {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      background: #059669;
       border-color: #047857;
       color: #ffffff;
-      box-shadow: 0 10px 24px rgba(5, 150, 105, 0.24);
+      box-shadow: 0 6px 18px rgba(5, 150, 105, 0.22);
     }
     .intent-card.intent-primary .intent-desc {
-      color: rgba(255, 255, 255, 0.88);
+      color: rgba(255, 255, 255, 0.9);
     }
     .intent-card.intent-ai {
-      background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%);
+      background: #ffffff;
       border-color: #bae6fd;
     }
     .intent-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 13px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 21px;
+      font-size: 18px;
       flex-shrink: 0;
       background: rgba(255, 255, 255, 0.18);
+      color: inherit;
     }
     .intent-card:not(.intent-primary) .intent-icon-box {
       background: #f1f5f9;
+      color: #0f172a;
     }
     .intent-card.intent-ai .intent-icon-box {
-      background: #e0f2fe;
+      background: #f0f9ff;
+      color: #0284c7;
     }
     .intent-title {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 800;
       line-height: 1.25;
       margin-bottom: 2px;
@@ -1743,10 +1764,10 @@
     }
 
     .home-context-strip {
-      margin-top: 20px;
+      margin-top: 14px;
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 12px 14px;
       display: flex;
       align-items: center;
@@ -1762,9 +1783,9 @@
     }
     .locate-preset-btn {
       background: #ffffff;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 11px 12px;
       text-align: left;
       cursor: pointer;
       font-family: inherit;
@@ -1782,15 +1803,278 @@
       margin-top: 16px;
       background: #ffffff;
       border: 1.5px solid #a7f3d0;
-      border-radius: 18px;
+      border-radius: 16px;
       padding: 15px;
-      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.10);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.08);
     }
 
     .central-grid {
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+
+    /* =====================================================================
+       GRAFOPARADA DESIGN SYSTEM 2.1: SVG ICONS, SEMANTIC BADGES & 3 MODES
+       ===================================================================== */
+    .gp-svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .gp-svg-lg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .gp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .gp-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .gp-badge-real {
+      background: #ecfdf5;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+    .gp-badge-real::before { background: #059669; }
+    .gp-badge-pred {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-color: #ddd6fe;
+    }
+    .gp-badge-pred::before { background: #7c3aed; }
+    .gp-badge-sim {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+    .gp-badge-sim::before { background: #d97706; }
+    .gp-badge-alert {
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+    .gp-badge-alert::before { background: #dc2626; }
+
+    /* HOME HERO BOARDING CARD (PROGRESSIVE DISCLOSURE) */
+    .home-hero-boarding {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 15px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+    .home-hero-eta-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 800;
+      color: #059669;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .home-primary-cta {
+      width: 100%;
+      margin-top: 12px;
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+    .home-primary-cta:hover { background: #047857; }
+    .home-primary-cta:active { transform: scale(0.985); }
+
+    .home-secondary-cta {
+      width: 100%;
+      margin-top: 7px;
+      background: #f8fafc;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .home-secondary-cta:hover { background: #f1f5f9; }
+
+    /* MAP LEGEND OVERLAY (DISCREET PROTAGONIST CONTEXT) */
+    .map-floating-legend {
+      position: absolute;
+      bottom: 274px;
+      left: 12px;
+      z-index: 997;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 6px 9px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #334155;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+      pointer-events: none;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 3px;
+      vertical-align: middle;
+    }
+    .legend-dash {
+      width: 12px;
+      height: 0;
+      border-top: 2px dashed #0284c7;
+      display: inline-block;
+      margin-right: 3px;
+      vertical-align: middle;
+    }
+
+    /* MODE SWITCHER SEGMENTED BAR ON DESKTOP */
+    .mode-switcher-group {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .mode-switch-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .mode-switch-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .mode-switch-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    /* CTM OPERATIONS B2B WORKSPACE (VISIBLE IN MODE CTM ON DESKTOP OR MODAL ON MOBILE) */
+    .ctm-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .ctm-kpi-tile {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 9px 10px;
+    }
+    .ctm-kpi-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .ctm-kpi-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+    .ctm-bar-track {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 6px 0;
+    }
+    .ctm-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* DESKTOP CTM / LAB SIDE WORKSPACE PANELS */
+    .desktop-workspace-panel {
+      display: none;
+      width: 100%;
+      max-width: 980px;
+      max-height: min(860px, 88vh);
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      padding: 24px 28px;
+      color: #0f172a;
+    }
+    @media (min-width: 601px) {
+      body[data-app-mode="ctm"] .phone-simulator-frame,
+      body[data-app-mode="lab"] .phone-simulator-frame {
+        display: none !important;
+      }
+      body[data-app-mode="ctm"] #desktop-ctm-workspace {
+        display: block;
+      }
+      body[data-app-mode="lab"] #desktop-lab-workspace {
+        display: block;
+      }
     }
 
     /* LIMPEZA DO RADAR (TELA 3) & DO MODAL LAYA */
@@ -1826,21 +2110,9 @@
       min-width: 0;
     }
 
-    /* DESKTOP BAR MAIS LIMPO (SO ESSENCIAL NO TOPO) */
-    .desktop-outer-bar .btn-desktop-extra,
-    .desktop-outer-bar button[onclick*="openLostHelpModal"],
-    .desktop-outer-bar button[onclick*="openSeiTerminalsModal"],
-    .desktop-outer-bar button[onclick*="openVemModal"],
-    .desktop-outer-bar button[onclick*="openDispatchModal"],
-    .desktop-outer-bar button[onclick*="openRoutineModal"],
-    .desktop-outer-bar button[onclick*="logoutAndRestart"],
-    .desktop-outer-bar button[onclick*="toggleVoiceMute"],
-    .desktop-outer-bar button[onclick*="openAuditModal"] {
-      display: none !important;
-    }
-
     /* TELA 3 (MAPA) DESPOLUIDA NO TOPO */
     .top-floating-bar #badge-routine-status,
+    .top-floating-bar #routine-pill-btn,
     .top-floating-bar .top-pill[onclick*="openProfileModal"],
     .top-floating-bar .top-pill[onclick*="openPresentationModal"],
     .top-floating-bar .top-pill[onclick*="openDispatchModal"] {
@@ -1855,59 +2127,164 @@
 
   </style>
 </head>
-<body>
+<body data-app-mode="passenger">
 
   <!-- BOTÃO FLUTUANTE DE RETORNO (VISÍVEL APENAS EM TELA CHEIA PC) -->
   <button class="btn-exit-fullscreen" onclick="toggleFullscreenDesktop()">
-    <span>📱</span> Voltar ao Modo Celular
+    <svg class="gp-svg" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+    Voltar ao Modo Celular
   </button>
 
-  <!-- DESKTOP TOP BAR (OUTSIDE SMARTPHONE FRAME) -->
+  <!-- DESKTOP TOP BAR (OUTSIDE SMARTPHONE FRAME · SEPARAÇÃO 3 AMBIENTES) -->
   <div class="desktop-outer-bar">
     <div class="badge-title">
-      <img src="img/logo_pc_horizontal.svg" alt="GrafoParada · Menos Espera, Mais Cidade" style="height:30px; vertical-align:middle; margin-right:8px;" />
-      <span style="font-size:11px; background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:999px; border:1px solid #fde68a; font-weight:800;">🔬 Protótipo Acadêmico · Malha GTFS Real + Modelo ST-GCN</span>
+      <img src="img/logo_pc_horizontal.svg" alt="GrafoParada · Menos Espera, Mais Cidade" style="height:34px; background:rgba(255,255,255,0.96); padding:4px 10px; border-radius:10px; vertical-align:middle; box-shadow:0 2px 8px rgba(0,0,0,0.2);" />
+      <span class="gp-badge gp-badge-real">GTFS RMR · 393 Linhas</span>
     </div>
-    <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-      <!-- DECK OFICIAL BANCA UFRPE (PPTX, SLIDES & ROTEIRO) -->
-      <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" class="btn-desktop-action" style="background:#ea580c; border-color:#f97316; color:#ffffff; font-weight:800; text-decoration:none; box-shadow:0 2px 8px rgba(234,88,12,0.35);" title="Baixar Apresentação Oficial em PPTX (13.1 MB - 16:9 Widescreen para PowerPoint)">
-        <span>📥</span> Baixar PPTX (Banca)
-      </a>
-      <button class="btn-desktop-action" onclick="openPresentationModal()" style="background:rgba(124,58,237,0.3); border-color:#a78bfa; color:#ede9fe; font-weight:800;" title="Apresentação Oficial, Slides Canva e Roteiro da Banca UFRPE">
-        <span>🎓</span> Apresentação UFRPE
+
+    <div class="mode-switcher-group" role="tablist" aria-label="Modo do Sistema">
+      <button type="button" class="mode-switch-btn active" id="mode-btn-passenger" onclick="setAppMode('passenger')">
+        <svg class="gp-svg" viewBox="0 0 24 24"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
+        Passageiro
       </button>
-      <a href="slides_canva.html" target="_blank" class="btn-desktop-action" style="background:rgba(14,165,233,0.25); border-color:#38bdf8; color:#bae6fd; text-decoration:none;" title="Abrir Apresentação Web de Slides Canva">
-        <span>📊</span> Slides Web
-      </a>
-      <a href="roteiro.html" target="_blank" class="btn-desktop-action" style="background:rgba(16,185,129,0.25); border-color:#34d399; color:#a7f3d0; text-decoration:none;" title="Ver Roteiro Oficial do Seminário">
-        <span>📜</span> Roteiro
-      </a>
-      <button class="btn-desktop-action" onclick="window.RealTransit.openLinePickerModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
-        <span>🚌</span> 400 Linhas GTFS
+      <button type="button" class="mode-switch-btn" id="mode-btn-ctm" onclick="setAppMode('ctm')">
+        <svg class="gp-svg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Central CTM
       </button>
-      <button class="btn-desktop-action" onclick="openRoutineModal()" style="background:rgba(5,150,105,0.25); border-color:#34d399; color:#a7f3d0;">
-        <span>📅</span> Minha Rotina
+      <button type="button" class="mode-switch-btn" id="mode-btn-lab" onclick="setAppMode('lab')">
+        <svg class="gp-svg" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/></svg>
+        Pesquisa &amp; Banca
       </button>
-      <button class="btn-desktop-action" onclick="openSeiTerminalsModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8; color:#bae6fd;">
-        <span>🏛️</span> 44 Terminais SEI
+    </div>
+
+    <div style="display:flex; gap:6px; align-items:center;">
+      <button type="button" class="btn-desktop-action" onclick="window.RealTransit && window.RealTransit.openLinePickerModal()">
+        <svg class="gp-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Catálogo GTFS
       </button>
-      <button class="btn-desktop-action" onclick="openDispatchModal()" style="background:rgba(2,132,199,0.25); border-color:#38bdf8;">
-        <span>🏛️</span> Central CTM
-      </button>
-      <button class="btn-desktop-action" onclick="openAuditModal()" style="background:rgba(16,185,129,0.25); border-color:#34d399;">
-        <span>👥</span> Personas
-      </button>
-      <button class="btn-desktop-action" onclick="openDataOriginModal()" style="background:rgba(245,158,11,0.2); border-color:#fbbf24; color:#fef3c7;">
-        <span>🔬</span> Origem dos Dados
-      </button>
-      <button class="btn-desktop-action" onclick="logoutAndRestart()">
-        <span>🔄</span> Reiniciar
-      </button>
-      <button class="btn-desktop-action" onclick="toggleFullscreenDesktop()" title="Alternar entre modo smartphone e monitor de PC em tela cheia">
-        <span>🖥️</span> Modo PC
+      <button type="button" class="btn-desktop-action" onclick="toggleFullscreenDesktop()" title="Alternar entre modo smartphone e tela cheia">
+        <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        Expandir
       </button>
     </div>
   </div>
+
+  <!-- WORKSPACE B2B: CENTRAL CTM (MODO DESKTOP DEDICADO) -->
+  <section id="desktop-ctm-workspace" class="desktop-workspace-panel" aria-label="Central de Operações CTM">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; border-bottom:1px solid #e2e8f0; padding-bottom:16px; margin-bottom:18px;">
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span class="gp-badge gp-badge-pred">Modelo Preditivo ST-GCN · 94% Confiança</span>
+          <span class="gp-badge gp-badge-real">Malha GTFS · CTM RMR</span>
+        </div>
+        <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0;">Central Operacional CTM · Realocação Dinâmica de Frota</h2>
+        <p style="font-size:13px; color:#475569; margin-top:4px;">Balanceamento de veículos entre janelas ociosas fora de pico e corredores com saturação crítica.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn-secondary" style="width:auto; padding:8px 14px;" onclick="setAppMode('passenger')">Voltar ao App Passageiro</button>
+        <button type="button" class="btn-primary" style="width:auto; padding:8px 16px; background:#0284c7;" onclick="executeFleetReallocation(); setAppMode('passenger'); navigateToScreen('radar');">Simular &amp; Ver no Mapa</button>
+      </div>
+    </div>
+
+    <div class="ctm-kpi-grid" style="gap:14px; margin-bottom:18px;">
+      <div class="ctm-kpi-tile" style="padding:14px 16px;">
+        <div class="ctm-kpi-label">Linhas Monitoradas</div>
+        <div class="ctm-kpi-val" style="font-size:24px;">393</div>
+        <span class="gp-badge gp-badge-real" style="margin-top:6px;">Dado Real · GTFS</span>
+      </div>
+      <div class="ctm-kpi-tile" style="padding:14px 16px;">
+        <div class="ctm-kpi-label">Corredores em Alerta</div>
+        <div class="ctm-kpi-val" style="font-size:24px; color:#dc2626;">2</div>
+        <span class="gp-badge gp-badge-alert" style="margin-top:6px;">PE-60 · Conde da Boa Vista</span>
+      </div>
+      <div class="ctm-kpi-tile" style="padding:14px 16px;">
+        <div class="ctm-kpi-label">Carros Ociosos (10h–14h)</div>
+        <div class="ctm-kpi-val" style="font-size:24px; color:#d97706;">+4</div>
+        <span class="gp-badge gp-badge-sim" style="margin-top:6px;">Simulação de Reserva</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px;">
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:13.5px; color:#0f172a;">Fora de Pico · 10h00 às 14h00</strong>
+          <span class="gp-badge gp-badge-sim">Baixa Lotação</span>
+        </div>
+        <div style="font-size:12px; color:#475569;">Apenas <strong>3 embarques médios</strong> e poucos desembarques registrados por viagem no trecho intermediário.</div>
+        <div class="ctm-bar-track"><div class="ctm-bar-fill" style="width:18%; background:#d97706;"></div></div>
+        <div style="font-size:11.5px; color:#92400e; font-weight:700;">Ação recomendada: ampliar intervalo para 25 min e remanejar 2 carros para reserva técnica.</div>
+      </div>
+
+      <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:13.5px; color:#991b1b;">Horário de Pico · 06h–08h &amp; 17h–19h</strong>
+          <span class="gp-badge gp-badge-alert">Superlotação</span>
+        </div>
+        <div style="font-size:12px; color:#475569;">Coletivos chegam com <strong>44 a 52 passageiros</strong> nas paradas intermediárias da PE-60 e Av. Norte.</div>
+        <div class="ctm-bar-track"><div class="ctm-bar-fill" style="width:92%; background:#dc2626;"></div></div>
+        <div style="font-size:11.5px; color:#991b1b; font-weight:700;">Ação recomendada: injetar +2 veículos extras nas viagens expressas de ponta.</div>
+      </div>
+    </div>
+
+    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px 16px;">
+      <div style="font-size:12px; font-weight:800; color:#334155; text-transform:uppercase; margin-bottom:10px;">Fila de Despachos Priorizados</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; margin-bottom:8px;">
+        <div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Linha 199 · Camela / TI Cabo (Corredor PE-60)</div>
+          <div style="font-size:11.5px; color:#64748b;">Pico 06h–08h · +2 carros da reserva ociosa · Redução estimada de espera: -6 min</div>
+        </div>
+        <button type="button" onclick="executeFleetReallocation(); setAppMode('passenger'); navigateToScreen('radar');" style="background:#0284c7; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:12px; font-weight:800; cursor:pointer;">Aplicar Reforço</button>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px;">
+        <div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Linha 522 · Dois Irmãos / Rui Barbosa (UFRPE)</div>
+          <div style="font-size:11.5px; color:#64748b;">Pico Universitário 18h · Despacho expresso Derby ➔ UFRPE · Confiança ST-GCN 91%</div>
+        </div>
+        <button type="button" onclick="executeFleetReallocation(); setAppMode('passenger'); navigateToScreen('radar');" style="background:#0f172a; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:12px; font-weight:800; cursor:pointer;">Simular Cenário</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKSPACE ACADÊMICO: PESQUISA & BANCA UFRPE (MODO DESKTOP DEDICADO) -->
+  <section id="desktop-lab-workspace" class="desktop-workspace-panel" aria-label="Pesquisa e Banca Examinadora UFRPE">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; border-bottom:1px solid #e2e8f0; padding-bottom:16px; margin-bottom:18px;">
+      <div>
+        <span class="gp-badge gp-badge-pred" style="margin-bottom:6px;">DEINFO · UFRPE · Seminário 2</span>
+        <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0;">Laboratório Científico &amp; Material da Banca</h2>
+        <p style="font-size:13px; color:#475569; margin-top:4px;">Arquitetura ST-GCN, auditoria metodológica de dados reais vs. sintéticos, slides e roteiro isolados da experiência do passageiro.</p>
+      </div>
+      <button type="button" class="btn-secondary" style="width:auto; padding:8px 14px;" onclick="setAppMode('passenger')">Voltar ao App Passageiro</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-bottom:16px;">
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px;">
+        <div style="font-size:11px; font-weight:800; color:#ea580c; text-transform:uppercase;">Apresentação Oficial</div>
+        <h3 style="font-size:15px; font-weight:800; margin:6px 0;">Deck PowerPoint (16:9)</h3>
+        <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:12px;">Slide deck oficial completo com arquitetura ST-GCN, métricas MAE/RMSE da PE-60 e validação de usabilidade.</p>
+        <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="display:inline-flex; align-items:center; justify-content:center; width:100%; background:#ea580c; color:#fff; padding:9px 12px; border-radius:9px; font-size:12.5px; font-weight:800; text-decoration:none;">Baixar PPTX Oficial</a>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px;">
+        <div style="font-size:11px; font-weight:800; color:#7c3aed; text-transform:uppercase;">Projeção Web</div>
+        <h3 style="font-size:15px; font-weight:800; margin:6px 0;">Slides Web &amp; Roteiro</h3>
+        <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:12px;">Slides em HTML5 e roteiro de defesa minuto a minuto com respostas para a banca examinadora.</p>
+        <div style="display:flex; gap:6px;">
+          <a href="slides_canva.html" target="_blank" style="flex:1; text-align:center; background:#7c3aed; color:#fff; padding:9px 8px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none;">Slides Web</a>
+          <a href="roteiro.html" target="_blank" style="flex:1; text-align:center; background:#0284c7; color:#fff; padding:9px 8px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none;">Roteiro</a>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px;">
+        <div style="font-size:11px; font-weight:800; color:#059669; text-transform:uppercase;">Rigor Científico</div>
+        <h3 style="font-size:15px; font-weight:800; margin:6px 0;">Transparência &amp; Personas</h3>
+        <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:12px;">Separação formal entre GTFS real, difusão Laplaciana sintética e metas de acessibilidade WCAG AAA.</p>
+        <div style="display:flex; gap:6px;">
+          <button type="button" onclick="openDataOriginModal()" style="flex:1; background:#0f172a; color:#fff; border:none; padding:9px 8px; border-radius:9px; font-size:12px; font-weight:800; cursor:pointer;">Origem Dados</button>
+          <button type="button" onclick="openAuditModal()" style="flex:1; background:#059669; color:#fff; border:none; padding:9px 8px; border-radius:9px; font-size:12px; font-weight:800; cursor:pointer;">Personas</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- SMARTPHONE SHELL FRAME -->
   <div class="phone-simulator-frame">
@@ -1919,48 +2296,56 @@
     <!-- 1. FULLSCREEN LEAFLET MAP -->
     <div id="mobile-map"></div>
 
+    <!-- LEGENDA DISCRETA DO MAPA (PROTAGONISMO CARTOGRÁFICO) -->
+    <div id="map-floating-legend" class="map-floating-legend" aria-label="Legenda do Mapa">
+      <span><span class="legend-dot" style="background:#059669;"></span>Embarque</span>
+      <span><span class="legend-dash"></span>Caminhada</span>
+      <span><span class="legend-dot" style="background:#0284c7;"></span>Trajeto</span>
+    </div>
+
     <!-- 2. MINIMALIST FLOATING TOP BAR -->
     <div class="top-floating-bar">
       <div class="top-pills-row">
         <div class="top-pill" onclick="openProfileModal()">
-          <span style="font-size:15px;">👤</span>
+          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span id="top-user-name">Cauã</span>
         </div>
 
-        <div class="top-pill" onclick="openPresentationModal()" title="Apresentação Oficial da Banca UFRPE (PPTX / Slides)" style="background:#fef3c7; border-color:#fde68a; color:#92400e; font-weight:800;">
-          <span style="font-size:14px;">🎓</span>
-          <span>Banca PPTX</span>
+        <div class="top-pill" id="top-voice-toggle-pill" onclick="toggleLayaVoiceMute()" title="Ativar ou silenciar voz da Laya" style="background:#f1f5f9; border-color:#cbd5e1; color:#334155; font-weight:800;">
+          <span id="top-voice-icon" style="display:inline-flex; align-items:center;"><svg class="gp-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></span>
+          <span id="top-voice-label">Voz: Off</span>
         </div>
 
-                <div class="top-pill" id="routine-pill-btn" onclick="openRoutineModal()" title="Configurar Minha Rotina Pendular" style="color:#059669; font-weight:800;">
-          <span style="font-size:14px;">📅</span>
+        <div class="top-pill" id="routine-pill-btn" onclick="openRoutineModal()" title="Configurar Minha Rotina (Ida e Volta)" style="color:#059669; font-weight:800;">
+          <svg class="gp-svg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span id="label-routine-pill">Rotina: 05h45</span>
         </div>
 
-<div class="top-pill" id="senior-pill-btn" onclick="toggleSeniorMode()" title="Ativar Modo Fácil / Letras Grandes para Idosos" style="font-weight:800;">
-          <span style="font-size:14px;">👁️</span>
+        <div class="top-pill" id="senior-pill-btn" onclick="toggleSeniorMode()" title="Ativar Modo Fácil / Letras Grandes" style="font-weight:800;">
+          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           <span id="label-senior-pill">Aa Fácil</span>
         </div>
 
         <div class="top-pill" onclick="openDispatchModal()" title="Central CTM de Realocação de Frota" style="color:var(--blue-accent); font-weight:800;">
-          <span style="font-size:14px;">🏛️</span>
+          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span>CTM Frota</span>
         </div>
 
         <div class="status-badge-pill" id="top-line-badge" onclick="switchLineQuick()">
           <div class="pulse-dot"></div>
-          <span id="top-line-label">--</span>
+          <span id="top-line-label">RMR · Linha</span>
         </div>
       </div>
 
       <!-- SEARCH BAR AUTOCOMPLETE (MELHORIA 1) -->
       <div class="search-pill-wrapper">
         <div class="search-pill">
-          <span style="font-size:14px; color:var(--text-muted);">🔍</span>
-          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar entre 400 linhas reais (ex: 522, 060, CDU) ou T.I..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
+          <svg class="gp-svg" style="color:var(--text-muted);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar entre 393 linhas reais (ex: 522, 060, CDU) ou T.I..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
           <button id="search-clear-btn" onclick="clearQuickSearch()" style="display:none; border:none; background:none; color:var(--text-muted); cursor:pointer;">✕</button>
-          <button type="button" onclick="openLayaModal()" style="border:none; background:#ecfdf5; color:#059669; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px; flex-shrink:0; border:1px solid #a7f3d0;" title="Conversar com a Laya (Assistente IA)">
-            <span>🎙️</span> Laya
+          <button type="button" onclick="openLayaModal()" style="border:1px solid #a7f3d0; background:#ecfdf5; color:#047857; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px; flex-shrink:0;" title="Conversar com a Laya (Assistente IA)">
+            <svg class="gp-svg" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            Laya
           </button>
         </div>
         <div id="search-results-dropdown" class="search-dropdown"></div>
@@ -1969,7 +2354,7 @@
 
     <!-- SUBTITLE VOICE PILL (TRANSCRIÇÃO VISUAL DA VOZ DE IA) -->
     <div id="floating-voice-pill" class="floating-voice-pill" style="display:none;">
-      <span class="voice-soundwave-icon">🔊</span>
+      <span class="voice-soundwave-icon" style="display:inline-flex; align-items:center;"><svg class="gp-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
       <div id="floating-voice-text" style="flex:1;">GrafoParada: monitorando aproximação.</div>
       <button onclick="dismissFloatingVoicePill()" style="border:none; background:none; color:#94a3b8; font-size:14px; cursor:pointer;">✕</button>
     </div>
@@ -1977,46 +2362,41 @@
     <!-- ROUTE TRAJECTORY INDICATOR CHIP -->
     <div id="route-indicator-chip" class="route-indicator-chip">
       <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
-        <span style="font-size:14px;">🚌</span>
-        <span id="route-chip-label" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:180px;">Detectando linha próxima...</span>
+        <svg class="gp-svg" style="color:#34d399;" viewBox="0 0 24 24"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
+        <span id="route-chip-label" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width:170px;">Detectando linha próxima...</span>
       </div>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button class="route-chip-btn" onclick="fitActiveRouteBounds()" title="Enquadrar todo o trajeto no mapa">👁️ Trajeto</button>
-        <button class="route-chip-btn" style="background:#0284c7;" onclick="toggleRouteStopsList()" title="Ver lista de paradas">🚏 Paradas</button>
+        <button class="route-chip-btn" onclick="fitActiveRouteBounds()" title="Enquadrar todo o trajeto no mapa">Trajeto</button>
+        <button class="route-chip-btn" style="background:#0284c7;" onclick="toggleRouteStopsList()" title="Ver lista de paradas">Paradas</button>
       </div>
     </div>
 
-    <!-- 3. MODERN FLOATING MAP CONTROLS (INNOVATIVE CONTROL BAR) -->
+    <!-- 3. MODERN FLOATING MAP CONTROLS -->
     <div class="map-floating-controls">
-      <!-- 1. Centralizar em Mim (Pulsing User Location) -->
-      <button class="map-ctrl-btn" onclick="recenterOnUser(true)" title="Onde Estou (Minha Posição)" id="btn-map-my-location">
-        <span style="font-size:18px;">🎯</span>
+      <button class="map-ctrl-btn" onclick="recenterOnUser(true)" title="Centralizar na Minha Posição" id="btn-map-my-location">
+        <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
       </button>
 
-      <!-- 2. Rastrear Ônibus ao Vivo -->
       <button class="map-ctrl-btn" onclick="trackBusLocation(true)" title="Ver Ônibus em Aproximação" id="btn-map-track-bus">
-        <span style="font-size:18px;">🚌</span>
+        <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
       </button>
 
-      <!-- 3. Alternar Estilo do Mapa (Clean / Noturno / Satélite) -->
       <button class="map-ctrl-btn" onclick="cycleMapStyle()" title="Alternar Visual do Mapa" id="btn-map-style-toggle">
-        <span id="map-style-icon" style="font-size:17px;">🗺️</span>
+        <span id="map-style-icon" style="display:inline-flex; align-items:center;"><svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></span>
       </button>
 
-      <!-- 4. Zoom Mais -->
       <button class="map-ctrl-btn" onclick="zoomMapIn()" title="Aproximar Zoom">
-        <span style="font-size:16px; font-weight:800;">＋</span>
+        <span style="font-size:16px; font-weight:800;">+</span>
       </button>
 
-      <!-- 5. Zoom Menos -->
       <button class="map-ctrl-btn" onclick="zoomMapOut()" title="Afastar Zoom">
-        <span style="font-size:16px; font-weight:800;">－</span>
+        <span style="font-size:16px; font-weight:800;">-</span>
       </button>
     </div>
 
-    <!-- FLOATING LAYA BUTTON (ASSISTENTE IA NO MAPA) -->
+    <!-- FLOATING LAYA BUTTON -->
     <button class="btn-floating-laya" onclick="openLayaModal()" title="Falar com a Laya (Assistente IA)">
-      <span>✨</span> Laya IA
+      Laya IA
     </button>
 
     <!-- 4. BOTTOM SHEET (RIDE-HAILING / TRANSIT EXPERIENCE) -->
@@ -2031,105 +2411,99 @@
 
         <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
         <div id="view-sheet-resting">
-          <!-- ⭐ MINHAS PARADAS FAVORITAS (CARROSSEL COM APELIDOS) -->
-          <div style="margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">⭐ Suas Paradas Favoritas:</span>
-              <button onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; color:#0284c7; font-size:11px; font-weight:800; cursor:pointer;" title="Salvar parada atual nos favoritos">＋ Salvar Esta Parada</button>
+          <!-- PARADAS FAVORITAS -->
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+              <span style="font-size:10.5px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Paradas Favoritas</span>
+              <button onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; color:#0284c7; font-size:11px; font-weight:800; cursor:pointer;" title="Salvar parada atual nos favoritos">+ Salvar Atual</button>
             </div>
-            <div id="favorites-pills-row" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;"></div>
+            <div id="favorites-pills-row" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; -webkit-overflow-scrolling:touch;"></div>
           </div>
 
-          <!-- PARADA ATUAL DETALHADA COM CÓDIGO CTM E MUNICÍPIO -->
-          <div style="background:var(--bg-page); border:1.5px solid var(--border-color); border-radius:14px; padding:10px 12px; margin-bottom:10px;">
+          <!-- PARADA ATUAL + PREVISÃO TRANSPARENTE -->
+          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:10px 12px; margin-bottom:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">📍 Sua Parada Atual:</span>
-                <button id="btn-fav-star" onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; cursor:pointer; font-size:15px;" title="Favoritar parada">⭐</button>
+                <span class="gp-badge gp-badge-real">GTFS CTM</span>
+                <button id="btn-fav-star" onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; cursor:pointer; color:#64748b; display:inline-flex; align-items:center;" title="Favoritar parada">
+                  <svg class="gp-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </button>
               </div>
-              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:12px; cursor:pointer;" onclick="toggleSheetExpansion()">Ver Todas as Paradas (<span id="stops-count-label">--</span>) ▲</button>
+              <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:11.5px; cursor:pointer;" onclick="toggleSheetExpansion()">Paradas (<span id="stops-count-label">0</span>) ▲</button>
             </div>
             <div id="current-stop-name" style="color:var(--text-main);">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">GPS / CTM</span>
-                <span style="font-size:11px; font-weight:800; color:#0284c7;">📡 Aguardando sua localização</span>
+                <span class="gp-badge gp-badge-sim">Procurando GPS</span>
               </div>
-              <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:3px;">
-                Detectando parada mais próxima...
+              <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:4px;">
+                Localizando parada mais próxima...
               </div>
               <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
-                Toque em "Onde Estou" ou ative o GPS para adaptar à sua rua
+                Se preferir, escolha um bairro manualmente na aba Início.
               </div>
             </div>
 
-            <!-- LIVE ARRIVAL AT CURRENT STOP (ETA IMEDIATO & VOZ) -->
-            <div style="background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <!-- LIVE ARRIVAL AT CURRENT STOP -->
+            <div style="background:#ffffff; border:1px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
               <div>
                 <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em;" id="resting-line-prefix">
-                  🚌 Próximo Ônibus:
+                  Próximo Ônibus
                 </div>
-                <div style="font-size:14.5px; font-weight:800; color:#065f46; margin-top:1px;">
-                  Chega em <span id="resting-eta-val">4</span> min <span style="font-size:11px; font-weight:600; color:#047857;">(Previsão ST-GCN)</span>
+                <div style="font-size:14px; font-weight:800; color:#0f172a; margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                  <span>Em <span id="resting-eta-val" style="font-family:'JetBrains Mono',monospace;">4</span> min</span>
+                  <span class="gp-badge gp-badge-pred">Previsão · ST-GCN</span>
                 </div>
               </div>
               <div style="display:flex; gap:6px; align-items:center;">
-                <button onclick="speakCurrentArrival()" style="background:#ffffff; border:1.5px solid #a7f3d0; border-radius:8px; padding:6px 9px; font-size:11.5px; font-weight:800; color:#047857; cursor:pointer;" title="Ouvir previsão por voz">
-                  🔊 Ouvir
+                <button onclick="speakCurrentArrival()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px 9px; font-size:11.5px; font-weight:800; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Ouvir previsão por voz">
+                  <svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  Ouvir
                 </button>
                 <button onclick="triggerTripAction('work')" style="background:#059669; border:none; border-radius:8px; padding:6px 11px; font-size:11.5px; font-weight:800; color:#ffffff; cursor:pointer;">
-                  Acompanhar ➔
+                  Acompanhar
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- CONTEÚDO SECUNDÁRIO EXPANSÍVEL (EVITA POLUIÇÃO VISUAL NA TELA DO MAPA) -->
-          <details id="resting-extra-tools" style="background:#ffffff; border:1px solid var(--border-color); border-radius:14px; padding:8px 12px; margin-bottom:8px;">
+          <!-- PROGRESSIVE DISCLOSURE: ROTINA E ATALHOS -->
+          <details id="resting-extra-tools" style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:8px 12px; margin-bottom:8px;">
             <summary style="font-size:12px; font-weight:800; color:#334155; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
-              <span>📅 Rotina, Atalhos Rápidos & Ajuda no Ponto</span>
+              <span>Rotina diária e guia de ponto</span>
               <span style="font-size:10.5px; color:#059669;">Expandir ▾</span>
             </summary>
             <div style="margin-top:10px;">
-              <!-- CARD ROTINA PENDULAR INTELIGENTE -->
               <div class="routine-commute-card" onclick="openRoutineModal()">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:15px;">📅</span>
-                    <span style="font-size:11.5px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Diária</span>
-                  </div>
+                  <span style="font-size:11px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Diária</span>
                   <span style="font-size:10.5px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">Rotina Ativa · 07h00</span>
                 </div>
                 <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:5px;" id="routine-title-desc">
                   Camela Centro ➔ Ipojuca / TI Cabo (Linha 199)
                 </div>
                 <div style="font-size:11px; color:#475569; margin-top:3px; line-height:1.35;" id="routine-advice-desc">
-                  💡 <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia às <strong>06:09</strong> para pegar o coletivo das 06:14 sem mofar no ponto.
-                </div>
-                <div style="font-size:10.5px; color:#059669; font-weight:700; margin-top:4px;">
-                  👥 Rede conectada com 400 linhas reais e Terminais do Grande Recife.
+                  <strong>Janela de Saída:</strong> Caminhada de 5 min. Saia às <strong>06:09</strong> para pegar o coletivo das 06:14 sem esperar no ponto.
                 </div>
               </div>
 
-              <!-- 2 GIANT 1-TAP CARDS -->
               <div class="travel-cards-row">
                 <button class="travel-card active-home" onclick="triggerTripAction('home')">
-                  <div class="travel-card-title"><span>🏠</span> Vou pra Casa</div>
-                  <div class="travel-card-subtitle" id="home-card-sub">Origem · -- min</div>
+                  <div class="travel-card-title">Vou pra Casa</div>
+                  <div class="travel-card-subtitle" id="home-card-sub">Selecionar parada</div>
                 </button>
 
                 <button class="travel-card active-work" onclick="triggerTripAction('work')">
-                  <div class="travel-card-title"><span>💼</span> Trabalho / Estudo</div>
-                  <div class="travel-card-subtitle" id="work-card-sub">Destino · -- min</div>
+                  <div class="travel-card-title">Trabalho / Estudo</div>
+                  <div class="travel-card-subtitle" id="work-card-sub">Selecionar destino</div>
                 </button>
               </div>
 
-              <!-- LOST PERSON ASSISTANCE BUTTON -->
               <div class="lost-help-card" onclick="openLostHelpModal()">
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:20px;">🧭</span>
+                  <svg class="gp-svg gp-svg-lg" style="color:var(--danger-red);" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
                   <div>
                     <div style="font-size:12.5px; font-weight:800; color:var(--danger-red);">Primeira vez aqui ou perdido?</div>
-                    <div style="font-size:11px; color:var(--text-secondary);">Guia anti-pânico de plataforma e segurança</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">Guia passo a passo de plataforma e segurança</div>
                   </div>
                 </div>
                 <span style="font-size:14px; font-weight:800; color:var(--danger-red);">➔</span>
@@ -2143,7 +2517,7 @@
           <div id="active-reallocation-banner" class="reallocation-banner"></div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <div style="font-size:13px; font-weight:800; color:var(--brand-green-dark);" id="active-trip-header">
-              🚌 Linha Ativa · Rede Metropolitana RMR
+              Linha Ativa · Rede Metropolitana RMR
             </div>
             <button style="border:none; background:none; color:var(--text-muted); font-size:12.5px; font-weight:700; cursor:pointer;" onclick="closeActiveTripView()">✕ Voltar</button>
           </div>
@@ -2151,100 +2525,69 @@
           <!-- HERO ETA CARD -->
           <div class="hero-eta-box">
             <div>
-              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Primeiro Ônibus</div>
-              <div class="hero-eta-big"><span id="live-eta-num">4</span> <span style="font-size:20px; font-weight:700;">min</span></div>
-              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 01</div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Primeiro Ônibus</div>
+              <div class="hero-eta-big"><span id="live-eta-num">4</span> <span style="font-size:18px; font-weight:700;">min</span></div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 01</div>
+              <span class="gp-badge gp-badge-pred" style="margin-top:4px;">Previsão · ST-GCN</span>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Viagem Total</div>
-              <div style="font-size:23px; font-weight:800; color:var(--text-main);" id="live-total-trip">28 min</div>
-              <span style="font-size:10.5px; font-weight:700; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:2px 8px; border-radius:999px;">Assento Livre</span>
+              <div style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Viagem Total</div>
+              <div style="font-size:22px; font-weight:800; color:var(--text-main);" id="live-total-trip">28 min</div>
+              <span class="gp-badge gp-badge-sim" style="margin-top:4px;">Lotação Estimada</span>
             </div>
           </div>
 
-          <!-- TRUST BADGES (ACADEMIC PROTOTYPE) -->
+          <!-- INFORMAÇÕES EM TEMPO REAL DA LINHA -->
           <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
             <div id="badge-gps-status" style="font-size:11.5px; background:var(--brand-green-bg); color:var(--brand-green-dark); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-              <span>📡</span> Telemetria ST-GCN · Malha GTFS Oficial CTM (Simulação Acadêmica)
-            </div>
-            <div style="font-size:11.5px; background:var(--blue-bg); color:var(--blue-accent); padding:6px 10px; border-radius:10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-              <span>💺</span> Estimativa de Lotação Baseada na Rotina dos Passageiros
+              <span class="gp-badge gp-badge-real">GTFS Oficial</span>
+              <span>Traçado e paradas validados · CTM RMR</span>
             </div>
           </div>
 
           <!-- GUARDIÃO DA INTEGRAÇÃO TEMPORAL (VEM) -->
           <div class="vem-guard-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:16px;">⏱️</span>
-                <span style="font-weight:800; font-size:11.5px; color:#0369a1; text-transform:uppercase;">Integração Temporal VEM (2h)</span>
-              </div>
-              <span style="font-size:11.5px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 25m restantes</span>
+              <span style="font-weight:800; font-size:11.5px; color:#0369a1; text-transform:uppercase;">Integração Temporal VEM (2h)</span>
+              <span style="font-size:11px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:999px;" id="vem-countdown">1h 25m restantes</span>
             </div>
             <div style="font-size:11px; color:#334155; margin-top:5px; line-height:1.35;" id="vem-status-desc">
-              ✅ <strong>Proposta de Integração:</strong> Ao embarcar no ônibus selecionado, você realiza conexão dentro da janela de 2h do VEM sem nova tarifa.
+              <strong>Integração VEM:</strong> Embarcando agora, você conecta em Terminais SEI na janela de 2h sem pagar nova passagem.
             </div>
           </div>
 
           <!-- LETREIRO AMIGO IDENTICO AO ÔNIBUS (ACESSIBILIDADE SÊNIOR) -->
           <div class="bus-led-sign-box" onclick="speakSeniorDirections()">
-            <div class="bus-led-sign-header">LETREIRO FRONTAL DO COLETIVO (SÊNIOR):</div>
+            <div class="bus-led-sign-header">LETREIRO DO ÔNIBUS (TOQUE PARA OUVIR):</div>
             <div class="bus-led-sign-display">
-              <span class="led-line-number" id="led-line-number">--</span>
+              <span class="led-line-number" id="led-line-number">BUS</span>
               <span class="led-line-dest" id="led-destination-line">AGUARDANDO SELEÇÃO DE LINHA</span>
             </div>
             <div class="bus-led-sign-hint">
-              👁️ Compare este visor com o letreiro do ônibus na pista (Ex: 522 DOIS IRMÃOS ou CAMELA / TI CABO VIA PE-60).
+              Confira este letreiro com a frente do ônibus antes de acenar no ponto.
             </div>
           </div>
 
-          <!-- BOTÕES PRIMÁRIOS DO SEMINÁRIO 2 -->
+          <!-- AÇÕES RÁPIDAS DO PASSAGEIRO (SEGURANÇA & ORIENTAÇÃO) -->
           <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-            <!-- HERO ACTION 1: MODO BOLSO SEGURO -->
             <button class="hero-btn-pocket" onclick="activatePocketShield()" style="margin:0;">
-              <span>🎧</span> ATIVAR MODO CELULAR NO BOLSO
+              ATIVAR MODO CELULAR NO BOLSO
             </button>
 
-            <!-- HERO ACTION 2: CONFIRMAÇÃO POR VOZ PARA IDOSOS -->
             <button class="btn-senior-voice-big" onclick="speakSeniorDirections()" style="margin:0;">
-              <span>🔊</span> OUVIR EM VOZ ALTA (CONFIRMAR EMBARQUE)
+              OUVIR CONFIRMAÇÃO DE EMBARQUE
             </button>
 
-            <!-- HERO ACTION 3: DEMO DA FALHA DA IA (SLIDE 3) -->
-            <button class="btn-demo-failure" onclick="simulateSlide3Failure()" style="margin:0; background:#fef2f2; color:#b91c1c; border:1.5px solid #fca5a5;">
-              <span>🧪</span> Simular Choque / Interdição na Via (Demonstração da Falha · Sem2)
+            <button type="button" onclick="openLostHelpModal()" style="margin:0; width:100%; background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd; border-radius:12px; padding:10px 12px; font-size:12.5px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+              Estou perdido! Me ajude a chegar no destino
             </button>
           </div>
-
-          <!-- RECURSOS EXPERIMENTAIS & TRABALHOS FUTUROS (COLAPSADOS) -->
-          <details style="margin-top:10px; background:var(--bg-page); border:1px solid var(--border-color); border-radius:10px; padding:8px 10px;">
-            <summary style="font-size:11.5px; font-weight:800; color:var(--text-secondary); cursor:pointer;">
-              🛠️ Recursos Experimentais & Trabalhos Futuros (Expandir)
-            </summary>
-            <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
-              <button class="btn-night-beacon" onclick="activateNightBeacon()" style="margin:0;">
-                <span>💡</span> Farol Noturno (Sinal Luminoso pro Motorista)
-              </button>
-              <button class="btn-demo-queima" onclick="simulateQueimaDeParada()" style="margin:0;">
-                <span>🚨</span> Registro de Queima de Parada (Telemetria Simulada)
-              </button>
-              <button class="btn-safe-disembark" onclick="openSafeDisembarkModal()" style="margin:0;">
-                <span>🌙</span> Desembarque Noturno (Lei Estadual nº 15.878)
-              </button>
-              <button class="btn-flood-radar" onclick="toggleFloodAlertSimulation()" style="margin:0;">
-                <span>🌊</span> Radar Alagamento & Desvios
-              </button>
-              <button class="btn-demo-failure" onclick="toggleOfflineInertialSimulation()" style="margin:0; background:#fffbeb; color:#b45309; border-color:#fde68a;">
-                <span>📶</span> Simular Queda 4G (Modo Offline Inercial)
-              </button>
-            </div>
-          </details>
         </div>
 
         <!-- STOPS LIST ACCORDION (VISIBLE WHEN EXPANDED) -->
         <div id="sheet-stops-list" style="margin-top:14px; border-top:1px solid var(--border-color); padding-top:14px;">
           <div style="font-size:12.5px; font-weight:800; margin-bottom:10px; color:var(--text-secondary); text-transform:uppercase;">
-            Paradas Físicas do Trajeto (<span id="sheet-stops-count-label">--</span>):
+            Paradas Físicas do Trajeto (<span id="sheet-stops-count-label">0</span>):
           </div>
           <div id="stops-container" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
@@ -2263,63 +2606,35 @@
       </div>
     </div>
 
-    <!-- 6. MODAL: "ESTOU PERDIDO / PRIMEIRA VEZ AQUI" COM MAPA ESQUEMÁTICO DO T.I. -->
+    <!-- 6. MODAL: GUIA DE PERDIDO CONVERSACIONAL (GPS REAL + ROTEADOR) -->
     <div id="modal-lost" class="modal-overlay">
-      <div class="modal-card" style="border:2px solid var(--brand-green);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div class="modal-card" style="border:2px solid var(--brand-green); max-width:430px; max-height:86vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:26px;">🧭</span>
             <div>
-              <h3 style="font-size:17px; font-weight:800; color:var(--brand-green-dark); margin:0;">Você está seguro</h3>
-              <span style="font-size:11.5px; color:var(--text-secondary);">Guia anti-pânico com mapa de plataformas</span>
+              <h3 style="font-size:17px; font-weight:800; color:var(--brand-green-dark); margin:0;">Guia de Perdido · Laya</h3>
+              <span style="font-size:11.5px; color:var(--text-secondary);">Me diga para onde quer ir e eu traço a saída agora</span>
             </div>
           </div>
           <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeLostModal()">✕</button>
         </div>
 
-        <!-- ESQUEMA VISUAL DO TERMINAL INTEGRADO DO CABO (MELHORIA 2) -->
-        <div class="terminal-schematic">
-          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:#94a3b8; margin-bottom:8px; text-transform:uppercase;">
-            <span>🏛️ Terminal Integrado do Cabo</span>
-            <span>Área Interna</span>
-          </div>
-
-          <div class="schematic-bay">
-            <span>Plat. 01 / 02 · Linhas de Bairro (Centro)</span>
-            <span style="color:#94a3b8;">Baia A</span>
-          </div>
-          <div class="schematic-bay">
-            <span>Plat. 03 · Linha 178 (Porto de Suape)</span>
-            <span style="color:#94a3b8;">Baia B</span>
-          </div>
-          <div class="schematic-bay highlight-bay">
-            <span>📍 Plat. 04 · LINHA 199 (CAMELA / SJT)</span>
-            <span>SEU EMBARQUE</span>
-          </div>
-          <div class="schematic-bay">
-            <span>Plat. 05 / 06 · Troncais Recife / Conexão Metrô</span>
-            <span style="color:#94a3b8;">Baia C</span>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:10.5px; color:#cbd5e1; border-top:1px dashed #334155; padding-top:6px;">
-            <span>👮 Cabine Fiscal CTM: 15m à frente</span>
-            <span>💡 Iluminação 100%</span>
-          </div>
+        <div style="background:#f0fdf4; border:1px solid #a7f3d0; border-radius:12px; padding:10px 12px; margin-bottom:10px;">
+          <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;">📍 Onde você está agora</div>
+          <div id="lost-current-spot" style="font-size:13px; font-weight:800; color:#0f172a; margin-top:2px;">Localizando sua parada mais próxima...</div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
-          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px;">
-            <div style="font-size:11px; font-weight:800; color:var(--brand-green); text-transform:uppercase;">🚶 Instrução de Caminhada:</div>
-            <div style="font-size:13px; font-weight:800; margin-top:2px;">Caminhe 20 passos até a Plataforma 04 (Lado Sul).</div>
-            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Ônibus azul da São Judas Tadeu (SJT). Embarque coberto e seguro.</div>
-          </div>
+        <form onsubmit="event.preventDefault(); solveLostGuideQuery();" style="display:flex; gap:6px; margin-bottom:10px;">
+          <input type="text" id="lost-dest-input" class="field-input" placeholder="Ex: Quero chegar em Boa Viagem..." style="margin-bottom:0; flex:1; font-size:13px; padding:9px 12px;" />
+          <button type="submit" style="background:#059669; color:#fff; border:none; border-radius:10px; padding:9px 14px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">Guiar ➔</button>
+        </form>
 
-          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:12px; padding:10px;">
-            <div style="font-size:11px; font-weight:800; color:var(--blue-accent); text-transform:uppercase;">🚌 Horário Previsto:</div>
-            <div style="font-size:13px; font-weight:800; margin-top:2px;">Chega em 4 minutos (às 06:14)</div>
-            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">14 assentos livres. Fique perto da fila organizada.</div>
-          </div>
-        </div>
+        <div id="lost-guide-results" style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:10px; margin-bottom:10px; font-size:12px; line-height:1.45; color:#0f172a;"></div>
+
+        <button type="button" onclick="openLayaLostVoice()" style="width:100%; background:#0284c7; color:#ffffff; border:none; border-radius:10px; padding:10px; font-size:12.5px; font-weight:800; cursor:pointer; margin-bottom:8px;">
+          🎙️ Falar por voz com a Laya ("Estou perdido...")
+        </button>
 
         <button class="btn-primary" onclick="playLostVoiceAudio()" style="margin-bottom:8px;">
           <span>🎧</span> Ouvir Instruções Calmas no Fone
@@ -2348,30 +2663,8 @@
           <div><strong>Linha:</strong> <span id="prof-line">199 · Camela / TI Cabo</span></div>
         </div>
 
-        <!-- MATERIAL OFICIAL BANCA UFRPE -->
-        <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:14px; padding:12px; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-            <span style="font-size:16px;">🎓</span>
-            <strong style="font-size:13px; color:#0f172a;">Material Oficial · Banca UFRPE</strong>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="background:#ea580c; color:#ffffff; padding:8px 12px; border-radius:10px; font-size:12px; font-weight:800; text-decoration:none; display:flex; align-items:center; justify-content:space-between;">
-              <span>📥 Baixar Apresentação PPTX</span>
-              <span style="font-size:10.5px; opacity:0.9;">13.1 MB</span>
-            </a>
-            <div style="display:flex; gap:6px;">
-              <a href="slides_canva.html" target="_blank" style="flex:1; background:#7c3aed; color:#ffffff; padding:7px 10px; border-radius:8px; font-size:11.5px; font-weight:800; text-decoration:none; text-align:center;">
-                📊 Slides Web
-              </a>
-              <a href="roteiro.html" target="_blank" style="flex:1; background:#0284c7; color:#ffffff; padding:7px 10px; border-radius:8px; font-size:11.5px; font-weight:800; text-decoration:none; text-align:center;">
-                📜 Roteiro
-              </a>
-            </div>
-          </div>
-        </div>
-
         <button class="btn-primary" onclick="testNeuralVoice()" style="margin-bottom:8px;">
-          <span>🔊</span> Testar Voz Humana no Fone
+          <span>🔊</span> Ouvir Teste de Voz no Fone
         </button>
 
         <button class="btn-secondary" style="color:var(--danger-red); border-color:var(--danger-border);" onclick="logoutAndRestart()">
@@ -2742,29 +3035,48 @@
             </div>
           </div>
 
-          <!-- 3. HORÁRIO E ORIGEM -->
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-            <div>
+          <!-- 3. HORÁRIO E PARADA BASE (IDA) -->
+          <div style="display:grid; grid-template-columns: minmax(0, 1fr) 114px; gap:8px; margin-bottom:10px; align-items:start;">
+            <div style="position:relative; min-width:0;">
               <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
-                ⏰ 3. Hora de Chegada:
+                📍 4. Sua Parada de Saída:
               </label>
-              <input type="time" id="inp-custom-time" class="field-input" value="07:30" style="background:#ffffff; border-color:#86efac; font-weight:800;" />
-            </div>
-            <div style="position:relative;">
-              <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
-                📍 4. Onde você embarca (Parada):
-              </label>
-              <input type="text" id="inp-custom-origin" class="field-input" placeholder="Seu bairro/parada" value="Derby / Rui Barbosa" style="background:#ffffff; border-color:#86efac; font-weight:700;" oninput="handleRoutineOriginSearch(this.value)" onfocus="handleRoutineOriginSearch(this.value)" autocomplete="off" />
+              <input type="text" id="inp-custom-origin" class="field-input" placeholder="Qualquer bairro ou parada" value="Derby / Rui Barbosa" style="background:#ffffff; border-color:#86efac; font-weight:700; min-width:0;" oninput="handleRoutineOriginSearch(this.value)" onfocus="handleRoutineOriginSearch(this.value)" autocomplete="off" />
               <div id="routine-origin-dropdown" class="routine-autocomplete-dropdown" style="display:none;"></div>
               <button type="button" onclick="useCurrentStopAsOrigin()" style="margin-top:5px; width:100%; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:8px; font-size:10.5px; font-weight:800; padding:5px 6px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
                 📍 Usar Minha Parada Atual
               </button>
             </div>
+            <div style="min-width:0;">
+              <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+                ⏰ 3. Hora (Ida):
+              </label>
+              <input type="time" id="inp-custom-time" class="field-input" value="07:30" style="background:#ffffff; border-color:#86efac; font-weight:800; padding:10px 8px; min-width:0;" />
+            </div>
+          </div>
+
+          <!-- 5. VOLTA PARA CASA (ORIGEM E HORÁRIO DO RETORNO) -->
+          <div style="display:grid; grid-template-columns: minmax(0, 1fr) 114px; gap:8px; margin-bottom:10px; padding-top:8px; border-top:1px dashed #86efac; align-items:start;">
+            <div style="min-width:0;">
+              <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+                🔄 5. De onde você volta:
+              </label>
+              <input type="text" id="inp-custom-return-origin" class="field-input" placeholder="Ex: Dois Irmãos / Trabalho" value="UFRPE · Campus Dois Irmãos" style="background:#ffffff; border-color:#86efac; font-weight:700; min-width:0;" />
+            </div>
+            <div style="min-width:0;">
+              <label style="display:block; font-size:11.5px; font-weight:800; color:#065f46; margin-bottom:4px;">
+                🌆 Hora (Volta):
+              </label>
+              <input type="time" id="inp-custom-return-time" class="field-input" value="17:30" style="background:#ffffff; border-color:#86efac; font-weight:800; padding:10px 8px; min-width:0;" />
+            </div>
+          </div>
+          <div style="font-size:10.5px; color:#047857; margin-bottom:8px; font-weight:600;">
+            ✨ Sua rotina é flexível: você pode buscar outro destino na hora que precisar.
           </div>
 
           <!-- BOTAO ATIVAR PERFIL PERSONALIZADO -->
           <button class="btn-primary" onclick="applyCustomRoutineProfile()" style="background:#059669; font-weight:800; font-size:13.5px; padding:11px; margin-top:4px;">
-            ✨ Salvar Meu Perfil de Rotina
+            ✨ Salvar Rotina Completa (Ida + Volta)
           </button>
         </div>
 
@@ -2851,8 +3163,10 @@
           💳 <strong>Integração Temporal VEM:</strong> Permite baldeação gratuita em até 120 minutos entre ônibus e Metrô/VLT com a tarifa única de <strong>R$ 4,10</strong>.
         </div>
 
+        <input type="text" id="sei-terminal-search-input" class="field-input" placeholder="🔍 Buscar terminal ou número de linha (ex: 199, 2060, Cabo)..." oninput="renderSeiTerminalsList()" style="margin-bottom:8px; font-size:12px; padding:8px 11px;" />
+
         <!-- FILTROS POR REGIÃO -->
-        <div style="display:flex; gap:6px; margin-bottom:10px; overflow-x:auto; padding-bottom:4px;">
+        <div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;">
           <button class="ti-filter-btn active" id="btn-ti-filter-all" onclick="filterTerminalsByRegion('all')" style="background:#0284c7; color:#fff; border:none; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Todos (26)</button>
           <button class="ti-filter-btn" id="btn-ti-filter-sul" onclick="filterTerminalsByRegion('sul')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Cabo & Sul</button>
           <button class="ti-filter-btn" id="btn-ti-filter-recife" onclick="filterTerminalsByRegion('recife')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Recife (12)</button>
@@ -2867,61 +3181,64 @@
       </div>
     </div>
 
-    <!-- 8. MODAL: CENTRAL CTM DE REALOCAÇÃO DE FROTA NO VAZIO -->
+    <!-- 8. MODAL: CENTRAL CTM · REALOCAÇÃO DE FROTA (DASHBOARD B2B) -->
     <div id="modal-dispatch" class="modal-overlay">
-      <div class="modal-card" style="border:2px solid #0284c7; max-width:410px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:22px;">🏛️</span>
-            <div>
-              <h3 style="font-size:16px; font-weight:800; color:#0284c7; margin:0;">Central CTM · Apoio à Decisão</h3>
-              <span style="font-size:11px; color:var(--text-secondary);">Proposta de Integração · Exemplo Ilustrativo</span>
+      <div class="modal-card" style="border:1.5px solid #cbd5e1; max-width:450px; max-height:88vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span class="gp-badge gp-badge-pred">ST-GCN · 94% Confiança</span>
+              <span class="gp-badge gp-badge-real">GTFS RMR</span>
+            </div>
+            <h3 style="font-size:17px; font-weight:800; color:#0f172a; margin:0;">Central CTM · Horários de Pico &amp; Frota</h3>
+            <span style="font-size:11.5px; color:var(--text-secondary);">Balanceamento entre janela ociosa e demanda crítica</span>
+          </div>
+          <button style="border:none; background:#f1f5f9; width:28px; height:28px; border-radius:50%; font-size:15px; font-weight:800; color:#475569; cursor:pointer;" onclick="closeDispatchModal()">✕</button>
+        </div>
+
+        <div class="ctm-kpi-grid">
+          <div class="ctm-kpi-tile">
+            <div class="ctm-kpi-label">Linhas</div>
+            <div class="ctm-kpi-val">393</div>
+          </div>
+          <div class="ctm-kpi-tile">
+            <div class="ctm-kpi-label">Alertas</div>
+            <div class="ctm-kpi-val" style="color:#dc2626;">2</div>
+          </div>
+          <div class="ctm-kpi-tile">
+            <div class="ctm-kpi-label">Reserva</div>
+            <div class="ctm-kpi-val" style="color:#d97706;">+4</div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px;">
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:11px 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <strong style="font-size:12.5px; color:#0f172a;">Fora de Pico · 10h00 às 14h00</strong>
+              <span class="gp-badge gp-badge-sim">Baixa Lotação</span>
+            </div>
+            <div class="ctm-bar-track"><div class="ctm-bar-fill" style="width:18%; background:#d97706;"></div></div>
+            <div style="font-size:11.5px; color:#475569; line-height:1.4;">
+              Média de <strong>3 embarques</strong> por viagem neste corredor.<br>
+              Sugestão: ajustar intervalo para 25 min e liberar veículos para reserva.
             </div>
           </div>
-          <button style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeDispatchModal()">✕</button>
-        </div>
 
-        <!-- O MÉTODO: DEMANDA OBSERVADA VS DEMANDA LATENTE ESTIMADA -->
-        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; padding:10px; margin-bottom:8px;">
-          <div style="font-size:10.5px; font-weight:800; color:#0369a1; text-transform:uppercase; margin-bottom:4px;">📊 Núcleo Metodológico: Demanda Não-Censurada & ST-GCN</div>
-          <div style="font-size:11px; color:#334155; line-height:1.45;">
-            • <strong>Catraca / SBE (Censurada):</strong> 14 embarques médios históricos (não capta quem desiste por demora excessiva · <em>Passenger Reneging</em>, Kim et al., 2026).<br>
-            • <strong>Risco de Queima e Recusa:</strong> Risco de <em>Denied Boarding</em> (Tan & Ramli, 2024), cuja espera forçada tem peso psicológico 68% pior (Yap & Cats, 2021).<br>
-            • <strong>Sinal de Intenção On-Device:</strong> 19 rotinas ativas no corredor (proxy amostral com k-anonimato, D<sub>real</sub> ≠ D<sub>app</sub>).<br>
-            • <strong>Demanda Latente ST-GCN (D̂):</strong> <strong>41 ± 3,8 passageiros</strong> aguardando (IC 90% conformal: [37, 45] passageiros).
-          </div>
-        </div>
-
-        <!-- FLUXO MATEMÁTICO EM UMA LINHA -->
-        <div style="background:#e0f2fe; border:1px solid #7dd3fc; border-radius:10px; padding:7px 8px; margin-bottom:10px; font-size:10px; color:#0369a1; font-weight:700; text-align:center; line-height:1.4;">
-          📡 Sinais Observados ➔ 🧠 ST-GCN infere D̂ ➔ 📊 IC 90% [37, 45] ➔ 🎲 P(D &gt; 36) = 98,4% ➔ 🚨 Despacho Anti-Reneging
-        </div>
-
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
-          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:10px;">
-            <div style="font-size:10.5px; font-weight:800; color:#dc2626; text-transform:uppercase;">Linha Ociosa (Ex: 178)</div>
-            <div style="font-size:17px; font-weight:800; color:#dc2626; margin:3px 0;">3 passageiros</div>
-            <div style="font-size:10.5px; color:#475569; line-height:1.3;">6% ocupação (Deadheading no Vazio). Economia: ~14 L de diesel ao remanejar frota ociosa (potencial a validar em campo).</div>
-          </div>
-
-          <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:12px; padding:10px;">
-            <div style="font-size:10.5px; font-weight:800; color:#059669; text-transform:uppercase;">Linha Sobrecarga</div>
-            <div style="font-size:17px; font-weight:800; color:#059669; margin:3px 0;">41 estimados</div>
-            <div style="font-size:10.5px; color:#475569; line-height:1.3;">P(D > 36 assentos) = <strong>98,4%</strong>. Superlotação iminente no limiar de conforto operacional.</div>
-          </div>
-        </div>
-
-        <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:12px; padding:10px; margin-bottom:12px;">
-          <div style="font-size:10.5px; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:3px;">
-            ⚡ Regra Operacional de Despacho (Probabilística & Anti-Abandono):
-          </div>
-          <div style="font-size:11px; font-weight:600; color:#0f172a; line-height:1.4;">
-            Se P(Demanda Latente > Limiar de Conforto de 36 Assentos) ≥ 80% E Ocupação Linha Concorrente ≤ 15% ➔ Sugerir remanejamento preventivo de coletivo de suporte antes que ocorra o <em>reneging</em> dos usuários.
+          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:11px 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <strong style="font-size:12.5px; color:#991b1b;">Horário de Pico · 06h–08h e 17h–19h</strong>
+              <span class="gp-badge gp-badge-alert">Superlotação</span>
+            </div>
+            <div class="ctm-bar-track"><div class="ctm-bar-fill" style="width:92%; background:#dc2626;"></div></div>
+            <div style="font-size:11.5px; color:#475569; line-height:1.4;">
+              Veículos chegam com <strong>44 a 52 passageiros</strong> nas paradas intermediárias.<br>
+              Sugestão: reforçar frota com +2 coletivos economizados do entrepico.
+            </div>
           </div>
         </div>
 
         <button class="btn-primary" onclick="executeFleetReallocation()" style="margin-bottom:8px; background:#0284c7;">
-          🧪 Simular Proposta de Despacho Operacional
+          Aplicar Reforço de Horário de Pico no Mapa
         </button>
         <button class="btn-secondary" onclick="closeDispatchModal()">Fechar</button>
       </div>
@@ -3298,13 +3615,12 @@
           </div>
         </div>
 
-        <!-- QUICK PROMPTS HORIZONTAL SCROLL -->
-        <div style="display:flex; gap:6px; overflow-x:auto; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; scrollbar-width:none; flex-shrink:0;">
+        <!-- QUICK PROMPTS WRAP -->
+        <div style="display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; flex-shrink:0;">
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Quero ir do Recife Antigo pra Olinda')">🏛️ Recife Antigo ➔ Olinda</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Gostaria de sair de Camela até Ipojuca')">🚌 Camela ➔ Ipojuca</button>
           <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Qual minha parada atual?')">📍 Minha Parada</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Como funciona a IA ST-GCN do GrafoParada?')">🧠 Como funciona a IA?</button>
-          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Apresentação da Banca UFRPE')" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe; font-weight:800;">🎓 Banca UFRPE</button>
+          <button type="button" class="laya-quick-cmd" onclick="handleLayaQuickPrompt('Estou perdido, quero ajuda para chegar no meu destino')" style="background:#fef3c7; color:#92400e; border-color:#fde68a; font-weight:800;">🧭 Estou Perdido</button>
         </div>
 
         <!-- INPUT BAR (MIC + TEXT + SEND) -->
@@ -3327,72 +3643,88 @@
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <span class="home-brand-pill">
           <span class="pulse-dot"></span>
-          <span>GrafoParada · IA Metropolitana</span>
+          <span>GrafoParada · RMR</span>
         </span>
         <button type="button" class="screen-back-btn" onclick="openProfileModal()" title="Perfil e Configurações">
-          ⚙️ Perfil
+          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Perfil
         </button>
       </div>
 
-      <div style="margin-top:16px;">
-        <div id="home-dynamic-greeting" style="font-size:13px; font-weight:700; color:#059669;">Bom dia, Cauã 👋</div>
-        <h1 class="home-hero-title">Está indo trabalhar ou estudar hoje?</h1>
-        <p class="home-hero-sub">Me diga seu momento agora. Eu vou direto para a sua parada e aviso o próximo ônibus sem você mofar no ponto.</p>
+      <div style="margin-top:14px;">
+        <div id="home-dynamic-greeting" style="font-size:12.5px; font-weight:700; color:#059669;">Bom dia, Cauã</div>
+        <h1 class="home-hero-title" style="font-size:21px; margin:6px 0 4px;">Está indo trabalhar ou estudar hoje?</h1>
+        <p class="home-hero-sub" style="font-size:12.5px; margin-bottom:0;">Veja sua parada atual, o próximo coletivo e acompanhe em tempo real.</p>
       </div>
 
-      <div class="intent-stack">
-        <button type="button" class="intent-card intent-primary" onclick="startGoingNowFlow()">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div class="intent-icon-box">🚌</div>
-            <div>
-              <div class="intent-title">Sim, estou indo agora</div>
-              <div class="intent-desc">Ir para onde estou e ver o ônibus próximo</div>
-            </div>
-          </div>
-          <span style="font-size:18px; font-weight:800;">➔</span>
-        </button>
-
-        <button type="button" class="intent-card" onclick="navigateToScreen('radar')">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div class="intent-icon-box">🗺️</div>
-            <div>
-              <div class="intent-title">Ver radar e mapa ao vivo</div>
-              <div class="intent-desc">Acompanhar minha linha e paradas em tempo real</div>
-            </div>
-          </div>
-          <span style="font-size:16px; color:#64748b; font-weight:800;">➔</span>
-        </button>
-
-        <button type="button" class="intent-card intent-ai" onclick="openLayaModal()">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div class="intent-icon-box">✨</div>
-            <div>
-              <div class="intent-title">Planejar rota com a Laya IA</div>
-              <div class="intent-desc">Ex: "Recife Antigo pra Olinda" ou conexões SEI</div>
-            </div>
-          </div>
-          <span style="font-size:16px; color:#0284c7; font-weight:800;">➔</span>
-        </button>
-      </div>
-
-      <div class="home-context-strip" id="home-active-summary">
-        <div>
-          <div style="font-size:10.5px; font-weight:800; color:#64748b; text-transform:uppercase;">Parada Monitorada</div>
-          <div style="font-size:13px; font-weight:800; color:#0f172a; margin-top:2px;" id="home-summary-line">📡 Aguardando GPS · Toque para escolher ponto</div>
+      <!-- HERO CARD ÚNICO (PROGRESSIVE DISCLOSURE: ONDE -> LINHA -> QUANDO -> AÇÃO) -->
+      <div class="home-hero-boarding" id="home-active-summary">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="gp-badge gp-badge-sim" id="home-hero-state-badge">Aguardando GPS</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; color:#0f172a; background:#f1f5f9; padding:3px 8px; border-radius:6px;" id="home-hero-line-pill">RMR · Rede GTFS</span>
         </div>
-        <button type="button" onclick="navigateToScreen('locate')" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:999px; padding:6px 11px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap;">
-          📍 Alterar
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px;">
+          <div style="min-width:0; flex:1;">
+            <div style="font-size:10.5px; font-weight:800; color:#64748b; text-transform:uppercase;">Parada Monitorada</div>
+            <div style="font-size:14px; font-weight:800; color:#0f172a; margin-top:2px; line-height:1.3;" id="home-summary-line">Procurando sua localização · ou escolha sua parada</div>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div class="home-hero-eta-num" id="home-hero-eta">GPS</div>
+            <div style="font-size:10px; font-weight:700; color:#64748b;" id="home-hero-eta-sub">toque abaixo</div>
+          </div>
+        </div>
+
+        <button type="button" class="home-primary-cta" onclick="navigateToScreen('radar')">
+          <svg class="gp-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          Acompanhar ônibus no mapa
+        </button>
+        <button type="button" class="home-secondary-cta" onclick="startGoingNowFlow()">
+          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          Escolher outra rota ou parada manualmente
         </button>
       </div>
 
-      <div style="margin-top:auto; padding-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
-        <button type="button" onclick="openRoutineModal()" style="flex:1; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit;">
-          📅 Minha Rotina
-        </button>
-        <button type="button" onclick="openPresentationModal()" style="flex:1; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:12px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#6d28d9; cursor:pointer; font-family:inherit;">
-          🎓 Banca UFRPE
+      <!-- ROTINA RESUMIDA (1 LINHA LIMPA) -->
+      <div class="home-context-strip" style="margin-top:0; margin-bottom:10px;">
+        <div style="min-width:0;">
+          <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;">Sua Rotina Salva</div>
+          <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="home-routine-brief">Ida e volta configuráveis · Janela de Saída</div>
+        </div>
+        <button type="button" onclick="openRoutineModal()" style="background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:999px; padding:6px 11px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap;">
+          Configurar
         </button>
       </div>
+
+      <!-- ASSISTENTE LAYA (ACESSO ÚNICO E CLARO) -->
+      <button type="button" class="intent-card intent-ai" onclick="openLayaModal()" style="margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:11px;">
+          <div class="intent-icon-box">
+            <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <div class="intent-title" style="font-size:13.5px;">Planejar rota com a Laya IA</div>
+            <div class="intent-desc" style="font-size:11.5px;">Ex: "Recife Antigo pra Olinda" ou baldeações SEI</div>
+          </div>
+        </div>
+        <svg class="gp-svg" style="color:#0284c7;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- PROGRESSIVE DISCLOSURE: MAIS RECURSOS -->
+      <details style="margin-top:auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:9px 12px;">
+        <summary style="font-size:12px; font-weight:800; color:#334155; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
+          <span>Segurança no ponto e Terminais SEI</span>
+          <span style="font-size:11px; color:#059669;">Abrir ▾</span>
+        </summary>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+          <button type="button" onclick="navigateToScreen('central')" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#0f172a; cursor:pointer; font-family:inherit;">
+            Segurança &amp; Guias
+          </button>
+          <button type="button" onclick="openSeiTerminalsModal()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#0f172a; cursor:pointer; font-family:inherit;">
+            Terminais SEI
+          </button>
+        </div>
+      </details>
     </section>
 
     <!-- =================================================================== -->
@@ -3400,176 +3732,194 @@
     <!-- =================================================================== -->
     <section id="app-screen-locate" class="app-screen" aria-label="Onde Você Está">
       <div class="screen-header-nav">
-        <button type="button" class="screen-back-btn" onclick="navigateToScreen('home')">‹ Voltar</button>
-        <span style="font-size:11.5px; font-weight:800; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; padding:4px 10px; border-radius:999px;">Passo 1 · Sua Parada</span>
+        <button type="button" class="screen-back-btn" onclick="navigateToScreen('home')">
+          <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Voltar
+        </button>
+        <span class="gp-badge gp-badge-real">Passo 1 · Sua Parada</span>
       </div>
 
-      <h2 style="font-size:21px; font-weight:800; color:#0f172a; line-height:1.2;">Onde você está agora?</h2>
-      <p style="font-size:12.5px; color:#475569; margin-top:5px;">Ative o GPS real ou escolha um polo abaixo para adaptar mapa, linha e previsão ao seu local exato.</p>
+      <h2 style="font-size:20px; font-weight:800; color:#0f172a; line-height:1.2;">Onde você está agora?</h2>
+      <p style="font-size:12.5px; color:#475569; margin-top:5px;">Ative o GPS real ou escolha um polo abaixo para adaptar mapa, linha e previsão.</p>
 
       <div id="locate-gps-status" style="margin-top:12px; background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
-        <span style="font-size:12px; font-weight:700; color:#0369a1;" id="locate-gps-text">📡 Toque para detectar pelo GPS ou escolha abaixo</span>
+        <span style="font-size:12px; font-weight:700; color:#0369a1;" id="locate-gps-text">Procurando sua localização pelo GPS ou escolha abaixo</span>
         <button type="button" onclick="detectUserLocationForScreen2()" style="background:#0284c7; color:#fff; border:none; border-radius:8px; padding:6px 10px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; flex-shrink:0;">Detectar GPS</button>
       </div>
 
       <div class="locate-preset-grid">
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('recife antigo', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏛️ Recife Antigo</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Recife Antigo</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Marco Zero / Cais Sta Rita</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('olinda', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏘️ Olinda / Carmo</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Olinda / Carmo</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 1967 / 1971 / 1983</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('camela', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏠 Camela</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Camela</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 199 · Terminal / PE-60</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ipojuca', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">📍 Ipojuca Centro</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Ipojuca Centro</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 198 / 199 · KM 20</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ufrpe', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🎓 UFRPE</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">UFRPE</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 522 · Dois Irmãos</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('suape', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">⚓ Suape / Cabo</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Suape / Cabo</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linhas 178 / 199 · TI Cabo</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('ufpe', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏫 UFPE / CDU</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">UFPE / CDU</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 2040 · TI CDU</div>
         </button>
         <button type="button" class="locate-preset-btn" onclick="selectLocatePreset('boa viagem', this)">
-          <div style="font-size:13.5px; font-weight:800; color:#0f172a;">🏖️ Boa Viagem</div>
+          <div style="font-size:13px; font-weight:800; color:#0f172a;">Boa Viagem</div>
           <div style="font-size:11px; color:#64748b; margin-top:2px;">Linha 050 · Agamenon</div>
         </button>
       </div>
 
-      <!-- CAMPO OPCIONAL DE DESTINO (COM SUPORTE DECLARATIVO WEBMCP) -->
+      <!-- CAMPO OPCIONAL DE DESTINO (WEBMCP) -->
       <form toolname="grafoparada_plan_from_locate" tooldescription="Planeja rota de ônibus na RMR a partir da localização atual do usuário até o destino informado." onsubmit="event.preventDefault(); askLayaFromLocate();" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
         <input type="text" id="locate-dest-input" name="destination" toolparamdescription="Bairro, terminal ou ponto de destino no Grande Recife (ex: Olinda, Ipojuca, Derby)" placeholder="Para onde você vai? (ex: Olinda, Casa Caiada, UFPE...)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" />
-        <button type="submit" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">🗺️ Ver Opções</button>
+        <button type="submit" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">Ver Opções</button>
       </form>
 
-      <!-- OPÇÕES DE ROTA ESTILO GOOGLE MAPS BASEADAS NA SUA LOCALIZAÇÃO -->
       <div id="locate-route-options" style="display:none; margin-top:12px; flex-direction:column; gap:8px;"></div>
 
-      <!-- PRÉVIA INTELIGENTE DO PRÓXIMO ÔNIBUS -->
+      <!-- PRÉVIA TRANSPARENTE DO PRÓXIMO ÔNIBUS (ESTADOS REAIS, SEM "--") -->
       <div class="locate-preview-card" id="locate-preview-card">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
           <div>
-            <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;" id="locate-preview-badge">Aguardando GPS ou Polo</div>
+            <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;" id="locate-preview-badge">Aguardando parada ou GPS</div>
             <div style="font-size:14.5px; font-weight:800; color:#0f172a; margin-top:2px;" id="locate-preview-stop">Selecione sua localização acima</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:800; color:#059669; line-height:1;" id="locate-preview-eta">-- min</div>
-            <div style="font-size:10.5px; font-weight:700; color:#64748b;" id="locate-preview-seats">-- assentos</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:800; color:#059669; line-height:1.1;" id="locate-preview-eta">GPS</div>
+            <div style="font-size:10.5px; font-weight:700; color:#64748b;" id="locate-preview-seats">Escolha um polo</div>
           </div>
         </div>
         <div style="font-size:11.5px; color:#475569; margin-top:8px; line-height:1.35;" id="locate-preview-advice">
-          📡 Ao detectar seu GPS ou tocar em um polo, buscaremos a parada mais próxima nas 393 linhas reais da RMR.
+          Ao detectar seu GPS ou tocar em um polo, buscaremos a parada mais próxima nas 393 linhas reais da RMR.
         </div>
-        <button type="button" onclick="confirmLocateAndOpenRadar()" style="margin-top:12px; width:100%; background:#059669; color:#ffffff; border:none; border-radius:12px; padding:12px 14px; font-size:13.5px; font-weight:800; cursor:pointer; font-family:inherit;">
-          🗺️ Acompanhar Ônibus no Mapa ➔
-        </button>
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;" id="locate-empty-fallback-actions">
+          <button type="button" onclick="window.RealTransit && window.RealTransit.openLinePickerModal()" style="flex:1; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:10px; padding:8px 10px; font-size:11.5px; font-weight:700; cursor:pointer;">Ver horários programados</button>
+          <button type="button" onclick="confirmLocateAndOpenRadar()" style="flex:1; background:#059669; color:#ffffff; border:none; border-radius:10px; padding:8px 12px; font-size:12.5px; font-weight:800; cursor:pointer;">Acompanhar no Mapa</button>
+        </div>
       </div>
     </section>
 
     <!-- =================================================================== -->
-    <!-- TELA 5: CENTRAL CTM, SEGURANÇA CIDADÃ & PESQUISA UFRPE             -->
+    <!-- TELA 5: COMUNIDADE, SEGURANÇA & ROTINA (MODO PASSAGEIRO PURO)        -->
     <!-- =================================================================== -->
     <section id="app-screen-central" class="app-screen" aria-label="Central GrafoParada">
       <div class="screen-header-nav">
-        <button type="button" class="screen-back-btn" onclick="navigateToScreen('home')">‹ Início</button>
-        <span style="font-size:11.5px; font-weight:800; color:#334155;">Central & Pesquisa</span>
+        <button type="button" class="screen-back-btn" onclick="navigateToScreen('home')">
+          <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Início
+        </button>
+        <span class="gp-badge gp-badge-real">Comunidade &amp; Segurança</span>
       </div>
 
-      <h2 style="font-size:20px; font-weight:800; color:#0f172a; margin-bottom:4px;">Ferramentas & Gestão</h2>
-      <p style="font-size:12.5px; color:#475569; margin-bottom:16px;">Recursos avançados, segurança no ponto e defesa acadêmica reunidos em um só lugar.</p>
+      <h2 style="font-size:20px; font-weight:800; color:#0f172a; margin-bottom:4px;">Segurança &amp; Rotina</h2>
+      <p style="font-size:12.5px; color:#475569; margin-bottom:14px;">Proteção no ponto, ajuda comunitária e horários da sua região.</p>
 
       <div class="central-grid">
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:14px; padding:12px;">
+          <div style="font-size:11px; font-weight:800; color:#065f46; text-transform:uppercase; margin-bottom:8px;">Proteção no Ponto</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button type="button" class="locate-preset-btn" onclick="activatePocketShield()" style="font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <svg class="gp-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+              Modo Bolso Seguro
+            </button>
+            <button type="button" class="locate-preset-btn" onclick="openSafeDisembarkModal()" style="font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <svg class="gp-svg" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+              Parada Segura · 15.878
+            </button>
+            <button type="button" class="locate-preset-btn" onclick="activateNightBeacon()" style="font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <svg class="gp-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+              Farol Noturno
+            </button>
+            <button type="button" class="locate-preset-btn" onclick="simulateQueimaDeParada()" style="font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <svg class="gp-svg" style="color:#dc2626;" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Alertar Queima de Ponto
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="intent-card" onclick="openLostHelpModal()">
+          <div style="display:flex; align-items:center; gap:11px;">
+            <div class="intent-icon-box">
+              <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </div>
+            <div>
+              <div class="intent-title">Estou Perdido · Guia ao Vivo</div>
+              <div class="intent-desc">Fale ou digite o destino e receba o caminho do seu ponto</div>
+            </div>
+          </div>
+          <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
         <button type="button" class="intent-card" onclick="openRoutineModal()">
           <div style="display:flex; align-items:center; gap:11px;">
-            <div class="intent-icon-box">📅</div>
+            <div class="intent-icon-box">
+              <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
             <div>
-              <div class="intent-title">Minha Rotina & Janela Segura</div>
-              <div class="intent-desc">Calcular horário exato de sair de casa</div>
+              <div class="intent-title">Minha Rotina (Ida &amp; Volta)</div>
+              <div class="intent-desc">Salvar parada base, ida e horário de voltar pra casa</div>
             </div>
           </div>
-          <span>➔</span>
-        </button>
-
-        <button type="button" class="intent-card" onclick="openDispatchModal()">
-          <div style="display:flex; align-items:center; gap:11px;">
-            <div class="intent-icon-box">🏛️</div>
-            <div>
-              <div class="intent-title">Central CTM · Frota & Demanda</div>
-              <div class="intent-desc">Prevenção de abandono (Kim et al., 2026)</div>
-            </div>
-          </div>
-          <span>➔</span>
-        </button>
-
-        <button type="button" class="intent-card" onclick="openAuditModal()">
-          <div style="display:flex; align-items:center; gap:11px;">
-            <div class="intent-icon-box">🔬</div>
-            <div>
-              <div class="intent-title">Auditoria ST-GCN & Trava Híbrida</div>
-              <div class="intent-desc">Métricas MAE 1,51 min e 44 Terminais SEI</div>
-            </div>
-          </div>
-          <span>➔</span>
+          <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
 
         <button type="button" class="intent-card" onclick="openSeiTerminalsModal()">
           <div style="display:flex; align-items:center; gap:11px;">
-            <div class="intent-icon-box">🚉</div>
+            <div class="intent-icon-box">
+              <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/></svg>
+            </div>
             <div>
-              <div class="intent-title">Terminais Integrados do SEI</div>
-              <div class="intent-desc">Consultar conexões e integração VEM (2h)</div>
+              <div class="intent-title">Terminais Integrados (SEI)</div>
+              <div class="intent-desc">Todas as linhas e integrações de 2h do VEM</div>
             </div>
           </div>
-          <span>➔</span>
+          <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
 
-        <button type="button" class="intent-card" onclick="openPresentationModal()" style="border-color:#ddd6fe; background:#f5f3ff;">
+        <button type="button" class="intent-card" onclick="openDispatchModal()">
           <div style="display:flex; align-items:center; gap:11px;">
-            <div class="intent-icon-box" style="background:#ede9fe;">🎓</div>
+            <div class="intent-icon-box">
+              <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+            </div>
             <div>
-              <div class="intent-title" style="color:#5b21b6;">Banca UFRPE (Seminário 2)</div>
-              <div class="intent-desc">PPTX oficial, Slides estilo Canva e Roteiro</div>
+              <div class="intent-title">Horários de Pico &amp; Lotação</div>
+              <div class="intent-desc">Horários vazios vs. horários lotados no seu corredor</div>
             </div>
           </div>
-          <span>➔</span>
+          <svg class="gp-svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;">
-          <button type="button" class="locate-preset-btn" onclick="activatePocketShield()">🎧 Modo Bolso</button>
-          <button type="button" class="locate-preset-btn" onclick="activateNightBeacon()">💡 Farol Noturno</button>
-          <button type="button" class="locate-preset-btn" onclick="openSafeDisembarkModal()">🌙 Lei 15.878</button>
-          <button type="button" class="locate-preset-btn" onclick="openLostHelpModal()">🧭 Guia Perdido</button>
-        </div>
       </div>
     </section>
 
-    <!-- 18. MOBILE BOTTOM TAB NAVIGATION (CLEAN 4-TAB FLOW) -->
+    <!-- 18. MOBILE BOTTOM TAB NAVIGATION (CLEAN 4-TAB FLOW WITH SVG ICONS) -->
     <nav class="mobile-tab-nav" id="main-tab-nav">
       <button class="mobile-tab-btn active" id="tab-nav-home" onclick="navigateToScreen('home')" title="Tela Inicial">
-        <span class="mobile-tab-icon">🏠</span>
+        <span class="mobile-tab-icon"><svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
         <span class="mobile-tab-label">Início</span>
       </button>
       <button class="mobile-tab-btn" id="tab-nav-map" onclick="navigateToScreen('radar')" title="Mapa e Radar de Ônibus">
-        <span class="mobile-tab-icon">🗺️</span>
+        <span class="mobile-tab-icon"><svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></span>
         <span class="mobile-tab-label">Mapa</span>
       </button>
       <button class="mobile-tab-btn" id="tab-nav-laya" onclick="switchMainTab('laya')" title="Assistente Inteligente Laya">
-        <span class="mobile-tab-icon">✨</span>
+        <span class="mobile-tab-icon"><svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
         <span class="mobile-tab-label">Laya IA</span>
       </button>
-      <button class="mobile-tab-btn" id="tab-nav-central" onclick="navigateToScreen('central')" title="Central CTM, Rotina e Banca">
-        <span class="mobile-tab-icon">🏛️</span>
+      <button class="mobile-tab-btn" id="tab-nav-central" onclick="navigateToScreen('central')" title="Segurança e Rotina">
+        <span class="mobile-tab-icon"><svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span>
         <span class="mobile-tab-label">Central</span>
       </button>
     </nav>
@@ -3692,7 +4042,16 @@
       }).addTo(leafletMap);
 
       const iconEl = document.getElementById("map-style-icon");
-      if (iconEl) iconEl.textContent = s.icon;
+      if (iconEl) {
+        const svgByStyle = {
+          voyager: '<svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>',
+          satellite: '<svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
+          osm: '<svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>',
+          dark: '<svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+          clean: '<svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>'
+        };
+        iconEl.innerHTML = svgByStyle[s.name] || svgByStyle.voyager;
+      }
     }
 
     function cycleMapStyle() {
@@ -4495,21 +4854,94 @@
       document.getElementById("pocket-shield-screen").style.display = "none";
     }
 
-    // MODALS
+    // MODALS · GUIA DE PERDIDO CONVERSACIONAL
     function openLostHelpModal() {
-      document.getElementById("modal-lost").style.display = "flex";
-      playLostVoiceAudio();
+      const m = document.getElementById("modal-lost");
+      if (m) m.style.display = "flex";
+      const spotEl = document.getElementById("lost-current-spot");
+      if (spotEl) {
+        const adapt = (window.RealTransit && window.RealTransit.userAdaptState) || {};
+        if (adapt.status === "adapted" && adapt.stopName) {
+          spotEl.textContent = adapt.stopName + (adapt.lineCode ? " · Linha próxima " + adapt.lineCode : "");
+        } else {
+          spotEl.textContent = "Aguardando GPS — digite de onde sai ou toque em Detectar na Tela 2";
+        }
+      }
+      const resBox = document.getElementById("lost-guide-results");
+      if (resBox) {
+        resBox.style.display = "none";
+        resBox.innerHTML = "";
+      }
+      setTimeout(function() {
+        const inp = document.getElementById("lost-dest-input");
+        if (inp) inp.focus();
+      }, 100);
     }
 
     function closeLostModal() {
       document.getElementById("modal-lost").style.display = "none";
     }
 
+    async function solveLostGuideQuery() {
+      const inp = document.getElementById("lost-dest-input");
+      const box = document.getElementById("lost-guide-results");
+      if (!inp || !box) return;
+      const query = inp.value.trim();
+      if (!query) {
+        box.style.display = "block";
+        box.innerHTML = "Digite o bairro, hospital, terminal ou endereço onde você precisa chegar (ex: <em>Boa Viagem</em>, <em>Derby</em>, <em>TI Cabo</em>).";
+        return;
+      }
+
+      box.style.display = "block";
+      box.innerHTML = "🧭 Calculando o melhor caminho a partir da sua posição atual...";
+
+      const plan = (window.RealTransit && window.RealTransit.RoutePlanner && typeof window.RealTransit.RoutePlanner.planAsync === "function")
+        ? await window.RealTransit.RoutePlanner.planAsync("aqui", query, typeof TELEMETRIA !== "undefined" ? TELEMETRIA : [])
+        : (window.RealTransit ? window.RealTransit.planSmartTrip("aqui", query, typeof TELEMETRIA !== "undefined" ? TELEMETRIA : []) : null);
+
+      if (!plan || (!plan.directMatches.length && !plan.transferPlan)) {
+        box.innerHTML = "Não encontrei ligação direta automática para <strong>" + (window.RealTransit ? window.RealTransit.escapeHtml(query) : query) + "</strong>. Tente informar um bairro próximo ou abra o chat da Laya.";
+        return;
+      }
+
+      window.lastLocatePlanResult = plan;
+      const opt = (plan.routeOptions && plan.routeOptions[0]) || null;
+      const codes = opt ? opt.codes : (plan.transferPlan ? plan.transferPlan.legs.map(function(l) { return l.code; }) : [plan.directMatches[0].code]);
+      const hubs = (opt && opt.hubs) ? opt.hubs : [];
+      const esc = window.RealTransit && window.RealTransit.escapeHtml ? window.RealTransit.escapeHtml.bind(window.RealTransit) : function(s) { return String(s || ""); };
+
+      let stepsHtml = "<div>✅ <strong>Caminho de " + esc(plan.originLabel) + " até " + esc(plan.destLabel) + ":</strong></div>";
+      if (codes.length === 1) {
+        stepsHtml += "<div style='margin-top:6px;'>1️⃣ Embarque na <strong>Linha " + esc(codes[0]) + "</strong> no ponto destacado no mapa (sem troca de ônibus).</div>";
+      } else {
+        codes.forEach(function(c, i) {
+          const target = i < hubs.length ? hubs[i] : plan.destLabel;
+          stepsHtml += "<div style='margin-top:4px;'>" + (i + 1) + "º trecho: pegue a <strong>Linha " + esc(c) + "</strong> até <strong>" + esc(target) + "</strong>.</div>";
+        });
+      }
+      stepsHtml += "<button type='button' onclick='closeLostModal(); if(typeof selectGoogleMapsOption===\"function\") selectGoogleMapsOption(0);' style='margin-top:10px; width:100%; background:#059669; color:#fff; border:none; border-radius:8px; padding:8px; font-size:12px; font-weight:800; cursor:pointer;'>🗺️ Ver Rota & Minha Parada no Mapa</button>";
+      box.innerHTML = stepsHtml;
+    }
+
+    function openLayaLostVoice() {
+      const inp = document.getElementById("lost-dest-input");
+      const typed = inp ? inp.value.trim() : "";
+      closeLostModal();
+      openLayaModal();
+      if (typed) {
+        handleLayaQuickPrompt("Estou perdido, quero chegar em " + typed);
+      } else {
+        handleLayaQuickPrompt("Estou perdido, me ajude!");
+      }
+    }
+
     function playLostVoiceAudio() {
-      const u = getUserData();
-      const name = (u.name || "passageiro").split(" ")[0];
-      const msg = "Fique calmo, " + name + "! Deixe o celular guardado no bolso. Você está no Terminal Integrado do Cabo, dentro da área iluminada. Para ir para casa em Camela, basta caminhar até a Plataforma 04 e aguardar a Linha 199. O primeiro ônibus chega em 4 minutos com 14 assentos livres. Fique perto dos outros passageiros. Eu te aviso no fone assim que o ônibus encostar.";
-      playNaturalVoice(msg);
+      const adapt = (window.RealTransit && window.RealTransit.userAdaptState) || {};
+      const msg = (adapt.status === "adapted" && adapt.stopName)
+        ? "Fique calmo. Sua referência atual é " + adapt.stopName + ", próxima à linha " + adapt.lineCode + ". Me diga para onde quer ir."
+        : "Fique calmo. Me diga ou digite para qual bairro ou terminal você quer ir para traçarmos sua rota.";
+      playNaturalVoice(msg, { explicit: true });
     }
 
     function openProfileModal() {
@@ -4528,7 +4960,10 @@
     }
 
     function testNeuralVoice() {
-      playNaturalVoice("Olá, Cauã! A voz neural do GrafoParada está funcionando perfeitamente em português do Brasil.");
+      layaVoiceMuted = false;
+      try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
+      syncLayaVoiceButtons();
+      playNaturalVoice("Olá, Cauã! A voz da Laya está ativa e pronta para orientar sua viagem.", { explicit: true });
     }
 
     // ONBOARDING & STORAGE
@@ -4691,8 +5126,8 @@
     // ==========================================
     function openSeiTerminalsModal() {
       document.getElementById("modal-sei-terminals").style.display = "flex";
+      window.currentSeiRegionFilter = "all";
       renderSeiTerminalsList("all");
-      playNaturalVoice("Abrindo guia completo dos vinte e seis Terminais Integrados do Grande Recife. Escolha um terminal para ver no mapa ou traçar rota integrada.");
     }
 
     function closeSeiTerminalsModal() {
@@ -4700,6 +5135,7 @@
     }
 
     function filterTerminalsByRegion(region) {
+      window.currentSeiRegionFilter = region || "all";
       document.querySelectorAll(".ti-filter-btn").forEach(function(b) {
         b.style.background = "#f1f5f9";
         b.style.color = "#475569";
@@ -4715,33 +5151,74 @@
     }
 
     function renderSeiTerminalsList(region) {
+      const activeRegion = region || window.currentSeiRegionFilter || "all";
       const box = document.getElementById("sei-terminals-list-box");
       if (!box || !SEI_TERMINALS) return;
+      const searchVal = (document.getElementById("sei-terminal-search-input")?.value || "").trim().toLowerCase();
 
-      const filtered = SEI_TERMINALS.filter(function(t) {
-        if (region === "all") return true;
+      // Enriquece cada Terminal SEI com TODAS as linhas reais extraídas no hub_graph do GTFS (evita lista incompleta)
+      const hubs = (window.RealTransit && window.RealTransit.networkData && Array.isArray(window.RealTransit.networkData.hub_graph))
+        ? window.RealTransit.networkData.hub_graph
+        : [];
+      const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      const enriched = SEI_TERMINALS.map(function(t) {
+        const tRoot = norm(t.ti_name).replace(/^ti\s+/, "").trim();
+        let mergedLines = Array.isArray(t.linhas_principais) ? t.linhas_principais.slice() : [];
+        const hubMatch = hubs.find(function(h) {
+          const hn = norm(h.name).replace(/^ti\s+/, "").trim();
+          return hn === tRoot || hn.includes(tRoot) || tRoot.includes(hn) || Math.hypot((h.lat || 0) - (t.lat || 0), (h.lon || 0) - (t.lon || 0)) < 0.004;
+        });
+        if (hubMatch && Array.isArray(hubMatch.lines)) {
+          mergedLines = Array.from(new Set(mergedLines.concat(hubMatch.lines))).sort();
+        }
+        return Object.assign({}, t, { all_lines: mergedLines });
+      });
+
+      const filtered = enriched.filter(function(t) {
         const mun = (t.municipio || "").toLowerCase();
         const nm = (t.ti_name || "").toLowerCase();
-        if (region === "sul") return mun.includes("cabo") || mun.includes("jaboatão") || nm.includes("aeroporto") || nm.includes("prazeres") || nm.includes("cajueiro");
-        if (region === "recife") return mun.includes("recife");
-        if (region === "norte") return mun.includes("olinda") || mun.includes("paulista") || mun.includes("abreu") || mun.includes("igarassu");
-        if (region === "oeste") return mun.includes("camaragibe") || mun.includes("jaboatão") || nm.includes("tip") || nm.includes("caxangá");
-        return true;
+        let regionOk = true;
+        if (activeRegion === "sul") regionOk = mun.includes("cabo") || mun.includes("jaboatão") || nm.includes("aeroporto") || nm.includes("prazeres") || nm.includes("cajueiro");
+        else if (activeRegion === "recife") regionOk = mun.includes("recife");
+        else if (activeRegion === "norte") regionOk = mun.includes("olinda") || mun.includes("paulista") || mun.includes("abreu") || mun.includes("igarassu");
+        else if (activeRegion === "oeste") regionOk = mun.includes("camaragibe") || mun.includes("jaboatão") || nm.includes("tip") || nm.includes("caxangá");
+        if (!regionOk) return false;
+        if (!searchVal) return true;
+        return nm.includes(searchVal) || mun.includes(searchVal) || t.all_lines.some(function(code) { return String(code).toLowerCase().includes(searchVal); });
       });
 
       window.currentFilteredTerminals = filtered;
+      if (!filtered.length) {
+        box.innerHTML = '<div style="padding:18px; text-align:center; font-size:12px; color:#64748b;">Nenhum terminal ou linha encontrado para esta busca.</div>';
+        return;
+      }
+
       let html = "";
       filtered.forEach(function(t, idx) {
-        const linesStr = (t.linhas_principais && t.linhas_principais.length) ? t.linhas_principais.join(", ") : "Linhas Alimentadoras";
-        html += '<div style="background:var(--bg-page); border:1.5px solid var(--border-color); border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">' +
-          '<div>' +
-            '<div style="font-size:13px; font-weight:800; color:#0f172a;">🏛️ ' + t.ti_name + '</div>' +
-            '<div style="font-size:11px; color:#64748b; margin-top:2px;">📍 ' + t.municipio + ' (' + (t.bairro || '') + ')</div>' +
-            '<div style="font-size:10.5px; color:#0284c7; font-weight:700; margin-top:3px;">🚌 Linhas: ' + linesStr + '</div>' +
+        const linesArr = t.all_lines || [];
+        const visibleBadges = linesArr.slice(0, 12).map(function(code) {
+          return '<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute(\'' + code + '\'); closeSeiTerminalsModal(); navigateToScreen(\'radar\');}" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; border-radius:6px; padding:2px 6px; font-size:10px; font-weight:800; cursor:pointer;">' + code + '</button>';
+        }).join(" ");
+        const extraBlock = linesArr.length > 12
+          ? '<details style="margin-top:4px;"><summary style="font-size:10px; font-weight:800; color:#0284c7; cursor:pointer;">Ver todas as ' + linesArr.length + ' linhas deste terminal</summary><div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">' +
+            linesArr.slice(12).map(function(code) {
+              return '<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute(\'' + code + '\'); closeSeiTerminalsModal(); navigateToScreen(\'radar\');}" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; border-radius:6px; padding:2px 6px; font-size:10px; font-weight:700; cursor:pointer;">' + code + '</button>';
+            }).join(" ") + '</div></details>'
+          : "";
+
+        html += '<div style="background:var(--bg-page); border:1.5px solid var(--border-color); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">' +
+            '<div>' +
+              '<div style="font-size:13px; font-weight:800; color:#0f172a;">🏛️ ' + t.ti_name + ' <span style="font-size:10.5px; color:#0284c7;">(' + linesArr.length + ' linhas)</span></div>' +
+              '<div style="font-size:11px; color:#64748b; margin-top:2px;">📍 ' + t.municipio + ' (' + (t.bairro || '') + ')</div>' +
+            '</div>' +
+            '<button onclick="flyToFilteredTerminal(' + idx + ')" style="background:#0284c7; color:#ffffff; border:none; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; white-space:nowrap;">' +
+              'Mapa ➔' +
+            '</button>' +
           '</div>' +
-          '<button onclick="flyToFilteredTerminal(' + idx + ')" style="background:#0284c7; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-size:11.5px; font-weight:800; cursor:pointer; white-space:nowrap;">' +
-            'Ver no Mapa ➔' +
-          '</button>' +
+          '<div style="display:flex; flex-wrap:wrap; gap:4px;">' + visibleBadges + '</div>' +
+          extraBlock +
         '</div>';
       });
 
@@ -4794,7 +5271,13 @@
     }
 
     function speakSeniorDirections() {
-      playNaturalVoice("Dona Severina, o ônibus 199 de Camela para o Cabo chega em 4 minutos. Tem 14 bancos vazios pra sentar. Pode aguardar com tranquilidade na Plataforma 4.");
+      const code = (window.RealTransit && window.RealTransit.activeRouteCode) || "199";
+      const adapt = (window.RealTransit && window.RealTransit.userAdaptState) || {};
+      const stopTxt = adapt.stopName || "sua parada atual";
+      layaVoiceMuted = false;
+      try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
+      syncLayaVoiceButtons();
+      playNaturalVoice(`Ônibus da linha ${code} chegando em cerca de 4 minutos na parada ${stopTxt}. Confira o letreiro frontal antes de embarcar.`, { explicit: true });
     }
 
     // ==========================================
@@ -4996,21 +5479,24 @@
       const destEl = document.getElementById("inp-custom-dest");
       const timeEl = document.getElementById("inp-custom-time");
       const origEl = document.getElementById("inp-custom-origin");
+      const retOrigEl = document.getElementById("inp-custom-return-origin");
       if (destEl) destEl.value = dest;
       if (timeEl && time) timeEl.value = time.replace("h", ":");
       if (origEl && origin) origEl.value = origin;
+      if (retOrigEl && dest) retOrigEl.value = dest;
 
       const radios = document.getElementsByName("custom-routine-freq");
       for (let r of radios) {
         if (r.value === freq) r.checked = true;
       }
-      playSimpleChime();
     }
 
     function applyCustomRoutineProfile() {
       const dest = (document.getElementById("inp-custom-dest")?.value || "UFRPE · Campus Dois Irmãos").trim();
       const origin = (document.getElementById("inp-custom-origin")?.value || "Derby / Rui Barbosa").trim();
       const time = document.getElementById("inp-custom-time")?.value || "07:30";
+      const returnOrigin = (document.getElementById("inp-custom-return-origin")?.value || dest).trim();
+      const returnTime = document.getElementById("inp-custom-return-time")?.value || "17:30";
 
       let freq = "Seg a Sex";
       const radios = document.getElementsByName("custom-routine-freq");
@@ -5018,13 +5504,11 @@
         if (r.checked) freq = r.value;
       }
 
-      // Cálculo inteligente da Janela Segura de Saída
       const parts = time.split(":");
       let targetH = parseInt(parts[0], 10) || 7;
       let targetM = parseInt(parts[1], 10) || 30;
       let arrivalMin = targetH * 60 + targetM;
 
-      // Estimativa de percurso: ~36 min de viagem + 6 min de caminhada até a parada
       let busDepartureMin = arrivalMin - 36;
       if (busDepartureMin < 0) busDepartureMin += 1440;
       let walkOutMin = busDepartureMin - 6;
@@ -5040,25 +5524,22 @@
       const tagEl = document.getElementById("routine-tag-pill");
       const pillEl = document.getElementById("label-routine-pill");
 
-      if (titleEl) titleEl.textContent = `${origin} ➔ ${dest}`;
-      if (tagEl) tagEl.textContent = `${freq} · Chegada ${time}`;
-      if (pillEl) pillEl.textContent = `Rotina: ${time}`;
+      if (titleEl) titleEl.textContent = `${origin} ⇄ ${dest}`;
+      if (tagEl) tagEl.textContent = `${freq} · Ida ${time} · Volta ${returnTime}`;
+      if (pillEl) pillEl.textContent = `Rotina: ${time} / ${returnTime}`;
       if (adviceEl) {
-        adviceEl.innerHTML = `💡 <strong>Janela de Saída:</strong> Caminhada de 6 min. Saia às <strong>${saiaH}:${saiaM}</strong> para pegar o coletivo das <strong>${busH}:${busM}</strong> sem mofar no ponto.`;
+        adviceEl.innerHTML = `💡 <strong>Ida & Volta salvos:</strong> Parada base <strong>${origin}</strong> · Saia às <strong>${saiaH}:${saiaM}</strong> (ônibus ${busH}:${busM}) · Retorno de <strong>${returnOrigin}</strong> às <strong>${returnTime}</strong>.`;
       }
 
-      // Atualiza os botões de viagem rápida
       const workCard = document.getElementById("work-card-sub");
       if (workCard) workCard.textContent = dest.split("·")[0].split("(")[0].trim() + " · 24 min";
       const homeCard = document.getElementById("home-card-sub");
-      if (homeCard) homeCard.textContent = origin.split("·")[0].split("(")[0].trim() + " · 4 min";
+      if (homeCard) homeCard.textContent = origin.split("·")[0].split("(")[0].trim() + " · Volta " + returnTime;
 
-      // Salva no localStorage para persistência
-      const customProfile = { dest, origin, time, freq, saia: `${saiaH}:${saiaM}`, bus: `${busH}:${busM}` };
+      const customProfile = { dest, origin, time, returnOrigin, returnTime, freq, saia: `${saiaH}:${saiaM}`, bus: `${busH}:${busM}` };
       localStorage.setItem("grafoparada_custom_routine", JSON.stringify(customProfile));
 
-      playSimpleChime();
-      playNaturalVoice(`Perfil de rotina personalizado salvo com sucesso para ${dest}. Sua Janela de Saída foi calculada para as ${saiaH} horas e ${saiaM} minutos.`);
+      showFloatingVoicePill(`✅ Rotina salva: ${origin} ⇄ ${dest} (Volta ${returnTime})`);
       closeRoutineModal();
     }
 
@@ -5188,18 +5669,53 @@
       const u = (typeof getUserData === "function") ? getUserData() : {};
       const firstName = (u && u.name) ? u.name.split(" ")[0] : "Cauã";
       const greetEl = document.getElementById("home-dynamic-greeting");
-      if (greetEl) greetEl.textContent = greet + ", " + firstName + " 👋";
+      if (greetEl) greetEl.textContent = greet + ", " + firstName;
 
       const summaryEl = document.getElementById("home-summary-line");
+      const badgeEl = document.getElementById("home-hero-state-badge");
+      const linePillEl = document.getElementById("home-hero-line-pill");
+      const etaEl = document.getElementById("home-hero-eta");
+      const etaSubEl = document.getElementById("home-hero-eta-sub");
+      const routineBriefEl = document.getElementById("home-routine-brief");
+
+      if (routineBriefEl) {
+        const pillTxt = document.getElementById("label-routine-pill");
+        const titleTxt = document.getElementById("routine-title-desc");
+        if (titleTxt && titleTxt.textContent.trim()) {
+          routineBriefEl.textContent = titleTxt.textContent.trim();
+        } else if (pillTxt) {
+          routineBriefEl.textContent = pillTxt.textContent.trim();
+        }
+      }
+
       if (summaryEl && window.RealTransit) {
         const adapt = window.RealTransit.userAdaptState || {};
         if (adapt.status === "adapted" && adapt.lineCode) {
           const distMeters = typeof adapt.distanceKm === "number" ? " (" + Math.round(adapt.distanceKm * 1000) + "m)" : "";
-          summaryEl.textContent = "📍 Linha " + adapt.lineCode + " · " + (adapt.stopName || adapt.lineName || "Parada ativa") + distMeters;
+          summaryEl.textContent = (adapt.stopName || adapt.lineName || "Parada ativa") + distMeters;
+          if (badgeEl) {
+            badgeEl.className = "gp-badge gp-badge-pred";
+            badgeEl.textContent = "Previsão · ST-GCN";
+          }
+          if (linePillEl) {
+            const dirLabel = adapt.direction === "volta" ? "Volta" : "Ida";
+            linePillEl.textContent = "Linha " + adapt.lineCode + " · " + dirLabel;
+          }
+          const restingEta = document.getElementById("resting-eta-val");
+          if (etaEl) etaEl.textContent = (restingEta && restingEta.textContent ? restingEta.textContent.trim() : "4") + " min";
+          if (etaSubEl) etaSubEl.textContent = "previsto na parada";
         } else if (adapt.status === "out_of_coverage") {
-          summaryEl.textContent = "📍 Fora da RMR · Toque em Alterar para simular ponto";
+          summaryEl.textContent = "Fora da RMR · Escolha um polo para simular";
+          if (badgeEl) { badgeEl.className = "gp-badge gp-badge-sim"; badgeEl.textContent = "Fora da RMR"; }
+          if (linePillEl) linePillEl.textContent = "Simulação disponível";
+          if (etaEl) etaEl.textContent = "RMR";
+          if (etaSubEl) etaSubEl.textContent = "selecione ponto";
         } else {
-          summaryEl.textContent = "📡 Aguardando GPS · Toque em Alterar para localizar parada";
+          summaryEl.textContent = "Procurando sua localização · ou escolha sua parada";
+          if (badgeEl) { badgeEl.className = "gp-badge gp-badge-sim"; badgeEl.textContent = "Aguardando GPS"; }
+          if (linePillEl) linePillEl.textContent = "RMR · Rede GTFS";
+          if (etaEl) etaEl.textContent = "GPS";
+          if (etaSubEl) etaSubEl.textContent = "toque abaixo";
         }
       }
     }
@@ -5220,14 +5736,14 @@
       if (ctx && ctx.outOfCoverage) {
         if (badgeEl) badgeEl.textContent = "Fora da cobertura RMR";
         if (stopEl) stopEl.textContent = "Você está a " + Math.round(ctx.best.distanceKm) + " km do Grande Recife";
-        if (etaEl) etaEl.textContent = "-- min";
+        if (etaEl) etaEl.textContent = "Fora RMR";
         if (seatsEl) seatsEl.textContent = "Escolha um polo";
-        if (adviceEl) adviceEl.textContent = "📍 Selecione um dos polos acima (ex: Recife Antigo, Olinda ou Camela) para simular sua parada.";
+        if (adviceEl) adviceEl.textContent = "Selecione um dos polos acima (ex: Recife Antigo, Olinda ou Camela) para simular sua parada.";
         return;
       }
 
       const best = ctx && ctx.best ? ctx.best : null;
-      const lineCode = best ? best.code : "--";
+      const lineCode = best ? best.code : "RMR";
       const rawStName = (best && best.stop && best.stop.name) ? String(best.stop.name).trim() : "";
       const stopName = (rawStName && !/^\d+$/.test(rawStName))
         ? rawStName
@@ -5239,27 +5755,28 @@
         ? " · Também passam aqui: " + ctx.nearbyLines.slice(1, 4).map(function(l) { return l.code; }).join(", ")
         : "";
 
-      if (badgeEl) badgeEl.textContent = "Linha " + lineCode + " · ST-GCN Online" + distStr;
+      if (badgeEl) badgeEl.textContent = "Linha " + lineCode + " · Previsão ST-GCN" + distStr;
       if (stopEl) stopEl.textContent = stopName;
       if (etaEl) etaEl.textContent = eta + " min";
-      if (seatsEl) seatsEl.textContent = seats + " assentos";
+      if (seatsEl) seatsEl.textContent = seats + " assentos est.";
       if (adviceEl) {
         const riskText = eta <= 7
-          ? "🛡️ Baixo risco de abandono (Kim et al., 2026) · Ideal ir para a parada agora"
-          : "⚠️ Risco moderado de espera (1,68x Yap & Cats) · Acompanhe o radar antes de sair";
+          ? "Baixo risco de espera excessiva · Ideal ir para a parada agora"
+          : "Intervalo moderado de espera · Acompanhe o radar antes de sair";
         adviceEl.textContent = riskText + alsoCodes + ".";
       }
 
       const prefixEl = document.getElementById("resting-line-prefix");
-      if (prefixEl) prefixEl.textContent = "🚌 Linha " + lineCode + " · Mais próxima de você:";
+      if (prefixEl) prefixEl.textContent = "Linha " + lineCode + " · Mais próxima de você";
+      updateHomeGreeting();
     }
 
     function detectUserLocationForScreen2() {
       const statusEl = document.getElementById("locate-gps-text");
-      if (statusEl) statusEl.textContent = "📡 Buscando sua posição real nas 393 linhas...";
+      if (statusEl) statusEl.textContent = "Procurando sua localização nas 393 linhas...";
 
       if (!navigator.geolocation) {
-        if (statusEl) statusEl.textContent = "📍 GPS indisponível — escolha seu ponto acima ou toque em um polo";
+        if (statusEl) statusEl.textContent = "Não conseguimos acessar o GPS — escolha uma parada manualmente abaixo";
         if (selectedOriginCorridorKey) selectLocatePreset(selectedOriginCorridorKey);
         return;
       }
@@ -5279,7 +5796,7 @@
           }
 
           if (ctx && ctx.outOfCoverage) {
-            if (statusEl) statusEl.textContent = "📍 Fora do Grande Recife — escolha um polo acima para testar";
+            if (statusEl) statusEl.textContent = "Fora do Grande Recife — escolha um polo acima para testar";
             applyAdaptivePreviewUI(ctx);
             return;
           }
@@ -5297,13 +5814,17 @@
 
           if (statusEl) {
             const stopLabel = (ctx && ctx.best && ctx.best.stop) ? ctx.best.stop.name : "Parada próxima identificada";
-            statusEl.textContent = "✅ GPS ativo · " + stopLabel;
+            statusEl.textContent = "GPS ativo · " + stopLabel;
           }
           applyAdaptivePreviewUI(ctx);
           playSimpleChime();
         },
         function() {
-          if (statusEl) statusEl.textContent = "📍 GPS sem permissão — escolha onde você está acima:";
+          if (statusEl) statusEl.textContent = "Não conseguimos acessar o GPS — escolha sua parada manualmente acima";
+          const etaEl = document.getElementById("locate-preview-eta");
+          const seatsEl = document.getElementById("locate-preview-seats");
+          if (etaEl && etaEl.textContent === "GPS") etaEl.textContent = "Manual";
+          if (seatsEl && seatsEl.textContent === "Escolha um polo") seatsEl.textContent = "Sem GPS ativo";
           if (selectedOriginCorridorKey) selectLocatePreset(selectedOriginCorridorKey);
         },
         { enableHighAccuracy: true, timeout: 4500 }
@@ -5356,7 +5877,7 @@
 
     let lastLocatePlanResult = null;
 
-    function askLayaFromLocate() {
+    async function askLayaFromLocate() {
       const inp = document.getElementById("locate-dest-input");
       const optionsBox = document.getElementById("locate-route-options");
       const dest = inp ? inp.value.trim() : "";
@@ -5377,9 +5898,17 @@
         originLabel = window.RealTransit.userAdaptState.stopName || "aqui";
       }
 
-      const plan = (window.RealTransit && typeof window.RealTransit.planSmartTrip === "function")
+      let plan = (window.RealTransit && typeof window.RealTransit.planSmartTrip === "function")
         ? window.RealTransit.planSmartTrip(originLabel, dest, typeof TELEMETRIA !== "undefined" ? TELEMETRIA : null)
         : null;
+
+      if ((!plan || !plan.routeOptions || !plan.routeOptions.length) && window.RealTransit && window.RealTransit.RoutePlanner && typeof window.RealTransit.RoutePlanner.planAsync === "function") {
+        if (optionsBox) {
+          optionsBox.innerHTML = '<div style="padding:10px; font-size:12px; color:#0369a1; font-weight:700;">🔎 Buscando "' + dest + '" em todo o Grande Recife...</div>';
+          optionsBox.style.display = "flex";
+        }
+        plan = await window.RealTransit.RoutePlanner.planAsync(originLabel, dest, typeof TELEMETRIA !== "undefined" ? TELEMETRIA : null);
+      }
 
       if (plan && plan.routeOptions && plan.routeOptions.length > 0 && optionsBox) {
         lastLocatePlanResult = plan;
@@ -5607,33 +6136,48 @@
       const query = (q || "").trim().toLowerCase();
       if (!query) return [];
       const results = [];
+      const seenLabels = new Set();
+      const pushUnique = (item) => {
+        const key = String(item.label || "").toLowerCase();
+        if (!key || seenLabels.has(key)) return;
+        seenLabels.add(key);
+        results.push(item);
+      };
 
-      // 1. Polos Universitários & Referências
-      const landmarks = [
-        { label: "UFRPE · Campus Dois Irmãos", sub: "Universidade Federal Rural · Dois Irmãos", type: "Campus", icon: "🎓" },
-        { label: "UFPE · Campus Recife (CDU)", sub: "Universidade Federal · Cidade Universitária", type: "Campus", icon: "🏛️" },
-        { label: "Porto Digital · Bairro do Recife", sub: "Polo Tecnológico · Recife Antigo", type: "Polo TI", icon: "💻" },
-        { label: "Hosp. da Restauração · Derby", sub: "Complexo Hospitalar · Derby", type: "Saúde", icon: "🏥" },
-        { label: "IMIP · Coelhos / Boa Vista", sub: "Instituto de Medicina Integral · Recife", type: "Saúde", icon: "🏥" },
-        { label: "Complexo Suape · Porto & Refinaria", sub: "Polo Industrial e Portuário de Suape", type: "Indústria", icon: "🏭" },
-        { label: "Shopping Costa Dourada · Cabo", sub: "Rodovia PE-60 Km 2,5 · Cabo", type: "Comércio", icon: "🛍️" },
-        { label: "Derby · Praça do Derby", sub: "Conexão Agamenon / Rui Barbosa", type: "Polo Central", icon: "📍" },
-        { label: "Boa Viagem · Domingos Ferreira", sub: "Polo Sul · Boa Viagem", type: "Bairro", icon: "🏖️" },
-        { label: "Camela · Centro (Rua do Comércio)", sub: "Distrito de Ipojuca · PE-60", type: "Origem", icon: "🏠" },
-        { label: "Ipojuca · Centro (UPA PE-60)", sub: "Centro Administrativo Ipojuca", type: "Bairro", icon: "🏠" }
-      ];
+      // 1. Bairros & Corredores RMR completos do motor
+      if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+        window.RealTransit.getSemanticCorridors().forEach(function(c) {
+          if (c.label.toLowerCase().includes(query) || c.stopName.toLowerCase().includes(query) || (c.keys || []).some(k => k.includes(query))) {
+            pushUnique({
+              label: c.label,
+              sub: c.stopName + " · Linha ref. " + c.defaultLine,
+              type: "Bairro/Polo",
+              icon: "📍"
+            });
+          }
+        });
+      }
 
-      landmarks.forEach(function(item) {
-        if (item.label.toLowerCase().includes(query) || item.sub.toLowerCase().includes(query)) {
-          results.push(item);
+      // 2. Índice completo de paradas nomeadas GTFS (stops_index)
+      if (window.RealTransit && window.RealTransit.networkData && Array.isArray(window.RealTransit.networkData.stops_index)) {
+        for (const s of window.RealTransit.networkData.stops_index) {
+          if (String(s[0] || "").toLowerCase().includes(query)) {
+            pushUnique({
+              label: s[0],
+              sub: "Parada GTFS · Linhas " + ((s[3] && s[3].length) ? s[3].slice(0, 5).join(", ") : "RMR"),
+              type: "Parada RMR",
+              icon: "🚏"
+            });
+          }
+          if (results.length >= 12) break;
         }
-      });
+      }
 
-      // 2. Terminais SEI (26 TIs)
+      // 3. Terminais SEI
       if (typeof SEI_TERMINALS !== "undefined" && SEI_TERMINALS) {
         SEI_TERMINALS.forEach(function(t) {
           if (t.ti_name.toLowerCase().includes(query) || (t.municipio || "").toLowerCase().includes(query)) {
-            results.push({
+            pushUnique({
               label: t.ti_name,
               sub: t.municipio + " (" + (t.bairro || "SEI") + ") · Integração VEM",
               type: "Terminal SEI",
@@ -5643,11 +6187,11 @@
         });
       }
 
-      // 3. Linhas GTFS (393 Linhas)
+      // 4. Linhas GTFS (393 Linhas)
       if (window.RealTransit && window.RealTransit.networkData && window.RealTransit.networkData.routes_catalog) {
         window.RealTransit.networkData.routes_catalog.forEach(function(r) {
           if (r.code.toLowerCase().includes(query) || r.label.toLowerCase().includes(query) || r.name.toLowerCase().includes(query)) {
-            results.push({
+            pushUnique({
               label: "Linha " + r.label,
               sub: "Linha Oficial GTFS · CTM Grande Recife",
               type: "Linha",
@@ -5657,21 +6201,7 @@
         });
       }
 
-      // 4. Paradas da Linha Ativa
-      if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.stops) {
-        window.RealTransit.activeRoute.stops.forEach(function(st) {
-          if (st.name.toLowerCase().includes(query) || String(st.stop_id).includes(query)) {
-            results.push({
-              label: st.name,
-              sub: "Parada Cód " + st.stop_id + " · Linha " + window.RealTransit.activeRouteCode,
-              type: "Parada",
-              icon: "🚏"
-            });
-          }
-        });
-      }
-
-      return results.slice(0, 8);
+      return results.slice(0, 10);
     }
 
     function handleRoutineDestSearch(query) {
@@ -5766,7 +6296,8 @@
 
     // Síntese de voz brasileira natural + controle de timbre e prosódia humana (sem cortar falas)
     let cachedNaturalVoice = null;
-    let layaVoiceMuted = (typeof localStorage !== "undefined" && localStorage.getItem("grafoparada_voice_muted") === "1");
+    // Calma por padrão: só fala em voz alta quando o usuário ativa o microfone/som ou toca em "Ouvir"
+    let layaVoiceMuted = (typeof localStorage === "undefined" || localStorage.getItem("grafoparada_voice_muted") !== "0");
     let preferredVoiceIndex = (typeof localStorage !== "undefined" && Number(localStorage.getItem("grafoparada_voice_idx"))) || 0;
 
     function getRankedPortugueseVoices() {
@@ -5851,6 +6382,20 @@
         muteBtn.textContent = layaVoiceMuted ? "🔇" : "🔊";
         muteBtn.title = layaVoiceMuted ? "Voz silenciada (toque para ativar)" : "Voz ativa (toque para silenciar)";
       }
+      const topPill = document.getElementById("top-voice-toggle-pill");
+      const topIcon = document.getElementById("top-voice-icon");
+      const topLbl = document.getElementById("top-voice-label");
+      if (topIcon) {
+        topIcon.innerHTML = layaVoiceMuted
+          ? '<svg class="gp-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>'
+          : '<svg class="gp-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+      }
+      if (topLbl) topLbl.textContent = layaVoiceMuted ? "Voz: Off" : "Voz: On";
+      if (topPill) {
+        topPill.style.background = layaVoiceMuted ? "#f1f5f9" : "#ecfdf5";
+        topPill.style.borderColor = layaVoiceMuted ? "#cbd5e1" : "#86efac";
+        topPill.style.color = layaVoiceMuted ? "#334155" : "#047857";
+      }
     }
 
     function toggleLayaVoiceMute() {
@@ -5861,7 +6406,7 @@
         window.speechSynthesis.cancel();
         showFloatingVoicePill("🔇 Voz da Laya silenciada.");
       } else {
-        playNaturalVoice("Voz ativada. Estou pronta para guiar sua viagem.");
+        playNaturalVoice("Voz ativada. Respondo em áudio apenas quando você perguntar.", { explicit: true });
       }
     }
 
@@ -5878,12 +6423,16 @@
       try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
       syncLayaVoiceButtons();
       const shortName = (cachedNaturalVoice.name || "Voz PT-BR").split("-")[0].trim();
-      playNaturalVoice("Olá! Agora você está ouvindo a Laya com a voz " + shortName + ".");
+      playNaturalVoice("Agora você está ouvindo a Laya com a voz " + shortName + ".", { explicit: true });
     }
 
     window.toggleLayaVoiceMute = toggleLayaVoiceMute;
     window.cycleLayaVoice = cycleLayaVoice;
     window.formatSpeechPortuguese = formatSpeechPortuguese;
+    window.syncLayaVoiceButtons = syncLayaVoiceButtons;
+    if (typeof document !== "undefined") {
+      document.addEventListener("DOMContentLoaded", syncLayaVoiceButtons);
+    }
 
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.onvoiceschanged = function() {
@@ -5891,10 +6440,11 @@
       };
     }
 
-    function playNaturalVoice(text) {
+    function playNaturalVoice(text, opts) {
       if (!text) return;
       showFloatingVoicePill(text);
-      if (layaVoiceMuted) return;
+      // Nunca interrompe cliques passivos falando sozinha: só sintetiza áudio quando explicit=true e voz não silenciada
+      if (layaVoiceMuted || !opts || !opts.explicit) return;
 
       const spoken = formatSpeechPortuguese(text);
       if (!spoken) return;
@@ -6110,14 +6660,14 @@
         }
         appendLayaChatMessage(res.html, "bot");
         if (res.speech && typeof playNaturalVoice === "function") {
-          playNaturalVoice(res.speech);
+          playNaturalVoice(res.speech, { explicit: true });
         }
         return;
       }
 
       const fallbackReply = "Entendi sua mensagem! Posso buscar linhas GTFS de origem a destino (ex: Camela até Ipojuca) ou checar o próximo ônibus.";
       appendLayaChatMessage(fallbackReply, "bot");
-      if (typeof playNaturalVoice === "function") playNaturalVoice(fallbackReply);
+      if (typeof playNaturalVoice === "function") playNaturalVoice(fallbackReply, { explicit: true });
     }
 
     window.navigateToScreen = navigateToScreen;
@@ -6298,7 +6848,23 @@
       showFloatingVoicePill("⭐ Parada salva: " + label);
     }
 
+    // Alternância limpa entre os 3 Ambientes (Passageiro | Central CTM | Pesquisa & Banca)
+    function setAppMode(mode) {
+      const target = (mode === "ctm" || mode === "lab") ? mode : "passenger";
+      if (document.body) {
+        document.body.dataset.appMode = target;
+      }
+      ["passenger", "ctm", "lab"].forEach(function(m) {
+        const btn = document.getElementById("mode-btn-" + m);
+        if (btn) btn.classList.toggle("active", m === target);
+      });
+      if (target === "passenger" && typeof leafletMap !== "undefined" && leafletMap) {
+        setTimeout(function() { leafletMap.invalidateSize(); }, 80);
+      }
+    }
+
     // Exposição global no window
+    window.setAppMode = setAppMode;
     window.openPresentationModal = openPresentationModal;
     window.closePresentationModal = closePresentationModal;
     window.clearQuickSearch = clearQuickSearch;

@@ -11,14 +11,18 @@
     networkData: null,
     activeRouteCode: null, // Definido dinamicamente pela geolocalizacao ou escolha do usuario
     activeRoute: null,
+    activeDirection: 'ida',
+    activeBoardingIndex: 0,
     activeStopIndex: 0,
     userAdaptState: { status: 'initializing', stopName: null, distanceKm: null },
     map: null,
     polylineLayer: null,
+    passedPolylineLayer: null,
     extraLegsLayer: null,
     stopsLayer: null,
     busMarker: null,
     cittamobiCache: {},
+    geocodeCache: {},
 
     // Tabela de Aliases comuns da Região Metropolitana
     aliases: {
@@ -183,7 +187,7 @@
       // Escuta mudanças de busca no input superior
       const searchInput = document.getElementById('quick-search-input');
       if (searchInput) {
-        searchInput.placeholder = 'Buscar entre 400 linhas reais (ex: 199, 1967, 2040, Olinda)...';
+        searchInput.placeholder = 'Buscar entre 393 linhas reais (ex: 199, 1967, 2040, Olinda)...';
       }
     },
 
@@ -192,8 +196,73 @@
       return this.loadRoute(code);
     },
 
-    // Renderiza linha completa com shape e paradas do GTFS
-    loadRoute(rawCode) {
+    getDirectionData(lineData, dir) {
+      if (!lineData) return { dir: 'ida', headsign: '', stops: [], polyline: [] };
+      const hasVolta = Array.isArray(lineData.return_stops) && lineData.return_stops.length > 0;
+      const chosenDir = (dir === 'volta' && hasVolta) ? 'volta' : 'ida';
+      const stops = chosenDir === 'volta' ? lineData.return_stops : (lineData.stops || []);
+      const polyline = chosenDir === 'volta'
+        ? ((Array.isArray(lineData.return_polyline) && lineData.return_polyline.length) ? lineData.return_polyline : (lineData.return_coords || []))
+        : (lineData.polyline || []);
+      const headsign = chosenDir === 'volta'
+        ? (lineData.headsign_volta || (stops[stops.length - 1] && stops[stops.length - 1].name) || lineData.name)
+        : (lineData.headsign_ida || lineData.headsign || (stops[stops.length - 1] && stops[stops.length - 1].name) || lineData.name);
+      return { dir: chosenDir, hasVolta, headsign, stops, polyline };
+    },
+
+    toggleDirection(forceDir) {
+      if (!this.activeRouteCode || !this.activeRoute) return;
+      const hasVolta = Array.isArray(this.activeRoute.return_stops) && this.activeRoute.return_stops.length > 0;
+      if (!hasVolta && forceDir === 'volta') {
+        this.showToast('Esta linha opera com traçado circular único no GTFS.', 'info');
+        return;
+      }
+      const nextDir = forceDir || (this.activeDirection === 'ida' ? 'volta' : 'ida');
+      this.loadRoute(this.activeRouteCode, { dir: nextDir });
+    },
+
+    pickBestDirection(lineData, originCoords, destCoords) {
+      if (!lineData) return { dir: 'ida', boardIdx: 0 };
+      const evalDir = (stops) => {
+        if (!Array.isArray(stops) || !stops.length) return null;
+        let boardIdx = 0;
+        let boardDist = Infinity;
+        if (Array.isArray(originCoords)) {
+          stops.forEach((st, i) => {
+            if (!st || !st.lat || !st.lon) return;
+            const d = this.haversineKm(originCoords[0], originCoords[1], st.lat, st.lon);
+            if (d < boardDist) { boardDist = d; boardIdx = i; }
+          });
+        } else {
+          boardDist = 0;
+        }
+
+        let destDist = 0;
+        let destIdx = stops.length - 1;
+        let forwardOk = true;
+        if (Array.isArray(destCoords)) {
+          destDist = Infinity;
+          stops.forEach((st, i) => {
+            if (!st || !st.lat || !st.lon) return;
+            const d = this.haversineKm(destCoords[0], destCoords[1], st.lat, st.lon);
+            if (d < destDist) { destDist = d; destIdx = i; }
+          });
+          forwardOk = destIdx >= boardIdx;
+        }
+        const score = boardDist + destDist + (forwardOk ? 0 : 8.0);
+        return { boardIdx, destIdx, boardDist, destDist, forwardOk, score };
+      };
+
+      const resIda = evalDir(lineData.stops || []);
+      const resVolta = evalDir(lineData.return_stops || []);
+      if (resVolta && (!resIda || resVolta.score + 0.05 < resIda.score)) {
+        return { dir: 'volta', boardIdx: resVolta.boardIdx };
+      }
+      return { dir: 'ida', boardIdx: resIda ? resIda.boardIdx : 0 };
+    },
+
+    // Renderiza linha completa com direção (IDA vs VOLTA), fatiada a partir da parada de embarque do usuário
+    loadRoute(rawCode, opts = {}) {
       if (!this.networkData || !this.networkData.popular_lines) return;
 
       let code = String(rawCode || '').trim();
@@ -203,9 +272,8 @@
 
       let lineData = this.networkData.popular_lines[code];
       if (!lineData) {
-        // Tenta buscar no catálogo geral caso o código divirja
-        const found = (this.networkData.routes_catalog || []).find(r => 
-          r.code.toLowerCase() === code.toLowerCase() || 
+        const found = (this.networkData.routes_catalog || []).find(r =>
+          r.code.toLowerCase() === code.toLowerCase() ||
           r.code.replace(/^0+/, '') === code.replace(/^0+/, '')
         );
         if (found && this.networkData.popular_lines[found.code]) {
@@ -222,28 +290,87 @@
 
       this.activeRouteCode = code;
       this.activeRoute = lineData;
-      this.activeStopIndex = 0;
 
-      // 1. Atualiza Traçado Geodésico Real (Polyline)
+      const userCoords = Array.isArray(opts.originCoords)
+        ? opts.originCoords
+        : ((this.userAdaptState && this.userAdaptState.lat && this.userAdaptState.lon)
+          ? [this.userAdaptState.lat, this.userAdaptState.lon]
+          : (Array.isArray(window.userCurrentCoords) ? window.userCurrentCoords : null));
+
+      const bestPick = this.pickBestDirection(lineData, userCoords, opts.destCoords || null);
+      const chosenDir = opts.dir || bestPick.dir || 'ida';
+      const dirData = this.getDirectionData(lineData, chosenDir);
+      this.activeDirection = dirData.dir;
+
+      // Calcula índice da parada de embarque neste sentido (se o usuário estiver dentro de 3km da rota)
+      let boardIdx = 0;
+      if (userCoords && Array.isArray(dirData.stops) && dirData.stops.length > 0) {
+        let minD = Infinity;
+        let nearestIdx = 0;
+        dirData.stops.forEach((st, i) => {
+          if (!st || !st.lat || !st.lon) return;
+          const d = this.haversineKm(userCoords[0], userCoords[1], st.lat, st.lon);
+          if (d < minD) { minD = d; nearestIdx = i; }
+        });
+        if (minD <= 3.0) {
+          boardIdx = nearestIdx;
+        }
+      }
+      this.activeBoardingIndex = boardIdx;
+      this.activeStopIndex = boardIdx;
+
+      // 1. Limpa camadas anteriores
       if (this.polylineLayer && this.map) {
         this.map.removeLayer(this.polylineLayer);
         this.polylineLayer = null;
+      }
+      if (this.passedPolylineLayer && this.map) {
+        this.map.removeLayer(this.passedPolylineLayer);
+        this.passedPolylineLayer = null;
       }
       if (this.extraLegsLayer && this.map) {
         this.map.removeLayer(this.extraLegsLayer);
         this.extraLegsLayer = null;
       }
 
-      const coords = lineData.polyline || [];
-      if (coords.length > 0) {
-        this.polylineLayer = L.polyline(coords, {
-          color: '#059669',
-          weight: 5,
-          opacity: 0.85,
-          smoothFactor: 1
-        }).addTo(this.map);
+      const coords = dirData.polyline || [];
+      if (coords.length > 0 && this.map) {
+        // Divide a polilinha no ponto mais próximo à parada de embarque (Passado esmaecido vs Restante da sua parada até o destino)
+        let splitIdx = 0;
+        if (boardIdx > 0 && dirData.stops[boardIdx]) {
+          const bStop = dirData.stops[boardIdx];
+          let minP = Infinity;
+          coords.forEach((pt, idx) => {
+            const d = this.haversineKm(bStop.lat, bStop.lon, pt[0], pt[1]);
+            if (d < minP) { minP = d; splitIdx = idx; }
+          });
+        }
 
-        // Ajusta o zoom do mapa para enquadrar perfeitamente a linha
+        if (splitIdx > 1 && splitIdx < coords.length - 1) {
+          const passedCoords = coords.slice(0, splitIdx + 1);
+          const forwardCoords = coords.slice(splitIdx);
+          this.passedPolylineLayer = L.polyline(passedCoords, {
+            color: '#94a3b8',
+            weight: 3,
+            opacity: 0.45,
+            dashArray: '5, 7',
+            smoothFactor: 1
+          }).addTo(this.map);
+          this.polylineLayer = L.polyline(forwardCoords, {
+            color: dirData.dir === 'volta' ? '#0284c7' : '#059669',
+            weight: 5.5,
+            opacity: 0.92,
+            smoothFactor: 1
+          }).addTo(this.map);
+        } else {
+          this.polylineLayer = L.polyline(coords, {
+            color: dirData.dir === 'volta' ? '#0284c7' : '#059669',
+            weight: 5,
+            opacity: 0.88,
+            smoothFactor: 1
+          }).addTo(this.map);
+        }
+
         try {
           this.map.fitBounds(this.polylineLayer.getBounds(), {
             padding: [50, 50],
@@ -255,22 +382,25 @@
         }
       }
 
-      // 2. Plota as Paradas Reais no Mapa
-      this.renderStopMarkers(lineData.stops);
+      // 2. Plota as Paradas Reais no Mapa destacando Seu Embarque e os trechos à frente
+      if (this.map && this.stopsLayer) {
+        this.renderStopMarkers(dirData.stops, boardIdx);
+      }
 
       // 2.1 Sincroniza Marcador do Usuário e Ônibus ao Vivo
       if (typeof window.connectUserToActiveStop === 'function' && window.userCurrentCoords) {
         window.connectUserToActiveStop(window.userCurrentCoords[0], window.userCurrentCoords[1]);
       }
       if (typeof window.updateLiveBusMarker === 'function' && coords.length > 2) {
-        const bp = coords[Math.min(5, coords.length - 1)];
+        const bp = coords[Math.min(Math.max(2, boardIdx), coords.length - 1)];
         window.updateLiveBusMarker(bp[0], bp[1], code, 4, 14);
       }
 
-      // 3. Atualiza Elementos do DOM
-      this.updateUIForLine(lineData);
+      // 3. Atualiza Elementos do DOM (LED, Sentido Ida/Volta, Drawer fatiado da sua parada)
+      this.updateUIForLine(lineData, dirData, boardIdx);
       if (typeof window.showRouteIndicatorChip === 'function') {
-        window.showRouteIndicatorChip(code, lineData.name || lineData.label);
+        const dirTag = dirData.dir === 'volta' ? 'Volta' : 'Ida';
+        window.showRouteIndicatorChip(code, `${dirData.headsign || lineData.name} (${dirTag})`);
       }
 
       // 4. Consulta API ao Vivo do Cittamobi para Dados em Tempo Real da Frota
@@ -281,8 +411,15 @@
     renderMultiLegRoute(codes, hubNames, originCoords, destCoords) {
       if (!this.map || !this.networkData || !this.networkData.popular_lines || !Array.isArray(codes) || codes.length === 0) return;
 
-      // Carrega a 1ª etapa para preencher o painel, letreiro e paradas iniciais
-      this.loadRoute(codes[0]);
+      // Carrega a 1ª etapa já orientada no sentido certo da origem até o próximo ponto
+      const leg0Target = (Array.isArray(hubNames) && hubNames.length > 0 && Array.isArray(this.networkData.hub_graph))
+        ? (() => {
+            const normH = this.normalizeText(hubNames[0]);
+            const hObj = this.networkData.hub_graph.find(h => this.normalizeText(h.name).includes(normH) || normH.includes(this.normalizeText(h.name)));
+            return hObj ? [hObj.lat, hObj.lon] : destCoords;
+          })()
+        : destCoords;
+      this.loadRoute(codes[0], { originCoords, destCoords: leg0Target });
 
       if (this.extraLegsLayer) {
         this.map.removeLayer(this.extraLegsLayer);
@@ -310,14 +447,19 @@
       codes.forEach((rawCode, idx) => {
         const line = this.networkData.popular_lines[String(rawCode)] || this.networkData.popular_lines[this.aliases[rawCode] || rawCode];
         if (!line) return;
-        const pts = (Array.isArray(line.polyline) && line.polyline.length > 0)
-          ? line.polyline
-          : (Array.isArray(line.return_coords) ? line.return_coords : []);
+        const bestDir = idx === 0
+          ? { dir: this.activeDirection }
+          : this.pickBestDirection(line, startRef, destCoords);
+        const dirData = this.getDirectionData(line, bestDir.dir);
+        const pts = (dirData.polyline && dirData.polyline.length > 0)
+          ? dirData.polyline
+          : ((Array.isArray(line.polyline) && line.polyline.length > 0) ? line.polyline : (line.return_coords || []));
         if (!pts.length) return;
 
         // Caminhada tracejada da localização atual até a 1ª parada de embarque
         if (idx === 0 && startRef) {
-          const boardPt = findClosestPt(line.stops && line.stops.length ? line.stops : pts, startRef);
+          const legStops = (dirData.stops && dirData.stops.length) ? dirData.stops : pts;
+          const boardPt = findClosestPt(legStops, startRef);
           if (boardPt) {
             const walkStart = L.polyline([startRef, boardPt], {
               color: '#334155',
@@ -329,18 +471,23 @@
           }
         }
 
-        const color = legColors[idx % legColors.length];
-        const poly = L.polyline(pts, {
-          color,
-          weight: idx === 0 ? 5 : 4.5,
-          opacity: 0.9,
-          dashArray: idx > 0 ? '8, 6' : null
-        }).addTo(this.extraLegsLayer);
-        bounds.extend(poly.getBounds());
+        if (idx > 0) {
+          const color = legColors[idx % legColors.length];
+          const poly = L.polyline(pts, {
+            color,
+            weight: 4.5,
+            opacity: 0.9,
+            dashArray: '8, 6'
+          }).addTo(this.extraLegsLayer);
+          bounds.extend(poly.getBounds());
+        } else if (this.polylineLayer) {
+          bounds.extend(this.polylineLayer.getBounds());
+        }
 
         // Caminhada tracejada final até o destino escolhido
         if (idx === codes.length - 1 && Array.isArray(destCoords)) {
-          const alightPt = findClosestPt(line.stops && line.stops.length ? line.stops : pts, destCoords);
+          const legStops = (dirData.stops && dirData.stops.length) ? dirData.stops : pts;
+          const alightPt = findClosestPt(legStops, destCoords);
           if (alightPt) {
             const walkEnd = L.polyline([alightPt, destCoords], {
               color: '#334155',
@@ -392,39 +539,48 @@
       }
     },
 
-    // Plota os marcadores das paradas com popups detalhados
-    renderStopMarkers(stops) {
+    // Plota os marcadores das paradas destacando Embarque do Usuário vs paradas passadas
+    renderStopMarkers(stops, boardIdx = this.activeBoardingIndex || 0) {
+      if (!this.stopsLayer) return;
       this.stopsLayer.clearLayers();
       const self = this;
 
-      stops.forEach((st, idx) => {
+      (stops || []).forEach((st, idx) => {
+        const isBoard = idx === boardIdx;
+        const isPassed = idx < boardIdx;
         const isTerminal = idx === 0 || idx === stops.length - 1;
-        const iconHtml = isTerminal
-          ? '<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; box-shadow:0 3px 10px rgba(0,0,0,0.3);">🏛️</div>'
-          : '<div style="background:#ffffff; color:#059669; border:2px solid #059669; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,0.2);">' + (idx + 1) + '</div>';
+        const dirColor = self.activeDirection === 'volta' ? '#0284c7' : '#059669';
+        const iconHtml = isBoard
+          ? `<div style="background:${dirColor}; color:#fff; border:2px solid #fff; border-radius:999px; padding:2px 8px; font-size:10px; font-weight:800; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; box-shadow:0 4px 12px rgba(0,0,0,0.35);"><span style="width:6px;height:6px;border-radius:50%;background:#ffffff;display:inline-block;"></span>Seu Embarque</div>`
+          : (isTerminal
+            ? '<div style="background:#0f172a; color:#fff; border:2px solid #fff; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; box-shadow:0 3px 10px rgba(0,0,0,0.3);">T</div>'
+            : `<div style="background:#ffffff; color:${isPassed ? '#94a3b8' : dirColor}; border:2px solid ${isPassed ? '#cbd5e1' : dirColor}; opacity:${isPassed ? '0.45' : '1'}; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,0.18);">${idx + 1}</div>`);
 
         const customIcon = L.divIcon({
           className: '',
           html: iconHtml,
-          iconSize: isTerminal ? [22, 22] : [16, 16],
-          iconAnchor: isTerminal ? [11, 11] : [8, 8]
+          iconSize: isBoard ? [98, 22] : (isTerminal ? [22, 22] : [16, 16]),
+          iconAnchor: isBoard ? [49, 26] : (isTerminal ? [11, 11] : [8, 8])
         });
 
-        const marker = L.marker([st.lat, st.lon], { icon: customIcon });
+        const marker = L.marker([st.lat, st.lon], { icon: customIcon, zIndexOffset: isBoard ? 900 : 0 });
+        const displayStopName = (st.name && !/^\d+$/.test(String(st.name).trim()))
+          ? st.name
+          : `Parada CTM ${st.stop_id}`;
 
         const popupContent = `
           <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:220px; padding:2px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px;">CÓD ${st.stop_id}</span>
-              <span style="font-size:10.5px; font-weight:700; color:#059669;">Linha ${self.activeRouteCode}</span>
+              <span style="font-size:10.5px; font-weight:700; color:${dirColor};">Linha ${self.activeRouteCode} (${self.activeDirection === 'volta' ? 'Volta' : 'Ida'})</span>
             </div>
-            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px; line-height:1.2;">${st.name}</div>
-            <div style="font-size:11px; color:#64748b; margin-bottom:8px;">Horário Programado GTFS: <strong>${st.arr_time || 'Regular'}</strong></div>
-            <button onclick="window.RealTransit.selectStop(${idx}, true); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#059669; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">
-              Selecionar Parada ➔
+            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px; line-height:1.2;">${displayStopName}</div>
+            <div style="font-size:11px; color:#64748b; margin-bottom:8px;">Programado GTFS: <strong>${st.arr_time || 'Regular'}</strong></div>
+            <button onclick="window.RealTransit.selectStop(${idx}, true); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:${dirColor}; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">
+              Embarcar nesta Parada ➔
             </button>
-            <button onclick="window.setMyBoardingStop('${st.name.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}]); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#0284c7; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer; margin-top:4px;">
-              🔔 Me avisar quando o ônibus estiver perto (Minha Parada)
+            <button onclick="window.setMyBoardingStop('${displayStopName.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}]); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#0f172a; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer; margin-top:4px;">
+              🔔 Fixar como Minha Parada
             </button>
           </div>
         `;
@@ -435,115 +591,154 @@
       });
     },
 
-    // Seleciona uma parada na linha ativa
+    // Seleciona uma parada na linha e sentido ativos
     selectStop(index, panTo) {
-      if (!this.activeRoute || !this.activeRoute.stops[index]) return;
+      const dirData = this.getDirectionData(this.activeRoute, this.activeDirection);
+      const activeStops = dirData.stops || [];
+      if (!activeStops[index]) return;
       this.activeStopIndex = index;
-      const st = this.activeRoute.stops[index];
+      const st = activeStops[index];
 
       const cleanStopLabel = (st.name && !/^\d+$/.test(String(st.name).trim()))
         ? st.name
         : `Parada CTM ${st.stop_id} (${this.activeRoute.name || 'Linha ' + this.activeRouteCode})`;
 
-      // Atualiza o card de parada atual
+      const dirLabel = dirData.dir === 'volta' ? 'VOLTA' : 'IDA';
+      const remainingCount = Math.max(0, activeStops.length - 1 - index);
+
+      // Atualiza o card de parada atual com sentido claro + paradas restantes a partir dela
       const nameEl = document.getElementById('current-stop-name');
       if (nameEl) {
+        const toggleDirBtn = dirData.hasVolta
+          ? `<button type="button" onclick="window.RealTransit.toggleDirection()" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:6px; padding:2px 8px; font-size:10px; font-weight:800; cursor:pointer;">⇄ Sentido ${dirData.dir === 'volta' ? 'Ida' : 'Volta'}</button>`
+          : '';
         nameEl.innerHTML = `
           <div style="display:flex; flex-direction:column; gap:2px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD ${st.stop_id}</span>
-              <span style="font-size:11px; font-weight:800; color:#047857;">📍 Parada #${index + 1} de ${this.activeRoute.stops.length}</span>
-              <span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">GTFS CTM Oficial</span>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px;">
+              <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+                <span style="font-size:10px; font-weight:800; background:${dirData.dir === 'volta' ? '#dbeafe' : '#dcfce7'}; color:${dirData.dir === 'volta' ? '#1d4ed8' : '#15803d'}; padding:2px 6px; border-radius:5px;">SENTIDO ${dirLabel}</span>
+                <span style="font-size:10.5px; font-weight:800; color:#0f172a;">Parada #${index + 1} · ${remainingCount} à frente</span>
+              </div>
+              ${toggleDirBtn}
             </div>
-            <div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:2px;">${cleanStopLabel}</div>
-            <div style="font-size:11px; color:var(--text-secondary);">Sentido: ${this.activeRoute.headsign || this.activeRoute.name}</div>
-            <button onclick="window.setMyBoardingStop('${cleanStopLabel.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}])" style="margin-top:6px; background:#f0fdf4; color:#047857; border:1.5px solid #86efac; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:5px;">
-              🔔 Me avisar quando o ônibus estiver perto desta parada
+            <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:2px;">${cleanStopLabel}</div>
+            <div style="font-size:11px; color:var(--text-secondary);">Indo para: <strong>${dirData.headsign || this.activeRoute.name}</strong> · Cód ${st.stop_id}</div>
+            <button onclick="window.setMyBoardingStop('${cleanStopLabel.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}])" style="margin-top:6px; background:#f0fdf4; color:#047857; border:1px solid #86efac; border-radius:8px; padding:6px 10px; font-size:11px; font-weight:800; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:5px;">
+              Avisar quando o ônibus estiver perto desta parada
             </button>
           </div>
         `;
       }
 
-      // Calcula estimativa de chegada realista baseada na posição sequencial
       const etaMinutes = Math.max(2, ((index % 6) * 3) + 2);
       const restingEta = document.getElementById('resting-eta-val');
       const liveEta = document.getElementById('live-eta-num');
       if (restingEta) restingEta.textContent = String(etaMinutes);
       if (liveEta) liveEta.textContent = String(etaMinutes);
+      if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
 
       if (panTo && this.map) {
         this.map.panTo([st.lat, st.lon], { animate: true, duration: 0.5 });
       }
 
-      // Re-renderiza o accordion destacando a parada selecionada
-      this.renderStopsDrawer(this.activeRoute.stops);
+      this.renderStopsDrawer(activeStops, this.activeBoardingIndex);
     },
 
-    // Atualiza a interface (Drawer, LED, Títulos, Cards)
-    updateUIForLine(lineData) {
-      // 1. Badge superior
-      const topBadge = document.getElementById('top-line-label');
-      if (topBadge) topBadge.textContent = lineData.code;
+    // Atualiza a interface (Drawer, LED, Títulos, Cards) para o sentido e parada de embarque ativos
+    updateUIForLine(lineData, dirDataOverride, boardIdxOverride) {
+      const dirData = dirDataOverride || this.getDirectionData(lineData, this.activeDirection);
+      const boardIdx = typeof boardIdxOverride === 'number' ? boardIdxOverride : (this.activeBoardingIndex || 0);
+      const stops = dirData.stops || [];
+      const dirTag = dirData.dir === 'volta' ? 'VOLTA' : 'IDA';
 
-      // 2. Letreiro LED
+      const topBadge = document.getElementById('top-line-label');
+      if (topBadge) topBadge.textContent = `${lineData.code} · ${dirTag}`;
+
       const ledDestination = document.getElementById('led-destination-line');
       const ledNumber = document.getElementById('led-line-number');
-      if (ledDestination) ledDestination.textContent = (lineData.code + ' ' + (lineData.headsign || lineData.name)).toUpperCase();
+      if (ledDestination) ledDestination.textContent = `${lineData.code} (${dirTag}) ${(dirData.headsign || lineData.name)}`.toUpperCase();
       if (ledNumber) ledNumber.textContent = lineData.code;
 
-      // 3. Destino e cabeçalho no drawer
       const destTitle = document.getElementById('active-trip-destination-title');
-      if (destTitle) destTitle.textContent = lineData.name;
+      if (destTitle) destTitle.textContent = `${lineData.name} · Sentido ${dirData.headsign || dirTag}`;
 
       const activeHeader = document.getElementById('active-trip-header');
-      if (activeHeader) activeHeader.textContent = `🚌 Linha ${lineData.code} · ${lineData.name}`;
+      if (activeHeader) activeHeader.textContent = `🚌 Linha ${lineData.code} (${dirTag}) ➔ ${dirData.headsign || lineData.name}`;
 
-      // 4. Cards de viagem (Vou pra Casa / Vou pro Destino)
-      const firstStop = lineData.stops && lineData.stops[0] ? lineData.stops[0].name.split('/')[0].trim() : 'Origem';
-      const lastStop = lineData.stops && lineData.stops.length > 1 ? lineData.stops[lineData.stops.length - 1].name.split('/')[0].trim() : 'Terminal';
+      const firstStop = stops[boardIdx] ? stops[boardIdx].name.split('/')[0].trim() : 'Sua Parada';
+      const lastStop = stops.length > 1 ? stops[stops.length - 1].name.split('/')[0].trim() : 'Ponto Final';
 
       const homeCardSub = document.getElementById('home-card-sub');
       const workCardSub = document.getElementById('work-card-sub');
       if (homeCardSub) homeCardSub.textContent = `${firstStop} · 4 min`;
       if (workCardSub) workCardSub.textContent = `${lastStop} · 28 min`;
 
-      // 5. Parada Inicial
-      this.selectStop(0, false);
-
-      // 6. Drawer de paradas
-      this.renderStopsDrawer(lineData.stops);
+      this.selectStop(boardIdx, false);
+      this.renderStopsDrawer(stops, boardIdx);
     },
 
-    // Renderiza a lista de todas as paradas da linha no Bottom Sheet
-    renderStopsDrawer(stops) {
+    // Renderiza a lista de paradas PRIORIZANDO da parada de embarque em diante (evita confusão na rota completa)
+    renderStopsDrawer(stops, boardIdx = this.activeBoardingIndex || 0) {
       const container = document.getElementById('stops-container');
       const countLabel = document.getElementById('stops-count-label');
       const sheetCountLabel = document.getElementById('sheet-stops-count-label');
-      if (countLabel) countLabel.textContent = String(stops.length);
-      if (sheetCountLabel) sheetCountLabel.textContent = String(stops.length);
-      if (!container) return;
+      const remaining = Math.max(0, (stops ? stops.length : 0) - boardIdx);
+      if (countLabel) countLabel.textContent = String(remaining);
+      if (sheetCountLabel) sheetCountLabel.textContent = String(remaining);
+      if (!container || !Array.isArray(stops)) return;
 
-      let html = '';
-      stops.forEach((st, idx) => {
+      const dirData = this.getDirectionData(this.activeRoute, this.activeDirection);
+      const dirColor = dirData.dir === 'volta' ? '#0284c7' : '#059669';
+      const dirBadge = dirData.dir === 'volta' ? 'Sentido Volta' : 'Sentido Ida';
+
+      const buildStopRow = (st, idx, isPassed) => {
         const isSel = idx === this.activeStopIndex;
-        const eta = Math.max(2, ((idx % 6) * 3) + 2);
-        html += `
-          <div style="background:${isSel ? '#ecfdf5; border:2px solid #059669;' : 'var(--bg-page); border:1px solid var(--border-color);'} border-radius:12px; padding:10px 12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s ease;" onclick="window.RealTransit.selectStop(${idx}, true)">
+        const isBoard = idx === boardIdx;
+        const eta = Math.max(2, (((idx - boardIdx + 6) % 6) * 3) + 2);
+        const stLabel = (st.name && !/^\d+$/.test(String(st.name).trim())) ? st.name : `Parada CTM ${st.stop_id}`;
+        return `
+          <div style="background:${isSel ? '#ecfdf5' : 'var(--bg-page)'}; border:${isSel ? `2px solid ${dirColor}` : '1px solid var(--border-color)'}; opacity:${isPassed ? '0.62' : '1'}; border-radius:12px; padding:10px 12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s ease;" onclick="window.RealTransit.selectStop(${idx}, true)">
             <div style="max-width:75%;">
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
-                <span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:1px 5px; border-radius:4px;">#${String(idx + 1).padStart(2, '0')}</span>
+              <div style="display:flex; align-items:center; gap:5px; margin-bottom:2px; flex-wrap:wrap;">
+                <span style="font-size:10px; font-weight:800; background:${isBoard ? dirColor : '#f1f5f9'}; color:${isBoard ? '#ffffff' : '#475569'}; padding:1px 6px; border-radius:4px;">${isBoard ? '📍 EMBARQUE #' + (idx + 1) : '#' + String(idx + 1).padStart(2, '0')}</span>
                 <span style="font-size:10px; font-weight:800; color:#0369a1;">CÓD ${st.stop_id}</span>
               </div>
-              <div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25;">${st.name}</div>
+              <div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25;">${stLabel}</div>
               <div style="font-size:11px; color:#64748b; margin-top:2px;">Previsto GTFS: ${st.arr_time || 'Regular'}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:800; color:${isSel ? '#059669' : 'var(--text-main)'};">${eta} <span style="font-size:11px;">min</span></div>
-              <div style="font-size:10px; font-weight:700; color:#15803d;">CTM Oficial</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:800; color:${isSel ? dirColor : 'var(--text-main)'};">${eta} <span style="font-size:11px;">min</span></div>
+              <div style="font-size:10px; font-weight:700; color:#15803d;">${isBoard ? 'Seu ponto' : (idx === stops.length - 1 ? 'Ponto Final' : 'À frente')}</div>
             </div>
           </div>
         `;
-      });
+      };
+
+      let html = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; padding:7px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
+          <div style="font-size:11px; font-weight:800; color:#0f172a;">
+            ${dirBadge} · Mostrando ${remaining} paradas a partir do embarque
+          </div>
+          ${dirData.hasVolta ? `<button type="button" onclick="window.RealTransit.toggleDirection()" style="background:#0284c7; color:#fff; border:none; border-radius:7px; padding:4px 9px; font-size:10.5px; font-weight:800; cursor:pointer; white-space:nowrap;">⇄ Trocar Sentido</button>` : ''}
+        </div>
+      `;
+
+      if (boardIdx > 0) {
+        let passedHtml = '';
+        for (let i = 0; i < boardIdx; i++) {
+          passedHtml += buildStopRow(stops[i], i, true);
+        }
+        html += `
+          <details style="margin-bottom:8px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px; padding:6px 10px;">
+            <summary style="font-size:11px; font-weight:700; color:#64748b; cursor:pointer;">Ver ${boardIdx} paradas anteriores à sua (já passadas)</summary>
+            <div style="margin-top:6px;">${passedHtml}</div>
+          </details>
+        `;
+      }
+
+      for (let i = boardIdx; i < stops.length; i++) {
+        html += buildStopRow(stops[i], i, false);
+      }
 
       container.innerHTML = html;
     },
@@ -562,7 +757,7 @@
       catalogBtn.style.background = '#0284c7';
       catalogBtn.style.color = '#ffffff';
       catalogBtn.style.border = 'none';
-      catalogBtn.innerHTML = '<span>🚌 400 Linhas</span>';
+      catalogBtn.innerHTML = '<svg class="gp-svg" style="width:13px;height:13px;color:#ffffff;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg><span>Linhas</span>';
       catalogBtn.onclick = () => this.openLinePickerModal();
 
       pillsContainer.insertBefore(catalogBtn, pillsContainer.children[1]);
@@ -685,9 +880,9 @@
       banner.style.display = 'flex';
       banner.innerHTML = `
         <div style="display:flex; align-items:center; gap:8px; width:100%;">
-          <div style="width:8px; height:8px; border-radius:50%; background:#0284c7; animation:pulseGreen 1.5s infinite;"></div>
-          <div style="font-size:11px; font-weight:700; color:#0369a1;">
-            Conectando aos servidores Cittamobi (Agência a=202 Grande Recife)...
+          <div style="width:8px; height:8px; border-radius:50%; background:#a7f3d0; animation:pulseGreen 1.5s infinite; flex-shrink:0;"></div>
+          <div style="font-size:11px; font-weight:700; color:#ffffff;">
+            Conectando aos servidores Cittamobi (Grande Recife)...
           </div>
         </div>
       `;
@@ -702,14 +897,14 @@
             const s0 = services[0];
             const company = s0.companyName || 'Consórcio de Transporte Metropolitano';
             banner.innerHTML = `
-              <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:13px;">📡</span>
-                  <div style="font-size:11.5px; font-weight:800; color:#0369a1;">
-                    Operadora Oficial: <strong>${company}</strong> (ID: ${s0.id})
+              <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
+                <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                  <svg class="gp-svg" style="width:14px;height:14px;color:#ffffff;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                  <div style="font-size:11.5px; font-weight:700; color:#ffffff; overflow:hidden; text-overflow:ellipsis;">
+                    Operadora: <strong>${company}</strong>
                   </div>
                 </div>
-                <span style="font-size:10px; font-weight:800; background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px;">Cittamobi Live</span>
+                <span style="font-size:10px; font-weight:800; background:rgba(255,255,255,0.2); color:#ffffff; padding:2px 7px; border-radius:4px; white-space:nowrap; flex-shrink:0;">Real · Cittamobi</span>
               </div>
             `;
             return;
@@ -721,14 +916,14 @@
 
       // Fallback elegante com dados do GTFS
       banner.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:13px;">🚍</span>
-            <div style="font-size:11.5px; font-weight:800; color:#047857;">
-              Linha ${routeCode} · Grade Horária Oficial GTFS CTM
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <svg class="gp-svg" style="width:14px;height:14px;color:#ffffff;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+            <div style="font-size:11.5px; font-weight:800; color:#ffffff;">
+              Linha ${routeCode} · Grade Horária Oficial CTM
             </div>
           </div>
-          <span style="font-size:10px; font-weight:800; background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:4px;">CTM Soberano</span>
+          <span style="font-size:10px; font-weight:800; background:rgba(255,255,255,0.2); color:#ffffff; padding:2px 7px; border-radius:4px; white-space:nowrap; flex-shrink:0;">GTFS Oficial</span>
         </div>
       `;
     },
@@ -961,7 +1156,7 @@
       return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     },
 
-    // Descobre automaticamente parada real e linhas que servem a coordenada do usuário
+    // Descobre automaticamente parada real e linhas (IDA + VOLTA) que servem a coordenada do usuário
     findNearestTransitContext(lat, lon) {
       if (!this.networkData || !this.networkData.popular_lines) return null;
       let bestRegular = null;
@@ -970,28 +1165,34 @@
 
       for (const [code, lineObj] of Object.entries(this.networkData.popular_lines)) {
         const isBacurau = /bacurau/i.test(lineObj.name || '');
-        const stops = lineObj.stops || [];
+        const stopsIda = lineObj.stops || [];
+        const stopsVolta = lineObj.return_stops || [];
         let minLineDist = Infinity;
         let minStop = null;
         let minStopIdx = 0;
+        let minDir = 'ida';
 
-        for (let i = 0; i < stops.length; i++) {
-          const st = stops[i];
+        for (let i = 0; i < stopsIda.length; i++) {
+          const st = stopsIda[i];
           if (!st || !st.lat || !st.lon) continue;
           const d = this.haversineKm(lat, lon, st.lat, st.lon);
           if (d < minLineDist) {
             minLineDist = d;
             minStop = st;
             minStopIdx = i;
+            minDir = 'ida';
           }
         }
 
-        // Checa também retorno / polilinha caso o sentido volta esteja mais próximo
-        if (Array.isArray(lineObj.return_coords)) {
-          for (let j = 0; j < lineObj.return_coords.length; j++) {
-            const p = lineObj.return_coords[j];
-            const d = this.haversineKm(lat, lon, p[0], p[1]);
-            if (d < minLineDist) minLineDist = d;
+        for (let i = 0; i < stopsVolta.length; i++) {
+          const st = stopsVolta[i];
+          if (!st || !st.lat || !st.lon) continue;
+          const d = this.haversineKm(lat, lon, st.lat, st.lon);
+          if (d < minLineDist) {
+            minLineDist = d;
+            minStop = st;
+            minStopIdx = i;
+            minDir = 'volta';
           }
         }
 
@@ -1002,11 +1203,12 @@
             isBacurau,
             distanceKm: minLineDist,
             stop: minStop,
-            stopIndex: minStopIdx
+            stopIndex: minStopIdx,
+            direction: minDir
           });
         }
 
-        const cand = { code, name: lineObj.name, distanceKm: minLineDist, stop: minStop, stopIndex: minStopIdx };
+        const cand = { code, name: lineObj.name, distanceKm: minLineDist, stop: minStop, stopIndex: minStopIdx, direction: minDir };
         if (!bestAny || minLineDist < bestAny.distanceKm) bestAny = cand;
         if (!isBacurau && (!bestRegular || minLineDist < bestRegular.distanceKm)) bestRegular = cand;
       }
@@ -1037,7 +1239,7 @@
           lon
         };
         if (typeof window.showFloatingVoicePill === 'function') {
-          window.showFloatingVoicePill('📍 Você está fora do Grande Recife. Selecione um ponto na Tela 2 para simular.');
+          window.showFloatingVoicePill('📍 Você está fora do Grande Recife. Selecione um ponto para simular.');
         }
         return ctx;
       }
@@ -1052,6 +1254,7 @@
         sourceLabel: sourceLabel || 'GPS Atual',
         lineCode: best.code,
         lineName: best.name,
+        direction: best.direction || 'ida',
         stopName: friendlyStopName,
         distanceKm: best.distanceKm,
         lat,
@@ -1063,19 +1266,19 @@
         localStorage.setItem('grafoparada_last_coords', JSON.stringify({ lat, lon, lineCode: best.code }));
       } catch (e) {}
 
-      // Carrega a linha real mais próxima e seleciona a parada exata onde o usuário está
-      this.loadRoute(best.code);
+      // Carrega a linha real no sentido exato da parada mais próxima e seleciona o embarque do usuário
+      this.loadRoute(best.code, { dir: best.direction || 'ida', originCoords: [lat, lon] });
       if (typeof best.stopIndex === 'number') {
         this.selectStop(best.stopIndex, Boolean(opts && opts.fit));
       }
 
       const prefixEl = document.getElementById('resting-line-prefix');
-      if (prefixEl) prefixEl.textContent = `🚌 Linha ${best.code} · Mais próxima de você:`;
+      if (prefixEl) prefixEl.textContent = `Linha ${best.code} (${best.direction === 'volta' ? 'Volta' : 'Ida'}) · Mais próxima:`;
 
       const summaryEl = document.getElementById('home-summary-line');
       if (summaryEl) {
         const distMeters = Math.round(best.distanceKm * 1000);
-        summaryEl.textContent = `📍 ${best.code} · ${best.name} (${distMeters}m de você)`;
+        summaryEl.textContent = `Parada ${best.code} · ${best.name} (${distMeters}m de você)`;
       }
 
       if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
@@ -1119,12 +1322,65 @@
         { key: 'joana bezerra', keys: ['joana bezerra', 'ti joana', 'coelhos', 'imip', 'ilha do leite'], label: 'TI Joana Bezerra / IMIP', defaultLine: '080', alsoServedBy: ['101', '104', '1981', '2043'], hub: 'TI Joana Bezerra', stopName: 'Terminal Integrado Joana Bezerra', lat: -8.0689, lon: -34.8958, waitMin: 3, seatsFree: 20 },
         { key: 'afogados', keys: ['afogados', 'ti afogados', 'madalena', 'torre', 'real da torre', 'shopping tacaruna', 'tacaruna'], label: 'Afogados / Madalena / Tacaruna', defaultLine: '050', alsoServedBy: ['2040', '914', '330'], hub: 'TI Afogados', stopName: 'Largo de Afogados / TI Afogados', lat: -8.0785, lon: -34.9065, waitMin: 4, seatsFree: 16 },
         { key: 'barro', keys: ['barro', 'ti barro', 'tejipio', 'sancho', 'ti recife'], label: 'TI Barro / TI Recife', defaultLine: '202', alsoServedBy: ['101', '914', '291'], hub: 'TI Barro', stopName: 'TI Barro', lat: -8.0882, lon: -34.9459, waitMin: 5, seatsFree: 15 },
-        { key: 'jaboatao', keys: ['jaboatao', 'jaboatao centro', 'ti jaboatao', 'cavaleiro', 'ti cavaleiro', 'moreno'], label: 'Jaboatão Centro / Cavaleiro', defaultLine: '200', alsoServedBy: ['219', '272', '242'], hub: 'TI Jaboatão', stopName: 'TI Jaboatão Centro', lat: -8.1128, lon: -35.0148, waitMin: 5, seatsFree: 16 },
-        { key: 'camaragibe', keys: ['camaragibe', 'ti camaragibe', 'sao lourenco', 'timbi', 'aldeia'], label: 'Camaragibe / São Lourenço', defaultLine: '2490', alsoServedBy: ['2420', '2450', '2441'], hub: 'TI Camaragibe', stopName: 'TI Camaragibe', lat: -8.0235, lon: -34.9788, waitMin: 4, seatsFree: 18 }
+        { key: 'jaboatao', keys: ['jaboatao', 'jaboatao centro', 'ti jaboatao', 'cavaleiro', 'ti cavaleiro', 'moreno', 'sucupira'], label: 'Jaboatão Centro / Cavaleiro', defaultLine: '200', alsoServedBy: ['219', '272', '242'], hub: 'TI Jaboatão', stopName: 'TI Jaboatão Centro', lat: -8.1128, lon: -35.0148, waitMin: 5, seatsFree: 16 },
+        { key: 'camaragibe', keys: ['camaragibe', 'ti camaragibe', 'sao lourenco', 'timbi', 'aldeia'], label: 'Camaragibe / São Lourenço', defaultLine: '2490', alsoServedBy: ['2420', '2450', '2441'], hub: 'TI Camaragibe', stopName: 'TI Camaragibe', lat: -8.0235, lon: -34.9788, waitMin: 4, seatsFree: 18 },
+        { key: 'torroes', keys: ['torroes', 'cordeiro', 'san martin', 'bongi', 'mustardinha', 'mangueira'], label: 'Torrões / Cordeiro / San Martin', defaultLine: '321', alsoServedBy: ['312', '331', '440'], hub: 'TI Getúlio Vargas', stopName: 'Av. Abdias de Carvalho / Torrões', lat: -8.0628, lon: -34.9332, waitMin: 5, seatsFree: 15 },
+        { key: 'torre', keys: ['torre', 'madalena', 'prado', 'zumbi', 'carrefour torre', 'benfica', 'beira rio'], label: 'Torre / Madalena / Zumbi', defaultLine: '411', alsoServedBy: ['2040', '412', '414', '440'], hub: 'Praça do Derby', stopName: 'Rua Real da Torre / Mercado da Madalena', lat: -8.0492, lon: -34.9102, waitMin: 4, seatsFree: 14 },
+        { key: 'curado', keys: ['curado', 'curado i', 'curado ii', 'curado iv', 'toto', 'coqueiral', 'sancho', 'ti tip'], label: 'Curado / Totó / TI TIP', defaultLine: '302', alsoServedBy: ['303', '351', '361'], hub: 'TI TIP', stopName: 'Av. Liberdade / Curado', lat: -8.0752, lon: -34.9852, waitMin: 6, seatsFree: 15 },
+        { key: 'ipsep', keys: ['ipsep', 'areias', 'jardim sao paulo', 'estancia', 'jiquia', 'teji pio', 'tejipio'], label: 'Ipsep / Areias / Jardim São Paulo', defaultLine: '115', alsoServedBy: ['121', '122', '2060'], hub: 'TI Barro', stopName: 'Av. Recife / Ipsep', lat: -8.1055, lon: -34.9295, waitMin: 5, seatsFree: 16 },
+        { key: 'agua fria', keys: ['agua fria', 'arruda', 'beberibe', 'fundao', 'campo grande', 'encruzilhada', 'alto santa terezinha', 'dois unidos'], label: 'Água Fria / Arruda / Beberibe', defaultLine: '710', alsoServedBy: ['711', '712', '741', '760'], hub: 'TI Xambá', stopName: 'Av. Beberibe / Largo de Água Fria', lat: -8.0185, lon: -34.8925, waitMin: 5, seatsFree: 15 },
+        { key: 'santo amaro', keys: ['santo amaro', 'tacaruna', 'hospital oswaldo cruz', 'huoc', 'procape', 'joao de barros', 'escola tecnica'], label: 'Santo Amaro / HUOC / Tacaruna', defaultLine: '050', alsoServedBy: ['1973', '1983', '612', '710'], hub: 'Praça do Derby', stopName: 'Av. Cruz Cabugá / HUOC Santo Amaro', lat: -8.0462, lon: -34.8812, waitMin: 4, seatsFree: 15 },
+        { key: 'tamarineira', keys: ['tamarineira', 'parnamirim', 'jaqueira', 'santana', 'hospital agamenon', 'estrada do encanamento'], label: 'Tamarineira / Jaqueira / Parnamirim', defaultLine: '522', alsoServedBy: ['516', '532', '640'], hub: 'TI Macaxeira', stopName: 'Estrada do Arraial / Tamarineira', lat: -8.0285, lon: -34.9062, waitMin: 4, seatsFree: 16 },
+        { key: 'guabiraba', keys: ['guabiraba', 'passarinho', 'brejo da guabiraba', 'alto do pascoal', 'morro da conceicao', 'alto jose do pinho'], label: 'Zona Norte Alta (Brejo / Passarinho)', defaultLine: '622', alsoServedBy: ['642', '645', '611'], hub: 'TI Macaxeira', stopName: 'Av. Norte / Morro da Conceição', lat: -8.0112, lon: -34.9185, waitMin: 6, seatsFree: 14 },
+        { key: 'maranguape', keys: ['maranguape', 'maranguape i', 'maranguape ii', 'nobre', 'paratibe', 'arthur lundgren', 'mirueira'], label: 'Paulista (Maranguape / Arthur Lundgren)', defaultLine: '1922', alsoServedBy: ['1950', '1952', '1955'], hub: 'TI Pelópidas Silveira', stopName: 'Maranguape I / Av. Brasil', lat: -7.9432, lon: -34.8645, waitMin: 5, seatsFree: 16 },
+        { key: 'caetes', keys: ['caetes', 'caetes i', 'caetes ii', 'caetes iii'], label: 'Caetés I / II / III (Abreu e Lima)', defaultLine: '1918', alsoServedBy: ['1913', '1967'], hub: 'TI Abreu e Lima', stopName: 'Terminal Caetés I', lat: -7.9085, lon: -34.9225, waitMin: 6, seatsFree: 15 },
+        { key: 'muribeca', keys: ['muribeca', 'vila rica', 'engenhoca', 'guararapes', 'porta larga'], label: 'Muribeca / Guararapes', defaultLine: '162', alsoServedBy: ['163', '165', '185'], hub: 'TI Cajueiro Seco', stopName: 'Integração Muribeca / Av. Barreto de Menezes', lat: -8.1742, lon: -34.9562, waitMin: 6, seatsFree: 15 },
+        { key: 'moreno', keys: ['moreno', 'bonanca', 'engenho novo'], label: 'Moreno / Bonança', defaultLine: '201', alsoServedBy: ['200', '290'], hub: 'TI Jaboatão', stopName: 'Centro de Moreno (BR-232)', lat: -8.1185, lon: -35.0915, waitMin: 9, seatsFree: 16 },
+        { key: 'ilhas', keys: ['ilhas', 'ilha do retiro', 'sport', 'estadio do sport', 'santa cruz', 'arruda estadio', 'aflitos estadio'], label: 'Ilha do Retiro / Zona Esportiva', defaultLine: '411', alsoServedBy: ['440', '2040', '050'], hub: 'TI Joana Bezerra', stopName: 'Av. Abdias de Carvalho / Ilha do Retiro', lat: -8.0628, lon: -34.9035, waitMin: 5, seatsFree: 14 }
       ];
     },
 
-    // Resolve nome de lugar, terminal, parada GTFS ou "aqui" para { label, lat, lon, stopName }
+    // Geocodificador online de fallback restrito à Região Metropolitana do Recife (Nominatim OSM)
+    async geocodeRMRAsync(rawPlace) {
+      const clean = String(rawPlace || '').trim();
+      const norm = this.normalizeText(clean);
+      if (!norm || norm.length < 3) return null;
+      if (this.geocodeCache[norm] !== undefined) return this.geocodeCache[norm];
+
+      const local = this.resolvePlaceLocation(clean);
+      if (local) {
+        this.geocodeCache[norm] = local;
+        return local;
+      }
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=2&countrycodes=br&viewbox=-35.32,-7.65,-34.78,-8.60&bounded=1&q=${encodeURIComponent(clean + ', Pernambuco')}`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+        if (!res.ok) return null;
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          const hit = rows[0];
+          const lat = parseFloat(hit.lat);
+          const lon = parseFloat(hit.lon);
+          if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+            const resolved = {
+              key: norm,
+              label: clean,
+              lat,
+              lon,
+              stopName: (hit.display_name || clean).split(',').slice(0, 2).join(', '),
+              source: 'osm_rmr'
+            };
+            this.geocodeCache[norm] = resolved;
+            return resolved;
+          }
+        }
+      } catch (e) {}
+      this.geocodeCache[norm] = null;
+      return null;
+    },
+
+    // Resolve nome de lugar, terminal, parada GTFS (stops_index / código) ou "aqui" para { label, lat, lon, stopName }
     resolvePlaceLocation(rawPlace) {
       const pNorm = this.normalizeText(rawPlace);
       if (!pNorm) return null;
@@ -1154,6 +1410,11 @@
         return null;
       }
 
+      // 0. Cache de geocodificação RMR (Nominatim) caso já resolvido nesta sessão
+      if (this.geocodeCache && this.geocodeCache[pNorm]) {
+        return this.geocodeCache[pNorm];
+      }
+
       // 1. Match em polos georreferenciados da RMR (evita match falso de palavras curtas)
       const corridors = this.getSemanticCorridors();
       const wordSafeMatch = (haystack, key) => {
@@ -1165,7 +1426,7 @@
         || (pNorm.length >= 5 ? corridors.find(c => c.keys.some(k => k.includes(pNorm))) : null);
       if (exactCorridor) return exactCorridor;
 
-      // 2. Match nos 45 Hubs do Grafo SEI ou 44 Terminais SEI do GTFS
+      // 2. Match nos Hubs do Grafo SEI ou Terminais SEI do GTFS
       if (this.networkData && Array.isArray(this.networkData.hub_graph)) {
         const hubHit = this.networkData.hub_graph.find(h => this.normalizeText(h.name).includes(pNorm));
         if (hubHit) {
@@ -1179,12 +1440,48 @@
         }
       }
 
-      // 3. Match dinâmico em paradas nomeadas e nomes das 393 linhas reais GTFS
+      // 2.5 Match no Índice Completo de Paradas GTFS (stops_index: [nome, lat, lon, linhas])
+      if (this.networkData && Array.isArray(this.networkData.stops_index) && pNorm.length >= 3) {
+        const stopTokens = pNorm.split(' ').filter(t => t.length >= 3 && !['rua', 'avenida', 'praca', 'parada', 'terminal', 'estrada'].includes(t));
+        let idxHit = this.networkData.stops_index.find(s => this.normalizeText(s[0]).includes(pNorm));
+        if (!idxHit && stopTokens.length > 0) {
+          idxHit = this.networkData.stops_index.find(s => {
+            const sn = this.normalizeText(s[0]);
+            return stopTokens.every(t => sn.includes(t));
+          });
+        }
+        if (idxHit) {
+          return {
+            key: pNorm,
+            label: idxHit[0],
+            lat: idxHit[1],
+            lon: idxHit[2],
+            stopName: idxHit[0],
+            linesHint: idxHit[3] || []
+          };
+        }
+      }
+
+      // 3. Match dinâmico em paradas nomeadas, códigos GTFS e nomes das 393 linhas reais GTFS
       if (this.networkData && this.networkData.popular_lines && pNorm.length >= 4) {
+        const isNumericStop = /^\d{5,6}$/.test(pNorm);
         for (const line of Object.values(this.networkData.popular_lines)) {
+          const allLineStops = (line.stops || []).concat(line.return_stops || []);
+          if (isNumericStop) {
+            const codeStop = allLineStops.find(s => String(s.stop_id) === pNorm);
+            if (codeStop) {
+              return {
+                key: pNorm,
+                label: `Parada CTM ${codeStop.stop_id} (${line.code})`,
+                lat: codeStop.lat,
+                lon: codeStop.lon,
+                stopName: (codeStop.name && !/^\d+$/.test(codeStop.name)) ? codeStop.name : `Parada ${codeStop.stop_id}`
+              };
+            }
+          }
           const lineNameNorm = this.normalizeText(line.name);
-          if (lineNameNorm.includes(pNorm) && Array.isArray(line.stops) && line.stops.length > 0) {
-            const matchedStop = line.stops.find(s => !/^\d+$/.test(s.name) && this.normalizeText(s.name).includes(pNorm)) || line.stops[line.stops.length - 1];
+          if (lineNameNorm.includes(pNorm) && allLineStops.length > 0) {
+            const matchedStop = allLineStops.find(s => !/^\d+$/.test(s.name) && this.normalizeText(s.name).includes(pNorm)) || allLineStops[allLineStops.length - 1];
             return {
               key: pNorm,
               label: `${rawPlace} (${line.code})`,
@@ -1206,18 +1503,26 @@
       for (const [code, lineObj] of Object.entries(this.networkData.popular_lines)) {
         let minDist = Infinity;
         let nearestStop = null;
-        const stops = lineObj.stops || [];
-        for (let i = 0; i < stops.length; i++) {
-          const s = stops[i];
+        let nearestDir = 'ida';
+        const stopsIda = lineObj.stops || [];
+        for (let i = 0; i < stopsIda.length; i++) {
+          const s = stopsIda[i];
           if (!s || !s.lat || !s.lon) continue;
           const d = this.haversineKm(lat, lon, s.lat, s.lon);
-          if (d < minDist) { minDist = d; nearestStop = s; }
+          if (d < minDist) { minDist = d; nearestStop = s; nearestDir = 'ida'; }
+        }
+        const stopsVolta = lineObj.return_stops || [];
+        for (let i = 0; i < stopsVolta.length; i++) {
+          const s = stopsVolta[i];
+          if (!s || !s.lat || !s.lon) continue;
+          const d = this.haversineKm(lat, lon, s.lat, s.lon);
+          if (d < minDist) { minDist = d; nearestStop = s; nearestDir = 'volta'; }
         }
         if (Array.isArray(lineObj.return_coords)) {
           for (let j = 0; j < lineObj.return_coords.length; j++) {
             const p = lineObj.return_coords[j];
             const d = this.haversineKm(lat, lon, p[0], p[1]);
-            if (d < minDist) minDist = d;
+            if (d < minDist) { minDist = d; nearestDir = 'volta'; }
           }
         }
         if (Array.isArray(lineObj.polyline)) {
@@ -1235,7 +1540,8 @@
             name: lineObj.name,
             isBacurau,
             distanceKm: minDist,
-            nearestStop
+            nearestStop,
+            nearestDir
           });
         }
       }
@@ -1324,46 +1630,73 @@
       return null;
     },
 
-    // Extrai destino quando a pessoa fala só para onde vai (usa localização GPS atual como origem)
+    // Extrai destino quando a pessoa fala só para onde vai (inclui frases de "Guia de Perdido")
     extractDestinationOnly(rawText) {
       const q = this.normalizeText(rawText);
-      if (!q || /\b(proximo onibus|horario|quando passa|onde estou|minha parada|stgcn|como funciona|banca|slides|pptx)\b/.test(q)) {
+      if (!q || /\b(proximo onibus|horario|quando passa|stgcn|como funciona|banca|slides|pptx)\b/.test(q)) {
         return null;
       }
-      const m = q.match(/(?:ir|indo|chegar|chego|me leva|levar|rota|trajeto|caminho|onibus|busao|pegar)\s+(?:ate|para|pra|pro|no|na|ao|em)\s+(.+)/i)
-        || q.match(/^(?:para|pra|pro|ate)\s+(.+)/i);
+      const lostCleaned = q
+        .replace(/\b(estou perdido|tou perdido|to perdido|me perdi|estou perdida|tou perdida|nao sei onde estou|me ajude|me ajuda|socorro)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const targetText = lostCleaned || q;
+      const m = targetText.match(/(?:ir|indo|chegar|chego|voltar|me leva|levar|rota|trajeto|caminho|onibus|busao|pegar|preciso ir)\s+(?:ate|para|pra|pro|no|na|ao|em)\s+(.+)/i)
+        || targetText.match(/^(?:para|pra|pro|ate)\s+(.+)/i);
       if (m && m[1]) {
-        const cand = m[1].replace(/\b(por favor|hoje|agora|de onibus)\b/g, '').trim();
-        if (cand.length >= 3 && this.resolvePlaceLocation(cand)) {
+        const cand = m[1].replace(/\b(por favor|hoje|agora|de onibus|mas tou perdido|mas estou perdido)\b/g, '').trim();
+        if (cand.length >= 3) {
           return cand;
         }
       }
-      // Se o texto curto já for exatamente um bairro/terminal conhecido (ex: "Olinda", "Shopping Recife")
-      if (q.split(' ').length <= 4 && !/\?/.test(rawText) && this.resolvePlaceLocation(q)) {
-        return q;
+      if (targetText.split(' ').length <= 4 && !/\?/.test(rawText) && this.resolvePlaceLocation(targetText)) {
+        return targetText;
       }
       return null;
     },
 
-    // Classificador estruturado estilo Laya System-1 (choice / score / noul)
+    // Classificador semântico da Laya (SEPARAÇÃO DE RESPONSABILIDADES: Laya interpreta a fala; RoutePlanner calcula a rota por grafo A*)
     classifyLayaDecision(rawText) {
       const q = this.normalizeText(rawText);
-      const isUrgent = /\b(agora|rapido|urgente|atrasado|perdido|socorro|lotado|queima|espera)\b/.test(q);
+      const isLost = /\b(perdido|perdida|me perdi|nao sei onde estou)\b/.test(q);
+      const isUrgent = isLost || /\b(agora|rapido|urgente|atrasado|socorro|lotado|queima|espera)\b/.test(q);
       const hasTrip = Boolean(this.extractOriginDest(rawText) || this.extractDestinationOnly(rawText));
-      const choice = hasTrip
-        ? 'route_planning'
-        : (/\b(proximo|horario|quando passa|minha parada|onde estou)\b/.test(q) ? 'local_arrival'
-          : (/\b(stgcn|ia|webmcp|yap|kim|como funciona)\b/.test(q) ? 'platform_science' : 'general_help'));
+      const choice = isLost ? 'lost_passenger_guide'
+        : (hasTrip ? 'route_planning'
+          : (/\b(proximo|horario|quando passa|minha parada|onde estou)\b/.test(q) ? 'local_arrival'
+            : (/\b(stgcn|ia|webmcp|yap|kim|como funciona)\b/.test(q) ? 'platform_science' : 'general_help')));
       return {
-        engine: 'laya_gtfs_heuristic_v2',
+        engine: 'laya_nlp_router_boundary_v3',
+        laya_role: 'semantic_intent_and_lost_guide',
+        route_solver: 'deterministic_astar_gtfs_route_planner',
         decision_type: 'choice+score+noul',
         choice,
+        is_lost: isLost,
         urgency_score: isUrgent ? 3 : 1,
-        needs_location_noul: hasTrip || choice === 'local_arrival'
+        needs_location_noul: hasTrip || isLost || choice === 'local_arrival'
       };
     },
 
+    // Módulo Determinístico Dedicado ao Cálculo de Rotas (desacoplado da IA conversacional)
+    RoutePlanner: {
+      plan(originRaw, destRaw, telemetryStops) {
+        return RealTransit._computeDeterministicTrip(originRaw, destRaw, telemetryStops);
+      },
+      async planAsync(originRaw, destRaw, telemetryStops) {
+        await RealTransit.geocodeRMRAsync(originRaw);
+        await RealTransit.geocodeRMRAsync(destRaw);
+        return RealTransit._computeDeterministicTrip(originRaw, destRaw, telemetryStops);
+      },
+      pickDirection(lineObj, originCoords, destCoords) {
+        return RealTransit.pickBestDirection(lineObj, originCoords, destCoords);
+      }
+    },
+
     planSmartTrip(originRaw, destRaw, telemetryStops) {
+      return this.RoutePlanner.plan(originRaw, destRaw, telemetryStops);
+    },
+
+    _computeDeterministicTrip(originRaw, destRaw, telemetryStops) {
       const origNorm = this.normalizeText(originRaw);
       const destNorm = this.normalizeText(destRaw);
       const origPlace = this.resolvePlaceLocation(origNorm);
@@ -1632,22 +1965,22 @@
       const telemetryStops = (ctx && Array.isArray(ctx.telemetryStops)) ? ctx.telemetryStops : [];
       const layaDecision = this.classifyLayaDecision(text);
 
-      // 1. Apresentação / Banca UFRPE
-      if (/\b(apresentacao|slide|slides|pptx|banca|roteiro|seminario)\b/.test(q)) {
+      // 1. Guia de Perdido (Laya interpreta a fala e delega cálculo de rota para o motor determinístico RoutePlanner)
+      const isLostWithoutDest = layaDecision.is_lost && !this.extractOriginDest(text) && !this.extractDestinationOnly(text);
+      if (isLostWithoutDest) {
+        const curStop = (this.userAdaptState && this.userAdaptState.stopName) || 'sua localização GPS';
+        const curLine = this.activeRouteCode || '-';
         return {
-          intent: 'presentation',
+          intent: 'lost_guide',
           decision: layaDecision,
-          html: "Aqui estão os materiais oficiais para a <strong>Banca Examinadora da UFRPE (Seminário 2)</strong>:<br><br>" +
-            "• 📥 <strong>Apresentação PPTX (16:9):</strong> Arquivo oficial pronto para defesa.<br>" +
-            "• 🎨 <strong>Slides Web Estilo Canva:</strong> Navegação interativa no navegador.<br>" +
-            "• 📜 <strong>Roteiro da Banca:</strong> Guia passo a passo de sustentação.<br><br>" +
-            "<button type=\"button\" onclick=\"if(window.openPresentationModal) window.openPresentationModal();\" style=\"background:#7c3aed; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;\">🎓 Abrir Painel da Apresentação</button>",
-          speech: "Abrindo o painel com a apresentação em P P T X, slides e roteiro para a banca da UFRPE.",
-          openPresentation: true
+          html: `🧭 <strong>Guia de Perdido · Fique tranquilo(a), vou te orientar!</strong><br><br>` +
+            `• 📍 <strong>Onde você está:</strong> ${this.escapeHtml(curStop)} (Linha próxima: <strong>${this.escapeHtml(curLine)}</strong>)<br><br>` +
+            `Me diga ou escreva abaixo <strong>para onde você quer ir</strong> (ex: <em>"Quero chegar em Boa Viagem"</em> ou <em>"Me ajuda a ir pro Derby"</em>) que eu aciono o algoritmo de rotas agora mesmo:`,
+          speech: `Calma, já identifiquei seu ponto perto de ${curStop}. Me diga para qual bairro ou terminal você precisa ir que o sistema calcula o caminho na hora.`
         };
       }
 
-      // 2. Planejamento estilo Google Maps (Origem explícita -> Destino OU GPS Atual -> Destino)
+      // 2. Interpretação de Origem/Destino -> Delegação explícita ao motor RoutePlanner (A* sobre grafo SEI + GTFS)
       let tripPair = this.extractOriginDest(text);
       let implicitFromHere = false;
       if (!tripPair) {
@@ -1659,14 +1992,17 @@
       }
 
       if (tripPair) {
-        const plan = this.planSmartTrip(tripPair.origin, tripPair.dest, telemetryStops);
+        const plan = this.RoutePlanner.plan(tripPair.origin, tripPair.dest, telemetryStops);
         const safeOrig = this.escapeHtml(plan.originLabel);
         const safeDest = this.escapeHtml(plan.destLabel);
+        const lostPrefix = layaDecision.is_lost
+          ? `<div style="background:#fef3c7; border:1px solid #fcd34d; color:#92400e; padding:6px 9px; border-radius:8px; font-size:11px; font-weight:700; margin-bottom:8px;">🧭 Modo Guia de Perdido · Rota calculada pelo grafo GTFS</div>`
+          : '';
         if (implicitFromHere && (!plan.origCorridor || !plan.origCorridor.lat)) {
           return {
             intent: 'need_location',
             decision: layaDecision,
-            html: `📍 Quero traçar sua rota até <strong>${safeDest}</strong> partindo de onde você está!<br><br>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções estilo Google Maps:<br><br>` +
+            html: `${lostPrefix}📍 Quero traçar sua rota até <strong>${safeDest}</strong> partindo de onde você está!<br><br>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções estilo Google Maps:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">📍 Informar Onde Estou Agora</button>`,
             speech: `Para traçar sua rota até ${plan.destLabel}, primeiro me diga onde você está agora ou ative seu GPS.`
           };
