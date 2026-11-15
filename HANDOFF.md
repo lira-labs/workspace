@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 15:17
+- **Última Atualização:** 15/11/2026 15:23
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -41,7 +41,7 @@
   - `frontend-grafoparada-ui/SKILL.md`: padrão técnico de `.gp-svg`, `.gp-badge-*`, 3 modos e blindagem XSS em `code/grafoparada_web/`.
   - `visual-critic-audit/SKILL.md` + `scripts/audit_ui_cdp.py`: auditor automatizado Chrome Headless CDP (`390×844` Mobile + `1280×800` Desktop) com bloqueio para `overflow > 0` e erros de console.
 - **Agentes Especializados Persistentes em `.agents/agents/` e Disparo Automático:**
-  - Criados os perfis versionados `ux-spec-planner.md`, `frontend-layout-ui.md`, `frontend-map-engine.md`, `visual-design-critic.md`, `qa-gatekeeper.md` e `backend-engineer.md`, além do workflow `.agents/workflows/develop-frontend-feature.md` e regra automática obrigatória em `AGENTS.md` + `.agents/rules/ui_ux_design_system.md` (sem exigir `/teamwork` ou `/plan`).
+  - Criados os perfis versionados `ux-spec-planner.md`, `frontend-layout-ui.md`, `frontend-map-engine.md`, `visual-design-critic.md`, `qa-gatekeeper.md` e `backend-engineer.md`, além da skill orquestradora `.agents/skills/develop-frontend-feature/SKILL.md` (migrada de `workflows/` por depreciação oficial) e regra automática obrigatória em `AGENTS.md` + `.agents/rules/ui_ux_design_system.md` (sem exigir `/teamwork` ou `/plan`).
 - **Capturas Visuais Exportadas (`design-references/current_screenshots/`):**
   - Geradas 8 capturas atualizadas via `audit_ui_cdp.py` (`01_home_mobile.png` até `08_desktop_pesquisa_banca.png`, `overflow=0`, `0` erros JS/console) prontas para revisão com Mobbin ou crítica externa.
 - **Auto-Deploy Vercel Validado (`code/grafoparada_web`):**
