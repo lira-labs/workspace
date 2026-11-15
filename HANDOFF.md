@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 14/11/2026 23:52
+- **Última Atualização:** 15/11/2026 00:11
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -23,7 +23,7 @@
   - *👁️ Apresentação Canva (Link de Visualização)*: [Ver no Canva](https://www.canva.com/d/NATNJypc5jdvYra)
   - *📥 Download Direto PPTX (Export Oficial Canva - 13.1 MB)*: `https://grafoparadaweb.vercel.app/GrafoParada_Seminario2_CauaLira.pptx`
   - *Google Drive (Celular/Web)*: `G:\Meu Drive\IA_Projetos\GrafoParada_Sem2_Roteiro.pptx`, `G:\Meu Drive\IA_Projetos\GrafoParada_Seminario2_CauaLira.pptx`, `slides_canva_sem2.html` e `roteiro_fala_aula_hoje_sem2.html`
-  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Deployment em Produção)
+  - *Deploy Web Vercel*: `https://grafoparadaweb.vercel.app` (Produção + Auto-Deploy conectado ao GitHub `lira-labs/workspace` com `Root Directory = code/grafoparada_web`)
   - *Roteiro de Fala Mobile com Blindagem Técnica*: `https://grafoparadaweb.vercel.app/roteiro.html`
   - *Versões de Identidade Visual*:
     - **Versão PC (Widescreen / Slides)**: `logo_pc_horizontal.svg` e `.png` (560x140) com slogan *"Menos espera · Mais cidade"*
