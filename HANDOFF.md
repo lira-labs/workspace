@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 15:23
+- **Última Atualização:** 15/11/2026 16:05
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -34,6 +34,18 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0f. Redesign Completo da Tela Home (`#app-screen-home`, Direção A + 5 Estados Reais) (15/11/2026)
+- **Ciclo Multiagente Completo Executado:** `ux-spec-planner` (Explore + UX Spec + Anti-AI-Slop) -> `frontend-map-engine` (estados GPS/manual em `code/grafoparada_web/real_transit_engine.js`) -> `frontend-layout-ui` (UI/CSS/JS em `code/grafoparada_web/index.html`) -> `qa-gatekeeper` -> `visual-design-critic` (3 rodadas no Chrome Headless `390×844` Mobile e `1280×800` Desktop até aprovação estrita). *(Mobbin MCP falhou com erro SSE `exceeded 5 retries without progress` durante o Explore.)*
+- **Principais Melhorias na Home (`code/grafoparada_web/index.html` + `code/grafoparada_web/real_transit_engine.js`):**
+  - **5 Estados Explícitos da UI:** `initializing`/`loading`, `gps_denied` (novo estado explícito quando `navigator.geolocation` falha ou está indisponível), `out_of_coverage` (empty), `adapted` manual/cached (`partial`), e `adapted` com `originSource: 'gps'` (`success`).
+  - **Zero ETA Falso:** `#home-hero-eta-wrap` ocultado em `loading`/`gps_denied`/`out_of_coverage` (fim do `"GPS"` gigante em `28px`) e CTA primário invertido automaticamente para `Escolher minha parada` (`startGoingNowFlow()`) quando sem parada ativa.
+  - **Escolha Rápida na RMR + Contexto de Embarque:** `#home-quick-poles` (`Recife Antigo`, `TI Cabo`, `Olinda · Rio Doce`, `Camela Centro` via `selectHomeQuickPole()`) nos estados sem parada, e `#home-boarding-advice` (`~assentos est.` + janela de espera) + chips clicáveis `nearbyLines` quando adaptada.
+  - **Lista Única Agrupada & Sem Truncamento:** Fim do `margin-top: auto` / vazio morto vertical (`deadSpace <= 68px` no mobile, `scrollHeight === clientHeight` em `390×844` e `1280×800`); remoção de `-webkit-line-clamp: 2` e `nowrap` em `#home-routine-brief` para exibir rotas longas e janela de horários inteiras; remoção de `"Parada CTM "` na visão do passageiro.
+- **Verificação Final Pós-Ajustes (`40/40` + `26/26` + Visual QA Aprovado):**
+  - `pre_flight_check.py`: **40/40 PASS (100.0%)** com Node.js VM.
+  - `pytest -v code/grafoparada_tec`: **26/26 PASS (0 failed, 0 skipped, 53.79s)**.
+  - Auditoria Chrome Headless CDP (`390×844` e `1280×800`): `overflowX = 0`, `Console errors = 0`, `JS exceptions = 0`, screenshots atualizados em `design-references/current_screenshots/`.
 
 ### 0e. Antigravity OS de Frontend (`.agents/`), Pipeline Multiagente & Capturas Atuais (15/11/2026)
 - **Skills Modulares em `.agents/skills/`:**

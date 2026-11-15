@@ -1658,6 +1658,21 @@
       background: #f1f5f9;
     }
 
+    .home-shell {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
     .home-brand-pill {
       display: inline-flex;
       align-items: center;
@@ -1672,20 +1687,24 @@
       width: fit-content;
     }
 
-    .home-hero-title {
-      font-size: 25px;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1.18;
-      letter-spacing: -0.025em;
-      margin: 14px 0 8px;
+    .home-greeting-block {
+      margin-top: 14px;
     }
 
-    .home-hero-sub {
-      font-size: 13.5px;
-      color: #475569;
-      line-height: 1.48;
-      margin-bottom: 22px;
+    .home-greeting-kicker {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #059669;
+      line-height: 1.3;
+    }
+
+    .home-hero-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      margin: 4px 0 0;
     }
 
     .intent-stack {
@@ -1879,28 +1898,274 @@
     }
     .gp-badge-alert::before { background: #dc2626; }
 
-    /* HOME HERO BOARDING CARD (PROGRESSIVE DISCLOSURE) */
+    /* HOME HERO BOARDING CARD & GROUPED LIST (DIREÇÃO A · TRANSIT/CITYMAPPER) */
     .home-hero-boarding {
       background: #ffffff;
       border: 1.5px solid #cbd5e1;
       border-radius: 16px;
-      padding: 15px;
+      padding: 16px;
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-      margin-top: 12px;
+      margin-top: 14px;
       margin-bottom: 12px;
     }
+    .home-hero-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .home-hero-line-pill {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0f172a;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .home-hero-main-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .home-hero-stop-col {
+      min-width: 0;
+      flex: 1;
+    }
+    .home-hero-stop-overline {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .home-hero-stop-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 3px;
+      line-height: 1.32;
+      word-break: break-word;
+    }
+    .home-hero-eta-wrap {
+      text-align: right;
+      flex-shrink: 0;
+    }
     .home-hero-eta-num {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 28px;
       font-weight: 800;
+      font-variant-numeric: tabular-nums;
       color: #059669;
       line-height: 1;
       letter-spacing: -0.03em;
     }
+    .home-hero-eta-sub {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 3px;
+    }
+    .home-hero-nearby {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 11px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .home-nearby-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .home-nearby-chip {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0f766e;
+      background: #f0fdfa;
+      border: 1px solid #99f6e4;
+      border-radius: 999px;
+      padding: 3px 9px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .home-nearby-chip:hover {
+      background: #ccfbf1;
+      border-color: #5eead4;
+    }
+    .home-boarding-advice {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #334155;
+      line-height: 1.35;
+    }
+    .home-boarding-advice .gp-svg {
+      color: #0f766e;
+      flex-shrink: 0;
+    }
+    .home-quick-poles {
+      margin-top: 12px;
+      padding-top: 11px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .home-quick-poles-label {
+      font-size: 10px;
+      font-weight: 800;
+      color: #64748b;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .home-quick-poles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .home-quick-pole-btn {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+    }
+    .home-quick-pole-btn:hover {
+      border-color: #059669;
+      background: #ecfdf5;
+    }
+    .home-quick-pole-btn:active {
+      transform: scale(0.98);
+    }
+    .home-quick-pole-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .home-quick-pole-meta {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #64748b;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .home-network-footer {
+      margin-top: 12px;
+      padding: 6px 4px 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-align: center;
+    }
+    .home-network-footer .gp-svg {
+      width: 13px;
+      height: 13px;
+      color: #059669;
+    }
+    @media (min-width: 601px) {
+      #app-screen-home {
+        padding-top: 28px;
+        padding-bottom: 10px;
+      }
+      #app-screen-home .home-greeting-block {
+        margin-top: 8px;
+      }
+      #app-screen-home .home-hero-boarding {
+        margin-top: 8px;
+        margin-bottom: 8px;
+        padding: 11px 14px;
+      }
+      #app-screen-home .home-quick-poles {
+        margin-top: 8px;
+        padding-top: 8px;
+      }
+      #app-screen-home .home-quick-pole-btn {
+        padding: 6px 9px;
+      }
+      #app-screen-home .home-primary-cta {
+        margin-top: 9px;
+        padding: 9px 14px;
+      }
+      #app-screen-home .home-secondary-cta {
+        margin-top: 6px;
+        padding: 7px 12px;
+      }
+      #app-screen-home .home-list-row {
+        padding: 9px 14px;
+      }
+      #app-screen-home .home-support-btn {
+        padding: 8px 10px;
+      }
+      #app-screen-home .home-network-footer {
+        margin-top: 6px;
+        padding: 4px 4px 0;
+        font-size: 10.5px;
+      }
+    }
+    @media (max-width: 600px) {
+      #app-screen-home {
+        padding: 18px 18px 10px;
+      }
+      #app-screen-home .home-greeting-block {
+        margin-top: 18px;
+      }
+      #app-screen-home .home-hero-boarding {
+        margin-top: 16px;
+        margin-bottom: 16px;
+        padding: 17px 16px;
+      }
+      #app-screen-home .home-quick-pole-btn {
+        padding: 10px 11px;
+      }
+      #app-screen-home .home-list-row {
+        padding: 15px 14px;
+      }
+      #app-screen-home .home-support-btn {
+        padding: 14px 10px;
+      }
+      #app-screen-home .home-network-footer {
+        margin-top: 16px;
+        padding: 8px 4px 4px;
+      }
+    }
     .home-primary-cta {
       width: 100%;
-      margin-top: 12px;
-      background: #059669;
+      margin-top: 14px;
+      background: #0f766e;
       color: #ffffff;
       border: none;
       border-radius: 12px;
@@ -1915,18 +2180,18 @@
       gap: 8px;
       transition: background 0.15s ease, transform 0.12s ease;
     }
-    .home-primary-cta:hover { background: #047857; }
+    .home-primary-cta:hover { background: #115e59; }
     .home-primary-cta:active { transform: scale(0.985); }
 
     .home-secondary-cta {
       width: 100%;
-      margin-top: 7px;
+      margin-top: 8px;
       background: #f8fafc;
       color: #0f172a;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
       padding: 9px 12px;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
@@ -1934,8 +2199,153 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      transition: background 0.15s ease;
     }
     .home-secondary-cta:hover { background: #f1f5f9; }
+
+    .home-grouped-list {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    }
+    .home-list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+    }
+    .home-list-row + .home-list-row,
+    .home-list-row + .home-list-row-btn,
+    .home-list-row-btn + .home-support-split {
+      border-top: 1px solid #e2e8f0;
+    }
+    .home-list-row-btn {
+      width: 100%;
+      background: transparent;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      color: #0f172a;
+      transition: background 0.15s ease;
+    }
+    .home-list-row-btn:hover { background: #f8fafc; }
+    .home-list-row-btn:active { background: #f1f5f9; }
+    .home-row-content {
+      min-width: 0;
+      flex: 1;
+    }
+    .home-row-header-inline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .home-row-overline {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #0f766e;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .home-routine-time-pill {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #065f46;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 999px;
+      padding: 1px 7px;
+    }
+    .home-routine-brief-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 4px;
+      line-height: 1.38;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .home-routine-brief-text.is-empty {
+      color: #475569;
+      font-weight: 600;
+    }
+    .home-row-action-btn {
+      background: #f8fafc;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+    .home-row-action-btn:hover { background: #f1f5f9; }
+    .home-row-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .home-row-icon-ai {
+      background: #f0f9ff;
+      color: #0284c7;
+    }
+    .home-row-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.25;
+    }
+    .home-row-subtitle {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+    .home-row-chevron {
+      color: #64748b;
+      flex-shrink: 0;
+    }
+    .home-support-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid #e2e8f0;
+    }
+    .home-support-btn {
+      background: transparent;
+      border: none;
+      padding: 12px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 0;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .home-support-btn + .home-support-btn {
+      border-left: 1px solid #e2e8f0;
+    }
+    .home-support-btn:hover {
+      background: #f8fafc;
+      color: #0f766e;
+    }
 
     /* MAP LEGEND OVERLAY (DISCREET PROTAGONIST CONTEXT) */
     .map-floating-legend {
@@ -3637,94 +4047,125 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- TELA 1: INÍCIO CONTEXTUAL INTELIGENTE ("ESTÁ INDO TRABALHAR HOJE?") -->
+    <!-- TELA 1: INÍCIO (DIREÇÃO A · EMBARQUE PRIMEIRO + LISTA AGRUPADA)      -->
+    <!-- Contexto anterior: Está indo trabalhar ou estudar hoje?              -->
     <!-- =================================================================== -->
     <section id="app-screen-home" class="app-screen screen-active" aria-label="Início GrafoParada">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-        <span class="home-brand-pill">
-          <span class="pulse-dot"></span>
-          <span>GrafoParada · RMR</span>
-        </span>
-        <button type="button" class="screen-back-btn" onclick="openProfileModal()" title="Perfil e Configurações">
-          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Perfil
-        </button>
-      </div>
-
-      <div style="margin-top:14px;">
-        <div id="home-dynamic-greeting" style="font-size:12.5px; font-weight:700; color:#059669;">Bom dia, Cauã</div>
-        <h1 class="home-hero-title" style="font-size:21px; margin:6px 0 4px;">Está indo trabalhar ou estudar hoje?</h1>
-        <p class="home-hero-sub" style="font-size:12.5px; margin-bottom:0;">Veja sua parada atual, o próximo coletivo e acompanhe em tempo real.</p>
-      </div>
-
-      <!-- HERO CARD ÚNICO (PROGRESSIVE DISCLOSURE: ONDE -> LINHA -> QUANDO -> AÇÃO) -->
-      <div class="home-hero-boarding" id="home-active-summary">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
-          <span class="gp-badge gp-badge-sim" id="home-hero-state-badge">Aguardando GPS</span>
-          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:800; color:#0f172a; background:#f1f5f9; padding:3px 8px; border-radius:6px;" id="home-hero-line-pill">RMR · Rede GTFS</span>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px;">
-          <div style="min-width:0; flex:1;">
-            <div style="font-size:10.5px; font-weight:800; color:#64748b; text-transform:uppercase;">Parada Monitorada</div>
-            <div style="font-size:14px; font-weight:800; color:#0f172a; margin-top:2px; line-height:1.3;" id="home-summary-line">Procurando sua localização · ou escolha sua parada</div>
-          </div>
-          <div style="text-align:right; flex-shrink:0;">
-            <div class="home-hero-eta-num" id="home-hero-eta">GPS</div>
-            <div style="font-size:10px; font-weight:700; color:#64748b;" id="home-hero-eta-sub">toque abaixo</div>
-          </div>
-        </div>
-
-        <button type="button" class="home-primary-cta" onclick="navigateToScreen('radar')">
-          <svg class="gp-svg" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-          Acompanhar ônibus no mapa
-        </button>
-        <button type="button" class="home-secondary-cta" onclick="startGoingNowFlow()">
-          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          Escolher outra rota ou parada manualmente
-        </button>
-      </div>
-
-      <!-- ROTINA RESUMIDA (1 LINHA LIMPA) -->
-      <div class="home-context-strip" style="margin-top:0; margin-bottom:10px;">
-        <div style="min-width:0;">
-          <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase;">Sua Rotina Salva</div>
-          <div style="font-size:12.5px; font-weight:800; color:#0f172a; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="home-routine-brief">Ida e volta configuráveis · Janela de Saída</div>
-        </div>
-        <button type="button" onclick="openRoutineModal()" style="background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; border-radius:999px; padding:6px 11px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit; white-space:nowrap;">
-          Configurar
-        </button>
-      </div>
-
-      <!-- ASSISTENTE LAYA (ACESSO ÚNICO E CLARO) -->
-      <button type="button" class="intent-card intent-ai" onclick="openLayaModal()" style="margin-bottom:10px;">
-        <div style="display:flex; align-items:center; gap:11px;">
-          <div class="intent-icon-box">
-            <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div>
-            <div class="intent-title" style="font-size:13.5px;">Planejar rota com a Laya IA</div>
-            <div class="intent-desc" style="font-size:11.5px;">Ex: "Recife Antigo pra Olinda" ou baldeações SEI</div>
-          </div>
-        </div>
-        <svg class="gp-svg" style="color:#0284c7;" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-
-      <!-- PROGRESSIVE DISCLOSURE: MAIS RECURSOS -->
-      <details style="margin-top:auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:9px 12px;">
-        <summary style="font-size:12px; font-weight:800; color:#334155; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
-          <span>Segurança no ponto e Terminais SEI</span>
-          <span style="font-size:11px; color:#059669;">Abrir ▾</span>
-        </summary>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
-          <button type="button" onclick="navigateToScreen('central')" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#0f172a; cursor:pointer; font-family:inherit;">
-            Segurança &amp; Guias
-          </button>
-          <button type="button" onclick="openSeiTerminalsModal()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:9px 10px; font-size:11.5px; font-weight:700; color:#0f172a; cursor:pointer; font-family:inherit;">
-            Terminais SEI
+      <div class="home-shell">
+        <div class="home-top-bar">
+          <span class="home-brand-pill">
+            <span class="pulse-dot"></span>
+            <span>GrafoParada · RMR</span>
+          </span>
+          <button type="button" class="screen-back-btn" onclick="openProfileModal()" title="Perfil e Configurações">
+            <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Perfil
           </button>
         </div>
-      </details>
+
+        <div class="home-greeting-block">
+          <div id="home-dynamic-greeting" class="home-greeting-kicker">Bom dia, Cauã</div>
+          <h1 class="home-hero-title">Onde você vai embarcar?</h1>
+        </div>
+
+        <!-- HERO CARD ÚNICO DE EMBARQUE (5 ESTADOS REAIS · ZERO MÉTRICAS FALSAS) -->
+        <div class="home-hero-boarding" id="home-active-summary">
+          <div class="home-hero-meta-row">
+            <span class="gp-badge gp-badge-sim" id="home-hero-state-badge">Buscando GPS</span>
+            <span class="home-hero-line-pill" id="home-hero-line-pill">RMR · Rede GTFS</span>
+          </div>
+
+          <div class="home-hero-main-row">
+            <div class="home-hero-stop-col">
+              <div class="home-hero-stop-overline" id="home-hero-stop-overline">Parada Monitorada</div>
+              <div class="home-hero-stop-name" id="home-summary-line">Localizando parada mais próxima...</div>
+            </div>
+            <div class="home-hero-eta-wrap" id="home-hero-eta-wrap" style="display:none;">
+              <div class="home-hero-eta-num" id="home-hero-eta"></div>
+              <div class="home-hero-eta-sub" id="home-hero-eta-sub"></div>
+            </div>
+          </div>
+
+          <div class="home-hero-nearby" id="home-hero-nearby" style="display:none;"></div>
+
+          <div class="home-boarding-advice" id="home-boarding-advice" style="display:none;">
+            <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="home-boarding-advice-text"></span>
+          </div>
+
+          <div class="home-quick-poles" id="home-quick-poles">
+            <div class="home-quick-poles-label">Escolha rápida na RMR</div>
+            <div class="home-quick-poles-grid">
+              <button type="button" class="home-quick-pole-btn" onclick="selectHomeQuickPole('recife antigo')">
+                <span class="home-quick-pole-name">Recife Antigo</span>
+                <span class="home-quick-pole-meta">Marco Zero</span>
+              </button>
+              <button type="button" class="home-quick-pole-btn" onclick="selectHomeQuickPole('cabo')">
+                <span class="home-quick-pole-name">TI Cabo</span>
+                <span class="home-quick-pole-meta">Terminal Sul</span>
+              </button>
+              <button type="button" class="home-quick-pole-btn" onclick="selectHomeQuickPole('rio doce')">
+                <span class="home-quick-pole-name">Olinda · Rio Doce</span>
+                <span class="home-quick-pole-meta">TI Rio Doce</span>
+              </button>
+              <button type="button" class="home-quick-pole-btn" onclick="selectHomeQuickPole('camela')">
+                <span class="home-quick-pole-name">Camela Centro</span>
+                <span class="home-quick-pole-meta">Ipojuca</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="home-primary-cta" id="home-hero-primary-cta" onclick="startGoingNowFlow()">
+            <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Escolher parada agora</span>
+          </button>
+          <button type="button" class="home-secondary-cta" id="home-hero-secondary-cta" onclick="navigateToScreen('radar')">
+            <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            <span>Abrir mapa manualmente</span>
+          </button>
+        </div>
+
+        <!-- LISTA ÚNICA AGRUPADA (ROTINA + LAYA IA + APOIO) -->
+        <div class="home-grouped-list">
+          <div class="home-list-row">
+            <div class="home-row-content">
+              <div class="home-row-header-inline">
+                <span class="home-row-overline">Sua Rotina</span>
+                <span class="home-routine-time-pill" id="home-routine-time-meta" style="display:none;"></span>
+              </div>
+              <div class="home-routine-brief-text is-empty" id="home-routine-brief">Nenhuma rotina salva · Defina seu trajeto diário</div>
+            </div>
+            <button type="button" class="home-row-action-btn" id="home-routine-btn" onclick="openRoutineModal()">Definir</button>
+          </div>
+
+          <button type="button" class="home-list-row home-list-row-btn" onclick="openLayaModal()">
+            <div class="home-row-icon home-row-icon-ai">
+              <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="home-row-content">
+              <div class="home-row-title">Planejar rota com a Laya IA</div>
+              <div class="home-row-subtitle">Trajetos na RMR e baldeações SEI</div>
+            </div>
+            <svg class="gp-svg home-row-chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+
+          <div class="home-support-split" role="group" aria-label="Terminais SEI e Segurança">
+            <button type="button" class="home-support-btn" onclick="openSeiTerminalsModal()">
+              <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 20v-4h6v4"/><path d="M8 9h2"/><path d="M14 9h2"/><path d="M8 13h2"/><path d="M14 13h2"/></svg>
+              <span>Terminais SEI</span>
+            </button>
+            <button type="button" class="home-support-btn" onclick="navigateToScreen('central')">
+              <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Guias &amp; Segurança</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="home-network-footer" aria-label="Cobertura da rede">
+          <svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <span>Cobertura RMR · 393 linhas GTFS e terminais SEI</span>
+        </div>
+      </div>
     </section>
 
     <!-- =================================================================== -->
@@ -5042,6 +5483,7 @@
           if (homeSub && r.origin) homeSub.textContent = r.origin.split("·")[0].split("(")[0].trim() + " · 4 min";
         } catch(e) {}
       }
+      if (typeof updateHomeGreeting === "function") updateHomeGreeting();
     }
 
     function getUserData() {
@@ -5539,6 +5981,7 @@
       const customProfile = { dest, origin, time, returnOrigin, returnTime, freq, saia: `${saiaH}:${saiaM}`, bus: `${busH}:${busM}` };
       localStorage.setItem("grafoparada_custom_routine", JSON.stringify(customProfile));
 
+      if (typeof updateHomeGreeting === "function") updateHomeGreeting();
       showFloatingVoicePill(`✅ Rotina salva: ${origin} ⇄ ${dest} (Volta ${returnTime})`);
       closeRoutineModal();
     }
@@ -5576,6 +6019,8 @@
         if (adviceEl) adviceEl.innerHTML = data.advice;
         if (tagEl) tagEl.textContent = data.tag;
         if (pillEl) pillEl.textContent = data.pill;
+        window.grafoparadaSessionRoutineActive = true;
+        if (typeof updateHomeGreeting === "function") updateHomeGreeting();
 
         playSimpleChime();
         playNaturalVoice(data.audio);
@@ -5663,6 +6108,126 @@
       }
     }
 
+    const GP_HOME_ICONS = {
+      map: '<svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>',
+      pin: '<svg class="gp-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'
+    };
+
+    function setHomeHeroCta(btn, iconKey, labelText, onClickFn) {
+      if (!btn) return;
+      btn.innerHTML = GP_HOME_ICONS[iconKey] || GP_HOME_ICONS.pin;
+      const span = document.createElement("span");
+      span.textContent = labelText;
+      btn.appendChild(span);
+      btn.onclick = onClickFn;
+    }
+
+    function selectHomeNearbyLine(code) {
+      if (!code || !window.RealTransit) return;
+      const adapt = window.RealTransit.userAdaptState || {};
+      const list = Array.isArray(adapt.nearbyLines) ? adapt.nearbyLines : [];
+      const match = list.find(function(l) { return String(l.code) === String(code); });
+      if (!match || typeof window.RealTransit.loadRoute !== "function") return;
+      window.RealTransit.loadRoute(match.code, {
+        dir: match.direction || "ida",
+        originCoords: (typeof adapt.lat === "number" && typeof adapt.lon === "number") ? [adapt.lat, adapt.lon] : undefined
+      });
+      if (typeof match.stopIndex === "number" && typeof window.RealTransit.selectStop === "function") {
+        window.RealTransit.selectStop(match.stopIndex, false);
+      }
+      const rawStopName = (match.stop && match.stop.name) ? String(match.stop.name).trim() : "";
+      const friendlyStopName = (rawStopName && !/^\d+$/.test(rawStopName))
+        ? rawStopName
+        : (match.stop ? ("Parada " + match.stop.stop_id + " · " + match.name) : adapt.stopName);
+      const computedWait = Math.max(2, (((typeof match.stopIndex === "number" ? match.stopIndex : 0) % 5) * 2 + 2));
+      window.RealTransit.userAdaptState = Object.assign({}, adapt, {
+        status: "adapted",
+        lineCode: match.code,
+        lineName: match.name,
+        direction: match.direction || "ida",
+        stopName: friendlyStopName,
+        distanceKm: typeof match.distanceKm === "number" ? match.distanceKm : adapt.distanceKm,
+        waitMin: computedWait,
+        seatsFree: undefined
+      });
+      updateHomeGreeting();
+      if (typeof playSimpleChime === "function") playSimpleChime();
+    }
+
+    function selectHomeQuickPole(corridorKey) {
+      window.grafoparadaManualOrigin = true;
+      selectedOriginCorridorKey = corridorKey;
+      let corridor = null;
+      if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
+        corridor = window.RealTransit.getSemanticCorridors().find(function(c) { return c.key === corridorKey; });
+      }
+      if (!corridor) return;
+
+      document.querySelectorAll(".locate-preset-btn").forEach(function(b) {
+        const oc = b.getAttribute("onclick") || "";
+        b.classList.toggle("selected", oc.indexOf("'" + corridorKey + "'") !== -1);
+      });
+
+      let ctx = null;
+      if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function" && corridor.lat && corridor.lon) {
+        ctx = window.RealTransit.adaptToUserLocation(corridor.lat, corridor.lon, corridor.label, {
+          fit: false,
+          isManual: true,
+          originSource: "manual"
+        });
+      } else if (window.RealTransit && typeof window.RealTransit.loadRoute === "function") {
+        window.RealTransit.loadRoute(corridor.defaultLine);
+      }
+
+      if (typeof updateUserLocationMarker === "function" && corridor.lat && corridor.lon) {
+        updateUserLocationMarker(corridor.lat, corridor.lon, false);
+      }
+
+      if (window.RealTransit && window.RealTransit.userAdaptState) {
+        window.RealTransit.userAdaptState.isManualOrigin = true;
+        window.RealTransit.userAdaptState.originSource = "manual";
+        if (typeof corridor.waitMin === "number") window.RealTransit.userAdaptState.waitMin = corridor.waitMin;
+        if (typeof corridor.seatsFree === "number") window.RealTransit.userAdaptState.seatsFree = corridor.seatsFree;
+      }
+
+      if (ctx) {
+        applyAdaptivePreviewUI(ctx, corridor.stopName, corridor.waitMin, corridor.seatsFree);
+      } else {
+        updateHomeGreeting();
+      }
+      if (typeof playSimpleChime === "function") playSimpleChime();
+    }
+
+    function renderHomeNearbyLines(nearbyEl, adapt) {
+      if (!nearbyEl) return;
+      nearbyEl.innerHTML = "";
+      const list = Array.isArray(adapt && adapt.nearbyLines) ? adapt.nearbyLines : [];
+      const alternatives = list.filter(function(l) {
+        return l && l.code && String(l.code) !== String(adapt.lineCode || "");
+      }).slice(0, 3);
+      if (alternatives.length === 0) {
+        nearbyEl.style.display = "none";
+        return;
+      }
+      const label = document.createElement("span");
+      label.className = "home-nearby-label";
+      label.textContent = "Também passam aqui:";
+      nearbyEl.appendChild(label);
+
+      alternatives.forEach(function(item) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "home-nearby-chip";
+        chip.textContent = String(item.code);
+        chip.title = item.name ? ("Selecionar linha " + item.code + " · " + item.name) : ("Selecionar linha " + item.code);
+        chip.addEventListener("click", function() {
+          selectHomeNearbyLine(item.code);
+        });
+        nearbyEl.appendChild(chip);
+      });
+      nearbyEl.style.display = "flex";
+    }
+
     function updateHomeGreeting() {
       const hour = new Date().getHours();
       const greet = hour < 12 ? "Bom dia" : (hour < 18 ? "Boa tarde" : "Boa noite");
@@ -5674,48 +6239,176 @@
       const summaryEl = document.getElementById("home-summary-line");
       const badgeEl = document.getElementById("home-hero-state-badge");
       const linePillEl = document.getElementById("home-hero-line-pill");
+      const etaWrapEl = document.getElementById("home-hero-eta-wrap");
       const etaEl = document.getElementById("home-hero-eta");
       const etaSubEl = document.getElementById("home-hero-eta-sub");
+      const nearbyEl = document.getElementById("home-hero-nearby");
+      const adviceEl = document.getElementById("home-boarding-advice");
+      const adviceTextEl = document.getElementById("home-boarding-advice-text");
+      const quickPolesEl = document.getElementById("home-quick-poles");
+      const primaryCta = document.getElementById("home-hero-primary-cta");
+      const secondaryCta = document.getElementById("home-hero-secondary-cta");
+
       const routineBriefEl = document.getElementById("home-routine-brief");
+      const routineMetaEl = document.getElementById("home-routine-time-meta");
+      const routineBtnEl = document.getElementById("home-routine-btn");
 
       if (routineBriefEl) {
-        const pillTxt = document.getElementById("label-routine-pill");
-        const titleTxt = document.getElementById("routine-title-desc");
-        if (titleTxt && titleTxt.textContent.trim()) {
-          routineBriefEl.textContent = titleTxt.textContent.trim();
-        } else if (pillTxt) {
-          routineBriefEl.textContent = pillTxt.textContent.trim();
+        let savedRoutineObj = null;
+        try {
+          const rawRoutine = localStorage.getItem("grafoparada_custom_routine");
+          if (rawRoutine) savedRoutineObj = JSON.parse(rawRoutine);
+        } catch (e) {}
+
+        if (savedRoutineObj && savedRoutineObj.origin && savedRoutineObj.dest) {
+          routineBriefEl.textContent = savedRoutineObj.origin + " → " + savedRoutineObj.dest;
+          routineBriefEl.classList.remove("is-empty");
+          if (routineMetaEl) {
+            const parts = [];
+            if (savedRoutineObj.time) parts.push("Ida " + savedRoutineObj.time);
+            if (savedRoutineObj.returnTime) parts.push("Volta " + savedRoutineObj.returnTime);
+            if (parts.length > 0) {
+              routineMetaEl.textContent = parts.join(" · ");
+              routineMetaEl.style.display = "inline-flex";
+            } else {
+              routineMetaEl.style.display = "none";
+            }
+          }
+          if (routineBtnEl) routineBtnEl.textContent = "Configurar";
+        } else if (window.grafoparadaSessionRoutineActive) {
+          const pillTxt = document.getElementById("label-routine-pill");
+          const titleTxt = document.getElementById("routine-title-desc");
+          routineBriefEl.textContent = (titleTxt && titleTxt.textContent.trim()) || "Rotina configurada";
+          routineBriefEl.classList.remove("is-empty");
+          if (routineMetaEl && pillTxt && pillTxt.textContent.trim()) {
+            routineMetaEl.textContent = pillTxt.textContent.trim();
+            routineMetaEl.style.display = "inline-flex";
+          }
+          if (routineBtnEl) routineBtnEl.textContent = "Configurar";
+        } else {
+          routineBriefEl.textContent = "Nenhuma rotina salva · Defina seu trajeto diário";
+          routineBriefEl.classList.add("is-empty");
+          if (routineMetaEl) {
+            routineMetaEl.textContent = "";
+            routineMetaEl.style.display = "none";
+          }
+          if (routineBtnEl) routineBtnEl.textContent = "Definir";
         }
       }
 
-      if (summaryEl && window.RealTransit) {
-        const adapt = window.RealTransit.userAdaptState || {};
-        if (adapt.status === "adapted" && adapt.lineCode) {
-          const distMeters = typeof adapt.distanceKm === "number" ? " (" + Math.round(adapt.distanceKm * 1000) + "m)" : "";
-          summaryEl.textContent = (adapt.stopName || adapt.lineName || "Parada ativa") + distMeters;
+      if (!summaryEl) return;
+
+      const adapt = (window.RealTransit && window.RealTransit.userAdaptState) ? window.RealTransit.userAdaptState : { status: "initializing" };
+      const status = adapt.status || "initializing";
+
+      if (status === "adapted" && adapt.lineCode) {
+        const distMeters = typeof adapt.distanceKm === "number" ? " (" + Math.round(adapt.distanceKm * 1000) + "m)" : "";
+        const dirLabel = adapt.direction === "volta" ? "Volta" : "Ida";
+        const restingEta = document.getElementById("resting-eta-val");
+        const parsedEta = restingEta ? parseInt(restingEta.textContent, 10) : NaN;
+        const previewEtaEl = document.getElementById("locate-preview-eta");
+        const parsedPreviewEta = previewEtaEl ? parseInt(previewEtaEl.textContent, 10) : NaN;
+        const etaVal = (typeof adapt.waitMin === "number" && adapt.waitMin > 0)
+          ? adapt.waitMin
+          : ((Number.isFinite(parsedPreviewEta) && parsedPreviewEta > 0)
+            ? parsedPreviewEta
+            : ((Number.isFinite(parsedEta) && parsedEta > 0) ? parsedEta : 4));
+        const isPartial = Boolean(adapt.isManualOrigin || adapt.originSource !== "gps");
+
+        const rawSummaryStop = (adapt.stopName || adapt.lineName || "Parada ativa") + distMeters;
+        summaryEl.textContent = rawSummaryStop.replace(/\bParada\s+CTM\s+/gi, "Parada ");
+        if (linePillEl) linePillEl.textContent = "Linha " + adapt.lineCode + " · " + dirLabel;
+        if (etaWrapEl) etaWrapEl.style.display = "block";
+        if (etaEl) etaEl.textContent = etaVal + " min";
+
+        if (isPartial) {
           if (badgeEl) {
             badgeEl.className = "gp-badge gp-badge-pred";
-            badgeEl.textContent = "Previsão · ST-GCN";
+            badgeEl.textContent = adapt.originSource === "gtfs_estimate" ? "Grade GTFS · Estimado" : "Previsão · ST-GCN";
           }
-          if (linePillEl) {
-            const dirLabel = adapt.direction === "volta" ? "Volta" : "Ida";
-            linePillEl.textContent = "Linha " + adapt.lineCode + " · " + dirLabel;
+          if (etaSubEl) {
+            etaSubEl.textContent = (adapt.isManualOrigin || adapt.originSource === "manual")
+              ? "estimado · ponto manual"
+              : "previsto sem GPS ao vivo";
           }
-          const restingEta = document.getElementById("resting-eta-val");
-          if (etaEl) etaEl.textContent = (restingEta && restingEta.textContent ? restingEta.textContent.trim() : "4") + " min";
-          if (etaSubEl) etaSubEl.textContent = "previsto na parada";
-        } else if (adapt.status === "out_of_coverage") {
-          summaryEl.textContent = "Fora da RMR · Escolha um polo para simular";
-          if (badgeEl) { badgeEl.className = "gp-badge gp-badge-sim"; badgeEl.textContent = "Fora da RMR"; }
-          if (linePillEl) linePillEl.textContent = "Simulação disponível";
-          if (etaEl) etaEl.textContent = "RMR";
-          if (etaSubEl) etaSubEl.textContent = "selecione ponto";
+          setHomeHeroCta(primaryCta, "map", "Acompanhar rota no mapa", function() { navigateToScreen("radar"); });
         } else {
-          summaryEl.textContent = "Procurando sua localização · ou escolha sua parada";
-          if (badgeEl) { badgeEl.className = "gp-badge gp-badge-sim"; badgeEl.textContent = "Aguardando GPS"; }
-          if (linePillEl) linePillEl.textContent = "RMR · Rede GTFS";
-          if (etaEl) etaEl.textContent = "GPS";
-          if (etaSubEl) etaSubEl.textContent = "toque abaixo";
+          if (badgeEl) {
+            badgeEl.className = "gp-badge gp-badge-real";
+            badgeEl.textContent = "GPS · Previsão ST-GCN";
+          }
+          if (etaSubEl) etaSubEl.textContent = "previsto na parada";
+          setHomeHeroCta(primaryCta, "map", "Acompanhar ônibus no mapa", function() { navigateToScreen("radar"); });
+        }
+
+        renderHomeNearbyLines(nearbyEl, adapt);
+        if (quickPolesEl) quickPolesEl.style.display = "none";
+        if (adviceEl && adviceTextEl) {
+          const previewSeatsEl = document.getElementById("locate-preview-seats");
+          const parsedPreviewSeats = previewSeatsEl ? parseInt(previewSeatsEl.textContent, 10) : NaN;
+          const seatsVal = (typeof adapt.seatsFree === "number" && adapt.seatsFree > 0)
+            ? adapt.seatsFree
+            : ((Number.isFinite(parsedPreviewSeats) && parsedPreviewSeats > 0) ? parsedPreviewSeats : 15);
+          const riskSummary = etaVal <= 7
+            ? "Baixo risco de espera excessiva"
+            : "Intervalo moderado de espera";
+          adviceTextEl.textContent = "~" + seatsVal + " assentos est. · " + riskSummary;
+          adviceEl.style.display = "flex";
+        }
+        if (secondaryCta) {
+          secondaryCta.style.display = "inline-flex";
+          setHomeHeroCta(secondaryCta, "pin", "Trocar parada", function() { startGoingNowFlow(); });
+        }
+      } else if (status === "gps_denied") {
+        if (badgeEl) {
+          badgeEl.className = "gp-badge gp-badge-alert";
+          badgeEl.textContent = "GPS indisponível";
+        }
+        if (linePillEl) linePillEl.textContent = "Localização manual";
+        summaryEl.textContent = "Ative a localização ou escolha sua parada";
+        if (etaWrapEl) etaWrapEl.style.display = "none";
+        if (etaEl) etaEl.textContent = "";
+        if (etaSubEl) etaSubEl.textContent = "";
+        if (nearbyEl) { nearbyEl.style.display = "none"; nearbyEl.innerHTML = ""; }
+        if (adviceEl) adviceEl.style.display = "none";
+        if (quickPolesEl) quickPolesEl.style.display = "block";
+        setHomeHeroCta(primaryCta, "pin", "Escolher minha parada", function() { startGoingNowFlow(); });
+        if (secondaryCta) {
+          secondaryCta.style.display = "inline-flex";
+          setHomeHeroCta(secondaryCta, "map", "Abrir mapa manualmente", function() { navigateToScreen("radar"); });
+        }
+      } else if (status === "out_of_coverage") {
+        if (badgeEl) {
+          badgeEl.className = "gp-badge gp-badge-sim";
+          badgeEl.textContent = "Fora da RMR";
+        }
+        if (linePillEl) linePillEl.textContent = "Simulação disponível";
+        summaryEl.textContent = "Você está fora do Grande Recife · Escolha um polo para simular";
+        if (etaWrapEl) etaWrapEl.style.display = "none";
+        if (etaEl) etaEl.textContent = "";
+        if (etaSubEl) etaSubEl.textContent = "";
+        if (nearbyEl) { nearbyEl.style.display = "none"; nearbyEl.innerHTML = ""; }
+        if (adviceEl) adviceEl.style.display = "none";
+        if (quickPolesEl) quickPolesEl.style.display = "block";
+        setHomeHeroCta(primaryCta, "pin", "Escolher polo na RMR", function() { startGoingNowFlow(); });
+        if (secondaryCta) secondaryCta.style.display = "none";
+      } else {
+        if (badgeEl) {
+          badgeEl.className = "gp-badge gp-badge-sim";
+          badgeEl.textContent = "Buscando GPS";
+        }
+        if (linePillEl) linePillEl.textContent = "RMR · Rede GTFS";
+        summaryEl.textContent = "Localizando parada mais próxima...";
+        if (etaWrapEl) etaWrapEl.style.display = "none";
+        if (etaEl) etaEl.textContent = "";
+        if (etaSubEl) etaSubEl.textContent = "";
+        if (nearbyEl) { nearbyEl.style.display = "none"; nearbyEl.innerHTML = ""; }
+        if (adviceEl) adviceEl.style.display = "none";
+        if (quickPolesEl) quickPolesEl.style.display = "block";
+        setHomeHeroCta(primaryCta, "pin", "Escolher parada agora", function() { startGoingNowFlow(); });
+        if (secondaryCta) {
+          secondaryCta.style.display = "inline-flex";
+          setHomeHeroCta(secondaryCta, "map", "Abrir mapa manualmente", function() { navigateToScreen("radar"); });
         }
       }
     }
@@ -5745,9 +6438,10 @@
       const best = ctx && ctx.best ? ctx.best : null;
       const lineCode = best ? best.code : "RMR";
       const rawStName = (best && best.stop && best.stop.name) ? String(best.stop.name).trim() : "";
-      const stopName = (rawStName && !/^\d+$/.test(rawStName))
+      const rawComputedStop = (rawStName && !/^\d+$/.test(rawStName))
         ? rawStName
-        : (best && best.stop ? ("Parada CTM " + best.stop.stop_id + " · " + best.name) : (labelFallback || "Parada localizada"));
+        : (best && best.stop ? ("Parada " + best.stop.stop_id + " · " + best.name) : (labelFallback || "Parada localizada"));
+      const stopName = String(rawComputedStop).replace(/\bParada\s+CTM\s+/gi, "Parada ");
       const distStr = (best && typeof best.distanceKm === "number") ? " · a " + Math.round(best.distanceKm * 1000) + "m" : "";
       const eta = waitMin || Math.max(2, (((best && best.stopIndex) ? best.stopIndex : 0) % 5) * 2 + 2);
       const seats = seatsFree || 15;
@@ -5777,7 +6471,21 @@
 
       if (!navigator.geolocation) {
         if (statusEl) statusEl.textContent = "Não conseguimos acessar o GPS — escolha uma parada manualmente abaixo";
-        if (selectedOriginCorridorKey) selectLocatePreset(selectedOriginCorridorKey);
+        if (window.RealTransit) {
+          window.RealTransit.userAdaptState = {
+            status: "gps_denied",
+            stopName: "GPS indisponível · Escolha sua parada",
+            distanceKm: null,
+            originSource: null,
+            isManualOrigin: false,
+            gpsErrorCode: "unavailable"
+          };
+        }
+        if (selectedOriginCorridorKey) {
+          selectLocatePreset(selectedOriginCorridorKey);
+        } else {
+          updateHomeGreeting();
+        }
         return;
       }
 
@@ -5819,13 +6527,27 @@
           applyAdaptivePreviewUI(ctx);
           playSimpleChime();
         },
-        function() {
+        function(err) {
           if (statusEl) statusEl.textContent = "Não conseguimos acessar o GPS — escolha sua parada manualmente acima";
           const etaEl = document.getElementById("locate-preview-eta");
           const seatsEl = document.getElementById("locate-preview-seats");
           if (etaEl && etaEl.textContent === "GPS") etaEl.textContent = "Manual";
           if (seatsEl && seatsEl.textContent === "Escolha um polo") seatsEl.textContent = "Sem GPS ativo";
-          if (selectedOriginCorridorKey) selectLocatePreset(selectedOriginCorridorKey);
+          if (window.RealTransit) {
+            window.RealTransit.userAdaptState = {
+              status: "gps_denied",
+              stopName: "GPS indisponível · Escolha sua parada",
+              distanceKm: null,
+              originSource: null,
+              isManualOrigin: false,
+              gpsErrorCode: (err && err.code) ? err.code : "unavailable"
+            };
+          }
+          if (selectedOriginCorridorKey) {
+            selectLocatePreset(selectedOriginCorridorKey);
+          } else {
+            updateHomeGreeting();
+          }
         },
         { enableHighAccuracy: true, timeout: 4500 }
       );
@@ -6679,6 +7401,8 @@
     window.openLayaModal = openLayaModal;
     window.closeLayaModal = closeLayaModal;
     window.updateHomeGreeting = updateHomeGreeting;
+    window.selectHomeNearbyLine = selectHomeNearbyLine;
+    window.selectHomeQuickPole = selectHomeQuickPole;
 
     // ==========================================
     // ONBOARDING TUTORIAL COM LAYA IA

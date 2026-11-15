@@ -14,7 +14,14 @@
     activeDirection: 'ida',
     activeBoardingIndex: 0,
     activeStopIndex: 0,
-    userAdaptState: { status: 'initializing', stopName: null, distanceKm: null },
+    userAdaptState: {
+      status: 'initializing',
+      stopName: null,
+      distanceKm: null,
+      originSource: null,
+      isManualOrigin: false,
+      gpsErrorCode: null
+    },
     map: null,
     polylineLayer: null,
     passedPolylineLayer: null,
@@ -157,7 +164,7 @@
         if (lastRaw) {
           const last = JSON.parse(lastRaw);
           if (typeof last.lat === 'number' && typeof last.lon === 'number') {
-            this.adaptToUserLocation(last.lat, last.lon, 'Última localização ativa', { fit: false });
+            this.adaptToUserLocation(last.lat, last.lon, 'Última localização ativa', { fit: false, originSource: 'cached' });
             restored = true;
           }
         }
@@ -165,19 +172,43 @@
 
       if (!restored) {
         // Estado inicial limpo: tenta geolocalização real antes de assumir qualquer parada
-        this.userAdaptState = { status: 'awaiting_location', stopName: 'Escolha ou ative seu GPS', distanceKm: null };
+        this.userAdaptState = {
+          status: 'awaiting_location',
+          stopName: 'Escolha ou ative seu GPS',
+          distanceKm: null,
+          originSource: null,
+          isManualOrigin: false,
+          gpsErrorCode: null
+        };
         this.loadRoute('199');
-        if (navigator && navigator.geolocation) {
+        const applyGpsDeniedState = (err) => {
+          if (window.grafoparadaManualOrigin) return;
+          const curStatus = this.userAdaptState && this.userAdaptState.status;
+          if (curStatus === 'adapted' || curStatus === 'out_of_coverage') return;
+          this.userAdaptState = {
+            status: 'gps_denied',
+            stopName: 'GPS indisponível · Escolha sua parada',
+            distanceKm: null,
+            originSource: null,
+            isManualOrigin: false,
+            gpsErrorCode: err && err.code ? err.code : 'unavailable'
+          };
+          if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
+        };
+
+        if (typeof navigator !== 'undefined' && navigator.geolocation && typeof navigator.geolocation.getCurrentPosition === 'function') {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              this.adaptToUserLocation(pos.coords.latitude, pos.coords.longitude, 'GPS em tempo real', { fit: true });
+              if (window.grafoparadaManualOrigin) return;
+              this.adaptToUserLocation(pos.coords.latitude, pos.coords.longitude, 'GPS em tempo real', { fit: true, originSource: 'gps' });
             },
-            () => {
-              // Mantém estado aguardando escolha na Tela 1/2 sem fingir que está na Rural
-              if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
+            (err) => {
+              applyGpsDeniedState(err);
             },
             { enableHighAccuracy: true, timeout: 4500 }
           );
+        } else {
+          applyGpsDeniedState({ code: 'unavailable' });
         }
       }
 
@@ -566,7 +597,7 @@
         const marker = L.marker([st.lat, st.lon], { icon: customIcon, zIndexOffset: isBoard ? 900 : 0 });
         const displayStopName = (st.name && !/^\d+$/.test(String(st.name).trim()))
           ? st.name
-          : `Parada CTM ${st.stop_id}`;
+          : `Parada ${st.stop_id}`;
 
         const popupContent = `
           <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:220px; padding:2px;">
@@ -601,7 +632,7 @@
 
       const cleanStopLabel = (st.name && !/^\d+$/.test(String(st.name).trim()))
         ? st.name
-        : `Parada CTM ${st.stop_id} (${this.activeRoute.name || 'Linha ' + this.activeRouteCode})`;
+        : `Parada ${st.stop_id} (${this.activeRoute.name || 'Linha ' + this.activeRouteCode})`;
 
       const dirLabel = dirData.dir === 'volta' ? 'VOLTA' : 'IDA';
       const remainingCount = Math.max(0, activeStops.length - 1 - index);
@@ -695,7 +726,7 @@
         const isSel = idx === this.activeStopIndex;
         const isBoard = idx === boardIdx;
         const eta = Math.max(2, (((idx - boardIdx + 6) % 6) * 3) + 2);
-        const stLabel = (st.name && !/^\d+$/.test(String(st.name).trim())) ? st.name : `Parada CTM ${st.stop_id}`;
+        const stLabel = (st.name && !/^\d+$/.test(String(st.name).trim())) ? st.name : `Parada ${st.stop_id}`;
         return `
           <div style="background:${isSel ? '#ecfdf5' : 'var(--bg-page)'}; border:${isSel ? `2px solid ${dirColor}` : '1px solid var(--border-color)'}; opacity:${isPassed ? '0.62' : '1'}; border-radius:12px; padding:10px 12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s ease;" onclick="window.RealTransit.selectStop(${idx}, true)">
             <div style="max-width:75%;">
@@ -1230,17 +1261,40 @@
       const ctx = this.findNearestTransitContext(lat, lon);
       if (!ctx) return null;
 
+      const isManualOrigin = Boolean(
+        (opts && opts.isManual) ||
+        (opts && opts.originSource === 'manual') ||
+        window.grafoparadaManualOrigin ||
+        /ponto marcado|manual/i.test(String(sourceLabel || ''))
+      );
+      const isCachedOrigin = !isManualOrigin && (
+        (opts && opts.originSource === 'cached') ||
+        /última localização/i.test(String(sourceLabel || ''))
+      );
+      const isLiveGps = !isManualOrigin && !isCachedOrigin && (
+        (opts && opts.originSource === 'gps') ||
+        /gps/i.test(String(sourceLabel || ''))
+      );
+      const originSource = (opts && opts.originSource)
+        ? opts.originSource
+        : (isManualOrigin ? 'manual' : (isCachedOrigin ? 'cached' : (isLiveGps ? 'gps' : 'gtfs_estimate')));
+
       if (ctx.outOfCoverage) {
         this.userAdaptState = {
           status: 'out_of_coverage',
+          sourceLabel: sourceLabel || 'GPS Atual',
           stopName: `Fora da RMR (${Math.round(ctx.best.distanceKm)} km do Grande Recife)`,
           distanceKm: ctx.best.distanceKm,
           lat,
-          lon
+          lon,
+          originSource,
+          isManualOrigin,
+          gpsErrorCode: null
         };
         if (typeof window.showFloatingVoicePill === 'function') {
           window.showFloatingVoicePill('📍 Você está fora do Grande Recife. Selecione um ponto para simular.');
         }
+        if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
         return ctx;
       }
 
@@ -1248,7 +1302,7 @@
       const rawStopName = (best.stop && best.stop.name) ? String(best.stop.name).trim() : '';
       const friendlyStopName = (rawStopName && !/^\d+$/.test(rawStopName))
         ? rawStopName
-        : `Parada CTM ${best.stop ? best.stop.stop_id : best.code} · ${best.name}`;
+        : `Parada ${best.stop ? best.stop.stop_id : best.code} · ${best.name}`;
       this.userAdaptState = {
         status: 'adapted',
         sourceLabel: sourceLabel || 'GPS Atual',
@@ -1259,7 +1313,10 @@
         distanceKm: best.distanceKm,
         lat,
         lon,
-        nearbyLines: ctx.nearbyLines
+        nearbyLines: ctx.nearbyLines,
+        originSource,
+        isManualOrigin,
+        gpsErrorCode: null
       };
 
       try {
@@ -1472,7 +1529,7 @@
             if (codeStop) {
               return {
                 key: pNorm,
-                label: `Parada CTM ${codeStop.stop_id} (${line.code})`,
+                label: `Parada ${codeStop.stop_id} (${line.code})`,
                 lat: codeStop.lat,
                 lon: codeStop.lon,
                 stopName: (codeStop.name && !/^\d+$/.test(codeStop.name)) ? codeStop.name : `Parada ${codeStop.stop_id}`
@@ -2165,7 +2222,7 @@
         }
 
         // Sem local citado -> usa parada adaptada ao GPS/escolha atual
-        if (this.userAdaptState && this.userAdaptState.status === 'awaiting_location') {
+        if (this.userAdaptState && (this.userAdaptState.status === 'awaiting_location' || this.userAdaptState.status === 'gps_denied')) {
           return {
             intent: 'need_location',
             html: `📍 Ainda não sei em qual bairro ou parada você está agora!<br><br>Ative seu GPS ou toque no bairro de partida para eu localizar a linha mais próxima:<br><br>` +
