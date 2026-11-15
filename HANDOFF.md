@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 16:05
+- **Última Atualização:** 15/11/2026 18:25
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -34,6 +34,17 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0g. Redesign e Descolisão da Tela de Mapa Ao Vivo (`radar`, Direção A) (15/11/2026)
+- **Ciclo Multiagente Completo Executado:** `ux-spec-planner` (Explore + Diagnóstico de 6 pontos em `03_mapa_ao_vivo_mobile.png`) -> `frontend-map-engine` (`code/grafoparada_web/real_transit_engine.js`) + `frontend-layout-ui` (`code/grafoparada_web/index.html`) -> `qa-gatekeeper` -> `visual-design-critic` (2 rodadas no Chrome Headless `390×844` Mobile e `1280×800` Desktop até aprovação estrita).
+- **Principais Melhorias no Mapa e Bottom Sheet (`code/grafoparada_web/index.html` + `code/grafoparada_web/real_transit_engine.js`):**
+  - **Prioridade para Parada + ETA no Bottom Sheet em Repouso (`<= 205px`):** Card da parada atual (`#current-stop-name` enxuto em 2 linhas) + caixa de chegada ao vivo (`#resting-eta-val`, `Em X min`, `Previsão · ST-GCN`, botões `Ouvir` e `Acompanhar`) subiram para o topo de `#view-sheet-resting` (`100%` visíveis em `195.9px` de altura, garantindo `76.8%` de mapa livre no mobile e `75.5%` no desktop). Blocos secundários (`#resting-reallocation-banner`, `.resting-secondary-block`, `#resting-extra-tools`, `#sheet-stops-list`) ficam ocultos em `:not(.expanded)` e aparecem ao expandir a gaveta, com reset automático de `scrollTop` (`resetBottomSheetScroll`).
+  - **Fim da Colisão Cartográfica & Fim da "Lagarta" de 51 Números:** `loadRoute()` e `startLiveBusGlideAnimation()` posicionam `liveBusMarker` no trecho intermediário (30%–48% da polilinha, gerando `105.2px` de separação vertical em relação à pill `Seu Embarque` no mobile e `36.3px` no desktop); desativado o timer legado `startBusAnimation()` (`🚌 199 · 42 km/h`); paradas intermediárias comuns convertidas para nós limpos de `9×9px` sem números empilhados; `fitBounds` assimétrico (`paddingTopLeft: [24, 140], paddingBottomRight: [24, 245]`).
+  - **Zero Emojis e Zero Sigla Operacional `CTM` ao Passageiro:** `.live-bus-icon-circle` e `#catalog-picker-pill` migrados para `<svg class="gp-svg">`; removidos `📍` (`.user-tag-pill`), `🔄`, `🎯` e `🔔`; `GTFS CTM` substituído por `Dado Real · GTFS` e pill `CTM Frota` ocultado em `body[data-app-mode="passenger"]`.
+- **Verificação Final Pós-Ajustes (`40/40` + `26/26` + Visual QA Aprovado):**
+  - `pre_flight_check.py`: **40/40 PASS (100.0%)** com Node.js VM.
+  - `pytest -v code/grafoparada_tec`: **26/26 PASS (0 failed, 0 skipped, 47.16s)**.
+  - Auditoria Chrome Headless CDP (`390×844` e `1280×800`): `overflowX = 0`, `Console errors = 0`, `JS exceptions = 0`, screenshots atualizados em `design-references/current_screenshots/`.
 
 ### 0f. Redesign Completo da Tela Home (`#app-screen-home`, Direção A + 5 Estados Reais) (15/11/2026)
 - **Ciclo Multiagente Completo Executado:** `ux-spec-planner` (Explore + UX Spec + Anti-AI-Slop) -> `frontend-map-engine` (estados GPS/manual em `code/grafoparada_web/real_transit_engine.js`) -> `frontend-layout-ui` (UI/CSS/JS em `code/grafoparada_web/index.html`) -> `qa-gatekeeper` -> `visual-design-critic` (3 rodadas no Chrome Headless `390×844` Mobile e `1280×800` Desktop até aprovação estrita). *(Mobbin MCP falhou com erro SSE `exceeded 5 retries without progress` durante o Explore.)*

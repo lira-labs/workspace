@@ -436,19 +436,21 @@
     }
 
     /* USER LOCATION MARKER WITH PULSING RADAR AND CONE */
-    .user-pulse-marker {
+    .user-pulse-marker,
+    .user-location-pin {
       position: relative;
-      width: 36px;
-      height: 36px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
       pointer-events: auto;
     }
-    .user-radar-wave {
+    .user-radar-wave,
+    .user-pulse-ring {
       position: absolute;
-      width: 36px;
-      height: 36px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: rgba(2, 132, 199, 0.35);
       animation: userRadarPulse 2s infinite ease-out;
@@ -505,11 +507,12 @@
     /* LIVE BUS MARKER WITH ETA TAG */
     .live-bus-marker {
       position: relative;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 54px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       cursor: pointer;
       pointer-events: auto;
     }
@@ -527,14 +530,15 @@
       box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45);
       animation: busFloat 2.5s infinite ease-in-out alternate;
       z-index: 2;
+      flex-shrink: 0;
     }
     @keyframes busFloat {
       0% { transform: translateY(0); }
-      100% { transform: translateY(-4px); }
+      100% { transform: translateY(-3px); }
     }
     .live-bus-eta-tag {
       position: absolute;
-      bottom: -22px;
+      top: 34px;
       left: 50%;
       transform: translateX(-50%);
       background: #064e3b;
@@ -547,6 +551,7 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       border: 1px solid #059669;
       font-family: 'JetBrains Mono', monospace;
+      line-height: 1.2;
       z-index: 10;
     }
 
@@ -630,7 +635,7 @@
     .route-indicator-chip {
       display: none;
       position: absolute;
-      top: 110px;
+      top: 104px;
       left: 14px;
       right: 14px;
       background: rgba(15, 23, 42, 0.95);
@@ -901,7 +906,7 @@
     }
 
     .sheet-handle-zone {
-      padding: 10px 0 4px;
+      padding: 6px 0 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -916,12 +921,23 @@
     }
 
     .sheet-body {
-      padding: 8px 16px 32px;
+      padding: 0 14px 12px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
       scrollbar-color: #cbd5e1 transparent;
       flex: 1;
+    }
+
+    .mobile-bottom-sheet:not(.expanded) #current-stop-name button[onclick*="setMyBoardingStop"] {
+      display: none !important;
+    }
+
+    .mobile-bottom-sheet:not(.expanded) #resting-reallocation-banner,
+    .mobile-bottom-sheet:not(.expanded) .resting-secondary-block,
+    .mobile-bottom-sheet:not(.expanded) #resting-extra-tools,
+    .mobile-bottom-sheet:not(.expanded) #sheet-stops-list {
+      display: none !important;
     }
 
     /* 1-TAP TRAVEL CARDS */
@@ -1320,12 +1336,12 @@
       display: none;
       background: #047857;
       color: #ffffff;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-size: 12.5px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 11.5px;
       font-weight: 700;
-      line-height: 1.4;
-      margin-bottom: 12px;
+      line-height: 1.35;
+      margin-bottom: 8px;
       border: 1.5px solid #34d399;
       box-shadow: 0 4px 16px rgba(4, 120, 87, 0.4);
       animation: pulseGreenGlow 2s infinite;
@@ -2350,7 +2366,7 @@
     /* MAP LEGEND OVERLAY (DISCREET PROTAGONIST CONTEXT) */
     .map-floating-legend {
       position: absolute;
-      bottom: 274px;
+      bottom: 272px;
       left: 12px;
       z-index: 997;
       background: rgba(255, 255, 255, 0.94);
@@ -2495,6 +2511,9 @@
       .top-floating-bar {
         top: 38px;
       }
+      .route-indicator-chip {
+        top: 120px;
+      }
     }
 
     #modal-laya .modal-card {
@@ -2521,6 +2540,7 @@
     }
 
     /* TELA 3 (MAPA) DESPOLUIDA NO TOPO */
+    body[data-app-mode="passenger"] .top-pill-ctm-only,
     .top-floating-bar #badge-routine-status,
     .top-floating-bar #routine-pill-btn,
     .top-floating-bar .top-pill[onclick*="openProfileModal"],
@@ -2736,7 +2756,7 @@
           <span id="label-senior-pill">Aa Fácil</span>
         </div>
 
-        <div class="top-pill" onclick="openDispatchModal()" title="Central CTM de Realocação de Frota" style="color:var(--blue-accent); font-weight:800;">
+        <div class="top-pill top-pill-ctm-only" onclick="openDispatchModal()" title="Central CTM de Realocação de Frota" style="color:var(--blue-accent); font-weight:800;">
           <svg class="gp-svg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span>CTM Frota</span>
         </div>
@@ -2816,25 +2836,13 @@
       </div>
 
       <div class="sheet-body">
-        <!-- REAL-TIME FLEET REALLOCATION BANNER -->
-        <div id="resting-reallocation-banner" class="reallocation-banner"></div>
-
         <!-- STATE A: DEFAULT / QUICK CHOICE VIEW -->
         <div id="view-sheet-resting">
-          <!-- PARADAS FAVORITAS -->
-          <div style="margin-bottom:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-              <span style="font-size:10.5px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Paradas Favoritas</span>
-              <button onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; color:#0284c7; font-size:11px; font-weight:800; cursor:pointer;" title="Salvar parada atual nos favoritos">+ Salvar Atual</button>
-            </div>
-            <div id="favorites-pills-row" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; -webkit-overflow-scrolling:touch;"></div>
-          </div>
-
           <!-- PARADA ATUAL + PREVISÃO TRANSPARENTE -->
-          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:10px 12px; margin-bottom:8px;">
+          <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:8px 10px; margin-bottom:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span class="gp-badge gp-badge-real">GTFS CTM</span>
+                <span class="gp-badge gp-badge-real">Dado Real · GTFS</span>
                 <button id="btn-fav-star" onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; cursor:pointer; color:#64748b; display:inline-flex; align-items:center;" title="Favoritar parada">
                   <svg class="gp-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </button>
@@ -2842,38 +2850,48 @@
               <button style="border:none; background:none; color:var(--blue-accent); font-weight:800; font-size:11.5px; cursor:pointer;" onclick="toggleSheetExpansion()">Paradas (<span id="stops-count-label">0</span>) ▲</button>
             </div>
             <div id="current-stop-name" style="color:var(--text-main);">
-              <div style="display:flex; align-items:center; gap:6px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
                 <span class="gp-badge gp-badge-sim">Procurando GPS</span>
+                <span style="font-size:10.5px; color:var(--text-secondary);">Escolha um bairro na aba Início</span>
               </div>
-              <div style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:4px;">
+              <div style="font-size:13.5px; font-weight:800; color:var(--text-main); margin-top:2px; line-height:1.22;">
                 Localizando parada mais próxima...
-              </div>
-              <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">
-                Se preferir, escolha um bairro manualmente na aba Início.
               </div>
             </div>
 
             <!-- LIVE ARRIVAL AT CURRENT STOP -->
-            <div style="background:#ffffff; border:1px solid #a7f3d0; border-radius:10px; padding:8px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <div style="background:#ffffff; border:1px solid #a7f3d0; border-radius:10px; padding:7px 10px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
               <div>
-                <div style="font-size:10.5px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em;" id="resting-line-prefix">
+                <div style="font-size:10px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em; line-height:1.2;" id="resting-line-prefix">
                   Próximo Ônibus
                 </div>
-                <div style="font-size:14px; font-weight:800; color:#0f172a; margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
                   <span>Em <span id="resting-eta-val" style="font-family:'JetBrains Mono',monospace;">4</span> min</span>
                   <span class="gp-badge gp-badge-pred">Previsão · ST-GCN</span>
                 </div>
               </div>
-              <div style="display:flex; gap:6px; align-items:center;">
-                <button onclick="speakCurrentArrival()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:6px 9px; font-size:11.5px; font-weight:800; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Ouvir previsão por voz">
+              <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+                <button onclick="speakCurrentArrival()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:5px 8px; font-size:11.5px; font-weight:800; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Ouvir previsão por voz">
                   <svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                   Ouvir
                 </button>
-                <button onclick="triggerTripAction('work')" style="background:#059669; border:none; border-radius:8px; padding:6px 11px; font-size:11.5px; font-weight:800; color:#ffffff; cursor:pointer;">
+                <button onclick="triggerTripAction('work')" style="background:#059669; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:800; color:#ffffff; cursor:pointer;">
                   Acompanhar
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- REAL-TIME FLEET REALLOCATION BANNER (ABAIXO DO CARD PRINCIPAL) -->
+          <div id="resting-reallocation-banner" class="reallocation-banner" style="padding:6px 10px; margin-bottom:8px; border-radius:10px;"></div>
+
+          <!-- PARADAS FAVORITAS -->
+          <div class="resting-secondary-block" style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+              <span style="font-size:10.5px; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Paradas Favoritas</span>
+              <button onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; color:#0284c7; font-size:11px; font-weight:800; cursor:pointer;" title="Salvar parada atual nos favoritos">+ Salvar Atual</button>
+            </div>
+            <div id="favorites-pills-row" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; -webkit-overflow-scrolling:touch;"></div>
           </div>
 
           <!-- PROGRESSIVE DISCLOSURE: ROTINA E ATALHOS -->
@@ -4525,16 +4543,9 @@
 
       const userIcon = L.divIcon({
         className: "user-leaflet-div",
-        html: `
-          <div class="user-pulse-marker">
-            <div class="user-radar-wave"></div>
-            <div class="user-heading-cone" id="user-heading-cone"></div>
-            <div class="user-dot-core"></div>
-            <div class="user-tag-pill">📍 Você está aqui</div>
-          </div>
-        `,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18]
+        html: '<div class="user-location-pin"><div class="user-pulse-ring"></div><div class="user-dot-core"></div></div>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
 
       if (!userLocationMarker) {
@@ -4545,7 +4556,7 @@
 
         userLocationMarker.bindPopup(`
           <div style="font-family:'Plus Jakarta Sans',sans-serif; padding:4px; text-align:center;">
-            <strong style="font-size:12.5px; color:#0284c7;">📍 Sua Posição Atual</strong>
+            <strong style="font-size:12.5px; color:#0284c7;">Sua Posição Atual</strong>
             <div style="font-size:11px; color:#64748b; margin-top:2px;">Monitoramento ativo On-Device com proteção de bolso.</div>
           </div>
         `);
@@ -4603,17 +4614,18 @@
       const code = lineCode || (window.RealTransit ? window.RealTransit.activeRouteCode : "522");
       const eta = etaMin || 4;
       const seats = seatsFree || 14;
+      const busSvg = '<svg class="gp-svg" style="width:16px; height:16px; color:#ffffff;" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>';
 
       const busIcon = L.divIcon({
         className: "bus-leaflet-div",
         html: `
           <div class="live-bus-marker">
-            <div class="live-bus-icon-circle">🚌</div>
+            <div class="live-bus-icon-circle">${busSvg}</div>
             <div class="live-bus-eta-tag" id="map-live-bus-tag">${code} · ${eta} min (${seats} vagas)</div>
           </div>
         `,
-        iconSize: [42, 42],
-        iconAnchor: [21, 21]
+        iconSize: [44, 54],
+        iconAnchor: [22, 16]
       });
 
       if (!liveBusMarker) {
@@ -4624,10 +4636,13 @@
 
         liveBusMarker.bindPopup(`
           <div style="font-family:'Plus Jakarta Sans',sans-serif; padding:4px;">
-            <div style="font-size:12px; font-weight:800; color:#059669;">🚌 Coletivo em Deslocamento</div>
+            <div style="font-size:12px; font-weight:800; color:#059669; display:flex; align-items:center; gap:5px;">
+              <svg class="gp-svg" style="width:14px; height:14px; color:#059669;" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>
+              <span>Coletivo em Deslocamento</span>
+            </div>
             <div style="font-size:13px; font-weight:800; color:#0f172a; margin:2px 0;">Linha ${code}</div>
             <div style="font-size:11px; color:#475569;">Chegada estimada: <strong>${eta} minutos</strong></div>
-            <div style="font-size:10.5px; color:#047857; font-weight:700;">💺 ${seats} assentos livres (Ocupação 61%)</div>
+            <div style="font-size:10.5px; color:#047857; font-weight:700;">${seats} assentos livres (Ocupação 61%)</div>
           </div>
         `);
       } else {
@@ -4650,22 +4665,34 @@
 
     function startLiveBusGlideAnimation() {
       if (busAnimationTimer) clearInterval(busAnimationTimer);
-      let stepIndex = 0;
+      let stepIndex = -1;
 
       busAnimationTimer = setInterval(function() {
         if (!leafletMap) return;
         let coords = [];
-        if (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.polyline) {
-          coords = window.RealTransit.activeRoute.polyline;
+        if (window.RealTransit && window.RealTransit.activeRoute) {
+          const dirData = (typeof window.RealTransit.getDirectionData === "function")
+            ? window.RealTransit.getDirectionData(window.RealTransit.activeRoute, window.RealTransit.activeDirection)
+            : null;
+          coords = (dirData && Array.isArray(dirData.polyline) && dirData.polyline.length > 5)
+            ? dirData.polyline
+            : (window.RealTransit.activeRoute.polyline || []);
         } else if (TELEMETRIA && TELEMETRIA.polyline) {
           coords = TELEMETRIA.polyline;
         }
 
         if (coords.length > 5) {
-          stepIndex = (stepIndex + 1) % Math.min(30, coords.length);
+          const minIdx = Math.max(6, Math.floor(coords.length * 0.30));
+          const maxIdx = Math.min(coords.length - 2, Math.max(minIdx + 4, Math.floor(coords.length * 0.48)));
+          if (stepIndex < minIdx || stepIndex > maxIdx) {
+            stepIndex = minIdx;
+          } else {
+            stepIndex += 1;
+            if (stepIndex > maxIdx) stepIndex = minIdx;
+          }
           const p = coords[stepIndex];
           if (p && p[0] && p[1]) {
-            const eta = Math.max(1, 5 - Math.floor(stepIndex / 6));
+            const eta = Math.max(2, 5 - Math.floor((stepIndex - minIdx) / 6));
             updateLiveBusMarker(p[0], p[1], null, eta, 14);
           }
         }
@@ -4786,8 +4813,11 @@
           selectStop(1, false);
         }
 
-        // Inicializa a bolinha pulsante do usuário e a animação do ônibus
+        // Inicializa a bolinha pulsante do usuário e a animação do ônibus em trecho intermediário da PE-60 (Ipojuca)
         initUserLocation();
+        if (!liveBusMarker) {
+          updateLiveBusMarker(-8.395, -35.062, "199", 4, 14);
+        }
         startLiveBusGlideAnimation();
 
         // Permite tocar em qualquer ponto do mapa para ajustar a origem manualmente (útil em testes ou sem GPS)
@@ -4875,17 +4905,16 @@
       activeStopSeq = seq;
       const st = TELEMETRIA.stops.find(function(s) { return s.seq === seq; }) || TELEMETRIA.stops[0];
 
-      // Update current stop name with rich CTM details
+      // Update current stop name with rich CTM details (enxuto em 2 linhas)
       const nameEl = document.getElementById("current-stop-name");
       if (nameEl) {
         nameEl.innerHTML = '<div style="display:flex; flex-direction:column; gap:2px;">' +
-          '<div style="display:flex; align-items:center; gap:6px;">' +
-            '<span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:6px; border:1px solid #cbd5e1;">CÓD ' + (st.stop_id || '030613') + '</span>' +
-            '<span style="font-size:11px; font-weight:800; color:#047857;">📍 ' + (st.municipio || 'Ipojuca') + '</span>' +
-            (st.has_shelter ? '<span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">🏠 Abrigo Coberto</span>' : '<span style="font-size:10px; background:#fee2e2; color:#b91c1c; padding:1px 5px; border-radius:4px; font-weight:700;">☀️ Sem Abrigo</span>') +
+          '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+            '<span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:5px; border:1px solid #cbd5e1;">CÓD ' + (st.stop_id || '030613') + '</span>' +
+            '<span style="font-size:10.5px; font-weight:800; color:#047857;">' + (st.municipio || 'Ipojuca') + ' · Sentido TI Cabo</span>' +
+            (st.has_shelter ? '<span style="font-size:10px; background:#dcfce7; color:#15803d; padding:1px 5px; border-radius:4px; font-weight:700;">Abrigo Coberto</span>' : '<span style="font-size:10px; background:#fee2e2; color:#b91c1c; padding:1px 5px; border-radius:4px; font-weight:700;">Sem Abrigo</span>') +
           '</div>' +
-          '<div style="font-size:14.5px; font-weight:800; color:var(--text-main); margin-top:2px;">' + st.name + '</div>' +
-          (st.ref ? '<div style="font-size:11px; color:var(--text-secondary);">Ref: ' + st.ref + ' · Sentido TI Cabo</div>' : '') +
+          '<div style="font-size:13.5px; font-weight:800; color:var(--text-main); margin-top:2px; line-height:1.22;">' + st.name + '</div>' +
         '</div>';
       }
 
@@ -4963,29 +4992,13 @@
       container.innerHTML = html;
     }
 
-    // SIMULATED MOVING REAL-TIME BUS
+    // SIMULATED MOVING REAL-TIME BUS (DESATIVADO: USA APENAS liveBusMarker OFICIAL)
     function startBusAnimation() {
-      if (!TELEMETRIA || !TELEMETRIA.polyline || TELEMETRIA.polyline.length === 0) return;
-      setInterval(function() {
-        if (!leafletMap) return;
-        busAnimIndex = (busAnimIndex + 2) % TELEMETRIA.polyline.length;
-        const pt = TELEMETRIA.polyline[busAnimIndex];
-        if (!pt) return;
-
-        const busHtml = '<div class="bus-marker-pulse">🚌 199 · 42 km/h</div>';
-        const busIcon = L.divIcon({
-          className: "",
-          html: busHtml,
-          iconSize: [110, 26],
-          iconAnchor: [55, 13]
-        });
-
-        if (!busMarker) {
-          busMarker = L.marker([pt[0], pt[1]], { icon: busIcon, zIndexOffset: 1000 }).addTo(leafletMap);
-        } else {
-          busMarker.setLatLng([pt[0], pt[1]]);
-        }
-      }, 3000);
+      if (busMarker && leafletMap) {
+        leafletMap.removeLayer(busMarker);
+        busMarker = null;
+      }
+      return;
     }
 
     // SEARCH AUTOCOMPLETE LOGIC (RODADA: NOMES DE PARADAS, LOCALIDADES E TERMINAIS SEI)
@@ -5273,16 +5286,37 @@
       }
     }
 
+    function resetBottomSheetScroll(sheet) {
+      const targetSheet = sheet || document.getElementById("main-bottom-sheet");
+      if (!targetSheet) return;
+      targetSheet.scrollTop = 0;
+      const sb = targetSheet.querySelector(".sheet-body");
+      if (sb) sb.scrollTop = 0;
+      setTimeout(function() {
+        targetSheet.scrollTop = 0;
+        if (sb) sb.scrollTop = 0;
+      }, 60);
+    }
+
     function closeActiveTripView() {
       document.getElementById("view-sheet-active").classList.remove("visible");
       document.getElementById("view-sheet-resting").style.display = "block";
       const sheet = document.getElementById("main-bottom-sheet");
-      sheet.style.maxHeight = "232px";
+      if (sheet) {
+        sheet.style.maxHeight = "";
+        if (!sheet.classList.contains("expanded")) {
+          resetBottomSheetScroll(sheet);
+        }
+      }
     }
 
     function toggleSheetExpansion() {
       const sheet = document.getElementById("main-bottom-sheet");
-      sheet.classList.toggle("expanded");
+      if (!sheet) return;
+      const isExpanded = sheet.classList.toggle("expanded");
+      if (!isExpanded) {
+        resetBottomSheetScroll(sheet);
+      }
     }
 
     // POCKET SHIELD
@@ -6093,14 +6127,17 @@
         updateHomeGreeting();
       } else if (target === "radar") {
         const sheet = document.getElementById("main-bottom-sheet");
-        if (sheet) sheet.classList.remove("expanded");
+        if (sheet) {
+          sheet.classList.remove("expanded");
+          resetBottomSheetScroll(sheet);
+        }
         if (leafletMap) {
           setTimeout(function() { leafletMap.invalidateSize(); }, 80);
           setTimeout(function() {
             leafletMap.invalidateSize();
             if (window.RealTransit && window.RealTransit.polylineLayer && !(opts && opts.skipFit)) {
               try {
-                leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { padding: [45, 45], maxZoom: 15, animate: true });
+                leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { paddingTopLeft: [24, 140], paddingBottomRight: [24, 245], maxZoom: 15, animate: true });
               } catch(e) {}
             }
           }, 260);
@@ -6786,21 +6823,27 @@
       if (!leafletMap) return;
       if (window.RealTransit && window.RealTransit.polylineLayer) {
         try {
-          leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { padding: [40, 40], animate: true });
+          leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { paddingTopLeft: [24, 140], paddingBottomRight: [24, 245], maxZoom: 15, animate: true });
           playSimpleChime();
           showFloatingVoicePill("Enquadrando o trajeto completo da linha no mapa.");
         } catch(e) {
           console.warn(e);
         }
       } else if (routePolylineLayer) {
-        leafletMap.fitBounds(routePolylineLayer.getBounds(), { padding: [40, 40], animate: true });
+        leafletMap.fitBounds(routePolylineLayer.getBounds(), { paddingTopLeft: [24, 140], paddingBottomRight: [24, 245], maxZoom: 15, animate: true });
       }
     }
 
     function toggleRouteStopsList() {
       const sheet = document.getElementById("main-bottom-sheet");
-      if (sheet) sheet.classList.add("expanded");
+      if (!sheet) return;
       const stopsSection = document.getElementById("sheet-stops-list");
+      if (sheet.classList.contains("expanded") && stopsSection && stopsSection.offsetParent !== null) {
+        sheet.classList.remove("expanded");
+        resetBottomSheetScroll(sheet);
+        return;
+      }
+      sheet.classList.add("expanded");
       if (stopsSection) {
         stopsSection.scrollIntoView({ behavior: "smooth", block: "start" });
       }
