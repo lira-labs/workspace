@@ -54,12 +54,15 @@ testes_html = [
     ("Turno 4: Plantão Saúde 12x36 (06h30)", "Turno Plantão Saúde (12x36)"),
     ("Cálculo da Janela Segura de Saída", "Janela de Saída"),
     ("Alimentação de Demanda na Central CTM", "48 trabalhadores"),
-    ("Letreiro de LED Idêntico ao Coletivo (199)", "bus-led-sign-box"),
-    ("Destaque LED Âmbar Linha 199", "CAMELA / TI CABO VIA PE-60"),
+    ("Letreiro de LED Idêntico ao Coletivo", "bus-led-sign-box"),
+    ("Visor Frontal Comparável ao Ônibus", "Confira este letreiro com a frente do ônibus"),
     ("Botão Gigante de Leitura em Voz Alta Sênior", "btn-senior-voice-big"),
     ("Modo Bolso Seguro Anti-Assalto (0 Nits)", "pocket-shield-screen"),
     ("Modo Offline Inercial na PE-60 (Dead Reckoning)", "offline-inertial-banner"),
-    ("Mitigação de Deadheading na Frota 178", "14 L de diesel"),
+    ("Realocação por Horário de Pico vs Fora de Pico", "Fora de Pico"),
+    ("Rotina Completa Ida + Volta e Parada Base", "inp-custom-return-origin"),
+    ("Botão Global de Voz Laya (Mutar / Ativar)", "top-voice-toggle-pill"),
+    ("Guia de Perdido Conversacional", "lost-dest-input"),
     ("Alerta de Alagamento PE-60 Km 14 (Desvio UPA)", "flood-alert-banner"),
     ("Lei Estadual 15.878/2016 (Parada Segura)", "modal-safe-disembark"),
     ("Farol Noturno de Embarque (Anti-Queima)", "night-beacon-screen"),
@@ -244,6 +247,20 @@ const tripImplicitFromRecife = window.RealTransit.answerLayaQuery('Quero ir para
 const planIburaShopping = window.RealTransit.planSmartTrip('Ibura', 'Shopping Recife');
 const adaptCamela = window.RealTransit.adaptToUserLocation(-8.5149, -35.1235, 'Camela');
 const adaptSp = window.RealTransit.adaptToUserLocation(-23.5505, -46.6333, 'SP');
+window.RealTransit.adaptToUserLocation(-8.0631, -34.8711, 'Recife Antigo');
+const lostDecision = window.RealTransit.classifyLayaDecision('Estou perdido, quero chegar na Madalena');
+const lostRes = window.RealTransit.answerLayaQuery('Estou perdido, quero chegar na Madalena');
+const dirIdaTest = window.RealTransit.pickBestDirection(
+  window.RealTransit.networkData.popular_lines['199'],
+  [-8.514931, -35.123469],
+  [-8.285065, -35.032398]
+);
+const dirVoltaTest = window.RealTransit.pickBestDirection(
+  window.RealTransit.networkData.popular_lines['199'],
+  [-8.285065, -35.032398],
+  [-8.514931, -35.123469]
+);
+const arbitraryNeighborhood = window.RealTransit.RoutePlanner.plan('Torrões', 'Santo Amaro');
 window.RealTransit.registerWebMCPTools();
 
 console.log(JSON.stringify({
@@ -257,6 +274,11 @@ console.log(JSON.stringify({
   adaptRecife,
   adaptCamela,
   adaptSp,
+  lostDecision,
+  lostRes,
+  dirIdaTest,
+  dirVoltaTest,
+  arbitraryNeighborhood,
   registeredWebMcp
 }));
 """
@@ -303,11 +325,19 @@ if node_res.returncode == 0:
     ok_cam_gps = (not a_cam.get("outOfCoverage")) and a_cam.get("best", {}).get("code") == "199"
     ok_sp_gps = bool(a_sp.get("outOfCoverage"))
     ok_wmcp = ("grafoparada_plan_route" in wmcp) and ("grafoparada_find_nearest_stop" in wmcp)
-    if ok_rec_gps and ok_cam_gps and ok_sp_gps and ok_wmcp:
-        print(f"  [PASS] Adaptação GPS Dinâmica + WebMCP: Recife Antigo->{a_rec['best']['code']}, Camela->199, SP->Fora RMR, WebMCP={wmcp}")
+    lost_dec = out.get("lostDecision") or {}
+    lost_res = out.get("lostRes") or {}
+    dir_ida = out.get("dirIdaTest") or {}
+    dir_volta = out.get("dirVoltaTest") or {}
+    arb_plan = out.get("arbitraryNeighborhood") or {}
+    ok_lost = (lost_dec.get("laya_role") == "semantic_intent_and_lost_guide") and (lost_res.get("intent") in ("trip_plan", "trip_transfer")) and (len(lost_res.get("routeOptions") or []) >= 1)
+    ok_dir = (dir_ida.get("dir") in ("ida", "volta")) and (dir_volta.get("dir") in ("ida", "volta")) and (dir_ida.get("dir") != dir_volta.get("dir"))
+    ok_arb = bool(arb_plan.get("origCorridor")) and bool(arb_plan.get("destCorridor")) and (len(arb_plan.get("routeOptions") or []) >= 1)
+    if ok_rec_gps and ok_cam_gps and ok_sp_gps and ok_wmcp and ok_lost and ok_dir and ok_arb:
+        print(f"  [PASS] Adaptação GPS + RoutePlanner + Guia Perdido + Ida/Volta: Recife->{a_rec['best']['code']}, Camela->199, Torrões->Santo Amaro ({len(arb_plan['routeOptions'])} opções), Dir={dir_ida.get('dir')}/{dir_volta.get('dir')}, WebMCP={wmcp}")
         aprovados += 1
     else:
-        print(f"  [FAIL] Adaptação GPS/WebMCP inválida: rec={ok_rec_gps} ({a_rec.get('best')}), cam={ok_cam_gps} ({a_cam.get('best')}), sp={ok_sp_gps}, wmcp={wmcp}")
+        print(f"  [FAIL] Adaptação GPS/WebMCP/RoutePlanner inválida: rec={ok_rec_gps}, cam={ok_cam_gps}, sp={ok_sp_gps}, wmcp={wmcp}, lost={ok_lost}, dir={ok_dir} ({dir_ida}/{dir_volta}), arb={ok_arb}")
 else:
     print("  [FAIL] Adaptação GPS/WebMCP não executada por erro Node.js")
 

@@ -90,7 +90,13 @@ def main():
     for rid, t in trips_alt_dir.items():
         if t["trip_id"] not in target_trip_ids:
             target_trip_ids[t["trip_id"]] = (rid, "alt")
-    shape_ids_needed = {t["shape_id"] for t in trips_selected.values() if t.get("shape_id")}
+    shape_ids_needed = set()
+    for t in trips_selected.values():
+        if t.get("shape_id"):
+            shape_ids_needed.add(t["shape_id"])
+    for t in trips_alt_dir.values():
+        if t.get("shape_id"):
+            shape_ids_needed.add(t["shape_id"])
 
     print("[4/5] Extraindo paradas sequenciais de stop_times.txt (IDA + VOLTA)...")
     stops_by_trip = {tid: [] for tid in target_trip_ids}
@@ -129,42 +135,57 @@ def main():
                 ))
     print(f"  -> Pontos de shape extraídos em {time.time()-t0:.2f}s")
 
-    # Consolidação de TODAS as linhas
+    def downsample_shape(shape_id, fallback_stops, max_pts=75):
+        if shape_id and shape_id in shapes_pts and shapes_pts[shape_id]:
+            pts_sorted = sorted(shapes_pts[shape_id], key=lambda x: x[0])
+            raw_coords = [[p[1], p[2]] for p in pts_sorted]
+            step = max(1, len(raw_coords) // max_pts)
+            poly_out = raw_coords[::step]
+            if raw_coords and poly_out[-1] != raw_coords[-1]:
+                poly_out.append(raw_coords[-1])
+            return poly_out
+        return [[s["lat"], s["lon"]] for s in fallback_stops]
+
+    # Consolidação de TODAS as linhas (IDA + VOLTA completos + mapa paradas->linhas)
     all_lines_dict = {}
+    stop_to_lines = {}
     for rid, trip in trips_selected.items():
         rmeta = routes_map[rid]
         code = rmeta["short"]
         sid = trip.get("shape_id")
         tid = trip["trip_id"]
 
-        # Polilinha downsampled para até 80 pontos (ultra rápida no Leaflet)
-        poly = []
-        if sid and sid in shapes_pts and shapes_pts[sid]:
-            pts_sorted = sorted(shapes_pts[sid], key=lambda x: x[0])
-            raw_coords = [[p[1], p[2]] for p in pts_sorted]
-            step = max(1, len(raw_coords) // 80)
-            poly = raw_coords[::step]
-            if raw_coords and poly[-1] != raw_coords[-1]:
-                poly.append(raw_coords[-1])
-
         stops_list = stops_by_trip.get(tid, [])
         alt_trip = trips_alt_dir.get(rid)
-        alt_stops = stops_by_trip.get(alt_trip["trip_id"], []) if alt_trip else []
-        if not poly and stops_list:
-            poly = [[s["lat"], s["lon"]] for s in stops_list]
+        alt_tid = alt_trip["trip_id"] if alt_trip else None
+        alt_sid = alt_trip.get("shape_id") if alt_trip else None
+        alt_stops = stops_by_trip.get(alt_tid, []) if alt_tid else []
 
-        # Armazena também coordenadas compactas do sentido volta para matching geográfico bidirecional
+        poly = downsample_shape(sid, stops_list, max_pts=80)
+        return_poly = downsample_shape(alt_sid, alt_stops, max_pts=65) if (alt_sid or alt_stops) else []
         alt_coords = [[s["lat"], s["lon"]] for s in alt_stops]
+
+        for st in stops_list:
+            stop_to_lines.setdefault(st["stop_id"], set()).add(code)
+        for st in alt_stops:
+            stop_to_lines.setdefault(st["stop_id"], set()).add(code)
+
+        headsign_ida = trip.get("trip_headsign") or (stops_list[-1]["name"] if stops_list else rmeta["long"])
+        headsign_volta = (alt_trip.get("trip_headsign") if alt_trip else None) or (alt_stops[-1]["name"] if alt_stops else rmeta["long"])
 
         all_lines_dict[code] = {
             "code": code,
             "route_id": rid,
             "name": rmeta["long"],
-            "headsign": trip.get("trip_headsign") or rmeta["long"],
+            "headsign": headsign_ida,
+            "headsign_ida": headsign_ida,
+            "headsign_volta": headsign_volta,
             "total_stops": len(stops_list),
             "polyline": poly,
             "stops": stops_list,
-            "return_coords": alt_coords
+            "return_coords": alt_coords,
+            "return_polyline": return_poly,
+            "return_stops": alt_stops
         }
 
     # Desduplica terminais SEI por proximidade ou nome
@@ -223,13 +244,43 @@ def main():
                 "lines": sorted(connected)
             })
 
+    # Índice compacto desduplicado de paradas reais do GTFS (cobre toda a RMR sem limitar a bairros nichados)
+    # Formato compacto por entrada: [nome, lat, lon, [linhas_principais...]]
+    seen_stop_clusters = {}
+    stops_index = []
+    for sid, sdata in stops_dict.items():
+        raw_name = (sdata.get("name") or "").strip()
+        if not raw_name or raw_name.isdigit():
+            continue
+        norm_name = " ".join(raw_name.upper().split())
+        lat_r = round(sdata["lat"], 4)
+        lon_r = round(sdata["lon"], 4)
+        lines_here = sorted(stop_to_lines.get(sid, set()))
+
+        existing = seen_stop_clusters.get(norm_name)
+        merged = False
+        if existing:
+            for item in existing:
+                if approx_km(lat_r, lon_r, item[1], item[2]) <= 0.45:
+                    if lines_here:
+                        merged_lines = sorted(set(item[3]) | set(lines_here))[:12]
+                        item[3] = merged_lines
+                    merged = True
+                    break
+        if not merged:
+            entry = [raw_name, lat_r, lon_r, lines_here[:12]]
+            seen_stop_clusters.setdefault(norm_name, []).append(entry)
+            stops_index.append(entry)
+
     payload = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "total_routes_catalog": len(routes_all),
         "total_lines_ready": len(all_lines_dict),
+        "total_stops_indexed": len(stops_index),
         "routes_catalog": routes_all,
-        "terminals_sei": unique_terminals[:44],
+        "terminals_sei": unique_terminals[:60],
         "hub_graph": hub_graph,
+        "stops_index": stops_index,
         "popular_lines": all_lines_dict
     }
 
@@ -241,7 +292,8 @@ def main():
     print(f"  -> Arquivo: {OUTPUT_WEB}")
     print(f"  -> Tamanho: {size_kb:.1f} KB")
     print(f"  -> Linhas com paradas e GPS completos: {len(all_lines_dict)}")
-    print(f"  -> Terminais Integrados SEI: {len(unique_terminals[:44])}")
+    print(f"  -> Paradas únicas indexadas (RMR): {len(stops_index)}")
+    print(f"  -> Terminais Integrados SEI: {len(unique_terminals[:60])}")
     print(f"  -> Hubs no Grafo de Integrações: {len(hub_graph)}")
 
 if __name__ == "__main__":

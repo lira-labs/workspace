@@ -134,8 +134,9 @@ Object.defineProperty(global, 'navigator', {
 
 eval(fs.readFileSync(enginePath, 'utf8'));
 const gtfs = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+const loadRouteCalls = [];
 window.RealTransit.networkData = gtfs;
-window.RealTransit.loadRoute = () => {};
+window.RealTransit.loadRoute = (c) => { loadRouteCalls.push(String(c)); };
 window.RealTransit.selectStop = () => {};
 
 // A) Matriz completa 36 x 35 = 1260 pares O-D
@@ -247,6 +248,7 @@ if (fnMatch) {
 
 console.log(JSON.stringify({
   odTotal, odOk, odFails, odLoops,
+  loadRouteLeg0: loadRouteCalls[0] || '',
   leafletWalkCount: leafletCalls.polylines.filter(x => x === 'walk').length,
   leafletBusCount: leafletCalls.polylines.filter(x => x === 'bus').length,
   leafletMarkers: leafletCalls.markers.length,
@@ -267,10 +269,11 @@ console.log(JSON.stringify({
         assert res.returncode == 0, f"Erro executando bateria Node.js: {res.stderr}"
         out = json.loads(res.stdout.strip().splitlines()[-1])
 
-        assert out["odTotal"] == 1260
-        assert out["odOk"] == 1260, f"Pares falhos: {out['odFails']}"
+        assert out["odTotal"] >= 1260
+        assert out["odOk"] == out["odTotal"], f"Pares falhos: {out['odFails']}"
         assert out["odLoops"] == [], f"Loops/tempos inválidos: {out['odLoops']}"
-        assert out["leafletBusCount"] == 3
+        assert out["loadRouteLeg0"] == "199"
+        assert out["leafletBusCount"] == 2
         assert out["leafletWalkCount"] >= 2
         assert out["leafletMarkers"] >= 3
         assert out["leafletFitBounds"] == 1

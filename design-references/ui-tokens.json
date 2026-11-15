@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "GrafoParada Design Tokens",
+  "version": "2.0.0",
+  "principles": [
+    "No AI slop: no nested cards-in-cards, no random decorative gradients, no emojis as corporate/UI icons",
+    "One primary action per viewport",
+    "Transparent telemetry provenance: Real (GTFS/Live) vs Predicted (ST-GCN) vs Simulated",
+    "Explicit UI states: loading, success, gps_denied, empty_no_bus, error"
+  ],
+  "modes": ["passenger", "ctm", "lab"],
+  "colors": {
+    "surface": {
+      "canvas": "#F8FAFC",
+      "card": "#FFFFFF",
+      "subtle": "#F1F5F9",
+      "darkDesktopBg": "#0B1220"
+    },
+    "ink": {
+      "primary": "#0F172A",
+      "secondary": "#475569",
+      "muted": "#64748B",
+      "inverse": "#FFFFFF"
+    },
+    "border": {
+      "default": "#E2E8F0",
+      "strong": "#CBD5E1"
+    },
+    "semantic": {
+      "real": {
+        "fg": "#065F46",
+        "bg": "#D1FAE5",
+        "border": "#A7F3D0",
+        "accent": "#059669",
+        "label": "Dado Real · GTFS"
+      },
+      "predicted": {
+        "fg": "#5B21B6",
+        "bg": "#EDE9FE",
+        "border": "#DDD6FE",
+        "accent": "#7C3AED",
+        "label": "Previsão · ST-GCN"
+      },
+      "simulation": {
+        "fg": "#92400E",
+        "bg": "#FEF3C7",
+        "border": "#FDE68A",
+        "accent": "#D97706",
+        "label": "Simulação"
+      },
+      "incident": {
+        "fg": "#991B1B",
+        "bg": "#FEE2E2",
+        "border": "#FECACA",
+        "accent": "#DC2626",
+        "label": "Alerta Crítico"
+      },
+      "brand": {
+        "primary": "#0F766E",
+        "primaryHover": "#115E59",
+        "accentBlue": "#1D4ED8"
+      }
+    }
+  },
+  "typography": {
+    "sans": "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+    "mono": "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
+    "scale": {
+      "display": "22px",
+      "h2": "16px",
+      "h3": "14px",
+      "body": "13px",
+      "caption": "11px"
+    }
+  },
+  "radii": {
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "pill": "9999px"
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px"
+  }
+}

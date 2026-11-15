@@ -4,7 +4,7 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 13/11/2026 18:55
+- **Última Atualização:** 14/11/2026 23:52
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
 - **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
@@ -14,7 +14,7 @@
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
   - Subagentes Especializados Ativos: `backend-engineer`, `frontend-engineer`, `qa-integration-engineer`, `visual-design-critic`, `slide-master-canva`.
 - **Contratos Compartilhados (OpenAPI v2.1.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy:** `pre_flight_check.py` (37/37 PASS) + Suíte Pytest Unitária/Científica/Matriz 1.260 O-D/Segurança XSS/E2E Chrome Headless (26/26 PASS)
+- **Gatekeeper Pré-Deploy:** `pre_flight_check.py` (40/40 PASS) + Suíte Pytest Unitária/Científica/Matriz 2.352 O-D/Segurança XSS/E2E Chrome Headless (26/26 PASS) + Hooks Antigravity (`.agents/hooks.json`)
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -34,6 +34,33 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0d. Refatoração Visual Anti-AI-Slop, 3 Modos e Auditoria Visual E2E (14/11/2026)
+- **Sistema de Referências & Design Tokens (`design-references/README.md`, `design-references/ui-tokens.json`, `.agents/rules/ui_ux_design_system.md`):**
+  - Documentadas referências reais de UX (Mobbin/Refero), tokens semânticos de cor/tipografia e regra obrigatória contra AI Slop (sem gradientes decorativos, emojis como ícones ou mistura de visões B2C/B2B/Acadêmica).
+- **Separação Estrita em 3 Modos no Topo Desktop (`setAppMode` em `code/grafoparada_web/index.html`):**
+  - **`Passageiro`**: simulador mobile focado apenas no trajeto cidadão.
+  - **`Central CTM`** (`#desktop-ctm-workspace`): dashboard operacional B2B com KPIs (`393` linhas monitoradas, `2` corredores em alerta, `+4` carros ociosos), comparativo visual `Fora de Pico (10h00–14h00)` vs. `Horário de Pico (06h–08h e 17h–19h)` e fila de despachos priorizados.
+  - **`Pesquisa & Banca`** (`#desktop-lab-workspace`): laboratório isolado reunindo Deck PPTX 16:9, Slides Web, Roteiro de defesa, Origem dos Dados e Personas WCAG.
+- **Home Progressiva, Ícones SVG & Mapa Protagonista (`code/grafoparada_web/index.html` + `code/grafoparada_web/real_transit_engine.js`):**
+  - `#app-screen-home` reconstruída com cartão principal único (*Onde estou -> qual linha -> quando chega -> ações*), rotina compacta e acordeão `<details>` de divulgação progressiva para `Segurança & Guias` e `Terminais SEI`.
+  - Substituídos emojis de interface por ícones stroke `.gp-svg` uniformes (incluindo barra superior, controles do mapa `#map-style-icon`, `#catalog-picker-pill`, navegação inferior `#main-tab-nav` e modal B2B `#modal-dispatch`).
+  - Gaveta inferior do mapa reduzida para `205px` em repouso + legenda discreta flutuante `#map-floating-legend` (*Embarque · Caminhada · Trajeto*), selos de procedência `.gp-badge-*` (`Real · Cittamobi`, `GTFS CTM`, `ST-GCN · 94% Confiança`) e estados explícitos de carregamento/GPS sem `-- min` ou `-- assentos`.
+- **Verificação Final (`pre_flight_check.py`, `pytest`, Chrome CDP Visual QA):**
+  - `pre_flight_check.py`: **40/40 PASS (100%)**.
+  - `pytest`: **26/26 PASS** (`test_e2e_e_motor.py` + `test_unitarios_cientificos.py`, `47.34s`).
+  - Auditoria visual via Chrome Headless CDP em **Mobile (`390×844`)** e **Desktop (`1280×800`)**: **0 erros de console/JS** e **`overflow=0`** em todas as telas e modos (`m1_home`, `m2_locate`, `m3_map` com `sheetH=205`, `m4_central`, `m5_dispatch_modal`, `d1_passageiro`, `d2_ctm`, `d3_lab`).
+
+### 0c. Evolução Pós-Banca (Prof. Lucas + Cauã 13/11/2026), Correção Visual E2E & Hooks Antigravity
+- **Compiler GTFS Bidirecional (`code/grafoparada_tec/compilar_rede_real_gtfs.py` + `gtfs_real_network.json`):** Geração de `return_stops`, `return_polyline`, `headsign_ida`, `headsign_volta`, `stops_index` (503 paradas nomeadas) e `terminals_sei` ampliado para até 60 conexões por hub (393 linhas reais compiladas).
+- **Motor Metropolitano Desacoplado (`code/grafoparada_web/real_transit_engine.js`):**
+  - Separação clara: `RealTransit.RoutePlanner` (`plan`, `planAsync`, `pickDirection`) calcula rotas determinísticas no grafo GTFS, deixando a Laya IA restrita à interpretação de intenção/fala e ao **Guia de Perdido** conversacional.
+  - Roteamento direcional (`IDA` vs. `VOLTA`), destaque em **📍 Seu Embarque**, recorte visual da rota e das paradas restantes a partir do ponto do usuário e fallback geográfico RMR via Nominatim (`geocodeRMRAsync`).
+  - Cobertura de **2.352/2.352 pares O-D (100%)** em 49 corredores RMR + alto contraste WCAG AA no banner de operadora/GTFS.
+- **UX Limpa, Comunidade & Segurança + Correções Visuais (`code/grafoparada_web/index.html`):**
+  - Removida poluição de banca/acadêmica da tela do passageiro; foco em proteção cidadã (`#app-screen-central`), voz silenciosa por padrão (`#top-voice-toggle-pill`) com fala explícita, Terminais SEI completos com busca por linha (`#sei-terminal-search-input`), Minha Rotina completa com Ida + Volta (`#inp-custom-return-origin` / `#inp-custom-return-time`) e modal de Frota claro entre Horário de Pico vs. Fora de Pico.
+  - Corrigida tag `</div>` sobrando em `#modal-lost` que rompia `.phone-simulator-frame`, corrigido overflow horizontal mobile (`+26px` -> `0px`), quebra responsiva de chips/tabs e largura dos inputs da Rotina.
+- **Hooks do Antigravity (`.agents/hooks.json` + `.agents/hooks/agent_guard.py`):** Validação automática (`PostToolUse`) de sintaxe JS/HTML/Python/JSON, IDs duplicados e balanceamento de `<div>`, alerta automático em `PreInvocation` e trava de segurança `PreToolUse` no Git (`--force`, `reset --hard` e merge/push na `main` com erro pendente).
 
 ### 0b. Entrega Oficial `sem2` · Medições Reais, Slides Minimalistas (1 Ideia/Slide) e Sincronização de Falha
 - [x] **Medição Reprodutível Sem Viés (`code/grafoparada_tec/medir_custo_sem2.py`)**:
