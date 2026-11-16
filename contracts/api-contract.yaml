@@ -132,6 +132,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/PresentationDeckStatus'
 
+  /api/tts:
+    get:
+      summary: Status de Disponibilidade do Proxy Neural TTS
+      description: >
+        Verifica sem gerar erro HTTP >= 400 se `GEMINI_API_KEY` está ativa no ambiente Vercel,
+        permitindo degradação imediata para Web Speech API sem ruído no console do navegador.
+      responses:
+        '200':
+          description: Estado atual do proxy TTS.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - available
+                  - fallback
+                  - reason
+                properties:
+                  available:
+                    type: boolean
+                    example: false
+                  fallback:
+                    type: string
+                    enum: [web_speech]
+                  reason:
+                    type: string
+                    example: "missing_api_key"
+                  presets:
+                    type: array
+                    items:
+                      type: string
+    post:
+      summary: Síntese de Voz Neural da Laya (Proxy Gemini TTS)
+      description: >
+        Proxy serverless Vercel para síntese de voz contextual em português brasileiro da assistente Laya
+        via Gemini TTS, mantendo `GEMINI_API_KEY` estritamente no servidor.
+        Retorna `audio/wav` em caso de sucesso ou JSON explícito de fallback (`501`/`503`) para degradação
+        graciosa via Web Speech API offline/local quando a chave não estiver configurada ou houver cota/429.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TTSSynthesisRequest'
+      responses:
+        '200':
+          description: Áudio WAV sintetizado com sucesso via Gemini TTS.
+          headers:
+            X-Laya-TTS-Provider:
+              description: Identificador do provedor e modelo utilizados na síntese.
+              schema:
+                type: string
+                example: "gemini-3.8-flash-lite-tts"
+            X-Laya-TTS-Voice:
+              description: Identificador da voz utilizada na síntese.
+              schema:
+                type: string
+                example: "pt-br-assistant-6"
+          content:
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Payload inválido (texto ausente, acima de 600 caracteres ou preset/tom inválido).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TTSFallbackResponse'
+        '501':
+          description: GEMINI_API_KEY não configurada no ambiente Vercel; frontend deve usar fallback Web Speech API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TTSFallbackResponse'
+              example:
+                fallback: "web_speech"
+                reason: "missing_api_key"
+        '503':
+          description: Upstream Gemini TTS indisponível, timeout ou cota/429 atingida; frontend deve usar fallback Web Speech API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TTSFallbackResponse'
+              example:
+                fallback: "web_speech"
+                reason: "upstream_unavailable"
+
 components:
   schemas:
     Route:
@@ -384,3 +472,46 @@ components:
         path:
           type: string
           example: "code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx"
+
+    TTSSynthesisRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 600
+          description: Texto em português brasileiro a ser sintetizado pela Laya (máximo de 600 caracteres).
+          example: "Boa notícia: a linha cento e noventa e nove está chegando em uns três minutinhos."
+        voice_preset:
+          type: string
+          enum: [ptbr_warm, sulafat_expressive, vindemiatrix_calm]
+          default: ptbr_warm
+          description: >
+            Preset vocal da Laya:
+            - ptbr_warm: gemini-3.8-flash-lite-tts / pt-br-assistant-6
+            - sulafat_expressive: gemini-3.8-flash-tts / Sulafat
+            - vindemiatrix_calm: gemini-3.8-flash-tts / Vindemiatrix
+          example: "ptbr_warm"
+        tone:
+          type: string
+          enum: [info, arriving, alert, cheerful]
+          default: info
+          description: Direção prosódica contextual da fala da Laya.
+          example: "info"
+
+    TTSFallbackResponse:
+      type: object
+      required:
+        - fallback
+        - reason
+      properties:
+        fallback:
+          type: string
+          enum: [web_speech]
+          example: "web_speech"
+        reason:
+          type: string
+          description: Motivo estruturado para ativação silenciosa do fallback local/Web Speech.
+          example: "missing_api_key"

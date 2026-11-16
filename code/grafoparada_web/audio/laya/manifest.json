@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "base_path": "/audio/laya",
+  "format": {
+    "container": "wav",
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "bits_per_sample": 16
+  },
+  "presets": {
+    "ptbr_warm": {
+      "model": "gemini-3.8-flash-lite-tts",
+      "voice": "pt-br-assistant-6",
+      "label": "Laya pt-BR Nativa (Acolhedora)"
+    },
+    "sulafat_expressive": {
+      "model": "gemini-3.8-flash-tts",
+      "voice": "Sulafat",
+      "label": "Laya Expressiva (Sulafat)"
+    },
+    "vindemiatrix_calm": {
+      "model": "gemini-3.8-flash-tts",
+      "voice": "Vindemiatrix",
+      "label": "Laya Serena (Vindemiatrix)"
+    }
+  },
+  "clips": {
+    "boas_vindas": {
+      "id": "boas_vindas",
+      "tone": "info",
+      "canonical_text": "Oi! Que bom ter você por aqui no GrafoParada. Me diz pra onde você quer ir hoje que eu já vejo as melhores opções pra você.",
+      "files": {
+        "ptbr_warm": {
+          "file": "ptbr_boas_vindas.wav",
+          "url": "/audio/laya/ptbr_boas_vindas.wav",
+          "duration_s": 9.0,
+          "size_bytes": 288044
+        },
+        "sulafat_expressive": {
+          "file": "sulafat_boas_vindas.wav",
+          "url": "/audio/laya/sulafat_boas_vindas.wav",
+          "duration_s": 7.28,
+          "size_bytes": 233004
+        }
+      }
+    },
+    "chegada_199": {
+      "id": "chegada_199",
+      "tone": "arriving",
+      "canonical_text": "Boa notícia: a linha cento e noventa e nove está chegando em uns três minutinhos. Já dá pra se ajeitar na parada, mas fica de olho, viu?",
+      "files": {
+        "sulafat_expressive": {
+          "file": "sulafat_chegada_199.wav",
+          "url": "/audio/laya/sulafat_chegada_199.wav",
+          "duration_s": 7.88,
+          "size_bytes": 252204
+        }
+      }
+    },
+    "atraso": {
+      "id": "atraso",
+      "tone": "alert",
+      "canonical_text": "Parece que o trânsito na Avenida Recife deu uma travada hoje e o seu ônibus atrasou uns oito minutos. Mas fica tranquilo, que eu continuo acompanhando tudo por aqui e te aviso se aparecer uma rota mais rápida.",
+      "files": {
+        "sulafat_expressive": {
+          "file": "sulafat_atraso.wav",
+          "url": "/audio/laya/sulafat_atraso.wav",
+          "duration_s": 12.04,
+          "size_bytes": 385324
+        }
+      }
+    },
+    "alerta_pe60": {
+      "id": "alerta_pe60",
+      "tone": "alert",
+      "canonical_text": "Atenção: acabei de receber um alerta de alagamento lá perto da PE sessenta. Pra evitar dor de cabeça, já separei uma alternativa segura passando pelo TI Cabo. Quer dar uma olhada?",
+      "files": {
+        "ptbr_warm": {
+          "file": "ptbr_alerta_pe60.wav",
+          "url": "/audio/laya/ptbr_alerta_pe60.wav",
+          "duration_s": 12.04,
+          "size_bytes": 385324
+        },
+        "sulafat_expressive": {
+          "file": "sulafat_alerta_pe60.wav",
+          "url": "/audio/laya/sulafat_alerta_pe60.wav",
+          "duration_s": 12.36,
+          "size_bytes": 395564
+        }
+      }
+    },
+    "conversa_casual": {
+      "id": "conversa_casual",
+      "tone": "cheerful",
+      "canonical_text": "Consegui! Achei uma conexão direta pro Shopping RioMar com parada a dois minutinhos a pé e o ônibus vem bem vazio. Hoje a viagem vai ser tranquila.",
+      "files": {
+        "sulafat_expressive": {
+          "file": "sulafat_conversa_casual.wav",
+          "url": "/audio/laya/sulafat_conversa_casual.wav",
+          "duration_s": 9.72,
+          "size_bytes": 311084
+        }
+      }
+    }
+  },
+  "total_size_bytes": 2250548
+}

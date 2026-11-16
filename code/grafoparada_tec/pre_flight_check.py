@@ -14,7 +14,10 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 WEB_DIR = ROOT / "code" / "grafoparada_web"
 INDEX_HTML = WEB_DIR / "index.html"
 ENGINE_JS = WEB_DIR / "real_transit_engine.js"
+LAYA_VOICE_JS = WEB_DIR / "laya_voice_engine.js"
+API_TTS_JS = WEB_DIR / "api" / "tts.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
+LAYA_MANIFEST = WEB_DIR / "audio" / "laya" / "manifest.json"
 TEST_SUITE = ROOT / "code" / "grafoparada_tec" / "teste_rotinas_e_realocacao.py"
 OFFICIAL_DECK = WEB_DIR / "GrafoParada_Seminario2_CauaLira.pptx"
 
@@ -30,7 +33,16 @@ def print_header(title):
 
 def check_files():
     print("[1/5] Verificando integridade física dos arquivos essenciais...")
-    required = [INDEX_HTML, ENGINE_JS, GTFS_JSON, TEST_SUITE, OFFICIAL_DECK]
+    required = [
+        INDEX_HTML,
+        ENGINE_JS,
+        LAYA_VOICE_JS,
+        API_TTS_JS,
+        GTFS_JSON,
+        LAYA_MANIFEST,
+        TEST_SUITE,
+        OFFICIAL_DECK,
+    ]
     for p in required:
         if not p.is_file():
             print(f"❌ Arquivo obrigatório não encontrado: {p}")
@@ -74,18 +86,22 @@ def check_js_syntax():
     print("\n[4/5] Validando sintaxe JavaScript via Node.js VM...")
     node_script = """
 const fs = require('fs');
+const path = require('path');
 const vm = require('vm');
 
 let errors = 0;
 
-// 1. Engine
-try {
-    const engineCode = fs.readFileSync(process.argv[1], 'utf8');
-    new vm.Script(engineCode);
-    console.log('  ✓ real_transit_engine.js: Sintaxe 100% válida');
-} catch (e) {
-    console.error('  ❌ real_transit_engine.js ERRO:', e.message);
-    errors++;
+// 1. Módulos JS externos (motor GTFS, motor de voz Laya e proxy serverless)
+for (const filePath of [process.argv[1], process.argv[3], process.argv[4]]) {
+    const label = path.basename(filePath);
+    try {
+        const code = fs.readFileSync(filePath, 'utf8');
+        new vm.Script(code);
+        console.log('  ✓ ' + label + ': Sintaxe 100% válida');
+    } catch (e) {
+        console.error('  ❌ ' + label + ' ERRO:', e.message);
+        errors++;
+    }
 }
 
 // 2. index.html inline scripts
@@ -111,7 +127,15 @@ try {
 
 process.exit(errors > 0 ? 1 : 0);
 """
-    cmd = ["node", "-e", node_script, str(ENGINE_JS), str(INDEX_HTML)]
+    cmd = [
+        "node",
+        "-e",
+        node_script,
+        str(ENGINE_JS),
+        str(INDEX_HTML),
+        str(LAYA_VOICE_JS),
+        str(API_TTS_JS),
+    ]
     res = subprocess.run(cmd, capture_output=True, text=True)
     print(res.stdout, end="")
     if res.returncode != 0:
