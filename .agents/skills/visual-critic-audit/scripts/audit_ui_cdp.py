@@ -88,17 +88,56 @@ class CDPClient:
                 args = " ".join(str(a.get("value", a.get("description", ""))) for a in p.get("args", []))
                 self.console_errors.append(args)
         elif m == "Fetch.requestPaused":
+            from urllib.parse import urlparse
+
             req_id = p.get("requestId")
             req = p.get("request", {})
             method = str(req.get("method", "GET")).upper()
-            payload = {
-                "ok": True,
-                "persisted": "client_local_pending_db",
-                "db_configured": False,
-                "available": False,
-                "storage": "client_local",
-                "record": {"id": "local_audit_rec"},
-            }
+            req_path = urlparse(str(req.get("url", ""))).path
+            if method == "GET" and req_path == "/api/telemetry":
+                payload = {
+                    "ok": True,
+                    "available": True,
+                    "db_configured": True,
+                    "storage": "neon_postgres",
+                    "counts": {
+                        "users": 1,
+                        "routines": 1,
+                        "demand_observations": 3,
+                        "training_runs": 1,
+                    },
+                    "latest_training_run": {"stgcn_mae": 1.285},
+                    "recent_observations": [],
+                }
+                status_code = 200
+            elif method == "GET" and req_path == "/api/register":
+                payload = {
+                    "ok": True,
+                    "available": False,
+                    "db_configured": False,
+                    "storage": "client_local",
+                    "user": None,
+                }
+                status_code = 200
+            elif method == "GET" and req_path == "/api/routine":
+                payload = {
+                    "ok": True,
+                    "available": False,
+                    "db_configured": False,
+                    "storage": "client_local",
+                    "routines": [],
+                }
+                status_code = 200
+            else:
+                payload = {
+                    "ok": True,
+                    "persisted": "client_local_pending_db",
+                    "db_configured": False,
+                    "available": False,
+                    "storage": "client_local",
+                    "record": {"id": "local_audit_rec"},
+                }
+                status_code = 202 if method == "POST" else 200
             body_b64 = base64.b64encode(json.dumps(payload).encode("utf-8")).decode("ascii")
             self.msg_id += 1
             self.ws.send(json.dumps({
@@ -106,7 +145,7 @@ class CDPClient:
                 "method": "Fetch.fulfillRequest",
                 "params": {
                     "requestId": req_id,
-                    "responseCode": 202 if method == "POST" else 200,
+                    "responseCode": status_code,
                     "responseHeaders": [
                         {"name": "Content-Type", "value": "application/json; charset=utf-8"},
                     ],
@@ -349,6 +388,41 @@ def run_audit(url: str, out_dir: Path) -> int:
         check("Mobile 3b: Modal Laya IA", "03b_laya_mobile.png")
         cdp.eval("window.closeLayaModal()")
         cdp.wait(0.3)
+
+        cdp.eval("""(() => {
+            const sheet = document.getElementById('main-bottom-sheet');
+            if (sheet && !sheet.classList.contains('expanded')) {
+                const handle = sheet.querySelector('.sheet-handle-zone');
+                if (handle) handle.click();
+            }
+            const details = document.getElementById('resting-extra-tools');
+            if (details && !details.open) {
+                const summary = details.querySelector('summary');
+                if (summary) summary.click();
+            }
+            const box = document.getElementById('stop-checkin-box');
+            if (box) box.scrollIntoView({ block: 'nearest' });
+        })()""")
+        cdp.wait_until(
+            "Boolean(document.getElementById('stop-checkin-box') && getComputedStyle(document.getElementById('stop-checkin-box')).display !== 'none')",
+            timeout_s=4.0,
+            err_msg="#stop-checkin-box nao ficou visivel na captura 03c.",
+        )
+        cdp.wait(0.45)
+        check("Mobile 3c: Check-in na Parada Expandido", "03c_checkin_expandido_mobile.png")
+        cdp.eval("""(() => {
+            const details = document.getElementById('resting-extra-tools');
+            if (details && details.open) {
+                const summary = details.querySelector('summary');
+                if (summary) summary.click();
+            }
+            const sheet = document.getElementById('main-bottom-sheet');
+            if (sheet && sheet.classList.contains('expanded')) {
+                const handle = sheet.querySelector('.sheet-handle-zone');
+                if (handle) handle.click();
+            }
+        })()""")
+        cdp.wait(0.35)
 
         cdp.eval("window.navigateToScreen('central')")
         cdp.wait(0.7)

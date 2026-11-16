@@ -32,7 +32,12 @@ if str(BASE_DIR) not in sys.path:
 from stgcn_official import STGCN, compute_normalized_laplacian  # noqa: E402
 
 try:
-    from db_manager import get_training_dataset, init_db, log_training_run
+    from db_manager import (
+        get_training_dataset,
+        init_db,
+        log_training_run,
+        sync_cloud_observations,
+    )
 
     DB_MANAGER_AVAILABLE = True
     DB_IMPORT_ERROR = None
@@ -54,6 +59,14 @@ except Exception as exc:  # pragma: no cover - fallback defensivo
 
     def log_training_run(*args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
+
+    def sync_cloud_observations(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        return {
+            "synced": False,
+            "reason": "no_api_base_or_offline",
+            "observations_added": 0,
+            "routines_added": 0,
+        }
 
 
 WEB_DATA_DIR = BASE_DIR.parent / "grafoparada_web" / "data"
@@ -478,6 +491,16 @@ def run_continuous_training() -> dict[str, Any]:
     db_connected = False
     if DB_MANAGER_AVAILABLE:
         init_db()
+        try:
+            sync_report = sync_cloud_observations()
+            if sync_report.get("synced"):
+                print(
+                    "  -> Sync nuvem concluido: "
+                    f"+{sync_report.get('observations_added', 0)} observacoes, "
+                    f"+{sync_report.get('routines_added', 0)} rotinas"
+                )
+        except Exception as exc:  # pragma: no cover - seguranca adicional
+            print(f"  [AVISO] Falha nao-bloqueante no sync nuvem ({exc}); seguindo com SQLite local.")
         db_data = get_training_dataset()
         db_connected = True
     else:

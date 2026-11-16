@@ -651,6 +651,113 @@ console.log(JSON.stringify({
         assert ts["schedules_indexed"] == 393
         assert ts["validation_393_passed"] is True
 
+    def test_telemetria_live_e_recuperacao_contato(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+
+(async () => {
+  global.window = {};
+  global.document = { getElementById: () => null };
+  global.localStorage = { getItem: () => null, setItem: () => {} };
+  delete global.fetch;
+
+  eval(fs.readFileSync(enginePath, 'utf8'));
+
+  // 1. Sem contexto HTTP/browser: fallback seguro
+  const telOffline = await window.RealTransit.fetchLiveTelemetrySummary();
+  const recOffline = await window.RealTransit.recoverUserByContact('maria@teste.com');
+
+  // 2. Com contexto HTTP simulado + mock fetch
+  window.location = { protocol: 'https:', hostname: 'grafoparadaweb.vercel.app' };
+  const fetchUrls = [];
+  global.fetch = async (url) => {
+    fetchUrls.push(String(url));
+    if (String(url).startsWith('/api/telemetry')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          available: true,
+          db_configured: true,
+          storage: 'neon_postgres',
+          counts: { users: 4, routines: 3, demand_observations: 12, training_runs: 2 },
+          latest_training_run: { stgcn_mae: 1.285 },
+          recent_observations: [{ route_code: '199', occupancy_est: 15 }]
+        })
+      };
+    }
+    if (String(url).startsWith('/api/register?contact_hint=')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          available: true,
+          storage: 'neon_postgres',
+          user: { id: 'usr_maria_1', name: 'Maria Silva', contact_hint: 'maria@teste.com' }
+        })
+      };
+    }
+    if (String(url).startsWith('/api/routine?user_id=usr_maria_1')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          available: true,
+          storage: 'neon_postgres',
+          routines: [{ id: 'rtn_1', user_id: 'usr_maria_1', preferred_line: '199', origin_city: 'Ipojuca', dest_city: 'Cabo de Santo Agostinho' }]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({}) };
+  };
+
+  const recShort = await window.RealTransit.recoverUserByContact('ab');
+  const telMock = await window.RealTransit.fetchLiveTelemetrySummary();
+  const recMock = await window.RealTransit.recoverUserByContact('maria@teste.com');
+
+  console.log(JSON.stringify({
+    telOffline,
+    recOffline,
+    recShort,
+    telMock,
+    recMock,
+    fetchUrls
+  }));
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+"""
+        res = subprocess.run(
+            ["node", "-e", js_harness, str(ENGINE_JS)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=20,
+        )
+        assert res.returncode == 0, f"Erro testando fetchLiveTelemetrySummary/recoverUserByContact: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert out["telOffline"]["ok"] is False
+        assert out["telOffline"]["storage"] == "client_local"
+        assert out["recOffline"] == {"found": False, "user": None, "routines": []}
+        assert out["recShort"] == {"found": False, "user": None, "routines": []}
+
+        assert out["telMock"]["ok"] is True
+        assert out["telMock"]["storage"] == "neon_postgres"
+        assert out["telMock"]["counts"]["demand_observations"] == 12
+
+        assert out["recMock"]["found"] is True
+        assert out["recMock"]["user"]["id"] == "usr_maria_1"
+        assert len(out["recMock"]["routines"]) == 1
+        assert "/api/telemetry?limit=8" in out["fetchUrls"]
+        assert "/api/register?contact_hint=maria%40teste.com" in out["fetchUrls"]
+        assert "/api/routine?user_id=usr_maria_1" in out["fetchUrls"]
+
 
 # ---------------------------------------------------------------------------
 # 3. TESTE END-TO-END REAL NO CHROME HEADLESS VIA CDP + SERVIDOR HTTP LOCAL
@@ -662,7 +769,9 @@ class TestRealBrowserE2E:
         if not browser_exe:
             pytest.skip("Chrome/Edge não encontrado nesta máquina para E2E headless")
 
-        # Sobe servidor HTTP local com suporte a /api/* degradado graciosamente (client_local)
+        mock_store = {"users": [], "routines": [], "observations": []}
+
+        # Sobe servidor HTTP local com suporte a /api/* (register, routine, telemetry)
         class QuietHandler(http.server.SimpleHTTPRequestHandler):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, directory=str(WEB_DIR), **kwargs)
@@ -684,15 +793,56 @@ class TestRealBrowserE2E:
                 self.end_headers()
 
             def do_GET(self):
-                clean_path = self.path.split("?")[0]
-                if clean_path in ("/api/register", "/api/routine", "/api/telemetry"):
+                from urllib.parse import parse_qs, urlparse
+
+                parsed_url = urlparse(self.path)
+                clean_path = parsed_url.path
+                qs = parse_qs(parsed_url.query)
+
+                if clean_path == "/api/register":
+                    hint = (qs.get("contact_hint") or [""])[0].strip().lower()
+                    matched = next(
+                        (u for u in mock_store["users"] if str(u.get("contact_hint") or "").strip().lower() == hint),
+                        None,
+                    ) if hint else None
                     self._send_json(200, {
                         "ok": True,
-                        "available": False,
-                        "db_configured": False,
-                        "storage": "client_local",
+                        "available": True,
+                        "db_configured": True,
+                        "storage": "neon_postgres",
+                        "user": matched,
                     })
                     return
+
+                if clean_path == "/api/routine":
+                    uid = (qs.get("user_id") or [""])[0].strip()
+                    rtns = [r for r in mock_store["routines"] if not uid or r.get("user_id") == uid]
+                    self._send_json(200, {
+                        "ok": True,
+                        "available": True,
+                        "db_configured": True,
+                        "storage": "neon_postgres",
+                        "routines": rtns,
+                    })
+                    return
+
+                if clean_path == "/api/telemetry":
+                    self._send_json(200, {
+                        "ok": True,
+                        "available": True,
+                        "db_configured": True,
+                        "storage": "neon_postgres",
+                        "counts": {
+                            "users": len(mock_store["users"]),
+                            "routines": len(mock_store["routines"]),
+                            "demand_observations": len(mock_store["observations"]),
+                            "training_runs": 1,
+                        },
+                        "latest_training_run": {"stgcn_mae": 1.285},
+                        "recent_observations": mock_store["observations"][-8:],
+                    })
+                    return
+
                 super().do_GET()
 
             def do_POST(self):
@@ -703,19 +853,29 @@ class TestRealBrowserE2E:
                     parsed = json.loads(raw_body.decode("utf-8"))
                 except Exception:
                     parsed = {}
-                if clean_path in ("/api/register", "/api/routine", "/api/telemetry"):
-                    rec = dict(parsed) if isinstance(parsed, dict) else {}
-                    rec.setdefault("id", "local_e2e_rec")
-                    self._send_json(202, {
-                        "ok": True,
-                        "persisted": "client_local_pending_db",
-                        "db_configured": False,
-                        "available": False,
-                        "storage": "client_local",
-                        "record": rec,
-                    })
+
+                rec = dict(parsed) if isinstance(parsed, dict) else {}
+                if clean_path == "/api/register":
+                    rec.setdefault("id", rec.get("user_id") or f"usr_e2e_{len(mock_store['users']) + 1}")
+                    mock_store["users"].append(rec)
+                elif clean_path == "/api/routine":
+                    rec.setdefault("id", f"rtn_e2e_{len(mock_store['routines']) + 1}")
+                    mock_store["routines"].append(rec)
+                elif clean_path == "/api/telemetry":
+                    rec.setdefault("id", len(mock_store["observations"]) + 1)
+                    mock_store["observations"].append(rec)
+                else:
+                    self._send_json(404, {"ok": False, "error": "not_found"})
                     return
-                self._send_json(404, {"ok": False, "error": "not_found"})
+
+                self._send_json(201, {
+                    "ok": True,
+                    "persisted": "neon_postgres",
+                    "db_configured": True,
+                    "available": True,
+                    "storage": "neon_postgres",
+                    "record": rec,
+                })
 
         server = socketserver.ThreadingTCPServer(("127.0.0.1", 0), QuietHandler)
         http_port = server.server_address[1]
@@ -1026,6 +1186,54 @@ class TestRealBrowserE2E:
                 assert radar_state["activeCode"] == "199"
                 assert "Linha 522 · Dois Irmãos" not in radar_state["chipText"]
 
+                # Check-in cidadão na parada (#resting-extra-tools -> #stop-checkin-box -> Vazio)
+                eval_js("""(() => {
+                  const sheet = document.getElementById('main-bottom-sheet');
+                  if (sheet && !sheet.classList.contains('expanded')) {
+                    const handle = sheet.querySelector('.sheet-handle-zone');
+                    if (handle) handle.click();
+                  }
+                  const details = document.getElementById('resting-extra-tools');
+                  if (details && !details.open) {
+                    const summary = details.querySelector('summary');
+                    if (summary) summary.click();
+                  }
+                })()""")
+                wait_until(
+                    "Boolean(document.querySelector('#stop-checkin-box .gp-checkin-btn.is-empty') && getComputedStyle(document.getElementById('stop-checkin-box')).display !== 'none')",
+                    timeout_s=4.0,
+                    err_msg="#stop-checkin-box não ficou visível ao expandir o bottom sheet",
+                )
+                eval_js("document.querySelector('#stop-checkin-box .gp-checkin-btn.is-empty').click()")
+                wait_until(
+                    "Boolean(document.getElementById('checkin-feedback-msg') && getComputedStyle(document.getElementById('checkin-feedback-msg')).display !== 'none' && document.getElementById('checkin-feedback-msg').textContent.includes('Vazio'))",
+                    timeout_s=5.0,
+                    err_msg="#checkin-feedback-msg não confirmou check-in 'Vazio'",
+                )
+                checkin_audit = eval_js("""(() => ({
+                  feedback: (document.getElementById('checkin-feedback-msg') || {}).textContent || '',
+                  btnActive: Boolean(document.querySelector('#stop-checkin-box .gp-checkin-btn.is-empty.is-active')),
+                  overflowX: document.documentElement.scrollWidth - window.innerWidth
+                }))()""")
+                assert "Observação (Vazio) registrada" in checkin_audit["feedback"]
+                assert checkin_audit["btnActive"] is True
+                assert checkin_audit["overflowX"] <= 2
+
+                # Recolhe sheet antes dos testes de modais e anomalia Slide 3
+                eval_js("""(() => {
+                  const details = document.getElementById('resting-extra-tools');
+                  if (details && details.open) {
+                    const summary = details.querySelector('summary');
+                    if (summary) summary.click();
+                  }
+                  const sheet = document.getElementById('main-bottom-sheet');
+                  if (sheet && sheet.classList.contains('expanded')) {
+                    const handle = sheet.querySelector('.sheet-handle-zone');
+                    if (handle) handle.click();
+                  }
+                })()""")
+                time.sleep(0.25)
+
                 # Testa Chat Laya com payload XSS e consulta real de destino implicito
                 eval_js("openLayaModal()")
                 time.sleep(0.15)
@@ -1084,9 +1292,21 @@ class TestRealBrowserE2E:
                 eval_js("cycleLayaVoice(); toggleLayaVoiceMute(); closeLayaModal();")
                 time.sleep(0.1)
 
-                # Testa abertura dos modais principais sem lançar exceções JS
+                # Testa abertura dos modais principais e #prof-cloud-status (linguagem cidadã) sem lançar exceções JS
+                eval_js("openProfileModal()")
+                wait_until(
+                    "Boolean(document.getElementById('prof-cloud-status') && document.getElementById('prof-cloud-status').textContent.includes('Nuvem ativa'))",
+                    timeout_s=5.0,
+                    err_msg="#prof-cloud-status não atualizou com status cidadão 'Nuvem ativa'",
+                )
+                prof_cloud_text = eval_js("document.getElementById('prof-cloud-status').textContent.trim()")
+                assert "Nuvem ativa" in prof_cloud_text
+                assert "rotina" in prof_cloud_text and "registro" in prof_cloud_text
+                assert "ST-GCN MAE" not in prof_cloud_text and "393 linhas" not in prof_cloud_text
+                eval_js("closeProfileModal()")
+                time.sleep(0.1)
+
                 for open_fn, close_fn in [
-                    ("openProfileModal", "closeProfileModal"),
                     ("openDispatchModal", "closeDispatchModal"),
                     ("openAuditModal", "closeAuditModal"),
                     ("openRoutineModal", "closeRoutineModal"),
@@ -1171,20 +1391,26 @@ class TestRealBrowserE2E:
                 desk_overflow = eval_js("document.documentElement.scrollWidth - window.innerWidth")
                 assert desk_overflow <= 2, f"Overflow horizontal Desktop: {desk_overflow}px"
 
-                # Regressão Desktop CTM (1280x800): setAppMode('ctm') + despacho Linha 522
+                # Regressão Desktop CTM (1280x800): setAppMode('ctm') + despacho Linha 522 + #ctm-neon-sync-line
                 eval_js("setAppMode('ctm')")
-                time.sleep(0.15)
+                wait_until(
+                    "Boolean(document.getElementById('ctm-neon-sync-line') && document.getElementById('ctm-neon-sync-line').textContent.includes('ST-GCN MAE'))",
+                    timeout_s=5.0,
+                    err_msg="#ctm-neon-sync-line não atualizou em Desktop CTM",
+                )
                 eval_js("document.getElementById('btn-ctm-dispatch-522').click()")
                 time.sleep(0.25)
                 ctm_audit = eval_js("""(() => {
                   const btn = document.getElementById('btn-ctm-dispatch-522');
                   const kpi = document.getElementById('ctm-kpi-alerts-val');
+                  const neon = document.getElementById('ctm-neon-sync-line');
                   return {
                     appMode: document.body ? document.body.dataset.appMode : '',
                     ariaPressed: btn ? btn.getAttribute('aria-pressed') : null,
                     isActive: Boolean(btn && btn.classList.contains('is-active')),
                     btnText: btn ? btn.innerText.trim() : '',
                     kpiAlertsVal: kpi ? kpi.textContent.trim() : '',
+                    neonSyncText: neon ? neon.textContent.trim() : '',
                     overflowX: document.documentElement.scrollWidth - window.innerWidth
                   };
                 })()""")
@@ -1193,21 +1419,30 @@ class TestRealBrowserE2E:
                 assert ctm_audit["isActive"] is True
                 assert "Cenário Ativo" in ctm_audit["btnText"]
                 assert ctm_audit["kpiAlertsVal"] == "1"
+                assert "Neon Postgres" in ctm_audit["neonSyncText"] and "verificando" not in ctm_audit["neonSyncText"].lower()
                 assert ctm_audit["overflowX"] <= 2, f"Overflow horizontal Desktop CTM: {ctm_audit['overflowX']}px"
 
-                # Alternância Desktop para Pesquisa & Banca (#mode-btn-lab) e retorno para Passageiro (#mode-btn-passenger)
+                # Alternância Desktop para Pesquisa & Banca (#mode-btn-lab) + #lab-neon-live-status e retorno para Passageiro
                 eval_js("document.getElementById('mode-btn-lab').click()")
-                time.sleep(0.2)
+                wait_until(
+                    "Boolean(document.getElementById('lab-neon-live-status') && document.getElementById('lab-neon-live-status').textContent.includes('ST-GCN MAE'))",
+                    timeout_s=5.0,
+                    err_msg="#lab-neon-live-status não atualizou em Desktop Lab",
+                )
                 lab_audit = eval_js("""(() => {
                   const lab = document.getElementById('desktop-lab-workspace');
+                  const neon = document.getElementById('lab-neon-live-status');
                   return {
                     appMode: document.body ? document.body.dataset.appMode : '',
                     labVisible: Boolean(lab && getComputedStyle(lab).display !== 'none'),
+                    labNeonText: neon ? neon.textContent.trim() : '',
                     overflowX: document.documentElement.scrollWidth - window.innerWidth
                   };
                 })()""")
                 assert lab_audit["appMode"] == "lab"
                 assert lab_audit["labVisible"] is True
+                assert "Neon Postgres" in lab_audit["labNeonText"] and "393" in lab_audit["labNeonText"]
+                assert "verificando" not in lab_audit["labNeonText"].lower()
                 assert lab_audit["overflowX"] <= 2, f"Overflow horizontal Desktop Lab: {lab_audit['overflowX']}px"
 
                 eval_js("document.getElementById('mode-btn-passenger').click()")

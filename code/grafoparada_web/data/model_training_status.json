@@ -7,7 +7,7 @@
   "ols_mae": 1.2912,
   "persistence_mae": 1.3568,
   "weights_hash": "5a7f36d717992514",
-  "trained_at_utc": "2026-11-16T05:05:38Z",
+  "trained_at_utc": "2026-11-16T10:08:45Z",
   "dataset_rows": 562,
   "train_windows": 393,
   "test_windows": 154,

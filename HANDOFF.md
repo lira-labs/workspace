@@ -4,9 +4,9 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 16/11/2026 02:45
+- **Última Atualização:** 16/11/2026 07:35
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
-- **Branch Ativo:** `feature/grafoparada-v3-db-cadastro` (Versão real do usuário: cadastro obrigatório, autocomplete RMR, 393 horários GTFS, Neon/SQLite e treino contínuo) · `main` estável em `ba88be5` (Produção pré-banca em `https://grafoparadaweb.vercel.app`)
+- **Branch Ativo:** `feature/grafoparada-v3-db-cadastro` (v3.1 completa: cadastro/recuperação por contato, check-in cidadão, painéis CTM/Banca ao vivo com Neon + `roteiro.html`) · `main` estável em `ba88be5` (`https://grafoparadaweb.vercel.app`)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -14,7 +14,7 @@
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
   - Subagentes Especializados Ativos (`.agents/agents/`): `ux-spec-planner`, `frontend-layout-ui`, `frontend-map-engine`, `backend-engineer`, `db-data-manager`, `transit-trainer`, `qa-gatekeeper`, `visual-design-critic` (acionamento automático garantido em `AGENTS.md` e `.agents/rules/ui_ux_design_system.md`).
 - **Contratos Compartilhados (OpenAPI v2.2.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy (v3):** `pre_flight_check.py` (5/5 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 38/38 PASS) + `hook_continuous_train.py --quick` + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
+- **Gatekeeper Pré-Deploy (v3.1):** `pre_flight_check.py` (6/6 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 40/40 PASS) + `hook_continuous_train.py --quick` (`44.0 ms`) + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -34,6 +34,23 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0k. Ciclo v3.1: Neon Postgres + `GEMINI_API_KEY` na Vercel, Recuperação por Contato, Check-in Cidadão & Métricas ao Vivo (`feature/grafoparada-v3-db-cadastro`, 16/11/2026)
+- **Provisionamento Nuvem Completo na Vercel (`caualira-3186/grafoparada_web`):**
+  - Neon Postgres `grafoparada-db` (`store_uVrhsGXfIs54krVW`, plano `free_v3`, região `gru1`) conectado com sucesso às 18 variáveis (`DATABASE_URL`, `POSTGRES_URL`, etc.) em `Production`, `Preview` e `Development`.
+  - `GEMINI_API_KEY` enviada do `.env` para `Production`/`Preview` (Secret) e `Development` (Config).
+  - Preview v3 testado via `vercel curl`: `/api/tts` (`available: true, reason: "ready"`), `/api/telemetry` (`storage: "neon_postgres", db_configured: true`) e `/data/gtfs_schedules.json` (`HTTP 200`, `1.08 MB`).
+- **Recuperação de Conta & Check-in Cidadão (`api/register.js`, `contracts/api-contract.yaml`, `real_transit_engine.js`, `index.html`):**
+  - `GET /api/register?contact_hint=...` (lookup case-insensitive no Neon) + `RealTransit.recoverUserByContact()` e restauração automática no Passo 1 do onboarding (restaurando perfil + rotina salva).
+  - Bloco `#stop-checkin-box` no `#resting-extra-tools` do sheet do mapa (`Vazio`, `Médio`, `Lotado`) gravando observações reais em `POST /api/telemetry` (`demand_observations`) com linguagem cidadã em `#modal-profile` (`Sincronização:`).
+- **Telemetria Ao Vivo CTM/Banca, Sync Neon -> SQLite & Roteiro Atualizado (`db_manager.py`, `treinar_modelo_continuo.py`, `roteiro.html`):**
+  - `db_manager.sync_cloud_observations()` integrado a `treinar_modelo_continuo.py` (`hook_continuous_train.py --retrain` executado com `training_runs ID=6`, `ST-GCN MAE=1.285 min`).
+  - `RealTransit.fetchLiveTelemetrySummary()` alimentando `#ctm-neon-sync-line` e `#lab-neon-live-status` em tempo real com concordância corrigida (`gpPlural`).
+  - Placeholder dinâmico em `real_transit_engine.js:364` ajustado para `'Buscar linha (ex: 199, 1967)'` (zero truncamento em `390px`).
+  - `roteiro.html` sincronizado com Neon Postgres, 393 horários públicos GTFS e `GEMINI_API_KEY` ativa mantendo os benchmarks originais intactos.
+- **Validação Visual & QA Pós-Última Edição:**
+  - `visual-design-critic`: **APPROVED** em todas as 16 capturas (`390x844` e `1280x800`, 0 overflow, 0 console/JS errors).
+  - `qa-gatekeeper`: `pre_flight_check.py` (`6/6` blocos, 100%) + `pytest` (**`40 passed in 37.88s`**) + `hook_continuous_train.py --quick` (`44.0 ms`).
 
 ### 0j. Pré-Banca `main` (`ba88be5`) + Versão Real do Usuário, Autocomplete RMR, Banco Neon/SQLite, 393 Horários GTFS & Treino Contínuo (`feature/grafoparada-v3-db-cadastro`, 16/11/2026)
 - **Promoção Estável Pré-Banca (`feature/grafoparada-banca-final` -> `main` `ba88be5`):**
@@ -751,14 +768,14 @@
 
 ---
 
-## 📋 Próximos Passos para a Próxima Sessão (GrafoParada · Banca 17/11/2026 & Produção v3)
-1. **Ativar Banco Neon Postgres na Nuvem (`feature/grafoparada-v3-db-cadastro` -> `main`):**
-   - Aceitar os termos do Neon Marketplace no navegador em `https://vercel.com/caualira-3186/~/integrations/accept-terms/neon?source=cli` e rodar `vercel integration add neon --name grafoparada-db --plan free_v3 -m region=gru1` em `code/grafoparada_web` (e opcionalmente `vercel env add GEMINI_API_KEY` para ativar voz dinâmica **Sulafat**).
-   - Decidir antes ou após a banca de 17/11/2026 quando promover `feature/grafoparada-v3-db-cadastro` -> `main` via Gatekeeper (`pre_flight_check.py` + `pytest`).
+## 📋 Próximos Passos para a Próxima Sessão (GrafoParada · Banca 17/11/2026 & Promoção v3.1)
+1. **Promoção Controlada `feature/grafoparada-v3-db-cadastro` -> `main` (quando desejar publicar na URL oficial `https://grafoparadaweb.vercel.app`):**
+   - `Neon Postgres` (`grafoparada-db`) e `GEMINI_API_KEY` já estão ativos na Vercel em `Production` e `Preview`.
+   - Testar o Preview v3.1 atualizado no navegador; quando aprovado pelo usuário, rodar `git merge --no-ff feature/grafoparada-v3-db-cadastro` na `main` (somente após `pre_flight_check.py` + `pytest`) e `git push origin main`.
 2. **Treino Contínuo Agendado:**
-   - Usar `/schedule` (ou agendador do sistema) chamando `uv run --project code/grafoparada_tec python code/grafoparada_tec/hook_continuous_train.py --retrain` para retreino periódico conforme novas rotinas e observações entrarem no banco.
+   - Usar `/schedule` (ou agendador do sistema) chamando `uv run --project code/grafoparada_tec python code/grafoparada_tec/hook_continuous_train.py --retrain` (com `GRAFOPARADA_API_BASE=https://grafoparadaweb.vercel.app` após promover para `main`) para puxar check-ins reais do Neon Postgres e retreinar o ST-GCN continuamente.
 3. **Ensaio Geral da Apresentação (`17/11/2026`):**
-   - Passar roteiro completo (`Cadastro + Autocomplete RMR` / `Home` -> `Mapa Ao Vivo` -> `Laya Voz Sulafat` -> `Central CTM` -> `Pesquisa & Banca`) com [GrafoParada_Seminario2_CauaLira.pptx](code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx) e `https://grafoparadaweb.vercel.app/roteiro.html`.
+   - Passar roteiro completo (`Cadastro + Autocomplete RMR` / `Home` -> `Mapa Ao Vivo + Check-in na Parada` -> `Laya Voz Sulafat` -> `Central CTM` -> `Pesquisa & Banca`) com [GrafoParada_Seminario2_CauaLira.pptx](code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx) e `https://grafoparadaweb.vercel.app/roteiro.html`.
 4. **Higiene Opcional de Branches:**
    - Avaliar mover o commit local `4a553ea` (`feat(eso2): adiciona apresentacao final de equiparacao ESO II`, hoje em `feature/grafoparada-voice`) para `feature/eso2-equiparacao-slides` sem tocar na `main`.
 

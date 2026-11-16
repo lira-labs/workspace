@@ -56,6 +56,25 @@ module.exports = async function handler(req, res) {
         return;
       }
 
+      const contactHint = getQueryParam(req, 'contact_hint');
+      if (contactHint.length >= 3) {
+        const rows = await sql`
+          SELECT id, name, contact_hint, created_at, updated_at
+          FROM users
+          WHERE LOWER(TRIM(contact_hint)) = LOWER(TRIM(${contactHint}))
+          ORDER BY updated_at DESC
+          LIMIT 1
+        `;
+        sendJson(res, 200, {
+          ok: true,
+          available: true,
+          db_configured: true,
+          storage: 'neon_postgres',
+          user: rows[0] || null
+        });
+        return;
+      }
+
       const countRows = await sql`SELECT COUNT(*)::int AS total FROM users`;
       sendJson(res, 200, {
         ok: true,
@@ -107,7 +126,8 @@ module.exports = async function handler(req, res) {
   }
 
   const contactHint = toNullableText(body.contact_hint, 120);
-  const userId = toNullableText(body.user_id || body.id, 80) || generateId('usr');
+  const explicitUserId = toNullableText(body.user_id || body.id, 80);
+  let userId = explicitUserId || generateId('usr');
   const now = new Date().toISOString();
 
   const localRecord = {
@@ -132,6 +152,19 @@ module.exports = async function handler(req, res) {
         user: localRecord
       });
       return;
+    }
+
+    if (!explicitUserId && contactHint && contactHint.length >= 3) {
+      const existing = await sql`
+        SELECT id
+        FROM users
+        WHERE LOWER(TRIM(contact_hint)) = LOWER(TRIM(${contactHint}))
+        ORDER BY updated_at DESC
+        LIMIT 1
+      `;
+      if (existing[0] && existing[0].id) {
+        userId = existing[0].id;
+      }
     }
 
     const rows = await sql`

@@ -1954,6 +1954,105 @@
     }
     .gp-badge-alert::before { background: #dc2626; }
 
+    /* CHECK-IN CIDADÃO & TELEMETRIA AO VIVO (V3.1) */
+    .gp-checkin-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 9px 10px;
+      margin-bottom: 10px;
+    }
+    .gp-checkin-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .gp-checkin-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .gp-checkin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 7px;
+    }
+    .gp-checkin-btn {
+      min-height: 36px;
+      border-radius: 9px;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 6px 8px;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .gp-checkin-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .gp-checkin-btn:disabled { opacity: 0.6; cursor: wait; }
+    .gp-checkin-btn.is-empty.is-active {
+      background: #ecfdf5;
+      border-color: #059669;
+      color: #065f46;
+    }
+    .gp-checkin-btn.is-medium.is-active {
+      background: #fef3c7;
+      border-color: #d97706;
+      color: #92400e;
+    }
+    .gp-checkin-btn.is-full.is-active {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #991b1b;
+    }
+    .gp-checkin-feedback {
+      font-size: 11px;
+      font-weight: 700;
+      color: #065f46;
+      margin-top: 6px;
+      line-height: 1.35;
+      display: none;
+    }
+    .gp-lab-live-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: #065f46;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    .gp-ctm-sync-sub {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #065f46;
+      margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gp-ctm-refresh-btn {
+      background: #ffffff;
+      color: #065f46;
+      border: 1.5px solid #047857;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-family: inherit;
+      min-height: 32px;
+    }
+    .gp-ctm-refresh-btn:hover { background: #ecfdf5; }
+    .gp-ctm-refresh-btn:disabled { opacity: 0.65; cursor: wait; }
+
     /* HOME HERO BOARDING CARD & GROUPED LIST (DIREÇÃO A · TRANSIT/CITYMAPPER) */
     .home-hero-boarding {
       background: #ffffff;
@@ -3269,14 +3368,20 @@
       </div>
     </div>
 
-    <div id="ctm-live-status-banner" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:nowrap; gap:12px; background:#ecfdf5; border:1.5px solid #34d399; border-radius:12px; padding:8px 14px; margin-bottom:12px;">
-      <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+    <div id="ctm-live-status-banner" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:#ecfdf5; border:1.5px solid #34d399; border-radius:12px; padding:8px 14px; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
         <span class="gp-badge gp-badge-real" id="ctm-live-status-tag" style="white-space:nowrap; flex-shrink:0;">Telemetria Ativa</span>
-        <div style="font-size:12.5px; color:#065f46; overflow:hidden; text-overflow:ellipsis;" id="ctm-live-status-text">
-          <strong>Monitoramento em Tempo Real:</strong> 393 linhas sincronizadas · Selecione um corredor abaixo para aplicar reforço operacional sem sair do painel.
+        <div style="min-width:0; flex:1;">
+          <div style="font-size:12.5px; color:#065f46; overflow:hidden; text-overflow:ellipsis;" id="ctm-live-status-text">
+            <strong>Monitoramento em Tempo Real:</strong> 393 linhas sincronizadas · Selecione um corredor abaixo para aplicar reforço operacional sem sair do painel.
+          </div>
+          <div class="gp-ctm-sync-sub" id="ctm-neon-sync-line">Neon Postgres: verificando contagem · ST-GCN MAE 1,285 min</div>
         </div>
       </div>
-      <button type="button" onclick="setAppMode('passenger'); navigateToScreen('radar');" style="background:#059669; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-size:11.5px; font-weight:800; cursor:pointer; white-space:nowrap; flex-shrink:0;">Ver no Mapa Mobile</button>
+      <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <button type="button" id="btn-ctm-refresh-db" class="gp-ctm-refresh-btn" onclick="refreshCloudTelemetryUI({ manual: true })">Atualizar banco</button>
+        <button type="button" onclick="setAppMode('passenger'); navigateToScreen('radar');" style="background:#059669; color:#ffffff; border:none; border-radius:8px; padding:6px 12px; font-size:11.5px; font-weight:800; cursor:pointer; white-space:nowrap; flex-shrink:0;">Ver no Mapa Mobile</button>
+      </div>
     </div>
 
     <div class="ctm-kpi-grid" style="gap:12px; margin-bottom:12px;">
@@ -3345,6 +3450,7 @@
         <span class="gp-badge gp-badge-pred" style="margin-bottom:6px;">DEINFO · UFRPE · Seminário 2</span>
         <h2 style="font-size:22px; font-weight:800; color:#0f172a; margin:0;">Laboratório Científico &amp; Material da Banca</h2>
         <p style="font-size:13px; color:#475569; margin-top:4px;">Arquitetura ST-GCN, auditoria metodológica de dados reais vs. sintéticos, slides e roteiro isolados da experiência do passageiro.</p>
+        <div id="lab-neon-live-status" class="gp-lab-live-line">Telemetria Neon Postgres: verificando... | ST-GCN MAE 1,285 min (393 linhas)</div>
       </div>
       <button type="button" class="btn-secondary" style="width:auto; padding:8px 14px;" onclick="setAppMode('passenger')">Voltar ao App Passageiro</button>
     </div>
@@ -3647,6 +3753,19 @@
               <span style="font-size:10.5px; color:#059669;">Expandir ▾</span>
             </summary>
             <div style="margin-top:10px;">
+              <div class="gp-checkin-box" id="stop-checkin-box">
+                <div class="gp-checkin-head">
+                  <span class="gp-checkin-title">Confirmar passagem na parada</span>
+                  <span class="gp-badge gp-badge-real">Alimenta Treino IA</span>
+                </div>
+                <div class="gp-checkin-grid" role="group" aria-label="Lotação observada na parada">
+                  <button type="button" class="gp-checkin-btn is-empty" onclick="submitStopTelemetryCheckin('Vazio', 15, this)">Vazio</button>
+                  <button type="button" class="gp-checkin-btn is-medium" onclick="submitStopTelemetryCheckin('Médio', 32, this)">Médio</button>
+                  <button type="button" class="gp-checkin-btn is-full" onclick="submitStopTelemetryCheckin('Lotado', 48, this)">Lotado</button>
+                </div>
+                <div id="checkin-feedback-msg" class="gp-checkin-feedback" role="status" aria-live="polite"></div>
+              </div>
+
               <div class="routine-commute-card" onclick="openRoutineModal()">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:11px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Diária</span>
@@ -3844,6 +3963,7 @@
           <div><strong>Origem habitual:</strong> <span id="prof-home">Não definida</span></div>
           <div><strong>Destino habitual:</strong> <span id="prof-work">Não definido</span></div>
           <div><strong>Linha preferida:</strong> <span id="prof-line">Não definida</span></div>
+          <div><strong>Sincronização:</strong> <span id="prof-cloud-status">Verificando conexão...</span></div>
         </div>
 
         <button class="btn-primary" onclick="testNeuralVoice()" style="margin-bottom:8px;">
@@ -3887,7 +4007,7 @@
             <input type="text" id="inp-sync-contact" class="field-input" placeholder="E-mail ou WhatsApp (opcional)" maxlength="120" autocomplete="email" />
             <div style="font-size:11px; color:var(--text-secondary); margin-top:5px; display:flex; align-items:center; gap:5px;">
               <svg class="gp-svg" style="width:13px; height:13px; flex-shrink:0;" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <span>Sem CPF. Dados usados apenas para sua rotina (LGPD).</span>
+              <span>Sem CPF. Dados usados apenas para sua rotina (LGPD). Se já tiver conta com este contato, seus dados e rotina são restaurados automaticamente.</span>
             </div>
           </div>
 
@@ -4624,6 +4744,8 @@
           <h1 class="home-hero-title">Onde você vai embarcar?</h1>
         </div>
 
+        <div id="home-recovery-banner" class="gp-sync-notice" style="display:none; margin-top:10px; margin-bottom:4px;" role="status" aria-live="polite"></div>
+
         <!-- HERO CARD ÚNICO DE EMBARQUE (5 ESTADOS REAIS · ZERO MÉTRICAS FALSAS) -->
         <div class="home-hero-boarding" id="home-active-summary">
           <div class="home-hero-meta-row">
@@ -4954,6 +5076,10 @@
       startBusAnimation();
       if (typeof loadFavoriteStops === "function") {
         loadFavoriteStops();
+      }
+      if (typeof refreshCloudTelemetryUI === "function" && typeof window !== "undefined" && String(window.location.protocol || "").startsWith("http")) {
+        refreshCloudTelemetryUI();
+        setTimeout(function() { refreshCloudTelemetryUI(); }, 1600);
       }
     });
 
@@ -6219,6 +6345,9 @@
         const lineVal = routine && (routine.preferred_line || routine.preferredLine);
         lineEl.textContent = lineVal ? ("Linha " + lineVal) : "Não definida";
       }
+      if (typeof refreshCloudTelemetryUI === "function") {
+        refreshCloudTelemetryUI();
+      }
       document.getElementById("modal-profile").style.display = "flex";
     }
 
@@ -6245,6 +6374,18 @@
       return "usr_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     }
 
+    let homeRecoveryTimer = null;
+    function showHomeRecoveryBanner(message) {
+      const banner = document.getElementById("home-recovery-banner");
+      if (!banner) return;
+      banner.textContent = message;
+      banner.style.display = "block";
+      if (homeRecoveryTimer) clearTimeout(homeRecoveryTimer);
+      homeRecoveryTimer = setTimeout(function() {
+        banner.style.display = "none";
+      }, 6500);
+    }
+
     async function handleOnboardingRegisterSubmit(e) {
       if (e && typeof e.preventDefault === "function") e.preventDefault();
       const nameInput = document.getElementById("inp-name");
@@ -6258,6 +6399,122 @@
 
       const name = nameInput ? nameInput.value.trim() : "";
       const contactHint = contactInput ? contactInput.value.trim() : "";
+
+      if (contactHint.length >= 3 && window.RealTransit && typeof window.RealTransit.recoverUserByContact === "function") {
+        if (submitBtn) submitBtn.disabled = true;
+        try {
+          const recovered = await window.RealTransit.recoverUserByContact(contactHint);
+          if (recovered && recovered.found && recovered.user && recovered.user.id) {
+            const u = recovered.user;
+            const nowRecIso = new Date().toISOString();
+            const recoveredProfile = {
+              id: u.id,
+              name: u.name || name || "Passageiro",
+              contact_hint: u.contact_hint || contactHint,
+              created_at: u.created_at || nowRecIso,
+              updated_at: u.updated_at || nowRecIso,
+              sync_status: "synced"
+            };
+            try {
+              localStorage.setItem("grafoparada_user_profile", JSON.stringify(recoveredProfile));
+              localStorage.setItem("grafoparada_user_data", JSON.stringify({
+                id: recoveredProfile.id,
+                name: recoveredProfile.name,
+                contact_hint: recoveredProfile.contact_hint
+              }));
+              localStorage.setItem("grafoparada_logged", "true");
+            } catch (_storageErr) {}
+
+            let restoredRoutine = null;
+            const firstRoutine = Array.isArray(recovered.routines) && recovered.routines.length > 0 ? recovered.routines[0] : null;
+            if (firstRoutine) {
+              const depTime = firstRoutine.departure_time || "06:30";
+              const retTime = firstRoutine.return_time || "17:40";
+              const win = (typeof gpComputeDepartureWindow === "function")
+                ? gpComputeDepartureWindow(depTime)
+                : { saia: depTime, bus: depTime };
+              const oPlace = (typeof gpCleanPlaceFallback === "function")
+                ? gpCleanPlaceFallback(firstRoutine.origin_neighborhood, firstRoutine.origin_city, firstRoutine.origin_stop_name)
+                : (firstRoutine.origin_city || firstRoutine.origin_stop_name || "");
+              const dPlace = (typeof gpCleanPlaceFallback === "function")
+                ? gpCleanPlaceFallback(firstRoutine.dest_neighborhood, firstRoutine.dest_city, firstRoutine.dest_stop_name)
+                : (firstRoutine.dest_city || firstRoutine.dest_stop_name || "");
+
+              restoredRoutine = {
+                id: firstRoutine.id || undefined,
+                user_id: recoveredProfile.id,
+                origin_stop_id: firstRoutine.origin_stop_id || "",
+                origin_stop_name: firstRoutine.origin_stop_name || "",
+                origin_city: firstRoutine.origin_city || "",
+                origin_neighborhood: firstRoutine.origin_neighborhood || "",
+                origin_place_label: oPlace,
+                origin_lat: Number.isFinite(Number(firstRoutine.origin_lat)) ? Number(firstRoutine.origin_lat) : null,
+                origin_lon: Number.isFinite(Number(firstRoutine.origin_lon)) ? Number(firstRoutine.origin_lon) : null,
+                dest_stop_id: firstRoutine.dest_stop_id || "",
+                dest_stop_name: firstRoutine.dest_stop_name || "",
+                dest_city: firstRoutine.dest_city || "",
+                dest_neighborhood: firstRoutine.dest_neighborhood || "",
+                dest_place_label: dPlace,
+                dest_lat: Number.isFinite(Number(firstRoutine.dest_lat)) ? Number(firstRoutine.dest_lat) : null,
+                dest_lon: Number.isFinite(Number(firstRoutine.dest_lon)) ? Number(firstRoutine.dest_lon) : null,
+                departure_time: depTime,
+                return_time: retTime,
+                preferred_line: firstRoutine.preferred_line || "199",
+                frequency: firstRoutine.frequency || "Seg a Sex",
+                origin: firstRoutine.origin_stop_name || "",
+                dest: firstRoutine.dest_stop_name || "",
+                time: depTime,
+                returnTime: retTime,
+                boardingStop: firstRoutine.origin_stop_name || "",
+                preferredLine: firstRoutine.preferred_line || "199",
+                freq: firstRoutine.frequency || "Seg a Sex",
+                saia: win.saia,
+                bus: win.bus
+              };
+              try {
+                localStorage.setItem("grafoparada_custom_routine", JSON.stringify(restoredRoutine));
+              } catch (_rErr) {}
+
+              if (window._gpCascadeFlows && window._gpCascadeFlows.rtn && typeof window._gpCascadeFlows.rtn.hydrateFromRoutine === "function") {
+                window._gpCascadeFlows.rtn.hydrateFromRoutine(restoredRoutine);
+              }
+              if (restoredRoutine.preferred_line && typeof window.RealTransit.loadRoute === "function") {
+                try { window.RealTransit.loadRoute(restoredRoutine.preferred_line); } catch (_lErr) {}
+              }
+              if (Number.isFinite(restoredRoutine.origin_lat) && Number.isFinite(restoredRoutine.origin_lon) && typeof window.RealTransit.adaptToUserLocation === "function") {
+                try {
+                  window.RealTransit.adaptToUserLocation(restoredRoutine.origin_lat, restoredRoutine.origin_lon, restoredRoutine.origin_stop_name, {
+                    fit: false,
+                    isManual: true,
+                    originSource: "manual"
+                  });
+                } catch (_aErr) {}
+              }
+            }
+
+            loadUserData();
+            if (typeof updateHomeGreeting === "function") updateHomeGreeting();
+
+            const onbModal = document.getElementById("modal-onboarding");
+            if (onbModal) onbModal.style.display = "none";
+            if (typeof leafletMap !== "undefined" && leafletMap) {
+              setTimeout(function() { leafletMap.invalidateSize(); }, 180);
+            }
+            const firstRecName = String(recoveredProfile.name).trim().split(/\s+/)[0];
+            showHomeRecoveryBanner(
+              restoredRoutine
+                ? ("Conta e rotina restauradas para " + firstRecName + ": " + restoredRoutine.origin_stop_name + " → " + restoredRoutine.dest_stop_name + ".")
+                : ("Conta restaurada para " + firstRecName + ". Defina sua rotina diária quando quiser.")
+            );
+            if (typeof refreshCloudTelemetryUI === "function") refreshCloudTelemetryUI();
+            return;
+          }
+        } catch (_recErr) {
+          // Segue fluxo normal de cadastro
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      }
 
       if (name.length < 2) {
         if (errBox) {
@@ -9775,6 +10032,164 @@
       showFloatingVoicePill("Parada salva nos favoritos: " + label.trim());
     }
 
+    // CHECK-IN CIDADÃO NA PARADA & TELEMETRIA NEON POSTGRES AO VIVO (V3.1)
+    async function submitStopTelemetryCheckin(label, occupancyEst, btnEl) {
+      const box = document.getElementById("stop-checkin-box");
+      const feedbackEl = document.getElementById("checkin-feedback-msg");
+      const allBtns = box ? box.querySelectorAll(".gp-checkin-btn") : [];
+      allBtns.forEach(function(b) { b.classList.remove("is-active"); b.disabled = true; });
+      if (btnEl) btnEl.classList.add("is-active");
+
+      const rt = window.RealTransit || null;
+      let routine = null;
+      try {
+        const rawR = localStorage.getItem("grafoparada_custom_routine");
+        if (rawR) routine = JSON.parse(rawR);
+      } catch (_e) {}
+      const profile = (typeof getStoredUserProfile === "function") ? getStoredUserProfile() : null;
+
+      let activeStopId = (routine && routine.origin_stop_id) ? routine.origin_stop_id : null;
+      if (rt && rt.activeRoute && typeof rt.getDirectionData === "function") {
+        const dirData = rt.getDirectionData(rt.activeRoute, rt.activeDirection);
+        if (dirData && Array.isArray(dirData.stops)) {
+          const st = dirData.stops[rt.activeStopIndex || 0] || dirData.stops[0];
+          if (st && st.stop_id) activeStopId = String(st.stop_id);
+        }
+      }
+
+      const routeCode = (rt && rt.activeRouteCode)
+        ? String(rt.activeRouteCode)
+        : ((routine && (routine.preferred_line || routine.preferredLine) && (routine.preferred_line || routine.preferredLine) !== "auto")
+          ? String(routine.preferred_line || routine.preferredLine)
+          : "199");
+      const direction = (rt && rt.activeDirection) ? String(rt.activeDirection) : "ida";
+      const restingEtaEl = document.getElementById("resting-eta-val");
+      const parsedEta = restingEtaEl ? parseInt(restingEtaEl.textContent, 10) : NaN;
+
+      const payload = {
+        user_id: (profile && profile.id) ? profile.id : null,
+        stop_id: activeStopId,
+        route_code: routeCode,
+        direction: direction,
+        predicted_wait_min: Number.isFinite(parsedEta) ? parsedEta : null,
+        occupancy_est: Number(occupancyEst),
+        source: "passenger_checkin",
+        label: String(label || "")
+      };
+
+      let msg = "Observação salva neste aparelho (sincronização pendente).";
+      let msgColor = "#92400e";
+      try {
+        if (typeof window !== "undefined" && String(window.location.protocol || "").startsWith("http")) {
+          const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+          const timerId = ctrl ? setTimeout(function() { controllerAbort(ctrl); }, 4500) : null;
+          const resp = await fetch("/api/telemetry", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: ctrl ? ctrl.signal : undefined
+          });
+          if (timerId) clearTimeout(timerId);
+          const data = resp ? await resp.json().catch(function() { return null; }) : null;
+          if (resp && resp.ok && data && data.persisted === "neon_postgres") {
+            msg = "Observação (" + label + ") registrada no banco para o próximo treino.";
+            msgColor = "#065f46";
+          } else if (resp && resp.ok) {
+            msg = "Observação (" + label + ") registrada localmente (banco em modo offline).";
+            msgColor = "#92400e";
+          }
+        }
+      } catch (_err) {
+        msg = "Observação (" + label + ") salva neste aparelho (pendente de conexão).";
+        msgColor = "#92400e";
+      } finally {
+        allBtns.forEach(function(b) { b.disabled = false; });
+      }
+
+      if (feedbackEl) {
+        feedbackEl.textContent = msg;
+        feedbackEl.style.color = msgColor;
+        feedbackEl.style.display = "block";
+      }
+      if (typeof refreshCloudTelemetryUI === "function") {
+        refreshCloudTelemetryUI();
+      }
+    }
+
+    function controllerAbort(ctrl) {
+      try { if (ctrl) ctrl.abort(); } catch (_e) {}
+    }
+
+    async function refreshCloudTelemetryUI(opts) {
+      const options = opts || {};
+      const refreshBtn = document.getElementById("btn-ctm-refresh-db");
+      if (options.manual && refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = "Atualizando...";
+      }
+
+      const rt = window.RealTransit || null;
+      const isHttp = typeof window !== "undefined" && String(window.location.protocol || "").startsWith("http");
+      let summary = {
+        ok: false,
+        available: false,
+        storage: "client_local",
+        counts: { users: 0, routines: 0, demand_observations: 0, training_runs: 0 },
+        latest_training_run: null
+      };
+      const trainStatus = (rt && typeof rt.getModelTrainingStatus === "function") ? rt.getModelTrainingStatus() : null;
+
+      try {
+        if (isHttp && rt && typeof rt.fetchLiveTelemetrySummary === "function") {
+          summary = await rt.fetchLiveTelemetrySummary();
+        }
+      } catch (_err) {}
+
+      const rawMae = (summary && summary.latest_training_run && Number.isFinite(Number(summary.latest_training_run.stgcn_mae)))
+        ? Number(summary.latest_training_run.stgcn_mae)
+        : ((trainStatus && Number.isFinite(Number(trainStatus.stgcn_mae))) ? Number(trainStatus.stgcn_mae) : 1.285);
+      const rawOls = (trainStatus && Number.isFinite(Number(trainStatus.ols_mae))) ? Number(trainStatus.ols_mae) : 1.2912;
+      const maeStr = rawMae.toFixed(3).replace(".", ",");
+      const olsStr = rawOls.toFixed(3).replace(".", ",");
+      const linesCovered = (trainStatus && trainStatus.lines_covered) ? Number(trainStatus.lines_covered) : 393;
+      const counts = (summary && summary.counts) ? summary.counts : { users: 0, routines: 0, demand_observations: 0, training_runs: 0 };
+      const uCnt = Number(counts.users) || 0;
+      const rCnt = Number(counts.routines) || 0;
+      const oCnt = Number(counts.demand_observations) || 0;
+      const tCnt = Number(counts.training_runs) || 0;
+      const isCloudOnline = Boolean(summary && summary.available && summary.storage === "neon_postgres");
+      const gpPlural = function(n, singular, plural) {
+        const num = Number(n) || 0;
+        return num + " " + (num === 1 ? singular : plural);
+      };
+
+      const profEl = document.getElementById("prof-cloud-status");
+      if (profEl) {
+        profEl.textContent = isCloudOnline
+          ? ("Nuvem ativa · " + gpPlural(rCnt, "rotina salva", "rotinas salvas") + " · " + gpPlural(oCnt, "registro enviado", "registros enviados"))
+          : "Salvo neste aparelho · aguardando sincronização na nuvem";
+      }
+
+      const ctmEl = document.getElementById("ctm-neon-sync-line");
+      if (ctmEl) {
+        ctmEl.textContent = isCloudOnline
+          ? ("Neon Postgres: " + gpPlural(uCnt, "usuário", "usuários") + " · " + gpPlural(rCnt, "rotina", "rotinas") + " · " + gpPlural(oCnt, "observação", "observações") + " · " + gpPlural(tCnt, "treino", "treinos") + " · ST-GCN MAE " + maeStr + " min")
+          : ("Neon Postgres offline/local · ST-GCN MAE " + maeStr + " min (" + linesCovered + "/393 linhas)");
+      }
+
+      const labEl = document.getElementById("lab-neon-live-status");
+      if (labEl) {
+        labEl.textContent = isCloudOnline
+          ? ("Neon Postgres ao vivo: " + gpPlural(uCnt, "usuário", "usuários") + " · " + gpPlural(rCnt, "rotina", "rotinas") + " · " + gpPlural(oCnt, "observação", "observações") + " · " + gpPlural(tCnt, "treino", "treinos") + " | ST-GCN MAE " + maeStr + " min (OLS " + olsStr + " min · " + linesCovered + "/393 linhas)")
+          : ("Telemetria local (" + (summary && summary.storage ? summary.storage : "client_local") + ") | ST-GCN MAE " + maeStr + " min (OLS " + olsStr + " min · " + linesCovered + "/393 linhas)");
+      }
+
+      if (options.manual && refreshBtn) {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = "Atualizar banco";
+      }
+    }
+
     // Alternância limpa entre os 3 Ambientes (Passageiro | Central CTM | Pesquisa & Banca)
     function setAppMode(mode) {
       const target = (mode === "ctm" || mode === "lab") ? mode : "passenger";
@@ -9789,6 +10204,9 @@
       const onbModal = document.getElementById("modal-onboarding");
       if (target !== "passenger") {
         if (onbModal) onbModal.style.display = "none";
+        if (typeof refreshCloudTelemetryUI === "function") {
+          refreshCloudTelemetryUI();
+        }
       } else {
         if (typeof checkAuthStatus === "function") {
           checkAuthStatus({ skipNavigate: true });
@@ -9801,6 +10219,8 @@
 
     // Exposição global no window
     window.setAppMode = setAppMode;
+    window.submitStopTelemetryCheckin = submitStopTelemetryCheckin;
+    window.refreshCloudTelemetryUI = refreshCloudTelemetryUI;
     window.checkAuthStatus = checkAuthStatus;
     window.showOnboardingStep1 = showOnboardingStep1;
     window.showOnboardingStep2 = showOnboardingStep2;

@@ -361,7 +361,7 @@
       if (typeof document !== 'undefined') {
         const searchInput = document.getElementById('quick-search-input');
         if (searchInput) {
-          searchInput.placeholder = 'Buscar entre 393 linhas reais (ex: 199, 1967, 2040, Olinda)...';
+          searchInput.placeholder = 'Buscar linha (ex: 199, 1967)';
         }
       }
     },
@@ -2079,12 +2079,23 @@
       return this.modelTrainingStatus || null;
     },
 
+    _isHttpBrowserContext() {
+      const win = (typeof window !== 'undefined' && window && window.location)
+        ? window
+        : (typeof globalThis !== 'undefined' && globalThis.window ? globalThis.window : null);
+      return Boolean(
+        win &&
+        win.location &&
+        String(win.location.protocol || '').startsWith('http') &&
+        typeof fetch === 'function'
+      );
+    },
+
     async recordTelemetryEvent(payload) {
       try {
-        if (typeof window === 'undefined' || !window.location || !String(window.location.protocol || '').startsWith('http')) {
+        if (!this._isHttpBrowserContext()) {
           return false;
         }
-        if (typeof fetch !== 'function') return false;
         const body = Object.assign(
           { ts: new Date().toISOString() },
           (payload && typeof payload === 'object') ? payload : { event: String(payload || 'ping') }
@@ -2098,6 +2109,64 @@
         return Boolean(resp && resp.ok);
       } catch (_err) {
         return false;
+      }
+    },
+
+    async fetchLiveTelemetrySummary() {
+      const fallback = {
+        ok: false,
+        available: false,
+        db_configured: false,
+        storage: 'client_local',
+        counts: { users: 0, routines: 0, demand_observations: 0, training_runs: 0 },
+        latest_training_run: null,
+        recent_observations: []
+      };
+      try {
+        if (!this._isHttpBrowserContext()) return fallback;
+        const resp = await fetch('/api/telemetry?limit=8');
+        if (!resp || !resp.ok) return fallback;
+        const data = await resp.json();
+        if (!data || typeof data !== 'object') return fallback;
+        return data;
+      } catch (_err) {
+        return fallback;
+      }
+    },
+
+    async recoverUserByContact(contactHint) {
+      const notFound = { found: false, user: null, routines: [] };
+      try {
+        const hint = String(contactHint == null ? '' : contactHint).trim();
+        if (hint.length < 3) return notFound;
+        if (!this._isHttpBrowserContext()) return notFound;
+
+        const resp = await fetch(`/api/register?contact_hint=${encodeURIComponent(hint)}`);
+        if (!resp || !resp.ok) return notFound;
+        const data = await resp.json();
+        if (!data || !data.user || !data.user.id) return notFound;
+
+        let routines = [];
+        try {
+          const rResp = await fetch(`/api/routine?user_id=${encodeURIComponent(String(data.user.id))}`);
+          if (rResp && rResp.ok) {
+            const routinesJson = await rResp.json();
+            if (routinesJson && Array.isArray(routinesJson.routines)) {
+              routines = routinesJson.routines;
+            }
+          }
+        } catch (_rErr) {
+          routines = [];
+        }
+
+        return {
+          found: true,
+          storage: data.storage || 'neon_postgres',
+          user: data.user,
+          routines
+        };
+      } catch (_err) {
+        return notFound;
       }
     },
 

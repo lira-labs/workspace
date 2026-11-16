@@ -15,10 +15,14 @@ Validações cobertas:
 """
 from __future__ import annotations
 
+import http.server
 import json
+import os
+import socketserver
 import subprocess
 import sys
 import tempfile
+import threading
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -36,6 +40,7 @@ from db_manager import (  # noqa: E402
     record_observation,
     register_user,
     save_routine,
+    sync_cloud_observations,
 )
 from modelo_predicao_e_abandono import (  # noqa: E402
     avaliar_gatilho_despacho_emergencial,
@@ -45,6 +50,7 @@ from modelo_predicao_e_abandono import (  # noqa: E402
 )
 
 HTML_PATH = WEB_DIR / "index.html"
+ROTEIRO_PATH = WEB_DIR / "roteiro.html"
 ENGINE_JS = WEB_DIR / "real_transit_engine.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
 GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
@@ -98,6 +104,12 @@ REQUIRED_GUIDED_UI_TOKENS = [
     ("Normalização Fonética de Voz PT-BR", "formatSpeechPortuguese"),
     ("Opções de Rota Multi-Leg", "locate-route-options"),
     ("Seleção de Opção no Mapa", "selectGoogleMapsOption"),
+    ("Check-in Cidadão na Parada (v3.1)", "stop-checkin-box"),
+    ("Status Banco & Modelo no Perfil (v3.1)", "prof-cloud-status"),
+    ("Status Neon na Central CTM (v3.1)", "ctm-neon-sync-line"),
+    ("Status Neon em Pesquisa & Banca (v3.1)", "lab-neon-live-status"),
+    ("Função submitStopTelemetryCheckin (v3.1)", "submitStopTelemetryCheckin"),
+    ("Função refreshCloudTelemetryUI (v3.1)", "refreshCloudTelemetryUI"),
 ]
 
 
@@ -213,6 +225,11 @@ def test_interface_zero_hardcoded_e_fluxo_guiado():
     assert "Terminal de Dois Irmãos (UFRPE / Rui Barbosa)" not in html
     assert "CÓD 100035" not in html
     assert 'id="top-line-label">522<' not in html
+
+    assert ROTEIRO_PATH.is_file(), f"roteiro.html ausente: {ROTEIRO_PATH}"
+    roteiro = ROTEIRO_PATH.read_text(encoding="utf-8")
+    for token in ("Neon Postgres", "stop_times.txt", "14,3 min", "0,96 ms", "324,7 MB", "56,68 µs", "393"):
+        assert token in roteiro, f"Token esperado ausente em roteiro.html: {token!r}"
 
 
 def test_deck_oficial_banca():
@@ -331,6 +348,116 @@ def test_db_manager_sqlite_temporario_e_gtfs_schedules():
     assert status.get("lines_covered") == 393
 
 
+def test_db_manager_sync_cloud_observations_offline_e_http_mock():
+    with tempfile.TemporaryDirectory(prefix="gp_db_sync_") as tmp_dir:
+        tmp_db = Path(tmp_dir) / "sync_test.db"
+        init_db(tmp_db)
+
+        prev_env = os.environ.pop("GRAFOPARADA_API_BASE", None)
+        try:
+            offline_res = sync_cloud_observations(api_base=None, db_path=tmp_db)
+            assert offline_res["synced"] is False
+            assert offline_res["reason"] == "no_api_base_or_offline"
+            assert offline_res["observations_added"] == 0
+            assert offline_res["routines_added"] == 0
+        finally:
+            if prev_env is not None:
+                os.environ["GRAFOPARADA_API_BASE"] = prev_env
+
+        class MockCloudHandler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, format, *args):
+                pass
+
+            def do_GET(self):
+                path = self.path.split("?")[0]
+                if path == "/api/telemetry":
+                    payload = {
+                        "ok": True,
+                        "available": True,
+                        "storage": "neon_postgres",
+                        "recent_observations": [
+                            {
+                                "user_id": "usr_cloud_01",
+                                "stop_id": "030207",
+                                "route_code": "195",
+                                "direction": "ida",
+                                "observed_wait_min": 9.5,
+                                "predicted_wait_min": 10.0,
+                                "occupancy_est": 15,
+                                "source": "passenger_checkin",
+                                "created_at": "2026-11-16T08:00:00Z",
+                            }
+                        ],
+                    }
+                    code = 200
+                elif path == "/api/routine":
+                    payload = {
+                        "ok": True,
+                        "available": True,
+                        "storage": "neon_postgres",
+                        "routines": [
+                            {
+                                "id": "rtn_cloud_01",
+                                "user_id": "usr_cloud_01",
+                                "origin_city": "Ipojuca",
+                                "origin_neighborhood": "Nossa Senhora do Ó",
+                                "origin_stop_id": "030207",
+                                "origin_stop_name": "Parada 030207",
+                                "origin_lat": -8.399694,
+                                "origin_lon": -35.062944,
+                                "dest_city": "Recife",
+                                "dest_neighborhood": "São José",
+                                "dest_stop_id": "180001",
+                                "dest_stop_name": "Cais de Santa Rita",
+                                "dest_lat": -8.067,
+                                "dest_lon": -34.878,
+                                "departure_time": "06:30",
+                                "return_time": "17:45",
+                                "preferred_line": "195",
+                                "frequency": "Seg a Sex",
+                                "created_at": "2026-11-16T07:55:00Z",
+                            }
+                        ],
+                    }
+                    code = 200
+                else:
+                    payload = {"ok": False}
+                    code = 404
+
+                raw = json.dumps(payload).encode("utf-8")
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+
+        server = socketserver.ThreadingTCPServer(("127.0.0.1", 0), MockCloudHandler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            res1 = sync_cloud_observations(api_base=f"http://127.0.0.1:{port}", db_path=tmp_db)
+            assert res1["synced"] is True
+            assert res1["reason"] == "ok"
+            assert res1["observations_added"] == 1
+            assert res1["routines_added"] == 1
+
+            dataset = get_training_dataset(db_path=tmp_db)
+            assert dataset["total_observations"] == 1
+            assert dataset["total_routines"] == 1
+            assert "195" in dataset["lines_covered"]
+            assert dataset["routines"][0]["id"] == "rtn_cloud_01"
+            assert dataset["observations"][0]["source"] == "passenger_checkin"
+
+            res2 = sync_cloud_observations(api_base=f"http://127.0.0.1:{port}", db_path=tmp_db)
+            assert res2["synced"] is True
+            assert res2["observations_added"] == 0
+            assert res2["routines_added"] == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+
+
 def test_laya_ia_gtfs_gps_e_webmcp():
     out = _run_laya_node_suite()
     t1 = out["tripCamelaIpojuca"]
@@ -389,7 +516,8 @@ def run_cli_audit() -> int:
         ("Bloco 2: Deck Oficial da Banca (.pptx >= 1 MB)", test_deck_oficial_banca),
         ("Bloco 3/4: Modelos Yap & Cats, Kim et al., Trava Híbrida e Despacho CTM", test_modelos_cientificos_yap_kim_trava_ctm),
         ("Bloco 5: Persistência SQLite Temporária & Horários GTFS (393/14/236)", test_db_manager_sqlite_temporario_e_gtfs_schedules),
-        ("Bloco 6: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
+        ("Bloco 6: Sincronização Cloud/Neon -> SQLite (Offline + Mock HTTP)", test_db_manager_sync_cloud_observations_offline_e_http_mock),
+        ("Bloco 7: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
     ]
 
     aprovados = 0

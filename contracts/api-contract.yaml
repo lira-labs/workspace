@@ -225,8 +225,8 @@ paths:
       summary: Consulta Cadastro LGPD e Disponibilidade de Persistência
       description: >
         Retorna disponibilidade do banco Neon Postgres ou degradação graciosa para
-        armazenamento local (`client_local`). Quando `user_id` é fornecido e o banco está ativo,
-        retorna o perfil cadastrado sem expor dados sensíveis ou CPF.
+        armazenamento local (`client_local`). Quando `user_id` ou `contact_hint` (>= 3 caracteres)
+        é fornecido e o banco está ativo, retorna o perfil cadastrado sem expor dados sensíveis ou CPF.
       parameters:
         - name: user_id
           in: query
@@ -234,6 +234,15 @@ paths:
           schema:
             type: string
             example: "usr_a1b2c3d4e5f6"
+        - name: contact_hint
+          in: query
+          required: false
+          description: Dica de contato (>= 3 caracteres, case-insensitive) para recuperação de perfil LGPD.
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 120
+            example: "maria@teste.com"
       responses:
         '200':
           description: Estado da persistência e perfil opcional do usuário.

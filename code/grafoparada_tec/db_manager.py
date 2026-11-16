@@ -8,8 +8,11 @@ Banco padrão: `code/grafoparada_tec/data/grafoparada.db` (jamais versionado no 
 """
 from __future__ import annotations
 
+import json
 import os
 import sqlite3
+import urllib.error
+import urllib.request
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -437,4 +440,117 @@ def get_db_summary(db_path: str | Path | None = None) -> dict[str, Any]:
         "lines_covered": distinct_lines,
         "latest_training_run": dict(latest_run_row) if latest_run_row else None,
         "recent_observations": recent_obs,
+    }
+
+
+def _fetch_json(url: str, timeout: float) -> dict[str, Any]:
+    req = urllib.request.Request(
+        url,
+        headers={"Accept": "application/json", "User-Agent": "GrafoParada-Trainer/3.1"},
+        method="GET",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        raw = resp.read().decode("utf-8")
+    parsed = json.loads(raw)
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def sync_cloud_observations(
+    api_base: str | None = None,
+    timeout: float = 5.0,
+    db_path: str | Path | None = None,
+) -> dict[str, Any]:
+    """
+    Sincroniza de forma segura rotinas e observações reais da API Vercel/Neon para o SQLite local.
+    Nunca lança exceção quando `GRAFOPARADA_API_BASE` não está configurado ou a rede está offline.
+    """
+    raw_base = api_base if api_base is not None else os.environ.get("GRAFOPARADA_API_BASE", "")
+    base_url = str(raw_base or "").strip().rstrip("/")
+    if not base_url:
+        return {
+            "synced": False,
+            "reason": "no_api_base_or_offline",
+            "observations_added": 0,
+            "routines_added": 0,
+        }
+
+    telemetry_payload: dict[str, Any] | None = None
+    routine_payload: dict[str, Any] | None = None
+
+    try:
+        telemetry_payload = _fetch_json(f"{base_url}/api/telemetry?limit=100", timeout=timeout)
+    except Exception:
+        telemetry_payload = None
+
+    try:
+        routine_payload = _fetch_json(f"{base_url}/api/routine", timeout=timeout)
+    except Exception:
+        routine_payload = None
+
+    if telemetry_payload is None and routine_payload is None:
+        return {
+            "synced": False,
+            "reason": "no_api_base_or_offline",
+            "observations_added": 0,
+            "routines_added": 0,
+        }
+
+    resolved = init_db(db_path)
+    routines_added = 0
+    observations_added = 0
+
+    with _connect(resolved) as conn:
+        existing_routine_ids = {
+            str(r[0]) for r in conn.execute("SELECT id FROM routines").fetchall() if r[0]
+        }
+        existing_obs_keys = {
+            (
+                str(r[0] or ""),
+                str(r[1] or ""),
+                str(r[2] or ""),
+                str(r[3] or ""),
+            )
+            for r in conn.execute(
+                "SELECT route_code, stop_id, source, created_at FROM demand_observations"
+            ).fetchall()
+        }
+
+    if isinstance(routine_payload, dict):
+        for rtn in routine_payload.get("routines") or []:
+            if not isinstance(rtn, dict):
+                continue
+            try:
+                rtn_id = str(rtn.get("id") or "").strip()
+                saved = save_routine(rtn, db_path=resolved)
+                saved_id = str(saved.get("id") or rtn_id)
+                if saved_id and saved_id not in existing_routine_ids:
+                    existing_routine_ids.add(saved_id)
+                    routines_added += 1
+            except Exception:
+                continue
+
+    if isinstance(telemetry_payload, dict):
+        for obs in telemetry_payload.get("recent_observations") or []:
+            if not isinstance(obs, dict):
+                continue
+            key = (
+                str(obs.get("route_code") or "").strip(),
+                str(obs.get("stop_id") or "").strip(),
+                str(obs.get("source") or "").strip(),
+                str(obs.get("created_at") or "").strip(),
+            )
+            if key in existing_obs_keys:
+                continue
+            try:
+                record_observation(obs, db_path=resolved)
+                existing_obs_keys.add(key)
+                observations_added += 1
+            except Exception:
+                continue
+
+    return {
+        "synced": True,
+        "reason": "ok",
+        "observations_added": observations_added,
+        "routines_added": routines_added,
     }
