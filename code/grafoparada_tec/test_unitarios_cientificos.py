@@ -31,6 +31,7 @@ from modelo_predicao_e_abandono import (  # noqa: E402
 )
 from stgcn_official import STGCN, compute_normalized_laplacian  # noqa: E402
 from servidor_tempo_real_pe60 import haversine_m  # noqa: E402
+import db_manager  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -210,23 +211,165 @@ class TestSTGCNAndGeodesy:
 
 
 # ---------------------------------------------------------------------------
-# 6. TESTE DE CONTRATO: OpenAPI v2.1.0 (/contracts/api-contract.yaml)
+# 6. TESTE DE CONTRATO: OpenAPI v2.2.0 (/contracts/api-contract.yaml)
 # ---------------------------------------------------------------------------
 
 class TestContractsOpenAPI:
-    def test_openapi_v2_1_schemas_e_rotas_obrigatorias(self):
+    def test_openapi_v2_2_schemas_e_rotas_obrigatorias(self):
         contract_path = ROOT_DIR / "contracts" / "api-contract.yaml"
         assert contract_path.is_file()
         spec = yaml.safe_load(contract_path.read_text(encoding="utf-8"))
         assert spec["openapi"].startswith("3.0")
-        assert spec["info"]["version"] == "2.1.0"
+        assert spec["info"]["version"] == "2.2.0"
         expected_paths = {
             "/api/v1/network/gtfs",
             "/api/v1/telemetry/line/{route_code}",
             "/api/v1/predict/corridor",
             "/api/v1/dispatch/emergency",
+            "/api/register",
+            "/api/routine",
+            "/api/telemetry",
         }
         assert expected_paths.issubset(set(spec["paths"].keys()))
         schemas = spec.get("components", {}).get("schemas", {})
-        for req_schema in ["Route", "LineTelemetry", "PredictedStopInfo", "EmergencyDispatchPayload"]:
+        for req_schema in [
+            "Route",
+            "LineTelemetry",
+            "PredictedStopInfo",
+            "EmergencyDispatchPayload",
+            "UserRegistrationRequest",
+            "UserProfileResponse",
+            "RoutinePersistRequest",
+            "RoutinePersistResponse",
+            "DemandObservationRequest",
+            "DatabaseStatusAndTrainingResponse",
+        ]:
             assert req_schema in schemas
+
+
+# ---------------------------------------------------------------------------
+# 7. TESTES UNITÁRIOS: Persistência SQLite (db_manager.py)
+# ---------------------------------------------------------------------------
+
+class TestDatabaseManagerSQLite:
+    def test_init_db_cria_quatro_tabelas_idempotente(self, tmp_path: Path):
+        db_file = tmp_path / "nested" / "grafoparada_test.db"
+        resolved = db_manager.init_db(db_file)
+        assert resolved == db_file
+        assert db_file.is_file()
+        # Segunda chamada deve ser 100% idempotente
+        db_manager.init_db(db_file)
+
+        summary = db_manager.get_db_summary(db_file)
+        assert summary["counts"] == {
+            "users": 0,
+            "routines": 0,
+            "demand_observations": 0,
+            "training_runs": 0,
+        }
+
+    def test_register_user_cadastro_e_upsert_lgpd(self, tmp_path: Path):
+        db_file = tmp_path / "grafoparada_users.db"
+        created = db_manager.register_user(
+            name="Cauã Lira",
+            contact_hint="whatsapp ****-1234",
+            user_id="usr_teste_01",
+            db_path=db_file,
+        )
+        assert created["id"] == "usr_teste_01"
+        assert created["name"] == "Cauã Lira"
+        assert created["contact_hint"] == "whatsapp ****-1234"
+
+        updated = db_manager.register_user(
+            name="Cauã Lira UFRPE",
+            contact_hint="email c***@ufrpe.br",
+            user_id="usr_teste_01",
+            db_path=db_file,
+        )
+        assert updated["id"] == "usr_teste_01"
+        assert updated["name"] == "Cauã Lira UFRPE"
+        assert db_manager.get_db_summary(db_file)["counts"]["users"] == 1
+
+        with pytest.raises(ValueError):
+            db_manager.register_user(name="   ", db_path=db_file)
+
+    def test_save_routine_record_observation_e_log_training_run(self, tmp_path: Path):
+        db_file = tmp_path / "grafoparada_full.db"
+        user = db_manager.register_user("Maria Silva", db_path=db_file)
+
+        routine = db_manager.save_routine(
+            {
+                "user_id": user["id"],
+                "origin_city": "Ipojuca",
+                "origin_neighborhood": "Camela",
+                "origin_stop_id": "030613",
+                "origin_stop_name": "Praça Pedro Serafim (Terminal de Camela)",
+                "origin_lat": -8.514888,
+                "origin_lon": -35.123539,
+                "dest_city": "Cabo de Santo Agostinho",
+                "dest_neighborhood": "Centro",
+                "dest_stop_id": "030001",
+                "dest_stop_name": "Terminal Integrado do Cabo",
+                "dest_lat": -8.2869,
+                "dest_lon": -35.0355,
+                "departure_time": "06:30",
+                "return_time": "17:45",
+                "preferred_line": "199",
+                "frequency": "DUT",
+            },
+            db_path=db_file,
+        )
+        assert routine["id"].startswith("rtn_")
+        assert routine["preferred_line"] == "199"
+
+        obs = db_manager.record_observation(
+            {
+                "user_id": user["id"],
+                "stop_id": "030613",
+                "route_code": "199",
+                "direction": "IDA",
+                "observed_wait_min": 14.5,
+                "predicted_wait_min": 12.0,
+                "occupancy_est": 3,
+                "source": "Horário Programado · GTFS",
+            },
+            db_path=db_file,
+        )
+        assert obs["id"] == 1
+        assert obs["source"] == "Horário Programado · GTFS"
+
+        run = db_manager.log_training_run(
+            {
+                "dataset_rows": 1200,
+                "real_observations": 1,
+                "lines_covered": 393,
+                "stgcn_mae": 2.41,
+                "ols_mae": 4.88,
+                "persistence_mae": 5.35,
+                "weights_hash": "sha256:abc123",
+                "notes": "Ciclo inicial validado com dados reais locais",
+            },
+            db_path=db_file,
+        )
+        assert run["id"] == 1
+        assert run["stgcn_mae"] == pytest.approx(2.41)
+
+        dataset = db_manager.get_training_dataset(db_file)
+        assert dataset["total_observations"] == 1
+        assert dataset["total_routines"] == 1
+        assert "199" in dataset["lines_covered"]
+        assert dataset["latest_training_run"]["weights_hash"] == "sha256:abc123"
+
+        summary = db_manager.get_db_summary(db_file)
+        assert summary["counts"] == {
+            "users": 1,
+            "routines": 1,
+            "demand_observations": 1,
+            "training_runs": 1,
+        }
+
+        with pytest.raises(ValueError):
+            db_manager.record_observation(
+                {"route_code": "199", "source": "passenger_checkin", "observed_wait_min": -2.0},
+                db_path=db_file,
+            )

@@ -7,19 +7,35 @@ Executa validação sintática, verificação de dados, presença do deck oficia
 import sys
 import os
 import json
+import py_compile
 import subprocess
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
+TEC_DIR = ROOT / "code" / "grafoparada_tec"
 WEB_DIR = ROOT / "code" / "grafoparada_web"
 INDEX_HTML = WEB_DIR / "index.html"
 ENGINE_JS = WEB_DIR / "real_transit_engine.js"
 LAYA_VOICE_JS = WEB_DIR / "laya_voice_engine.js"
-API_TTS_JS = WEB_DIR / "api" / "tts.js"
+API_DIR = WEB_DIR / "api"
+API_DB_JS = API_DIR / "_db.js"
+API_REGISTER_JS = API_DIR / "register.js"
+API_ROUTINE_JS = API_DIR / "routine.js"
+API_TELEMETRY_JS = API_DIR / "telemetry.js"
+API_TTS_JS = API_DIR / "tts.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
+GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
+MODEL_STATUS_JSON = WEB_DIR / "data" / "model_training_status.json"
 LAYA_MANIFEST = WEB_DIR / "audio" / "laya" / "manifest.json"
-TEST_SUITE = ROOT / "code" / "grafoparada_tec" / "teste_rotinas_e_realocacao.py"
+TEST_SUITE = TEC_DIR / "teste_rotinas_e_realocacao.py"
 OFFICIAL_DECK = WEB_DIR / "GrafoParada_Seminario2_CauaLira.pptx"
+PY_BACKEND_FILES = [
+    TEC_DIR / "db_manager.py",
+    TEC_DIR / "compilar_horarios_gtfs.py",
+    TEC_DIR / "treinar_modelo_continuo.py",
+    TEC_DIR / "hook_continuous_train.py",
+]
 
 # Limiar mínimo de integridade física para o arquivo .pptx (1 MB)
 MIN_DECK_BYTES = 1_000_000
@@ -32,16 +48,23 @@ def print_header(title):
 
 
 def check_files():
-    print("[1/5] Verificando integridade física dos arquivos essenciais...")
+    print("[1/6] Verificando integridade física dos arquivos essenciais...")
     required = [
         INDEX_HTML,
         ENGINE_JS,
         LAYA_VOICE_JS,
+        API_DB_JS,
+        API_REGISTER_JS,
+        API_ROUTINE_JS,
+        API_TELEMETRY_JS,
         API_TTS_JS,
         GTFS_JSON,
+        GTFS_SCHEDULES_JSON,
+        MODEL_STATUS_JSON,
         LAYA_MANIFEST,
         TEST_SUITE,
         OFFICIAL_DECK,
+        *PY_BACKEND_FILES,
     ]
     for p in required:
         if not p.is_file():
@@ -53,7 +76,7 @@ def check_files():
 
 
 def check_official_deck():
-    print("\n[2/5] Validando integridade física da Apresentação Oficial da Banca (PPTX)...")
+    print("\n[2/6] Validando integridade física da Apresentação Oficial da Banca (PPTX)...")
     if not OFFICIAL_DECK.is_file():
         print(f"❌ Deck oficial não encontrado em: {OFFICIAL_DECK}")
         return False
@@ -69,21 +92,63 @@ def check_official_deck():
 
 
 def check_gtfs_json():
-    print("\n[3/5] Validando JSON do GTFS Metropolitano...")
+    print("\n[3/6] Validando JSONs do GTFS Metropolitano, Horários e Status ST-GCN...")
     try:
         with open(GTFS_JSON, "r", encoding="utf-8") as f:
             data = json.load(f)
             total = data.get("total_lines_ready", 0)
             pop = len(data.get("popular_lines", {}))
-            print(f"  ✓ GTFS válido! {total} linhas no catálogo, {pop} linhas populares ativas.")
-            return True
+            if total != 393 or pop != 393:
+                print(f"❌ gtfs_real_network.json inconsistente: total={total}, popular={pop} (esperado 393)")
+                return False
+            print(f"  ✓ gtfs_real_network.json válido! {total} linhas no catálogo, {pop} linhas populares ativas.")
     except Exception as e:
         print(f"❌ Erro ao validar gtfs_real_network.json: {e}")
         return False
 
+    try:
+        with open(GTFS_SCHEDULES_JSON, "r", encoding="utf-8") as f:
+            sched = json.load(f)
+            lines = sched.get("lines")
+            rmr_places = sched.get("rmr_places")
+            if not isinstance(lines, dict) or len(lines) != 393:
+                got = len(lines) if isinstance(lines, dict) else type(lines).__name__
+                print(f"❌ gtfs_schedules.json inválido: lines={got} (esperado 393)")
+                return False
+            if not isinstance(rmr_places, list) or len(rmr_places) == 0:
+                print("❌ gtfs_schedules.json inválido: rmr_places vazio ou ausente")
+                return False
+            cities = sorted({str(p.get("city")).strip() for p in rmr_places if isinstance(p, dict) and p.get("city")})
+            if len(cities) < 14:
+                print(f"❌ gtfs_schedules.json inválido: apenas {len(cities)} cidades RMR encontradas (esperado >= 14)")
+                return False
+            print(
+                f"  ✓ gtfs_schedules.json válido! {len(lines)} linhas indexadas, "
+                f"{len(rmr_places)} rmr_places em {len(cities)} cidades da RMR."
+            )
+    except Exception as e:
+        print(f"❌ Erro ao validar gtfs_schedules.json: {e}")
+        return False
+
+    try:
+        with open(MODEL_STATUS_JSON, "r", encoding="utf-8") as f:
+            status = json.load(f)
+            if status.get("validation_393_passed") is not True:
+                print(f"❌ model_training_status.json reprovado: validation_393_passed={status.get('validation_393_passed')!r}")
+                return False
+            print(
+                f"  ✓ model_training_status.json válido! validation_393_passed=True, "
+                f"lines_covered={status.get('lines_covered')}, stgcn_mae={status.get('stgcn_mae')}."
+            )
+    except Exception as e:
+        print(f"❌ Erro ao validar model_training_status.json: {e}")
+        return False
+
+    return True
+
 
 def check_js_syntax():
-    print("\n[4/5] Validando sintaxe JavaScript via Node.js VM...")
+    print("\n[4/6] Validando sintaxe JavaScript via Node.js VM e node --check (api/*.js)...")
     node_script = """
 const fs = require('fs');
 const path = require('path');
@@ -142,11 +207,41 @@ process.exit(errors > 0 ? 1 : 0);
         print(res.stderr, end="")
         print("❌ Falha na verificação de sintaxe JavaScript!")
         return False
+
+    api_targets = [API_DB_JS, API_REGISTER_JS, API_ROUTINE_JS, API_TELEMETRY_JS]
+    if API_TTS_JS.is_file():
+        api_targets.append(API_TTS_JS)
+    for api_file in sorted(API_DIR.glob("*.js")):
+        if api_file not in api_targets:
+            api_targets.append(api_file)
+
+    for api_file in api_targets:
+        chk = subprocess.run(["node", "--check", str(api_file)], capture_output=True, text=True)
+        if chk.returncode != 0:
+            print(chk.stdout, end="")
+            print(chk.stderr, end="")
+            print(f"❌ Falha em node --check para api/{api_file.name}")
+            return False
+        print(f"  ✓ api/{api_file.name}: node --check OK")
     return True
 
 
+def check_python_compile():
+    print("\n[5/6] Validando compilação Python dos módulos de dados e treino contínuo...")
+    try:
+        with tempfile.TemporaryDirectory(prefix="gp_pycompile_") as tmp_dir:
+            for py_file in PY_BACKEND_FILES:
+                cfile = Path(tmp_dir) / f"{py_file.name}c"
+                py_compile.compile(str(py_file), cfile=str(cfile), doraise=True)
+                print(f"  ✓ {py_file.name}: py_compile OK")
+        return True
+    except Exception as e:
+        print(f"❌ Erro de compilação Python: {e}")
+        return False
+
+
 def run_test_suite():
-    print("\n[5/5] Executando suíte de conformidade operacional, científica e pedagógica...")
+    print("\n[6/6] Executando suíte de conformidade operacional, científica e pedagógica...")
     cmd = [sys.executable, str(TEST_SUITE)]
     res = subprocess.run(cmd, capture_output=True, text=True)
     lines = res.stdout.strip().split("\n")
@@ -168,7 +263,8 @@ def main():
         check_official_deck,
         check_gtfs_json,
         check_js_syntax,
-        run_test_suite
+        check_python_compile,
+        run_test_suite,
     ]
     for step in steps:
         if not step():

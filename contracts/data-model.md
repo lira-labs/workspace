@@ -82,16 +82,61 @@ Decisão autônoma da Central SICOE/CTM para remanejamento de veículos:
 
 ---
 
-## 3. Rotinas Pessoais e Privacidade On-Device
+## 3. Rotinas Pessoais, Cadastro LGPD e Persistência Relacional
 
-### `RoutineSchedule` (Perfil Pendular do Passageiro)
-Persistido exclusivamente no dispositivo do usuário (`localStorage`), sem transmissão de dados nominais para servidores.
+### `RoutineSchedule` (Perfil Pendular On-Device / Fallback Local)
+Persistido no dispositivo do usuário (`localStorage`) quando `DATABASE_URL` não está provisionada, ou sincronizado de forma pseudonimizada com Neon Postgres / SQLite local (`routines`).
 - `preset_id` (`string`): Identificador do turno (`"industria_suape"`, `"comercio_centro"`, `"estudante_universitario"`, `"plantao_saude"`).
 - `target_time` (`string`, formato `"HH:MM"`): Horário fixo de entrada no destino.
 - `walking_time_min` (`integer`): Tempo de caminhada até a parada de embarque.
 - `transit_eta_min` (`integer`): Tempo projetado de deslocamento no coletivo via ST-GCN.
 - `departure_window` (`string`, formato `"HH:MM"`): Janela segura de saída calculada ($\text{target\_time} - \text{walking\_time} - \text{transit\_eta} - 1\text{ min}$).
-- **Garantia LGPD:** Volume total de 166 bytes em armazenamento local isolado.
+- **Garantia LGPD:** Nenhum CPF real é exigido ou armazenado. O cadastro usa apenas nome de exibição e dica opcional de contato (`contact_hint`), mantendo operação funcional offline-first em `localStorage`.
+
+### Procedência de Dados de Horários Públicos
+- **`Horário Programado · GTFS`**: Rótulo obrigatório exibido em estimativas horárias públicas derivadas de `stop_times.txt`, `trips.txt` e `calendar.txt` (`DUT`, `SAB`, `DOM`) quando não houver telemetria AVL/GPS ao vivo para a linha ou parada consultada. Nunca deve ser apresentado como posição GPS em tempo real.
+
+### Esquema Relacional Persistente (Neon Postgres & SQLite Local)
+Banco local de desenvolvimento e treino: `code/grafoparada_tec/data/grafoparada.db` (gerenciado por `db_manager.py`). Banco serverless em produção: Neon Postgres (`@neondatabase/serverless` via `DATABASE_URL`).
+
+#### 1. `users`
+- `id` (`TEXT PRIMARY KEY`): Identificador pseudonimizado do passageiro (ex.: `usr_a1b2c3d4e5f6`).
+- `name` (`TEXT NOT NULL`): Nome ou apelido de tratamento informado voluntariamente pelo usuário.
+- `contact_hint` (`TEXT`): Dica opcional de contato (sem CPF nem documentos sensíveis).
+- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC de criação.
+- `updated_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC da última atualização.
+
+#### 2. `routines`
+- `id` (`TEXT PRIMARY KEY`): Identificador único da rotina (ex.: `rtn_a1b2c3d4e5f6`).
+- `user_id` (`TEXT NOT NULL`): Referência ao identificador em `users.id`.
+- `origin_city` (`TEXT NOT NULL`), `origin_neighborhood` (`TEXT`), `origin_stop_id` (`TEXT`), `origin_stop_name` (`TEXT NOT NULL`), `origin_lat` (`REAL / DOUBLE PRECISION`), `origin_lon` (`REAL / DOUBLE PRECISION`).
+- `dest_city` (`TEXT NOT NULL`), `dest_neighborhood` (`TEXT`), `dest_stop_id` (`TEXT`), `dest_stop_name` (`TEXT NOT NULL`), `dest_lat` (`REAL / DOUBLE PRECISION`), `dest_lon` (`REAL / DOUBLE PRECISION`).
+- `departure_time` (`TEXT`), `return_time` (`TEXT`), `preferred_line` (`TEXT`), `frequency` (`TEXT`).
+- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC de registro.
+
+#### 3. `demand_observations`
+- `id` (`INTEGER PRIMARY KEY AUTOINCREMENT` / `SERIAL PRIMARY KEY`): Identificador sequencial da observação.
+- `user_id` (`TEXT`): Identificador pseudonimizado opcional do passageiro colaborador.
+- `stop_id` (`TEXT`): Código físico da parada observada.
+- `route_code` (`TEXT NOT NULL`): Código da linha observada.
+- `direction` (`TEXT`): Sentido operacional (`IDA` / `VOLTA`).
+- `observed_wait_min` (`REAL / DOUBLE PRECISION`): Tempo real de espera medido ou reportado na parada (min).
+- `predicted_wait_min` (`REAL / DOUBLE PRECISION`): Tempo anteriormente estimado pelo motor (`ST-GCN` ou `Horário Programado · GTFS`).
+- `occupancy_est` (`INTEGER`): Grau de lotação observado (`1..4` ou percentual estimado).
+- `source` (`TEXT NOT NULL`): Origem da observação (ex.: `passenger_checkin`, `Horário Programado · GTFS`, `avl_telemetry`).
+- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC da coleta.
+
+#### 4. `training_runs`
+- `id` (`INTEGER PRIMARY KEY AUTOINCREMENT` / `SERIAL PRIMARY KEY`): Identificador sequencial do ciclo de retreino.
+- `dataset_rows` (`INTEGER NOT NULL`): Quantidade total de linhas no dataset consolidado de treino.
+- `real_observations` (`INTEGER NOT NULL`): Quantidade de observações reais (`demand_observations`) incorporadas.
+- `lines_covered` (`INTEGER NOT NULL`): Número de linhas da RMR cobertas na avaliação.
+- `stgcn_mae` (`REAL / DOUBLE PRECISION NOT NULL`): Erro Médio Absoluto (min) do modelo ST-GCN.
+- `ols_mae` (`REAL / DOUBLE PRECISION NOT NULL`): Erro Médio Absoluto (min) da baseline OLS.
+- `persistence_mae` (`REAL / DOUBLE PRECISION NOT NULL`): Erro Médio Absoluto (min) da baseline de Persistência.
+- `weights_hash` (`TEXT NOT NULL`): Hash SHA-256 ou identificador de versão dos pesos avaliados.
+- `notes` (`TEXT`): Notas técnicas da execução e calibração da Trava Híbrida.
+- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC do registro.
 
 ---
 

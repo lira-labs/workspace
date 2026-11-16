@@ -9,6 +9,9 @@
 
   const RealTransit = {
     networkData: null,
+    schedulesData: null,
+    modelTrainingStatus: null,
+    stopsIndex: null,
     activeRouteCode: null, // Definido dinamicamente pela geolocalizacao ou escolha do usuario
     activeRoute: null,
     activeDirection: 'ida',
@@ -139,36 +142,172 @@
       return this._condensedGraph;
     },
 
+    async _safeFetchJson(url) {
+      if (typeof fetch !== 'function') return null;
+      try {
+        const resp = await fetch(url);
+        if (!resp || !resp.ok) return null;
+        return await resp.json();
+      } catch (_err) {
+        return null;
+      }
+    },
+
+    _buildStopsIndex() {
+      if (!this.networkData) return [];
+      const byKey = new Map();
+
+      const addEntry = (sid, rawName, lat, lon, linesArr, preferName) => {
+        const nLat = Number(lat);
+        const nLon = Number(lon);
+        if (!Number.isFinite(nLat) || !Number.isFinite(nLon)) return;
+        const cleanId = sid != null ? String(sid).trim() : '';
+        const nameStr = String(rawName || '').trim();
+        const displayName = (nameStr && !/^\d+$/.test(nameStr))
+          ? nameStr
+          : (cleanId ? `Parada ${cleanId}` : 'Parada GTFS');
+        const key = cleanId || `${this.normalizeText(displayName)}@${nLat.toFixed(4)},${nLon.toFixed(4)}`;
+
+        let entry = byKey.get(key);
+        if (!entry) {
+          entry = {
+            stop_id: cleanId || key,
+            stop_name: displayName,
+            lat: nLat,
+            lon: nLon,
+            lines: new Set(),
+            hasRichName: Boolean(nameStr && !/^\d+$/.test(nameStr))
+          };
+          byKey.set(key, entry);
+        } else if (preferName && nameStr && !/^\d+$/.test(nameStr) && !entry.hasRichName) {
+          entry.stop_name = nameStr;
+          entry.hasRichName = true;
+        }
+        if (Array.isArray(linesArr)) {
+          for (let i = 0; i < linesArr.length; i++) {
+            const c = String(linesArr[i] || '').trim();
+            if (c) entry.lines.add(c);
+          }
+        }
+      };
+
+      if (Array.isArray(this.networkData.stops_index)) {
+        for (let i = 0; i < this.networkData.stops_index.length; i++) {
+          const item = this.networkData.stops_index[i];
+          if (Array.isArray(item)) {
+            const rawName = String(item[0] || '').trim();
+            const idMatch = rawName.match(/(?:-\s*|\b)(\d{5,6})\s*$/);
+            const sid = idMatch ? idMatch[1] : null;
+            addEntry(sid, rawName, item[1], item[2], item[3], true);
+          } else if (item && typeof item === 'object') {
+            addEntry(item.stop_id, item.stop_name || item.name, item.lat, item.lon, item.lines, true);
+          }
+        }
+      }
+
+      if (this.networkData.popular_lines && typeof this.networkData.popular_lines === 'object') {
+        for (const [code, lineObj] of Object.entries(this.networkData.popular_lines)) {
+          if (!lineObj) continue;
+          const allStops = (Array.isArray(lineObj.stops) ? lineObj.stops : [])
+            .concat(Array.isArray(lineObj.return_stops) ? lineObj.return_stops : []);
+          for (let i = 0; i < allStops.length; i++) {
+            const st = allStops[i];
+            if (!st) continue;
+            addEntry(st.stop_id, st.name, st.lat, st.lon, [code], false);
+          }
+        }
+      }
+
+      const result = [];
+      byKey.forEach((entry) => {
+        result.push({
+          stop_id: entry.stop_id,
+          stop_name: entry.stop_name,
+          lat: entry.lat,
+          lon: entry.lon,
+          lines: Array.from(entry.lines).sort()
+        });
+      });
+      this._stopsIndexNetRef = this.networkData;
+      return result;
+    },
+
+    _ensureStopsIndex() {
+      if (Array.isArray(this.stopsIndex) && this.stopsIndex.length > 0 && (!this.networkData || this._stopsIndexNetRef === this.networkData)) {
+        return this.stopsIndex.map((item) => {
+          if (Array.isArray(item)) {
+            const rawName = String(item[0] || '').trim();
+            const idMatch = rawName.match(/(?:-\s*|\b)(\d{5,6})\s*$/);
+            return {
+              stop_id: idMatch ? idMatch[1] : rawName,
+              stop_name: rawName,
+              lat: Number(item[1]),
+              lon: Number(item[2]),
+              lines: Array.isArray(item[3]) ? item[3].map(String) : []
+            };
+          }
+          return {
+            stop_id: String(item.stop_id || ''),
+            stop_name: String(item.stop_name || item.name || ''),
+            lat: Number(item.lat),
+            lon: Number(item.lon),
+            lines: Array.isArray(item.lines) ? item.lines.map(String) : []
+          };
+        });
+      }
+      if (this.networkData) {
+        this.stopsIndex = this._buildStopsIndex();
+        return this.stopsIndex;
+      }
+      return [];
+    },
+
     // Inicialização da Engine
     async init(leafletMap) {
-      this.map = leafletMap;
-      console.log('🚍 [RealTransit] Inicializando engine com dados reais do Grande Recife...');
+      this.map = leafletMap || null;
+      console.log('[RealTransit] Inicializando engine com dados reais do Grande Recife...');
 
-      try {
-        const resp = await fetch('data/gtfs_real_network.json');
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        this.networkData = await resp.json();
-        console.log(`✅ [RealTransit] GTFS carregado: ${this.networkData.total_lines_ready} linhas com traçados e paradas 100% reais.`);
-      } catch (err) {
-        console.error('❌ [RealTransit] Erro ao carregar gtfs_real_network.json:', err);
-        this.showToast('Aviso: Operando em modo telemetria de contingência (PE-60).', 'warning');
+      const [networkData, schedulesData, trainingStatus] = await Promise.all([
+        this._safeFetchJson('data/gtfs_real_network.json'),
+        this._safeFetchJson('data/gtfs_schedules.json'),
+        this._safeFetchJson('data/model_training_status.json')
+      ]);
+
+      this.schedulesData = schedulesData || null;
+      this.modelTrainingStatus = trainingStatus || null;
+
+      if (!networkData) {
+        console.error('[RealTransit] Erro ao carregar gtfs_real_network.json (modo offline ou indisponível).');
+        if (typeof document !== 'undefined' && typeof this.showToast === 'function') {
+          this.showToast('Aviso: Operando em modo telemetria de contingência (PE-60).', 'warning');
+        }
         return;
       }
 
-      this.stopsLayer = L.layerGroup().addTo(this.map);
+      this.networkData = networkData;
+      this.stopsIndex = this._buildStopsIndex();
+      console.log(`[RealTransit] GTFS carregado: ${this.networkData.total_lines_ready} linhas com traçados e paradas reais.`);
+
+      if (typeof L !== 'undefined' && this.map) {
+        this.stopsLayer = L.layerGroup().addTo(this.map);
+      }
 
       // Renderiza as pílulas de acesso rápido às linhas metropolitanas
-      this.renderQuickLinePills();
+      if (typeof document !== 'undefined') {
+        this.renderQuickLinePills();
+      }
 
       // Carrega localização salva ou detectada dinamicamente (NUNCA prende o usuário em parada fixa)
       let restored = false;
       try {
-        const lastRaw = localStorage.getItem('grafoparada_last_coords');
-        if (lastRaw) {
-          const last = JSON.parse(lastRaw);
-          if (typeof last.lat === 'number' && typeof last.lon === 'number') {
-            this.adaptToUserLocation(last.lat, last.lon, 'Última localização ativa', { fit: false, originSource: 'cached' });
-            restored = true;
+        if (typeof localStorage !== 'undefined') {
+          const lastRaw = localStorage.getItem('grafoparada_last_coords');
+          if (lastRaw) {
+            const last = JSON.parse(lastRaw);
+            if (typeof last.lat === 'number' && typeof last.lon === 'number') {
+              this.adaptToUserLocation(last.lat, last.lon, 'Última localização ativa', { fit: false, originSource: 'cached' });
+              restored = true;
+            }
           }
         }
       } catch (e) {}
@@ -219,9 +358,11 @@
       this.registerWebMCPTools();
 
       // Escuta mudanças de busca no input superior
-      const searchInput = document.getElementById('quick-search-input');
-      if (searchInput) {
-        searchInput.placeholder = 'Buscar entre 393 linhas reais (ex: 199, 1967, 2040, Olinda)...';
+      if (typeof document !== 'undefined') {
+        const searchInput = document.getElementById('quick-search-input');
+        if (searchInput) {
+          searchInput.placeholder = 'Buscar entre 393 linhas reais (ex: 199, 1967, 2040, Olinda)...';
+        }
       }
     },
 
@@ -787,7 +928,7 @@
             <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px; line-height:1.2;">${displayStopName}</div>
             <div style="font-size:11px; color:#64748b; margin-bottom:8px;">Programado GTFS: <strong>${st.arr_time || 'Regular'}</strong></div>
             <button onclick="window.RealTransit.selectStop(${idx}, true); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:${dirColor}; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">
-              Embarcar nesta Parada ➔
+              Embarcar nesta Parada →
             </button>
             <button onclick="window.setMyBoardingStop('${displayStopName.replace(/'/g, "\\'")}', [${st.lat}, ${st.lon}]); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:#0f172a; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer; margin-top:4px;">
               Fixar como Minha Parada
@@ -861,6 +1002,7 @@
 
     // Atualiza a interface (Drawer, LED, Títulos, Cards) para o sentido e parada de embarque ativos
     updateUIForLine(lineData, dirDataOverride, boardIdxOverride) {
+      if (typeof document === 'undefined') return;
       const dirData = dirDataOverride || this.getDirectionData(lineData, this.activeDirection);
       const boardIdx = typeof boardIdxOverride === 'number' ? boardIdxOverride : (this.activeBoardingIndex || 0);
       const stops = dirData.stops || [];
@@ -878,7 +1020,7 @@
       if (destTitle) destTitle.textContent = `${lineData.name} · Sentido ${dirData.headsign || dirTag}`;
 
       const activeHeader = document.getElementById('active-trip-header');
-      if (activeHeader) activeHeader.textContent = `Linha ${lineData.code} (${dirTag}) ➔ ${dirData.headsign || lineData.name}`;
+      if (activeHeader) activeHeader.textContent = `Linha ${lineData.code} (${dirTag}) → ${dirData.headsign || lineData.name}`;
 
       const firstStop = stops[boardIdx] ? stops[boardIdx].name.split('/')[0].trim() : 'Sua Parada';
       const lastStop = stops.length > 1 ? stops[stops.length - 1].name.split('/')[0].trim() : 'Ponto Final';
@@ -996,7 +1138,7 @@
               <div style="font-size:11px; font-weight:800; color:#0284c7; text-transform:uppercase;">Catálogo Oficial Grande Recife (GTFS Real)</div>
               <h3 style="font-size:18px; font-weight:800; color:#0f172a;">Escolher Linha de Ônibus</h3>
             </div>
-            <button onclick="document.getElementById('line-picker-modal').style.display='none'" style="border:none; background:#f1f5f9; width:32px; height:32px; border-radius:50%; font-size:14px; font-weight:800; cursor:pointer;">✕</button>
+            <button onclick="document.getElementById('line-picker-modal').style.display='none'" aria-label="Fechar" style="border:none; background:#f1f5f9; width:32px; height:32px; border-radius:50%; font-size:16px; font-weight:800; cursor:pointer;">&times;</button>
           </div>
 
           <div style="margin-bottom:12px;">
@@ -1082,13 +1224,14 @@
               <div style="font-size:11px; color:#64748b; margin-top:2px;">Dados Oficiais GTFS</div>
             </div>
           </div>
-          <span style="font-size:12px; font-weight:800; color:#059669;">Ver ➔</span>
+          <span style="font-size:12px; font-weight:800; color:#059669;">Ver →</span>
         </div>
       `).join('');
     },
 
     // Consulta API Pública Cittamobi (m3p/js) para obter dados em tempo real
     async fetchCittamobiLiveData(routeCode) {
+      if (typeof document === 'undefined') return;
       if (typeof window !== 'undefined' && window.isSlide3FailureActive) return;
       const banner = document.getElementById('resting-reallocation-banner');
       if (!banner) return;
@@ -1264,21 +1407,30 @@
         if (r.type === 'terminal') {
           return `
             <div class="search-item" onclick="window.RealTransit.selectSearchResult(${idx})">
-              <div><strong style="color:var(--blue-accent);">🏛️ ${r.title}</strong><div style="font-size:11px; color:var(--text-secondary);">${r.sub}</div></div>
+              <div style="min-width:0;">
+                <div style="display:flex; align-items:center; gap:5px; color:var(--blue-accent); font-weight:800;">${this._layaSvgIcon('map', 13)}<span>${this.escapeHtml(r.title)}</span></div>
+                <div style="font-size:11px; color:var(--text-secondary);">${this.escapeHtml(r.sub)}</div>
+              </div>
               <span style="font-size:11.5px; font-weight:700; color:var(--blue-accent); background:#e0f2fe; padding:2px 8px; border-radius:6px;">T.I. SEI</span>
             </div>
           `;
         } else if (r.type === 'stop') {
           return `
             <div class="search-item" onclick="window.RealTransit.selectSearchResult(${idx})">
-              <div><strong style="color:var(--brand-green-dark);">🚏 ${r.title}</strong><div style="font-size:11px; color:var(--text-secondary);">${r.sub}</div></div>
+              <div style="min-width:0;">
+                <div style="display:flex; align-items:center; gap:5px; color:var(--brand-green-dark); font-weight:800;">${this._layaSvgIcon('pin', 13)}<span>${this.escapeHtml(r.title)}</span></div>
+                <div style="font-size:11px; color:var(--text-secondary);">${this.escapeHtml(r.sub)}</div>
+              </div>
               <span style="font-size:11.5px; font-weight:800; color:var(--brand-green-dark); background:#dcfce7; padding:2px 8px; border-radius:6px;">Parada</span>
             </div>
           `;
         } else {
           return `
             <div class="search-item" onclick="window.RealTransit.selectSearchResult(${idx})">
-              <div><strong style="color:#0f172a;">🚌 ${r.title}</strong><div style="font-size:11px; color:var(--text-secondary);">${r.sub}</div></div>
+              <div style="min-width:0;">
+                <div style="display:flex; align-items:center; gap:5px; color:#0f172a; font-weight:800;">${this._layaSvgIcon('bus', 13)}<span>${this.escapeHtml(r.title)}</span></div>
+                <div style="font-size:11px; color:var(--text-secondary);">${this.escapeHtml(r.sub)}</div>
+              </div>
               <span style="font-size:11.5px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Linha</span>
             </div>
           `;
@@ -1297,7 +1449,7 @@
 
       if (r.type === 'terminal') {
         this.map.flyTo([r.lat, r.lon], 16, { animate: true });
-        L.popup().setLatLng([r.lat, r.lon]).setContent(`<strong>🏛️ ${r.title}</strong><br>Terminal Integrado do SEI`).openOn(this.map);
+        L.popup().setLatLng([r.lat, r.lon]).setContent(`<strong>${this.escapeHtml(r.title)}</strong><br>Terminal Integrado do SEI`).openOn(this.map);
       } else if (r.type === 'stop') {
         this.selectStop(r.index, true);
       } else if (r.type === 'route') {
@@ -1320,12 +1472,13 @@
       const bg = type === 'warning' ? '#fffbeb' : type === 'error' ? '#fef2f2' : '#f0fdf4';
       const color = type === 'warning' ? '#92400e' : type === 'error' ? '#991b1b' : '#166534';
       const border = type === 'warning' ? '#fde68a' : type === 'error' ? '#fecaca' : '#bbf7d0';
-      const icon = type === 'warning' ? '⚠️' : type === 'error' ? '❌' : '✅';
+      const statusLabel = type === 'warning' ? 'AVISO' : type === 'error' ? 'ERRO' : 'OK';
+      const iconKind = type === 'warning' ? 'beacon' : type === 'error' ? 'shield' : 'compass';
 
       toast.style.background = bg;
       toast.style.color = color;
       toast.style.border = `1.5px solid ${border}`;
-      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+      toast.innerHTML = `<span style="display:inline-flex; align-items:center; gap:4px;">${this._layaSvgIcon(iconKind, 14)}<span style="font-size:10px; font-weight:800; letter-spacing:0.04em;">${statusLabel}</span></span> <span>${this.escapeHtml(message)}</span>`;
       toast.style.opacity = '1';
       toast.style.transform = 'translateX(-50%) translateY(0)';
 
@@ -1340,10 +1493,13 @@
     speakCurrent() {
       if (!this.activeRoute || !this.activeRoute.stops[this.activeStopIndex]) return;
       const st = this.activeRoute.stops[this.activeStopIndex];
-      const eta = Math.max(2, ((this.activeStopIndex % 6) * 3) + 2);
       const code = this.activeRouteCode || this.activeRoute.code || '199';
+      const sched = this.getScheduledEstimate(code, this.activeDirection || 'ida', this.activeStopIndex);
+      const eta = sched ? sched.waitMin : Math.max(2, ((this.activeStopIndex % 6) * 3) + 2);
       const dest = this.activeRoute.headsign || this.activeRoute.name || 'destino da linha';
-      const text = `Olha, o próximo ônibus da linha ${code} chega em uns ${eta} minutos aí na parada ${st.name}, indo pro ${dest}.`;
+      const text = sched
+        ? `Linha ${code}, parada ${st.name}, sentido ${dest}. Próxima partida programada GTFS às ${sched.nextDepFormatted}, em ${eta} minutos.`
+        : `Linha ${code}, parada ${st.name}, sentido ${dest}. Próximo veículo estimado em ${eta} minutos.`;
 
       if (typeof window !== 'undefined' && typeof window.showFloatingVoicePill === 'function') {
         window.showFloatingVoicePill(text);
@@ -1400,6 +1556,599 @@
         Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
       return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    },
+
+    // =========================================================================
+    // FASE 2 (v3): HELPERS DETERMINÍSTICOS RMR + HORÁRIOS GTFS + TELEMETRIA
+    // =========================================================================
+    searchRmrPlaces(query, limit = 8) {
+      const qNorm = this.normalizeText(query);
+      if (!qNorm) return [];
+      const maxResults = Math.max(1, Number(limit) || 8);
+      const tokens = qNorm.split(' ').filter(Boolean);
+      const candidates = [];
+
+      const typeBonus = (type) => {
+        if (type === 'city') return 100;
+        if (type === 'terminal') return 80;
+        if (type === 'station') return 55;
+        if (type === 'pole') return 35;
+        return 10;
+      };
+
+      const scoreText = (fields) => {
+        let best = 0;
+        for (let i = 0; i < fields.length; i++) {
+          const f = fields[i];
+          if (!f) continue;
+          if (f === qNorm) best = Math.max(best, 1000 - i * 40);
+          else if (f.startsWith(qNorm)) best = Math.max(best, 720 - i * 30);
+          else if (f.includes(qNorm)) best = Math.max(best, 460 - i * 20);
+        }
+        if (best === 0 && tokens.length > 0) {
+          const joined = fields.filter(Boolean).join(' ');
+          if (tokens.every(t => joined.includes(t))) {
+            best = 310;
+          }
+        }
+        return best;
+      };
+
+      const places = (this.schedulesData && Array.isArray(this.schedulesData.rmr_places))
+        ? this.schedulesData.rmr_places
+        : [];
+
+      for (let i = 0; i < places.length; i++) {
+        const p = places[i];
+        if (!p || !p.name) continue;
+        const nameNorm = this.normalizeText(p.name);
+        const cityNorm = this.normalizeText(p.city);
+        const neighNorm = this.normalizeText(p.neighborhood);
+        const baseScore = scoreText([nameNorm, cityNorm, neighNorm]);
+        if (baseScore <= 0) continue;
+
+        const lines = Array.isArray(p.lines) ? p.lines.slice() : [];
+        const stopCount = Number(p.stop_count) || 0;
+        const score = baseScore + typeBonus(p.type) + Math.min(50, stopCount / 50);
+        const rawNeighborhood = String(p.neighborhood || '').trim();
+        const cleanNeighborhood = rawNeighborhood.replace(/^(?:de|do|da|dos|das)\s+/i, '').trim();
+        const linesCountLabel = `${lines.length} ${lines.length === 1 ? 'linha' : 'linhas'}`;
+        const sublabel = p.type === 'city'
+          ? `Cidade RMR · ${cleanNeighborhood || p.city} · ${linesCountLabel}`
+          : `${p.city || 'RMR'}${cleanNeighborhood && this.normalizeText(cleanNeighborhood) !== this.normalizeText(p.name) ? ' · ' + cleanNeighborhood : ''} · ${linesCountLabel}`;
+
+        candidates.push({
+          _score: score,
+          label: p.name,
+          sublabel,
+          type: p.type || 'pole',
+          city: p.city || null,
+          neighborhood: cleanNeighborhood || null,
+          lat: Number(p.lat),
+          lon: Number(p.lon),
+          stopId: null,
+          stopCount,
+          lines
+        });
+      }
+
+      const stops = this._ensureStopsIndex();
+      const isNumericQuery = /^\d{4,6}$/.test(qNorm);
+      for (let i = 0; i < stops.length; i++) {
+        const st = stops[i];
+        if (!st || !st.stop_name) continue;
+        const stNameNorm = this.normalizeText(st.stop_name);
+        const stIdNorm = this.normalizeText(st.stop_id);
+        let baseScore = 0;
+        if (stIdNorm && stIdNorm === qNorm) baseScore = 950;
+        else if (isNumericQuery && stIdNorm.startsWith(qNorm)) baseScore = 760;
+        else baseScore = scoreText([stNameNorm, stIdNorm]);
+
+        if (baseScore <= 0) continue;
+        const lines = Array.isArray(st.lines) ? st.lines.slice() : [];
+        const hasDescriptiveName = !/^parada \d+$/i.test(st.stop_name);
+        const score = baseScore + (lines.length > 0 ? 25 : 0) + (hasDescriptiveName ? 20 : 0);
+
+        candidates.push({
+          _score: score,
+          label: st.stop_name,
+          sublabel: `Parada GTFS #${st.stop_id}${lines.length ? ' · ' + lines.length + ' linhas' : ''}`,
+          type: 'stop',
+          city: null,
+          neighborhood: null,
+          lat: st.lat,
+          lon: st.lon,
+          stopId: st.stop_id,
+          stopCount: 1,
+          lines
+        });
+      }
+
+      candidates.sort((a, b) => b._score - a._score);
+
+      const deduped = [];
+      const seenStopIds = new Set();
+      const seenKeys = new Set();
+      for (let i = 0; i < candidates.length; i++) {
+        const item = candidates[i];
+        if (item.stopId && seenStopIds.has(item.stopId)) continue;
+        const cleanLabel = this.normalizeText(item.label).replace(/\s+\d{5,6}$/, '');
+        const coordKey = (Number.isFinite(item.lat) && Number.isFinite(item.lon))
+          ? `${item.lat.toFixed(3)},${item.lon.toFixed(3)}`
+          : 'nc';
+        const key = `${cleanLabel}|${coordKey}`;
+        if (seenKeys.has(key)) continue;
+
+        if (item.stopId) seenStopIds.add(item.stopId);
+        seenKeys.add(key);
+        deduped.push({
+          label: item.label,
+          sublabel: item.sublabel,
+          type: item.type,
+          city: item.city,
+          neighborhood: item.neighborhood,
+          lat: item.lat,
+          lon: item.lon,
+          stopId: item.stopId,
+          stopCount: item.stopCount,
+          lines: item.lines
+        });
+        if (deduped.length >= maxResults) break;
+      }
+
+      return deduped;
+    },
+
+    getStopsForPlace(lat, lon, placeHint = '', limit = 8) {
+      const maxResults = Math.max(1, Number(limit) || 8);
+      const allStops = this._ensureStopsIndex();
+      if (!allStops.length) return [];
+
+      const withLines = allStops.filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lon) && Array.isArray(s.lines) && s.lines.length > 0);
+      const pool = withLines.length > 0
+        ? withLines
+        : allStops.filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lon));
+      if (!pool.length) return [];
+
+      const hintNorm = this.normalizeText(placeHint);
+      const hintTokens = hintNorm ? hintNorm.split(' ').filter(t => t.length >= 2) : [];
+      const hasCoords = lat !== null && lat !== undefined && lon !== null && lon !== undefined &&
+        Number.isFinite(Number(lat)) && Number.isFinite(Number(lon));
+
+      if (hasCoords) {
+        const refLat = Number(lat);
+        const refLon = Number(lon);
+        const scored = pool.map((st) => {
+          const distance_m = Math.round(this.haversineKm(refLat, refLon, st.lat, st.lon) * 1000);
+          const hintMatch = hintNorm ? this.normalizeText(st.stop_name).includes(hintNorm) : false;
+          return {
+            stop_id: st.stop_id,
+            stop_name: st.stop_name,
+            lat: st.lat,
+            lon: st.lon,
+            distance_m,
+            lines: st.lines.slice(),
+            _hintMatch: hintMatch
+          };
+        });
+
+        scored.sort((a, b) => {
+          const distDiff = a.distance_m - b.distance_m;
+          if (Math.abs(distDiff) > 25) return distDiff;
+          if (a._hintMatch !== b._hintMatch) return a._hintMatch ? -1 : 1;
+          return b.lines.length - a.lines.length;
+        });
+
+        return scored.slice(0, maxResults).map(({ stop_id, stop_name, lat: sLat, lon: sLon, distance_m, lines }) => ({
+          stop_id,
+          stop_name,
+          lat: sLat,
+          lon: sLon,
+          distance_m,
+          lines
+        }));
+      }
+
+      const textMatches = [];
+      if (hintNorm) {
+        for (let i = 0; i < pool.length; i++) {
+          const st = pool[i];
+          const sn = this.normalizeText(st.stop_name);
+          const sid = this.normalizeText(st.stop_id);
+          if (sn.includes(hintNorm) || sid === hintNorm || (hintTokens.length > 0 && hintTokens.every(t => sn.includes(t)))) {
+            textMatches.push(st);
+          }
+        }
+      }
+
+      let refCoords = null;
+      if (hintNorm && this.schedulesData && Array.isArray(this.schedulesData.rmr_places)) {
+        const placeHit = this.schedulesData.rmr_places.find(p => {
+          const pn = this.normalizeText(p.name);
+          const cn = this.normalizeText(p.city);
+          const nn = this.normalizeText(p.neighborhood);
+          return pn === hintNorm || cn === hintNorm || nn === hintNorm || pn.includes(hintNorm);
+        });
+        if (placeHit && Number.isFinite(Number(placeHit.lat)) && Number.isFinite(Number(placeHit.lon))) {
+          refCoords = [Number(placeHit.lat), Number(placeHit.lon)];
+        }
+      }
+      if (!refCoords && hintNorm) {
+        const loc = this.resolvePlaceLocation(hintNorm);
+        if (loc && Number.isFinite(Number(loc.lat)) && Number.isFinite(Number(loc.lon))) {
+          refCoords = [Number(loc.lat), Number(loc.lon)];
+        }
+      }
+
+      const results = [];
+      const seenIds = new Set();
+      for (let i = 0; i < textMatches.length && results.length < maxResults; i++) {
+        const st = textMatches[i];
+        if (seenIds.has(st.stop_id)) continue;
+        seenIds.add(st.stop_id);
+        const distance_m = refCoords
+          ? Math.round(this.haversineKm(refCoords[0], refCoords[1], st.lat, st.lon) * 1000)
+          : null;
+        results.push({
+          stop_id: st.stop_id,
+          stop_name: st.stop_name,
+          lat: st.lat,
+          lon: st.lon,
+          distance_m,
+          lines: st.lines.slice()
+        });
+      }
+
+      if (results.length < maxResults && refCoords) {
+        const nearby = this.getStopsForPlace(refCoords[0], refCoords[1], placeHint, maxResults);
+        for (let i = 0; i < nearby.length && results.length < maxResults; i++) {
+          if (seenIds.has(nearby[i].stop_id)) continue;
+          seenIds.add(nearby[i].stop_id);
+          results.push(nearby[i]);
+        }
+      }
+
+      return results.slice(0, maxResults);
+    },
+
+    getScheduledEstimate(routeCode, direction = 'ida', stopIdxOrId = null, dateObj = new Date()) {
+      if (!this.schedulesData || !this.schedulesData.lines) return null;
+      const rawCode = String(routeCode || '').trim();
+      if (!rawCode) return null;
+
+      let resolvedCode = rawCode;
+      let lineSched = this.schedulesData.lines[resolvedCode];
+      if (!lineSched && this.aliases && this.aliases[resolvedCode]) {
+        resolvedCode = this.aliases[resolvedCode];
+        lineSched = this.schedulesData.lines[resolvedCode];
+      }
+      if (!lineSched) return null;
+
+      const hasValidService = (dirObj) => Boolean(
+        dirObj && typeof dirObj === 'object' &&
+        ['DUT', 'SAB', 'DOM'].some(d => dirObj[d] && Array.isArray(dirObj[d].dep_mins) && dirObj[d].dep_mins.length > 0)
+      );
+
+      const reqDir = String(direction || 'ida').toLowerCase() === 'volta' ? 'volta' : 'ida';
+      let usedDir = reqDir;
+      let dirObj = lineSched[reqDir];
+      if (!hasValidService(dirObj)) {
+        if (hasValidService(lineSched.ida)) {
+          usedDir = 'ida';
+          dirObj = lineSched.ida;
+        } else if (hasValidService(lineSched.volta)) {
+          usedDir = 'volta';
+          dirObj = lineSched.volta;
+        } else {
+          return null;
+        }
+      }
+
+      const dt = (dateObj instanceof Date && !Number.isNaN(dateObj.getTime())) ? dateObj : new Date();
+      const dow = dt.getDay();
+      const dayOrder = dow === 0 ? ['DOM', 'SAB', 'DUT'] : (dow === 6 ? ['SAB', 'DUT', 'DOM'] : ['DUT', 'SAB', 'DOM']);
+      let serviceDay = null;
+      let sched = null;
+      for (let i = 0; i < dayOrder.length; i++) {
+        const dKey = dayOrder[i];
+        if (dirObj[dKey] && Array.isArray(dirObj[dKey].dep_mins) && dirObj[dKey].dep_mins.length > 0) {
+          serviceDay = dKey;
+          sched = dirObj[dKey];
+          break;
+        }
+      }
+      if (!sched) return null;
+
+      const offsets = Array.isArray(dirObj.stop_offsets_min) ? dirObj.stop_offsets_min : [];
+      let offsetMin = 0;
+      if (stopIdxOrId !== null && stopIdxOrId !== undefined && stopIdxOrId !== '') {
+        if (typeof stopIdxOrId === 'number' && Number.isFinite(stopIdxOrId)) {
+          const idx = Math.floor(stopIdxOrId);
+          if (idx >= 0 && idx < offsets.length) {
+            offsetMin = Number(offsets[idx]) || 0;
+          } else if (idx >= 1000 && this.networkData && this.networkData.popular_lines && this.networkData.popular_lines[resolvedCode]) {
+            const lineNet = this.networkData.popular_lines[resolvedCode];
+            const routeStops = usedDir === 'volta' ? (lineNet.return_stops || []) : (lineNet.stops || []);
+            const foundIdx = routeStops.findIndex(s => s && String(s.stop_id) === String(stopIdxOrId));
+            if (foundIdx >= 0 && foundIdx < offsets.length) {
+              offsetMin = Number(offsets[foundIdx]) || 0;
+            }
+          }
+        } else if (typeof stopIdxOrId === 'string') {
+          const sidStr = stopIdxOrId.trim();
+          let matchedIdx = -1;
+          if (this.networkData && this.networkData.popular_lines && this.networkData.popular_lines[resolvedCode]) {
+            const lineNet = this.networkData.popular_lines[resolvedCode];
+            const routeStops = usedDir === 'volta' ? (lineNet.return_stops || []) : (lineNet.stops || []);
+            matchedIdx = routeStops.findIndex(s => s && String(s.stop_id) === sidStr);
+          }
+          if (matchedIdx >= 0 && matchedIdx < offsets.length) {
+            offsetMin = Number(offsets[matchedIdx]) || 0;
+          } else if (/^\d{1,3}$/.test(sidStr)) {
+            const idx = parseInt(sidStr, 10);
+            if (idx >= 0 && idx < offsets.length) {
+              offsetMin = Number(offsets[idx]) || 0;
+            }
+          }
+        }
+      }
+
+      const nowMin = dt.getHours() * 60 + dt.getMinutes();
+      const timeBand = nowMin < 300
+        ? 'madrugada'
+        : (nowMin < 540
+          ? 'pico_manha'
+          : (nowMin < 960
+            ? 'entre_picos'
+            : (nowMin < 1200 ? 'pico_tarde' : 'noite')));
+
+      const headways = sched.headways_min || {};
+      const headwayMin = headways[timeBand] != null ? headways[timeBand] : null;
+
+      const fmtMin = (m) => {
+        const normM = ((Math.round(m) % 1440) + 1440) % 1440;
+        const hh = String(Math.floor(normM / 60)).padStart(2, '0');
+        const mm = String(normM % 60).padStart(2, '0');
+        return `${hh}:${mm}`;
+      };
+
+      const adjustedDeps = sched.dep_mins.map(m => Number(m) + offsetMin).filter(Number.isFinite).sort((a, b) => a - b);
+      if (!adjustedDeps.length) return null;
+
+      const upcomingToday = adjustedDeps.filter(m => m >= nowMin);
+      const isNextDay = upcomingToday.length === 0;
+      const nextDepMin = Math.round(isNextDay ? adjustedDeps[0] : upcomingToday[0]);
+      const waitMin = isNextDay
+        ? Math.max(0, Math.round((1440 - nowMin) + adjustedDeps[0]))
+        : Math.max(0, Math.round(upcomingToday[0] - nowMin));
+      const upcomingSlice = (isNextDay ? adjustedDeps : upcomingToday).slice(0, 4);
+      const upcomingFormatted = upcomingSlice.map(m => isNextDay ? `${fmtMin(m)} (dia seguinte)` : fmtMin(m));
+
+      return {
+        routeCode: resolvedCode,
+        routeName: lineSched.name || resolvedCode,
+        direction: usedDir,
+        serviceDay,
+        firstDep: offsetMin > 0 ? fmtMin(adjustedDeps[0]) : (sched.first_dep || fmtMin(adjustedDeps[0])),
+        lastDep: offsetMin > 0 ? fmtMin(adjustedDeps[adjustedDeps.length - 1]) : (sched.last_dep || fmtMin(adjustedDeps[adjustedDeps.length - 1])),
+        tripCount: sched.trip_count || adjustedDeps.length,
+        durationMin: sched.duration_min != null ? sched.duration_min : null,
+        timeBand,
+        headwayMin,
+        stopOffsetMin: offsetMin,
+        nextDepMin,
+        nextDepFormatted: fmtMin(nextDepMin),
+        waitMin,
+        isNextDay,
+        upcomingFormatted,
+        provenanceLabel: 'Horário Programado · GTFS'
+      };
+    },
+
+    suggestLinesBetweenStops(originStopId, destStopId, dateObj = new Date()) {
+      const oId = String(originStopId || '').trim();
+      const dId = String(destStopId || '').trim();
+      if (!oId || !dId) return [];
+
+      const stops = this._ensureStopsIndex();
+      const originStop = stops.find(s => String(s.stop_id) === oId);
+      const destStop = stops.find(s => String(s.stop_id) === dId);
+      if (!originStop || !destStop) return [];
+
+      const getLineMeta = (code) => {
+        const pop = this.networkData && this.networkData.popular_lines && this.networkData.popular_lines[code];
+        const schedLine = this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[code];
+        const name = (pop && pop.name) || (schedLine && schedLine.name) || code;
+        return { name, isBacurau: /bacurau/i.test(name) };
+      };
+
+      const directCodes = new Map();
+      const originSet = new Set(originStop.lines || []);
+      for (const code of (destStop.lines || [])) {
+        if (originSet.has(code)) {
+          directCodes.set(code, { direction: 'ida', stopIdx: null });
+        }
+      }
+
+      if (this.networkData && this.networkData.popular_lines) {
+        for (const [code, lineObj] of Object.entries(this.networkData.popular_lines)) {
+          if (!lineObj) continue;
+          const idaStops = lineObj.stops || [];
+          const voltaStops = lineObj.return_stops || [];
+          const oIda = idaStops.findIndex(s => s && String(s.stop_id) === oId);
+          const dIda = idaStops.findIndex(s => s && String(s.stop_id) === dId);
+          if (oIda >= 0 && dIda >= 0 && oIda <= dIda) {
+            directCodes.set(code, { direction: 'ida', stopIdx: oIda });
+            continue;
+          }
+          const oVolta = voltaStops.findIndex(s => s && String(s.stop_id) === oId);
+          const dVolta = voltaStops.findIndex(s => s && String(s.stop_id) === dId);
+          if (oVolta >= 0 && dVolta >= 0 && oVolta <= dVolta) {
+            directCodes.set(code, { direction: 'volta', stopIdx: oVolta });
+          } else if (oIda >= 0 && dIda >= 0 && !directCodes.has(code)) {
+            directCodes.set(code, { direction: 'ida', stopIdx: oIda });
+          }
+        }
+      }
+
+      const candidates = [];
+      const seenCodes = new Set();
+
+      directCodes.forEach((meta, code) => {
+        seenCodes.add(code);
+        const lm = getLineMeta(code);
+        const schedule = this.getScheduledEstimate(code, meta.direction || 'ida', meta.stopIdx, dateObj)
+          || this.getScheduledEstimate(code, 'ida', null, dateObj);
+        candidates.push({
+          code,
+          name: lm.name,
+          label: `${code} · ${lm.name}`,
+          isDirect: true,
+          isBacurau: lm.isBacurau,
+          direction: (schedule && schedule.direction) || meta.direction || 'ida',
+          originStopId: oId,
+          destStopId: dId,
+          schedule
+        });
+      });
+
+      if (candidates.length === 0) {
+        const nearOrig = this.getStopsForPlace(originStop.lat, originStop.lon, '', 6);
+        const nearDest = this.getStopsForPlace(destStop.lat, destStop.lon, '', 6);
+        const nearOrigLines = new Set();
+        const nearDestLines = new Set();
+        nearOrig.forEach(s => (s.lines || []).forEach(c => nearOrigLines.add(c)));
+        nearDest.forEach(s => (s.lines || []).forEach(c => nearDestLines.add(c)));
+
+        nearOrigLines.forEach((code) => {
+          if (nearDestLines.has(code) && !seenCodes.has(code)) {
+            seenCodes.add(code);
+            const lm = getLineMeta(code);
+            const schedule = this.getScheduledEstimate(code, 'ida', null, dateObj);
+            candidates.push({
+              code,
+              name: lm.name,
+              label: `${code} · ${lm.name}`,
+              isDirect: true,
+              viaNearbyStop: true,
+              isBacurau: lm.isBacurau,
+              direction: (schedule && schedule.direction) || 'ida',
+              originStopId: oId,
+              destStopId: dId,
+              schedule
+            });
+          }
+        });
+      }
+
+      if (candidates.length === 0) {
+        const fallbackLines = (originStop.lines && originStop.lines.length)
+          ? originStop.lines
+          : Array.from(new Set(this.getStopsForPlace(originStop.lat, originStop.lon, '', 4).flatMap(s => s.lines || [])));
+        fallbackLines.forEach((code) => {
+          if (seenCodes.has(code)) return;
+          seenCodes.add(code);
+          const lm = getLineMeta(code);
+          const schedule = this.getScheduledEstimate(code, 'ida', null, dateObj);
+          candidates.push({
+            code,
+            name: lm.name,
+            label: `${code} · ${lm.name}`,
+            isDirect: false,
+            isBacurau: lm.isBacurau,
+            direction: (schedule && schedule.direction) || 'ida',
+            originStopId: oId,
+            destStopId: dId,
+            schedule
+          });
+        });
+      }
+
+      candidates.sort((a, b) => {
+        if (a.isDirect !== b.isDirect) return a.isDirect ? -1 : 1;
+        if (a.isBacurau !== b.isBacurau) return a.isBacurau ? 1 : -1;
+        const aWait = a.schedule ? a.schedule.waitMin : 9999;
+        const bWait = b.schedule ? b.schedule.waitMin : 9999;
+        return aWait - bWait;
+      });
+
+      return candidates.slice(0, 10).map(({ isBacurau, ...rest }) => rest);
+    },
+
+    getModelTrainingStatus() {
+      return this.modelTrainingStatus || null;
+    },
+
+    async recordTelemetryEvent(payload) {
+      try {
+        if (typeof window === 'undefined' || !window.location || !String(window.location.protocol || '').startsWith('http')) {
+          return false;
+        }
+        if (typeof fetch !== 'function') return false;
+        const body = Object.assign(
+          { ts: new Date().toISOString() },
+          (payload && typeof payload === 'object') ? payload : { event: String(payload || 'ping') }
+        );
+        const resp = await fetch('/api/telemetry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          keepalive: true
+        });
+        return Boolean(resp && resp.ok);
+      } catch (_err) {
+        return false;
+      }
+    },
+
+    _findPlaceMentionInQuery(rawText) {
+      const q = this.normalizeText(rawText);
+      if (!q) return null;
+
+      const places = (this.schedulesData && Array.isArray(this.schedulesData.rmr_places))
+        ? this.schedulesData.rmr_places
+        : [];
+      let bestPlace = null;
+      let bestScore = 0;
+
+      for (let i = 0; i < places.length; i++) {
+        const p = places[i];
+        if (!p || !p.name) continue;
+        const candidates = [p.name, p.city, p.neighborhood].map(s => this.normalizeText(s)).filter(s => s.length >= 4);
+        for (let j = 0; j < candidates.length; j++) {
+          const cand = candidates[j];
+          if (q === cand || new RegExp(`\\b${cand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(q)) {
+            const score = cand.length * 10 + (p.type === 'terminal' ? 5 : (p.type === 'city' ? 3 : 1));
+            if (score > bestScore) {
+              bestScore = score;
+              bestPlace = {
+                label: p.name,
+                sublabel: `${p.city || 'RMR'} · ${(p.lines || []).length} linhas`,
+                type: p.type || 'pole',
+                city: p.city || null,
+                neighborhood: p.neighborhood || null,
+                lat: Number(p.lat),
+                lon: Number(p.lon),
+                stopId: null,
+                stopCount: Number(p.stop_count) || 0,
+                lines: Array.isArray(p.lines) ? p.lines.slice() : []
+              };
+            }
+          }
+        }
+      }
+
+      if (bestPlace) return bestPlace;
+
+      const stripped = q
+        .replace(/\b(qual|quais|que horas|horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|passa|passam|onibus|busao|linha|linhas|proximo|proxima|em|no|na|para|pra|de|do|da|ate|saindo|partindo)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (stripped.length >= 3) {
+        const hits = this.searchRmrPlaces(stripped, 3);
+        if (hits.length > 0) return hits[0];
+      }
+      return null;
     },
 
     // Descobre automaticamente parada real e linhas (IDA + VOLTA) que servem a coordenada do usuário
@@ -1507,7 +2256,7 @@
           gpsErrorCode: null
         };
         if (typeof window.showFloatingVoicePill === 'function') {
-          window.showFloatingVoicePill('📍 Você está fora do Grande Recife. Selecione um ponto para simular.');
+          window.showFloatingVoicePill('Você está fora do Grande Recife. Selecione um ponto para simular.');
         }
         if (typeof window.updateHomeGreeting === 'function') window.updateHomeGreeting();
         return ctx;
@@ -1975,7 +2724,7 @@
     // Extrai destino quando a pessoa fala só para onde vai (inclui frases de "Guia de Perdido")
     extractDestinationOnly(rawText) {
       const q = this.normalizeText(rawText);
-      if (!q || /\b(proximo onibus|proximo|horario|quando passa|lotado|lotada|lotacao|vagas|mofar|esperando|demora|engarrafamento|congestionamento|acidente|over-smoothing|oversmoothing|parada segura|desembarque seguro|farol noturno|cittamobi|integracao|stgcn|st gcn|como funciona|banca|slides|pptx)\b/.test(q)) {
+      if (!q || /\b(proximo onibus|proximo|horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|que horas|tabela|partida|partidas|saida|saidas|quando passa|lotado|lotada|lotacao|vagas|mofar|esperando|demora|engarrafamento|congestionamento|acidente|over-smoothing|oversmoothing|parada segura|desembarque seguro|farol noturno|cittamobi|integracao|stgcn|st gcn|como funciona|banca|slides|pptx)\b/.test(q)) {
         return null;
       }
       const lostCleaned = q
@@ -2003,8 +2752,8 @@
       const isLost = /\b(perdido|perdida|me perdi|nao sei onde estou)\b/.test(q);
       const isUrgent = isLost || /\b(agora|rapido|urgente|atrasado|socorro|lotado|lotada|mofar|queima|espera|engarrafamento|acidente)\b/.test(q);
       const hasTrip = Boolean(this.extractOriginDest(rawText) || this.extractDestinationOnly(rawText));
-      const isScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|cittamobi|moovit|integracao|vem|duas horas|2h)\b/.test(q);
-      const isArrivalOrCrowd = /\b(onibus|quando passa|horario|proximo|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao|minha parada|onde estou)\b/.test(q);
+      const isScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|treinamento|pesos|validacao|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|cittamobi|moovit|integracao|vem|duas horas|2h)\b/.test(q);
+      const isArrivalOrCrowd = /\b(onibus|quando passa|horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|que horas|tabela|partida|partidas|saida|saidas|proximo|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao|minha parada|onde estou)\b/.test(q);
       const choice = isLost ? 'lost_passenger_guide'
         : (hasTrip ? 'route_planning'
           : (isScience ? 'platform_science'
@@ -2409,6 +3158,14 @@
         const cpBadge = (opt.crowdPrediction && opt.crowdPrediction.label)
           ? opt.crowdPrediction.label
           : 'Lotação Leve · IA ~88%';
+        const firstCode = opt.codes && opt.codes[0] ? opt.codes[0] : null;
+        const sched = firstCode ? this.getScheduledEstimate(firstCode, 'ida') : null;
+        const schedBadgeHtml = sched
+          ? `<span class="gp-badge-gtfs" style="background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 5px; border-radius:5px; font-size:9.5px; font-weight:800; line-height:1.25;">${this.escapeHtml(sched.provenanceLabel)} · Próx. ${this.escapeHtml(sched.nextDepFormatted)} (${sched.waitMin} min)</span>`
+          : '';
+        const schedExtraText = sched
+          ? ` · ${sched.headwayMin != null ? `Intervalo ${sched.headwayMin} min · ` : ''}1º ${this.escapeHtml(sched.firstDep)} / Último ${this.escapeHtml(sched.lastDep)}`
+          : '';
         const cleanTag = String(opt.tag || '').replace(/^\s*[^\wÀ-ÿ]+/, '').trim() || `Opção ${idx + 1}`;
         return `<div style="background:${isPrimary ? '#f0fdf4' : '#ffffff'}; border:1.5px solid ${isPrimary ? '#86efac' : '#e2e8f0'}; border-radius:12px; padding:7px 9px; margin-top:5px;">` +
           `<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:3px;">` +
@@ -2419,8 +3176,9 @@
           `<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:4px;">` +
             `<span style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:1px 5px; border-radius:5px; font-size:9.5px; font-weight:800; line-height:1.25;">${this.escapeHtml(tcBadge)}</span>` +
             `<span style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; padding:1px 5px; border-radius:5px; font-size:9.5px; font-weight:800; line-height:1.25;">${this.escapeHtml(cpBadge)}</span>` +
+            schedBadgeHtml +
           `</div>` +
-          `<div style="font-size:10.5px; line-height:1.3; color:#475569; margin-bottom:4px;">Caminhada ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.map(h => this.escapeHtml(h)).join(' → ') : 'Viagem direta sem troca'}</div>` +
+          `<div style="font-size:10.5px; line-height:1.3; color:#475569; margin-bottom:4px;">Caminhada ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.map(h => this.escapeHtml(h)).join(' → ') : 'Viagem direta sem troca'}${schedExtraText}</div>` +
           `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${codesJson}, ${hubsJson}, ${origCoordsArr}, ${destCoordsArr});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="display:flex; align-items:center; justify-content:center; gap:5px; width:100%; background:${isPrimary ? '#059669' : '#0284c7'}; color:#fff; border:none; padding:5px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Traçar Opção ${idx + 1} no Mapa</span></button>` +
           `</div>`;
       };
@@ -2442,16 +3200,21 @@
         const nonBacurau = plan.directMatches.filter(m => !m.isBacurau);
         const ranked = nonBacurau.length > 0 ? nonBacurau : plan.directMatches;
         const mainRoute = ranked[0];
+        const mainSched = this.getScheduledEstimate(mainRoute.code, 'ida');
         const altLines = ranked.slice(1, 3).map(r => `<strong>${this.escapeHtml(r.code)}</strong>`).join(', ');
         const rawOrigStopLabel = plan.originStop ? plan.originStop.name : (plan.origCorridor && plan.origCorridor.stopName) || cleanOrigLabel;
         const origStopLabel = this._sanitizeOriginName(rawOrigStopLabel);
         const destStopLabel = plan.destStop ? plan.destStop.name : (plan.destCorridor && plan.destCorridor.stopName) || plan.destLabel;
-        const waitStr = plan.originStop ? `${plan.originStop.wait_gps_min || 3} min` : '4 a 7 min';
-        const tripDur = plan.telemetryEtaMin ? this.formatDurationHuman(plan.telemetryEtaMin) : formatDuration(mainRoute.totalMin || 25);
+        const waitStr = plan.originStop
+          ? `${plan.originStop.wait_gps_min || 3} min (Telemetria PE-60)`
+          : (mainSched ? `Próx. ${mainSched.nextDepFormatted} (${mainSched.waitMin} min · ${mainSched.provenanceLabel})` : 'Horário Programado · GTFS');
+        const tripDur = plan.telemetryEtaMin
+          ? this.formatDurationHuman(plan.telemetryEtaMin)
+          : (mainSched && mainSched.durationMin ? this.formatDurationHuman(mainSched.durationMin) : formatDuration(mainRoute.totalMin || 25));
 
         let html = nightSafetyBanner +
           `<div style="font-size:11.5px; line-height:1.32; margin-bottom:2px;"><strong>Rotas de ${safeOrig} até ${safeDest}</strong> · Linha direta <strong>${this.escapeHtml(mainRoute.code)}</strong> (${this.escapeHtml(mainRoute.label)})</div>` +
-          `<div style="font-size:10.5px; color:#334155; line-height:1.32; margin-bottom:2px;"><strong>Embarque:</strong> ${this.escapeHtml(origStopLabel)} (${waitStr}) · <strong>Desembarque:</strong> ${this.escapeHtml(destStopLabel)} (${tripDur})${altLines ? ` · <strong>Outras diretas:</strong> ${altLines}` : ''}</div>`;
+          `<div style="font-size:10.5px; color:#334155; line-height:1.32; margin-bottom:2px;"><strong>Embarque:</strong> ${this.escapeHtml(origStopLabel)} (${this.escapeHtml(waitStr)}) · <strong>Desembarque:</strong> ${this.escapeHtml(destStopLabel)} (${this.escapeHtml(tripDur)})${altLines ? ` · <strong>Outras diretas:</strong> ${altLines}` : ''}</div>`;
 
         if (plan.routeOptions && plan.routeOptions.length > 0) {
           html += renderOptionsCardsHtml(plan.routeOptions);
@@ -2459,7 +3222,10 @@
 
         const altCount = Math.max(0, plan.routeOptions.length - 1);
         const altNote = altCount > 0
-          ? ` Também separei ${altCount} ${altCount === 1 ? 'opção alternativa' : 'opções alternativas'} pra você comparar.`
+          ? ` Há também ${altCount} ${altCount === 1 ? 'opção alternativa' : 'opções alternativas'} para comparar.`
+          : '';
+        const schedSpeech = mainSched
+          ? ` Próxima partida programada GTFS às ${mainSched.nextDepFormatted}.`
           : '';
         return {
           intent: 'trip_plan',
@@ -2468,16 +3234,18 @@
           routeCode: mainRoute.code,
           directOptions: ranked.slice(0, 4).map(r => r.code),
           routeOptions: plan.routeOptions,
+          schedule: mainSched,
           tripPlan: plan,
           html,
-          speechTone: 'cheerful',
-          speech: `Boa notícia! De ${cleanOrigLabel} até ${plan.destLabel}, a melhor opção é a linha direta ${mainRoute.code}, chegando lá em cerca de ${mainRoute.totalMin || 25} minutos.${altNote}`
+          speechTone: 'info',
+          speech: `De ${cleanOrigLabel} até ${plan.destLabel}, a opção direta recomendada é a linha ${mainRoute.code}, com viagem estimada em ${mainRoute.totalMin || 25} minutos.${schedSpeech}${altNote}`
         };
       }
 
       if (plan.transferPlan && Array.isArray(plan.transferPlan.legs) && plan.transferPlan.legs.length >= 2) {
         const legs = plan.transferPlan.legs;
         const hubs = plan.transferPlan.hubs || [plan.transferPlan.hub];
+        const leg1Sched = legs[0] ? this.getScheduledEstimate(legs[0].code, 'ida') : null;
 
         let stepsHtml = '';
         const legCodesArr = legs.map(l => l.code);
@@ -2491,9 +3259,14 @@
           ? renderOptionsCardsHtml(plan.routeOptions)
           : '';
 
+        const schedLineHtml = leg1Sched
+          ? `<div style="font-size:10px; color:#065f46; font-weight:700; line-height:1.25; margin-bottom:2px;">${this.escapeHtml(leg1Sched.provenanceLabel)} (${this.escapeHtml(leg1Sched.routeCode)}): próx. ${this.escapeHtml(leg1Sched.nextDepFormatted)} (em ${leg1Sched.waitMin} min) · 1º ${this.escapeHtml(leg1Sched.firstDep)} / Último ${this.escapeHtml(leg1Sched.lastDep)}</div>`
+          : '';
+
         const html = nightSafetyBanner +
           `<div style="font-size:11.5px; line-height:1.32; margin-bottom:2px;"><strong>Rota Completa (${legs.length} Etapas)</strong> de <strong>${safeOrig}</strong> até <strong>${safeDest}</strong></div>` +
           `<div style="font-size:10.5px; color:#334155; line-height:1.32; margin-bottom:2px;">${stepsHtml}</div>` +
+          schedLineHtml +
           `<div style="font-size:10px; color:#047857; font-weight:700; line-height:1.25; margin-bottom:2px;">Integração SEI / VEM: janela de 2h entre terminais integrados.</div>` +
           optionsHtml;
 
@@ -2511,10 +3284,11 @@
           hubs,
           hub: hubs[0],
           routeOptions: plan.routeOptions,
+          schedule: leg1Sched,
           tripPlan: plan,
           html,
           speechTone: 'info',
-          speech: `Pronto! Tracei sua rota de ${cleanOrigLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.`
+          speech: `Rota de ${cleanOrigLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.${leg1Sched ? ` Primeira etapa com partida programada GTFS às ${leg1Sched.nextDepFormatted}.` : ''}`
         };
       }
 
@@ -2524,10 +3298,10 @@
         intent: 'trip_unknown',
         type: 'trip_unknown',
         html: `${nightSafetyBanner}Não encontrei paradas mapeadas entre <strong>"${origRawSafe}"</strong> e <strong>"${destRawSafe}"</strong>.<br><br>` +
-          `Experimente nomes de bairros ou terminais (ex: <em>Recife Antigo, Olinda, Bairro Novo, TI PE-15, Camela, Ipojuca, UFRPE, Boa Viagem</em>) ou abra as 393 linhas:<br><br>` +
+          `Experimente nomes de bairros, cidades ou terminais (ex: <em>Recife Antigo, Olinda, Abreu e Lima, TI PE-15, Camela, Ipojuca, UFRPE, Boa Viagem</em>) ou abra as 393 linhas:<br><br>` +
           `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('bus', 14)}<span>Buscar nas 393 Linhas GTFS</span></button>`,
         speechTone: 'info',
-        speech: `Olha, não achei uma ligação direta nem integrada entre ${cleanOrigLabel} e ${plan.destLabel}. Tenta me dizer o terminal ou o bairro principal mais perto.`
+        speech: `Não encontrei ligação direta nem integrada entre ${cleanOrigLabel} e ${plan.destLabel}. Informe o terminal ou bairro principal mais próximo.`
       };
     },
 
@@ -2552,11 +3326,11 @@
           intent: 'lost_guide',
           type: 'lost_guide',
           decision: layaDecision,
-          html: `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:6px;">${this._layaSvgIcon('compass', 14)}<span>Guia de Perdido · Fique tranquilo(a), vou te orientar!</span></div><br>` +
+          html: `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:6px;">${this._layaSvgIcon('compass', 14)}<span>Guia de Perdido · Orientação pelo Grafo GTFS</span></div><br>` +
             `<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 13)}<span><strong>Onde você está:</strong> ${this.escapeHtml(curStop)} (Linha próxima: <strong>${this.escapeHtml(curLine)}</strong>)</span></div>` +
-            `Me diga ou escreva abaixo <strong>para onde você quer ir</strong> (ex: <em>"Quero chegar em Boa Viagem"</em> ou <em>"Me ajuda a ir pro Derby"</em>) que eu aciono o algoritmo de rotas agora mesmo:`,
+            `Informe <strong>para onde você quer ir</strong> (ex: <em>"Quero chegar em Boa Viagem"</em> ou <em>"Ir para o TI Derby"</em>) para calcular a rota determinística:`,
           speechTone: 'info',
-          speech: `Fica tranquilo, já identifiquei seu ponto perto de ${curStop}. Me diz pra qual bairro ou terminal você precisa ir que eu calculo o caminho na hora.`
+          speech: `Identifiquei seu ponto perto de ${curStop}. Informe o bairro ou terminal de destino para calcular a rota.`
         };
       }
 
@@ -2582,18 +3356,19 @@
             intent: 'need_location',
             type: 'need_location',
             decision: layaDecision,
-            html: `${lostPrefix}<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Quero traçar sua rota até <strong>${safeDest}</strong> partindo de onde você está!</span></div>Toque abaixo para ativar o GPS (ou escolher seu bairro de saída) e ver as opções de rota:<br><br>` +
+            html: `${lostPrefix}<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Para traçar a rota até <strong>${safeDest}</strong>, informe sua localização de partida.</span></div>Ative o GPS ou escolha seu bairro de origem abaixo:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 14)}<span>Informar Onde Estou Agora</span></button>`,
             speechTone: 'info',
-            speech: `Pra traçar sua rota até ${plan.destLabel}, primeiro me diz onde você está agora ou ativa o seu GPS.`
+            speech: `Para traçar sua rota até ${plan.destLabel}, informe onde você está ou ative o GPS.`
           };
         }
 
         return this.formatLayaSmartTripResponse(plan, layaDecision, text, tripPair);
       }
 
-      // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada + WebMCP (4 Sub-intenções Especializadas)
-      const isAskingScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|anomalia|no 10|cittamobi|moovit|diferenca|comparar|integracao vem|integracao temporal|integracao|vem|duas horas|2h)\b/.test(q);
+      // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada + WebMCP + Status de Treinamento Real
+      const trainStatus = this.getModelTrainingStatus();
+      const isAskingScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|treinamento|pesos|validacao|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|anomalia|no 10|cittamobi|moovit|diferenca|comparar|integracao vem|integracao temporal|integracao|vem|duas horas|2h)\b/.test(q);
       if (isAskingScience) {
         // Sub-intenção A — Engarrafamento Repentino na PE-60 / Nó 10 & Limite da ST-GCN (Slide 3)
         if (/\b(engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|over-smoothing|oversmoothing|anomalia|no 10)\b/.test(q)) {
@@ -2608,7 +3383,7 @@
             decision: layaDecision,
             html,
             speechTone: 'alert',
-            speech: 'Atenção: quando acontece um acidente ou engarrafamento repentino no Nó 10 da PE-60, a convolução da ST-GCN sofre suavização e prevê 14,3 minutos contra 45 minutos reais no GPS. Acima de 15 minutos de divergência, o GrafoParada ativa a Trava Híbrida de Segurança, mostra os 45 minutos reais e sugere desvio pelo TI Cabo.'
+            speech: 'Quando ocorre bloqueio repentino no Nó 10 da PE-60, a convolução da ST-GCN suaviza o atraso e prevê 14,3 minutos contra 45 minutos reais no GPS. Acima de 15 minutos de divergência, o GrafoParada aciona a Trava Híbrida de Segurança, exibe os 45 minutos reais e sugere desvio pelo TI Cabo.'
           };
         }
 
@@ -2629,14 +3404,17 @@
             decision: layaDecision,
             html,
             speechTone: 'info',
-            speech: 'Olha, pela Lei Estadual 15.878 de 2016 aqui em Pernambuco, entre 22 horas e 5 da manhã, com aviso preventivo já às 21 horas no GrafoParada, mulheres, idosos e pessoas com mobilidade reduzida podem pedir desembarque fora da parada oficial em qualquer ponto seguro e iluminado do trajeto.'
+            speech: 'Pela Lei Estadual 15.878 de 2016 em Pernambuco, entre 22 horas e 5 da manhã, com aviso preventivo às 21 horas no GrafoParada, mulheres, idosos e pessoas com mobilidade reduzida podem solicitar desembarque fora da parada oficial em ponto seguro e iluminado do trajeto.'
           };
         }
 
         // Sub-intenção C — Cittamobi vs. GrafoParada & Integração Temporal VEM / SEI (2h)
+        const stgcnMaeStr = trainStatus && trainStatus.stgcn_mae != null ? String(trainStatus.stgcn_mae).replace('.', ',') : '1,29';
+        const olsMaeStr = trainStatus && trainStatus.ols_mae != null ? String(trainStatus.ols_mae).replace('.', ',') : '1,29';
+        const persMaeStr = trainStatus && trainStatus.persistence_mae != null ? String(trainStatus.persistence_mae).replace('.', ',') : '1,36';
         if (/\b(cittamobi|moovit|diferenca|comparar|integracao|vem|tarifa|passagem|duas horas|2h)\b/.test(q)) {
           const html = `<strong>Cittamobi vs. GrafoParada &amp; Integração Temporal VEM (2h):</strong><br><br>` +
-            `• <strong>Por que o Cittamobi congela na PE-60/BR-101?</strong> Usa interpolação de GPS bruto ponto-a-ponto (que some em zonas de sombra de sinal). O GrafoParada combina <strong>ST-GCN em grafo</strong> (MAE <strong>1,51 min</strong> vs <strong>1,93 min</strong> OLS e <strong>7,13 min</strong> Persistência) + <strong>FSM Cinemático V3</strong> (<strong>56,68 µs</strong>) + Trava Híbrida.<br>` +
+            `• <strong>Por que o Cittamobi congela na PE-60/BR-101?</strong> Usa interpolação de GPS bruto ponto-a-ponto (que some em zonas de sombra de sinal). O GrafoParada combina <strong>ST-GCN em grafo</strong> (MAE <strong>${this.escapeHtml(stgcnMaeStr)} min</strong> vs <strong>${this.escapeHtml(olsMaeStr)} min</strong> OLS e <strong>${this.escapeHtml(persMaeStr)} min</strong> Persistência) + <strong>FSM Cinemático V3</strong> (<strong>56,68 µs</strong>) + Trava Híbrida.<br>` +
             `• <strong>Integração Temporal VEM / SEI (26 Terminais Integrados):</strong> Com 1 única tarifa no cartão VEM, você realiza transbordo físico nos 26 TIs ou integração temporal em até <strong>2 horas (120 min)</strong> sem pagar nova passagem.<br><br>` +
             `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('central');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#0f172a; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Comparar Auditoria Cittamobi vs ST-GCN</button>`;
           return {
@@ -2644,15 +3422,25 @@
             type: 'platform_knowledge',
             subIntent: 'cittamobi_vs_grafoparada_vem',
             decision: layaDecision,
+            modelTrainingStatus: trainStatus,
             html,
             speechTone: 'info',
-            speech: 'Enquanto o Cittamobi depende só de GPS bruto isolado, o GrafoParada usa a rede ST-GCN com erro médio de 1,51 minuto e filtro cinemático em 56,68 microssegundos. E na integração temporal VEM ou nos 26 Terminais SEI, você troca de linha em até 2 horas pagando uma única passagem.'
+            speech: `Enquanto o Cittamobi depende de GPS bruto isolado, o GrafoParada usa rede ST-GCN com erro médio de ${stgcnMaeStr} minutos e filtro cinemático em 56,68 microssegundos. Na integração temporal VEM ou nos 26 Terminais SEI, a troca de linha em até 2 horas ocorre com uma única tarifa.`
           };
         }
 
-        // Sub-intenção D — Arquitetura Científica ST-GCN + FSM V3 + Grafo A* (Default Science Card)
-        const html = `<strong>Arquitetura Científica GrafoParada (Benchmarks Reais):</strong><br><br>` +
-          `• <strong>Rede ST-GCN (20 Nós PE-60 + 393 Linhas GTFS):</strong> MAE <strong>1,51 min</strong> (vs 1,93 min OLS e 7,13 min Persistência) · Inferência CPU em <strong>0,96 ms</strong> · <strong>34.627 parâmetros</strong> (138 KB).<br>` +
+        // Sub-intenção D — Arquitetura Científica ST-GCN + Status Real de Treinamento
+        const linesCov = trainStatus && trainStatus.lines_covered ? trainStatus.lines_covered : 393;
+        const schedIdx = trainStatus && trainStatus.schedules_indexed ? trainStatus.schedules_indexed : 393;
+        const placesIdx = trainStatus && trainStatus.rmr_places_indexed ? trainStatus.rmr_places_indexed : 236;
+        const weightsHash = trainStatus && trainStatus.weights_hash ? trainStatus.weights_hash : 'n/d';
+        const valBadge = trainStatus && trainStatus.validation_393_passed ? 'Aprovada (393/393)' : 'Ativa';
+        const statusLineHtml = trainStatus
+          ? `• <strong>Telemetria do Modelo Treinado:</strong> <strong>${this.escapeHtml(linesCov)}</strong> linhas cobertas · <strong>${this.escapeHtml(schedIdx)}</strong> tabelas GTFS indexadas · <strong>${this.escapeHtml(placesIdx)}</strong> polos RMR · Hash <code>${this.escapeHtml(weightsHash)}</code> · Validação: <strong>${this.escapeHtml(valBadge)}</strong>.<br>`
+          : '';
+        const html = `<strong>Arquitetura Científica GrafoParada (Métricas Verificadas):</strong><br><br>` +
+          `• <strong>Rede ST-GCN (${this.escapeHtml(linesCov)} Linhas GTFS):</strong> MAE <strong>${this.escapeHtml(stgcnMaeStr)} min</strong> (vs <strong>${this.escapeHtml(olsMaeStr)} min</strong> OLS e <strong>${this.escapeHtml(persMaeStr)} min</strong> Persistência) · Inferência CPU em <strong>0,96 ms</strong>.<br>` +
+          statusLineHtml +
           `• <strong>FSM Cinemático V3 (Filtro de Parada Real):</strong> Latência de <strong>56,68 µs/amostra</strong> · <strong>11,02 KB</strong> de heap RAM · Histerese <code>&lt; 2,16 km/h</code>, raio <code>25 m</code> e <code>dwell &gt;= 8 s</code>.<br>` +
           `• <strong>A* Multicritério + Comportamental:</strong> Espera percebida <strong>1,68x</strong> (Yap &amp; Cats, 2021) e probabilidade logística de desistência <code>P(Abandono)</code> (Kim et al., 2026).<br>` +
           `• <strong>Trava Híbrida Defensiva + WebMCP:</strong> Bloqueia over-smoothing quando <code>|GPS - ST-GCN| &gt; 15 min</code> e expõe tools via <code>navigator.modelContext</code>.<br><br>` +
@@ -2662,36 +3450,172 @@
           type: 'platform_knowledge',
           subIntent: 'architecture_stgcn_fsm_astar',
           decision: layaDecision,
+          modelTrainingStatus: trainStatus,
           html,
           speechTone: 'info',
-          speech: 'Por trás do GrafoParada, a rede ST-GCN roda com erro médio de 1,51 minuto e inferência de 0,96 milissegundos em CPU, junto com o filtro cinemático FSM V3 em 56,68 microssegundos e o modelo de abandono de Yap e Cats e Kim et al.'
+          speech: `A rede ST-GCN do GrafoParada opera com MAE de ${stgcnMaeStr} minutos sobre ${linesCov} linhas GTFS, combinada ao filtro cinemático FSM V3 em 56,68 microssegundos e ao modelo comportamental de Yap e Cats e Kim et al.`
         };
       }
 
-      // 4. Consulta específica por local ou linha citada na pergunta (Prioridade absoluta para código de linha explícito)
+      // 4. Consulta específica por localidade RMR, parada ou código de linha citada na pergunta
       const explicitLineMatch = q.match(/\b(\d{3,4})\b/);
       const explicitLineCode = explicitLineMatch ? (this.aliases[explicitLineMatch[1]] || explicitLineMatch[1]) : null;
       const hasExplicitLine = Boolean(
-        explicitLineCode &&
-        this.networkData && (
-          (this.networkData.popular_lines && this.networkData.popular_lines[explicitLineCode]) ||
-          (Array.isArray(this.networkData.routes_catalog) && this.networkData.routes_catalog.some(r => r.code === explicitLineCode))
+        explicitLineCode && (
+          (this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[explicitLineCode]) ||
+          (this.networkData && (
+            (this.networkData.popular_lines && this.networkData.popular_lines[explicitLineCode]) ||
+            (Array.isArray(this.networkData.routes_catalog) && this.networkData.routes_catalog.some(r => r.code === explicitLineCode))
+          ))
         )
       );
+      const dirHint = /\bvolta\b/.test(q) ? 'volta' : 'ida';
       const matchedCorridor = hasExplicitLine ? null : this.resolvePlaceLocation(q);
+      const rmrPlaceMatch = hasExplicitLine ? null : this._findPlaceMentionInQuery(text);
       const placeMatches = hasExplicitLine
         ? this.findCatalogRoutesForQuery(explicitLineCode, telemetryStops)
-        : (matchedCorridor ? this.findCatalogRoutesForQuery(matchedCorridor.key, telemetryStops) : []);
+        : (matchedCorridor
+          ? this.findCatalogRoutesForQuery(matchedCorridor.key, telemetryStops)
+          : (rmrPlaceMatch && Array.isArray(rmrPlaceMatch.lines) && rmrPlaceMatch.lines.length > 0
+            ? rmrPlaceMatch.lines.slice(0, 10).map(code => {
+              const schedLine = this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[code];
+              const popLine = this.networkData && this.networkData.popular_lines && this.networkData.popular_lines[code];
+              const name = (popLine && popLine.name) || (schedLine && schedLine.name) || code;
+              return {
+                code,
+                label: `${code} · ${name}`,
+                reason: `Atende ${rmrPlaceMatch.label}`,
+                stopHint: { name: rmrPlaceMatch.label, lat: rmrPlaceMatch.lat, lon: rmrPlaceMatch.lon }
+              };
+            })
+            : []));
 
-      // 5. Pergunta de Próximo Ônibus / Horário / Chegada / Lotação / Espera
-      const isAskingBus = /\b(onibus|quando passa|horario|proximo|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao)\b/.test(q);
+      // 5. Pergunta de Horário / Primeiro-Último Ônibus / Intervalo / Próximo Ônibus / Lotação
+      const isAskingSchedule = /\b(horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|que horas|tabela|partida|partidas|saida|saidas|quando passa|proximo|proxima)\b/.test(q);
+      const isAskingBus = isAskingSchedule || /\b(onibus|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao)\b/.test(q);
       const isAskingCrowdOrWait = /\b(lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|mofar|demora|demorando|esperando)\b/.test(q);
+
+      const bandLabels = {
+        madrugada: 'Madrugada (<05h)',
+        pico_manha: 'Pico Manhã (05h–09h)',
+        entre_picos: 'Entre-picos (09h–16h)',
+        pico_tarde: 'Pico Tarde (16h–20h)',
+        noite: 'Noite (>=20h)'
+      };
+
+      const buildGtfsScheduleCard = (sched, stopLabel, extraBlockHtml) => {
+        const bandTxt = bandLabels[sched.timeBand] || sched.timeBand;
+        const headwayTxt = sched.headwayMin != null ? `${sched.headwayMin} min` : 'sem intervalo regular nesta faixa';
+        const upcomingTxt = Array.isArray(sched.upcomingFormatted) && sched.upcomingFormatted.length
+          ? sched.upcomingFormatted.join(', ')
+          : sched.nextDepFormatted;
+        const nextNote = sched.isNextDay
+          ? `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (1ª partida do dia seguinte · em ${sched.waitMin} min)`
+          : `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (em <strong>${sched.waitMin} min</strong>)`;
+        return `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('clock', 14)}<span>Linha ${this.escapeHtml(sched.routeCode)} · ${this.escapeHtml(sched.routeName)}</span></div><br>` +
+          `<span class="gp-badge-gtfs" style="display:inline-block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 6px; border-radius:5px; font-size:10px; font-weight:800; margin-bottom:6px;">${this.escapeHtml(sched.provenanceLabel)} · ${this.escapeHtml(sched.direction.toUpperCase())} (${this.escapeHtml(sched.serviceDay)})</span><br>` +
+          (stopLabel ? `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopLabel)}<br>` : '') +
+          `• <strong>Próxima partida programada:</strong> ${nextNote}<br>` +
+          `• <strong>Primeiro / Último horário:</strong> <strong>${this.escapeHtml(sched.firstDep)}</strong> às <strong>${this.escapeHtml(sched.lastDep)}</strong> (${sched.tripCount} viagens${sched.durationMin ? ` · ~${sched.durationMin} min de percurso` : ''})<br>` +
+          `• <strong>Intervalo na faixa (${this.escapeHtml(bandTxt)}):</strong> <strong>${this.escapeHtml(headwayTxt)}</strong><br>` +
+          `• <strong>Próximas saídas GTFS:</strong> ${this.escapeHtml(upcomingTxt)}<br>` +
+          (extraBlockHtml || '') +
+          `<div style="margin-top:7px; display:flex; flex-wrap:wrap; gap:6px;">` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(sched.routeCode)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(sched.routeCode)} no Mapa</span></button>` +
+          `</div>`;
+      };
+
       if (isAskingBus || hasExplicitLine) {
+        if (hasExplicitLine) {
+          const sched = this.getScheduledEstimate(explicitLineCode, dirHint);
+          const hasLiveTelemetry = telemetryStops.some(s => String(s.routeCode || '199') === explicitLineCode && s.wait_gps_min != null);
+          if (sched && !hasLiveTelemetry) {
+            const firstPlace = placeMatches[0];
+            const stopHintName = firstPlace && firstPlace.stopHint && firstPlace.stopHint.name ? firstPlace.stopHint.name : null;
+            const crowdInfoHtml = isAskingCrowdOrWait
+              ? `<div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:9px; padding:7px 9px; margin:7px 0; font-size:11px; line-height:1.4;">• <strong>Sem GPS em tempo real (GTFS-RT indisponível para esta linha):</strong> Os horários acima refletem a tabela oficial <strong>${this.escapeHtml(sched.provenanceLabel)}</strong>.</div>`
+              : '';
+            return {
+              intent: 'schedule_lookup',
+              type: 'bus_status',
+              routeCode: sched.routeCode,
+              schedule: sched,
+              provenanceLabel: sched.provenanceLabel,
+              html: buildGtfsScheduleCard(sched, stopHintName, crowdInfoHtml),
+              speechTone: 'info',
+              speech: `Pelo Horário Programado GTFS da linha ${sched.routeCode} (${sched.serviceDay}, sentido ${sched.direction}), o primeiro ônibus sai às ${sched.firstDep} e o último às ${sched.lastDep}. Próxima partida prevista em tabela às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos${sched.headwayMin != null ? `, com intervalo médio de ${sched.headwayMin} minutos` : ''}.`
+            };
+          }
+        }
+
+        if (!hasExplicitLine && rmrPlaceMatch && Array.isArray(rmrPlaceMatch.lines) && rmrPlaceMatch.lines.length > 0) {
+          const rankedCodes = rmrPlaceMatch.lines
+            .slice()
+            .sort((a, b) => {
+              const aBac = /bacurau/i.test(String((this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[a] && this.schedulesData.lines[a].name) || '')) ? 1 : 0;
+              const bBac = /bacurau/i.test(String((this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[b] && this.schedulesData.lines[b].name) || '')) ? 1 : 0;
+              return aBac - bBac;
+            });
+          const enriched = [];
+          for (let i = 0; i < rankedCodes.length && enriched.length < 4; i++) {
+            const est = this.getScheduledEstimate(rankedCodes[i], dirHint);
+            if (est) enriched.push(est);
+          }
+          if (enriched.length > 0) {
+            const nearbyStops = this.getStopsForPlace(rmrPlaceMatch.lat, rmrPlaceMatch.lon, rmrPlaceMatch.label, 3);
+            const mainSched = enriched[0];
+            const linesListHtml = enriched.map(s =>
+              `<div style="padding:5px 7px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:4px; font-size:11px; background:#fff;">` +
+                `<strong>${this.escapeHtml(s.routeCode)} · ${this.escapeHtml(s.routeName)}</strong><br>` +
+                `Próx. <strong>${this.escapeHtml(s.nextDepFormatted)}</strong> (${s.waitMin} min) · 1º ${this.escapeHtml(s.firstDep)} / Último ${this.escapeHtml(s.lastDep)}${s.headwayMin != null ? ` · Intervalo ${s.headwayMin} min` : ''}` +
+              `</div>`
+            ).join('');
+            const stopsHtml = nearbyStops.length
+              ? `<div style="font-size:10.5px; color:#475569; margin:4px 0 7px 0;"><strong>Paradas GTFS próximas:</strong> ${nearbyStops.map(st => `${this.escapeHtml(st.stop_name)} (${st.distance_m}m)`).join(' · ')}</div>`
+              : '';
+            const html = `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('pin', 14)}<span>Horários GTFS para ${this.escapeHtml(rmrPlaceMatch.label)}${rmrPlaceMatch.city && rmrPlaceMatch.city !== rmrPlaceMatch.label ? ` (${this.escapeHtml(rmrPlaceMatch.city)})` : ''}</span></div><br>` +
+              `<span class="gp-badge-gtfs" style="display:inline-block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 6px; border-radius:5px; font-size:10px; font-weight:800; margin-bottom:6px;">${this.escapeHtml(mainSched.provenanceLabel)} · ${rmrPlaceMatch.lines.length} linhas indexadas</span>` +
+              linesListHtml + stopsHtml +
+              `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(mainSched.routeCode)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(mainSched.routeCode)} no Mapa</span></button>`;
+            return {
+              intent: 'place_schedule_lookup',
+              type: 'bus_status',
+              routeCode: mainSched.routeCode,
+              schedule: mainSched,
+              schedules: enriched,
+              stops: nearbyStops,
+              provenanceLabel: mainSched.provenanceLabel,
+              html,
+              speechTone: 'info',
+              speech: `Para ${rmrPlaceMatch.label}, pelo Horário Programado GTFS, a linha ${mainSched.routeCode} tem próxima partida às ${mainSched.nextDepFormatted}, em ${mainSched.waitMin} minutos, operando de ${mainSched.firstDep} até ${mainSched.lastDep}.`
+            };
+          }
+        }
+
         if (placeMatches.length > 0) {
           const nonBacurau = placeMatches.filter(m => !/bacurau/i.test(m.label));
           const best = (hasExplicitLine ? placeMatches.find(m => m.code === explicitLineCode) : null) || nonBacurau[0] || placeMatches[0];
           const hint = best.stopHint || {};
           const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
+          const sched = this.getScheduledEstimate(best.code, dirHint);
+          const hasLiveTelemetry = telemetryStops.some(s => String(s.routeCode || '199') === best.code && s.wait_gps_min != null);
+
+          if (!hasLiveTelemetry && sched) {
+            const crowdInfoHtml = isAskingCrowdOrWait
+              ? `<div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:9px; padding:7px 9px; margin:7px 0; font-size:11px; line-height:1.4;">• <strong>Referência GTFS (${this.escapeHtml(sched.provenanceLabel)}):</strong> Não há telemetria GPS em tempo real ativa para esta linha; previsão baseada exclusivamente na tabela oficial programada.</div>`
+              : '';
+            return {
+              intent: 'next_bus_place',
+              type: 'bus_status',
+              routeCode: best.code,
+              schedule: sched,
+              provenanceLabel: sched.provenanceLabel,
+              html: buildGtfsScheduleCard(sched, stopName, crowdInfoHtml),
+              speechTone: 'info',
+              speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, pelo Horário Programado GTFS, a próxima partida da linha ${best.code} é às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos, operando de ${sched.firstDep} às ${sched.lastDep}.`
+            };
+          }
+
           const waitMin = hint.wait_gps_min || (matchedCorridor ? matchedCorridor.waitMin : 4);
           const seatsFree = hint.seatsFree || (best.code === '199' ? 28 : 14);
           const coordsArg = (hint.lat && hint.lon) ? `[${hint.lat}, ${hint.lon}]` : 'null';
@@ -2714,12 +3638,13 @@
           const html = `<strong>Previsão para ${matchedCorridor ? this.escapeHtml(matchedCorridor.label) : 'Linha ' + this.escapeHtml(best.code)}:</strong><br><br>` +
             `• <strong>Linha recomendada:</strong> ${this.escapeHtml(best.label)}<br>` +
             `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopName)}<br>` +
-            `• <strong>Próxima chegada prevista (ST-GCN):</strong> em <strong>${waitMin} minutos</strong><br>` +
+            `• <strong>Próxima chegada prevista (Telemetria PE-60 + ST-GCN):</strong> em <strong>${waitMin} minutos</strong><br>` +
             `• <strong>Ocupação estimada:</strong> Lotação <strong>${crowdLevel}</strong> (${seatsFree} assentos livres)<br>` +
+            (sched ? `• <strong>${this.escapeHtml(sched.provenanceLabel)}:</strong> Próx. ${this.escapeHtml(sched.nextDepFormatted)} · 1º ${this.escapeHtml(sched.firstDep)} / Último ${this.escapeHtml(sched.lastDep)}<br>` : '') +
             crowdAndWaitBlock + `<br>` +
             `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Rastrear Linha ${this.escapeHtml(best.code)}</button>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${stopName.replace(/'/g, "\\'")}', ${coordsArg});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Fixar como Minha Parada</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(best.code)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Rastrear Linha ${this.escapeHtml(best.code)}</button>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(best.code)}');} if(window.setMyBoardingStop){window.setMyBoardingStop('${stopName.replace(/'/g, "\\'")}', ${coordsArg});}" style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Fixar como Minha Parada</button>` +
             `</div>`;
 
           return {
@@ -2729,9 +3654,10 @@
             crowdLevel,
             perceivedWaitMin,
             pAbandonoPct,
+            schedule: sched,
             html,
             speechTone: 'arriving',
-            speech: `Olha, pra ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, o próximo ônibus da linha ${best.code} chega em uns ${waitMin} minutos na parada ${stopName}, com lotação ${crowdLevel.toLowerCase()} e cerca de ${seatsFree} assentos livres.`
+            speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, o próximo ônibus da linha ${best.code} chega em cerca de ${waitMin} minutos na parada ${stopName}, com lotação ${crowdLevel.toLowerCase()} e cerca de ${seatsFree} assentos livres.`
           };
         }
 
@@ -2740,22 +3666,38 @@
           return {
             intent: 'need_location',
             type: 'need_location',
-            html: `<div style="display:flex; align-items:center; gap:5px; font-weight:700; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Ainda não sei em qual bairro ou parada você está agora!</span></div>Ative seu GPS ou toque no bairro de partida para eu localizar a linha mais próxima:<br><br>` +
+            html: `<div style="display:flex; align-items:center; gap:5px; font-weight:700; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Localização de partida não definida.</span></div>Ative o GPS ou selecione um bairro/cidade da RMR para consultar paradas e horários:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 13)}<span>Informar Onde Estou Agora</span></button>`,
             speechTone: 'info',
-            speech: "Me diz em qual bairro ou parada você está, ou toca em Informar Onde Estou Agora pra eu localizar pelo GPS."
+            speech: 'Informe em qual bairro ou parada você está, ou toque em Informar Onde Estou Agora para localizar pelo GPS.'
           };
         }
 
         const activeCode = (ctx && ctx.activeRouteCode) || this.activeRouteCode || '199';
         const activeRouteName = (this.activeRoute && this.activeRoute.name) ? this.activeRoute.name : '';
         const activeStop = this._sanitizeOriginName((ctx && ctx.activeStopName) || (this.userAdaptState && this.userAdaptState.stopName) || 'Sua Parada Ativa');
-        const activeEta = (ctx && ctx.activeEta) || 4;
+        const activeSched = this.getScheduledEstimate(activeCode, this.activeDirection || 'ida', this.activeStopIndex);
+        const activeEta = (ctx && ctx.activeEta) || (activeSched ? activeSched.waitMin : 4);
         const perceivedActive = (activeEta * 1.68).toFixed(1).replace('.', ',');
+        const hasActiveTelemetry = Boolean(ctx && ctx.activeEta != null);
+
+        if (!hasActiveTelemetry && activeSched) {
+          return {
+            intent: 'next_bus_active',
+            type: 'bus_status',
+            routeCode: activeCode,
+            schedule: activeSched,
+            provenanceLabel: activeSched.provenanceLabel,
+            html: buildGtfsScheduleCard(activeSched, activeStop, ''),
+            speechTone: 'info',
+            speech: `Na sua referência perto de ${activeStop}, pelo Horário Programado GTFS, a próxima partida da linha ${activeCode} é às ${activeSched.nextDepFormatted}, em ${activeSched.waitMin} minutos.`
+          };
+        }
 
         const html = `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:6px;">${this._layaSvgIcon('bus', 14)}<span>Sua Linha Mais Próxima: ${this.escapeHtml(activeCode)} · ${this.escapeHtml(activeRouteName)}</span></div><br>` +
           `• <strong>Parada detectada:</strong> ${this.escapeHtml(activeStop)}<br>` +
           `• <strong>Próximo ônibus previsto:</strong> <strong>${activeEta} minutos</strong> (espera percebida Yap &amp; Cats: <strong>${perceivedActive} min</strong> sob lotação)<br>` +
+          (activeSched ? `• <strong>${this.escapeHtml(activeSched.provenanceLabel)}:</strong> Próx. ${this.escapeHtml(activeSched.nextDepFormatted)} · 1º ${this.escapeHtml(activeSched.firstDep)} / Último ${this.escapeHtml(activeSched.lastDep)}<br>` : '') +
           `• <strong>Indicador Híbrido de Lotação:</strong> Ocupação <strong>Moderada</strong> (~88% APC + série temporal CTM)<br><br>` +
           `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
           `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.trackBusLocation){window.trackBusLocation(true);} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('bus', 13)}<span>Rastrear no Mapa</span></button>` +
@@ -2766,9 +3708,10 @@
           intent: 'next_bus_active',
           type: 'bus_status',
           routeCode: activeCode,
+          schedule: activeSched,
           html,
           speechTone: 'arriving',
-          speech: `Aí perto de você em ${activeStop}, a linha ${activeCode} está prevista pra chegar em uns ${activeEta} minutos.`
+          speech: `Perto de ${activeStop}, a linha ${activeCode} está prevista para chegar em cerca de ${activeEta} minutos.`
         };
       }
 
@@ -2783,7 +3726,7 @@
             type: 'current_stop',
             html: `<div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">${this._layaSvgIcon('pin', 14)}<span>No momento você está usando <strong>sua região atual</strong> como referência (Linha <strong>${this.escapeHtml(activeCode)}</strong> no mapa).</span></div>` + detectBtnHtml,
             speechTone: 'info',
-            speech: 'No momento você está usando sua região atual como referência. Se quiser, toque em Detectar ou Atualizar Posição Real.'
+            speech: 'No momento você está usando sua região atual como referência. Toque em Detectar ou Atualizar Posição Real para ajustar.'
           };
         }
         const activeStop = this._sanitizeOriginName(
@@ -2798,23 +3741,42 @@
         };
       }
 
-      // 7. Mencionou um local/linha sem verbo ("Recife Antigo", "Olinda", "Camela", "1967")
-      if (placeMatches.length > 0) {
-        const best = (hasExplicitLine ? placeMatches.find(m => m.code === explicitLineCode) : null) || placeMatches.find(m => !/bacurau/i.test(m.label)) || placeMatches[0];
-        const hint = best.stopHint || {};
-        const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
-        const waitMin = hint.wait_gps_min || (matchedCorridor ? matchedCorridor.waitMin : 5);
+      // 7. Mencionou um local/linha sem verbo ("Recife Antigo", "Olinda", "Abreu e Lima", "Camela", "1967")
+      if (placeMatches.length > 0 || rmrPlaceMatch) {
+        const best = (hasExplicitLine ? placeMatches.find(m => m.code === explicitLineCode) : null)
+          || placeMatches.find(m => !/bacurau/i.test(m.label))
+          || placeMatches[0];
+        const refLabel = matchedCorridor ? matchedCorridor.label : (rmrPlaceMatch ? rmrPlaceMatch.label : best.label);
+        const hint = (best && best.stopHint) || {};
+        const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || refLabel;
+        const bestCode = best ? best.code : (rmrPlaceMatch && rmrPlaceMatch.lines && rmrPlaceMatch.lines[0]);
+        const sched = bestCode ? this.getScheduledEstimate(bestCode, dirHint) : null;
+        const nearbyStops = (rmrPlaceMatch && Number.isFinite(rmrPlaceMatch.lat))
+          ? this.getStopsForPlace(rmrPlaceMatch.lat, rmrPlaceMatch.lon, rmrPlaceMatch.label, 3)
+          : [];
+        const schedLineHtml = sched
+          ? `• <strong>${this.escapeHtml(sched.provenanceLabel)}:</strong> Próx. <strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (em ${sched.waitMin} min) · 1º ${this.escapeHtml(sched.firstDep)} / Último ${this.escapeHtml(sched.lastDep)}${sched.headwayMin != null ? ` · Intervalo ${sched.headwayMin} min` : ''}<br>`
+          : '';
+        const stopsLineHtml = nearbyStops.length
+          ? `• <strong>Paradas GTFS próximas:</strong> ${nearbyStops.map(s => `${this.escapeHtml(s.stop_name)} (${s.distance_m}m)`).join(', ')}<br>`
+          : '';
         return {
           intent: 'place_lookup',
           type: 'place_lookup',
-          routeCode: best.code,
-          html: `<div style="display:inline-flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Encontrei atendimento real para <strong>${matchedCorridor ? this.escapeHtml(matchedCorridor.label) : this.escapeHtml(best.label)}</strong>:</span></div><br>` +
-            `• <strong>Linha principal:</strong> ${this.escapeHtml(best.label)}<br>` +
-            `• <strong>Parada chave:</strong> ${this.escapeHtml(stopName)}<br>` +
-            `• <strong>Previsão média:</strong> <strong>${waitMin} min</strong><br><br>` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${best.code}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(best.code)} no Mapa</span></button>`,
+          routeCode: bestCode,
+          schedule: sched,
+          stops: nearbyStops,
+          provenanceLabel: sched ? sched.provenanceLabel : 'Catálogo GTFS',
+          html: `<div style="display:inline-flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Atendimento GTFS para <strong>${this.escapeHtml(refLabel)}</strong>:</span></div><br>` +
+            `• <strong>Linha principal:</strong> ${this.escapeHtml(best ? best.label : bestCode)}<br>` +
+            `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopName)}<br>` +
+            schedLineHtml +
+            stopsLineHtml +
+            `<br><button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(bestCode)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(bestCode)} no Mapa</span></button>`,
           speechTone: 'info',
-          speech: `Pra ${matchedCorridor ? matchedCorridor.label : best.label}, você pode pegar a linha ${best.code}, que passa em média a cada ${waitMin} minutos aí perto.`
+          speech: sched
+            ? `Para ${refLabel}, a linha ${bestCode} opera pelo Horário Programado GTFS de ${sched.firstDep} até ${sched.lastDep}, com próxima partida às ${sched.nextDepFormatted}.`
+            : `Para ${refLabel}, a linha principal cadastrada no GTFS é a ${bestCode}.`
         };
       }
 
@@ -2823,31 +3785,31 @@
         return {
           intent: 'save_favorite',
           saveFavorite: true,
-          html: "Adicionei sua parada atual aos favoritos!",
+          html: 'Parada atual adicionada aos favoritos.',
           speechTone: 'info',
-          speech: "Prontinho! Adicionei sua parada atual aos favoritos."
+          speech: 'Parada atual adicionada aos favoritos.'
         };
       }
 
       if (/\b(trabalhar|rotina|janela|sair de casa|estudar hoje)\b/.test(q)) {
         return {
           intent: 'routine_help',
-          html: `Me diga <strong>de onde até onde</strong> você vai hoje (ex: <em>"Do Recife Antigo para Olinda"</em>) ou detecte onde você está agora:<br><br>` +
+          html: `Informe <strong>de onde até onde</strong> você vai (ex: <em>"Do Recife Antigo para Olinda"</em>) ou detecte sua posição atual:<br><br>` +
             `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 13)}<span>Detectar Onde Estou Agora</span></button>`,
           speechTone: 'info',
-          speech: "Me diz de onde até onde você vai hoje, ou toca em Detectar Onde Estou Agora pra eu montar sua rotina."
+          speech: 'Informe origem e destino da sua rotina, ou toque em Detectar Onde Estou Agora.'
         };
       }
 
       return {
         intent: 'fallback_guide',
-        html: `Entendi! Consulto o grafo completo das <strong>393 linhas e 45 Hubs/Terminais SEI</strong> do Grande Recife.<br><br>` +
-          `Exemplos que você pode testar agora:<br>` +
-          `• <em>"Quero ir do Recife Antigo pra Olinda"</em><br>` +
-          `• <em>"Sair de Camela até Ipojuca"</em><br>` +
-          `• <em>"Qual o próximo ônibus aqui?"</em>`,
+        html: `Consulto o grafo completo das <strong>393 linhas, horários programados GTFS e 236 localidades da RMR</strong>.<br><br>` +
+          `Exemplos de consulta:<br>` +
+          `• <em>"Quero ir do Recife Antigo para Olinda"</em><br>` +
+          `• <em>"Qual o primeiro e último ônibus da linha 199?"</em><br>` +
+          `• <em>"Horários de ônibus em Abreu e Lima"</em>`,
         speechTone: 'info',
-        speech: "Consigo calcular trajetos diretos ou integrados entre quaisquer bairros do Grande Recife. É só me dizer de onde até onde você quer ir."
+        speech: 'Consulto rotas, horários programados GTFS das 393 linhas e localidades da Região Metropolitana do Recife. Informe origem e destino ou o código da linha.'
       };
     },
 
@@ -2906,7 +3868,7 @@
           }
         });
 
-        console.log('🤖 [WebMCP] Ferramentas do GrafoParada registradas em navigator.modelContext.');
+        console.log('[WebMCP] Ferramentas do GrafoParada registradas em navigator.modelContext.');
         return true;
       } catch (e) {
         return false;
@@ -2915,5 +3877,8 @@
   };
 
   window.RealTransit = RealTransit;
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = RealTransit;
+  }
 
-})(window);
+})(typeof window !== 'undefined' ? window : globalThis);

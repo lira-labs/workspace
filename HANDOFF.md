@@ -4,17 +4,17 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 22:34
+- **Última Atualização:** 16/11/2026 02:45
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
-- **Branch Ativo:** `main` (Produção atualizada com Laya Voice em `cfa4c4a`+) · `feature/grafoparada-voice` (`72351c2` mesclado; contém commit local extra `4a553ea` de ESO II isolado fora da `main`)
+- **Branch Ativo:** `feature/grafoparada-v3-db-cadastro` (Versão real do usuário: cadastro obrigatório, autocomplete RMR, 393 horários GTFS, Neon/SQLite e treino contínuo) · `main` estável em `ba88be5` (Produção pré-banca em `https://grafoparadaweb.vercel.app`)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
 - **Harness Auditor / Crítico:** DeepSeek Harness (`core/harness/deepseek/`)
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
-  - Subagentes Especializados Ativos (`.agents/agents/`): `ux-spec-planner`, `frontend-layout-ui`, `frontend-map-engine`, `backend-engineer`, `qa-gatekeeper`, `visual-design-critic` (acionamento automático garantido em `AGENTS.md` e `.agents/rules/ui_ux_design_system.md`).
-- **Contratos Compartilhados (OpenAPI v2.1.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy:** `pre_flight_check.py` (40/40 PASS) + Suíte Pytest Unitária/Científica/Matriz 2.352 O-D/Segurança XSS/E2E Chrome Headless (26/26 PASS) + Hooks Antigravity (`.agents/hooks.json`)
+  - Subagentes Especializados Ativos (`.agents/agents/`): `ux-spec-planner`, `frontend-layout-ui`, `frontend-map-engine`, `backend-engineer`, `db-data-manager`, `transit-trainer`, `qa-gatekeeper`, `visual-design-critic` (acionamento automático garantido em `AGENTS.md` e `.agents/rules/ui_ux_design_system.md`).
+- **Contratos Compartilhados (OpenAPI v2.2.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
+- **Gatekeeper Pré-Deploy (v3):** `pre_flight_check.py` (5/5 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 38/38 PASS) + `hook_continuous_train.py --quick` + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
@@ -34,6 +34,28 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0j. Pré-Banca `main` (`ba88be5`) + Versão Real do Usuário, Autocomplete RMR, Banco Neon/SQLite, 393 Horários GTFS & Treino Contínuo (`feature/grafoparada-v3-db-cadastro`, 16/11/2026)
+- **Promoção Estável Pré-Banca (`feature/grafoparada-banca-final` -> `main` `ba88be5`):**
+  - Verificada produção em `https://grafoparadaweb.vercel.app`, corrigidos handler do modal Laya, re-probe de `CloudProxyTTSProvider`, enquadramento Slide 3 Camela e glifo `→` na Central CTM; validada com `visual-design-critic` (11 capturas aprovadas) e `29/29` testes antes da promoção limpa à `main`.
+- **Ciclo Completo Multiagente na v3 (`feature/grafoparada-v3-db-cadastro`):**
+  - Novos subagentes permanentes criados em `.agents/agents/`: `db-data-manager` e `transit-trainer`.
+  - Skill `theclaymethod/unslop` instalada em `.agents/skills/unslop/` para higiene de copy/prose e eliminação de clichês e emojis decorativos na visão do passageiro.
+- **Banco de Dados Persistente & Contratos (`contracts/api-contract.yaml` v2.2.0, `contracts/data-model.md`, `code/grafoparada_tec/db_manager.py`, `code/grafoparada_web/api/`):**
+  - Esquema relacional canônico (`users`, `routines`, `demand_observations`, `training_runs`) implementado em SQLite local (`code/grafoparada_tec/data/grafoparada.db`, ignorado pelo Git) e rotas serverless Neon Postgres (`api/_db.js`, `api/register.js`, `api/routine.js`, `api/telemetry.js`) com degradação segura `200`/`202 client_local_pending_db` enquanto `DATABASE_URL` não estiver vinculada na Vercel.
+  - Ação pendente do usuário na Vercel: aceitar os termos do Neon Marketplace em `https://vercel.com/caualira-3186/~/integrations/accept-terms/neon?source=cli` para concluir o provisionamento nuvem (`DATABASE_URL`).
+- **Compilação Integral de Horários GTFS & Treino Contínuo (`compilar_horarios_gtfs.py`, `treinar_modelo_continuo.py`, `hook_continuous_train.py`):**
+  - Compilados `87.678` trips e `3.166.397` registros de `stop_times.txt` em `code/grafoparada_web/data/gtfs_schedules.json` cobrindo **393/393 linhas** (`DUT`/`SAB`/`DOM`, `first_dep`, `last_dep`, `headways_min`, `dep_mins`, `stop_offsets_min`) e **236 `rmr_places`** em **14 cidades da RMR**.
+  - Treino contínuo conectado ao `db_manager.py` validado (`ST-GCN MAE=1.2850 min` vs `OLS=1.2912` vs `Persistência=1.3568` em split temporal estrito 70/30, `weights_hash=5a7f36d717992514`), gerando `code/grafoparada_web/data/model_training_status.json` e registro `training_runs ID=5`.
+- **Fluxo Real do Passageiro, Autocomplete em Cascata & Laya IA (`code/grafoparada_web/index.html`, `real_transit_engine.js`):**
+  - Removidos todos os dados/cidades/usuários de exemplo (`"Cauã Cunha"`, `"UFRPE-TESTE-2026"`, `"Derby"`, `"Camela"` fixo, `"07:30"`, presets de turno e favoritos fake).
+  - Cadastro obrigatório em 2 passos (`#onboarding-step-register` -> `#onboarding-step-routine`) em modo `passenger` (mantendo `.desktop-outer-bar` `Central CTM` e `Pesquisa & Banca` desbloqueadas em `1280x800`), com autocomplete Cidade/Bairro (`searchRmrPlaces`) -> Paradas GTFS (`getStopsForPlace`) -> Destino -> Paradas GTFS -> Linhas sugeridas (`suggestLinesBetweenStops`) com selo `Horário Programado · GTFS`.
+  - `#modal-routine` refatorado com o mesmo controlador em cascata (`createCascadeRoutineController`) e hidratação completa (`origin_place_label` / `dest_place_label`).
+  - Laya IA atualizada para responder horários programados GTFS, localidades da RMR e status de treino em `real_transit_engine.js`.
+- **Hooks & Validação Final:**
+  - `.agents/hooks/agent_guard.py` + `hook_continuous_train.py` verificam sintaxe Python/JSON/JS/HTML/`api/*.js`, schema `gtfs_schedules.json`, scans `unslop` e sinalizam/validam o treino contínuo quando arquivos GTFS/treino são alterados (agendamento periódico real via `/schedule` ou agendador de tarefas).
+  - `visual-design-critic`: **APPROVED** em todas as 14 capturas (`390x844` e `1280x800`, 0 overflow, 0 erros de console/JS).
+  - `qa-gatekeeper`: `pre_flight_check.py` (`5/5` blocos, 100%) e `pytest` (`38/38 passed in 36.34s`).
 
 ### 0i. Nova Identidade Sonora, Gemini Cloud TTS (`/api/tts`) & UX da Assistente Laya (15/11/2026)
 - **Ciclo Completo Multiagente Executado (`feature/grafoparada-voice`):** `ux-spec-planner` -> `backend-engineer` -> `frontend-map-engine` -> `frontend-layout-ui` -> `visual-design-critic` (3 rodadas no Chrome Headless `390×844` Mobile e `1280×800` Desktop até **APROVADO**) -> `qa-gatekeeper` (**APROVADO**).
@@ -729,16 +751,14 @@
 
 ---
 
-## 📋 Próximos Passos para a Próxima Sessão (GrafoParada · Pré-Banca 17/11/2026)
-1. **Validar Produção Vercel (`https://grafoparadaweb.vercel.app`) & `GEMINI_API_KEY`:**
-   - Confirmar via navegador real/inspeção se o auto-deploy da `main` está ativo com a nova arquitetura Laya Voice (`/api/tts` e `/audio/laya/manifest.json`).
-   - Configurar `GEMINI_API_KEY` na Vercel (`vercel env add GEMINI_API_KEY --cwd code/grafoparada_web` ou dashboard `caualira-3186/grafoparada_web`) caso deseje respostas dinâmicas na voz **Sulafat (`Gemini Nuvem`)** ao vivo; testar o fluxo completo com a chave ativa.
-2. **Rodada Final de Benchmark, Laya Live, ST-GCN & Polimento Leve (se necessário abrir branch a partir da `main`):**
-   - Criar branch `feature/grafoparada-banca-final` a partir da `main` antes de qualquer edição de código.
-   - Checar item visual menor não-bloqueante da Central CTM Desktop: glifo `"➔"` em `"Despacho expresso Derby ➔ UFRPE"`.
-   - Comparar UX com apps de referência internacionais e validar em tempo real Laya Voz + motor GTFS/O-D + ST-GCN no simulador mobile e desktop.
+## 📋 Próximos Passos para a Próxima Sessão (GrafoParada · Banca 17/11/2026 & Produção v3)
+1. **Ativar Banco Neon Postgres na Nuvem (`feature/grafoparada-v3-db-cadastro` -> `main`):**
+   - Aceitar os termos do Neon Marketplace no navegador em `https://vercel.com/caualira-3186/~/integrations/accept-terms/neon?source=cli` e rodar `vercel integration add neon --name grafoparada-db --plan free_v3 -m region=gru1` em `code/grafoparada_web` (e opcionalmente `vercel env add GEMINI_API_KEY` para ativar voz dinâmica **Sulafat**).
+   - Decidir antes ou após a banca de 17/11/2026 quando promover `feature/grafoparada-v3-db-cadastro` -> `main` via Gatekeeper (`pre_flight_check.py` + `pytest`).
+2. **Treino Contínuo Agendado:**
+   - Usar `/schedule` (ou agendador do sistema) chamando `uv run --project code/grafoparada_tec python code/grafoparada_tec/hook_continuous_train.py --retrain` para retreino periódico conforme novas rotinas e observações entrarem no banco.
 3. **Ensaio Geral da Apresentação (`17/11/2026`):**
-   - Passar roteiro completo (`Home` -> `Mapa Ao Vivo` -> `Laya Voz Sulafat` -> `Central CTM` -> `Pesquisa & Banca`) com [GrafoParada_Seminario2_CauaLira.pptx](code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx) e `https://grafoparadaweb.vercel.app/roteiro.html`.
+   - Passar roteiro completo (`Cadastro + Autocomplete RMR` / `Home` -> `Mapa Ao Vivo` -> `Laya Voz Sulafat` -> `Central CTM` -> `Pesquisa & Banca`) com [GrafoParada_Seminario2_CauaLira.pptx](code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx) e `https://grafoparadaweb.vercel.app/roteiro.html`.
 4. **Higiene Opcional de Branches:**
    - Avaliar mover o commit local `4a553ea` (`feat(eso2): adiciona apresentacao final de equiparacao ESO II`, hoje em `feature/grafoparada-voice`) para `feature/eso2-equiparacao-slides` sem tocar na `main`.
 

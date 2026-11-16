@@ -1,0 +1,21 @@
+{
+  "lines_covered": 393,
+  "schedules_indexed": 393,
+  "real_observations": 0,
+  "routines_count": 0,
+  "stgcn_mae": 1.285,
+  "ols_mae": 1.2912,
+  "persistence_mae": 1.3568,
+  "weights_hash": "5a7f36d717992514",
+  "trained_at_utc": "2026-11-16T05:05:38Z",
+  "dataset_rows": 562,
+  "train_windows": 393,
+  "test_windows": 154,
+  "temporal_split": "strict_70_30_purged",
+  "graph_nodes": 12,
+  "rmr_places_indexed": 236,
+  "trava_hibrida_triggers": 0,
+  "db_connected": true,
+  "db_rows_integrated": 0,
+  "validation_393_passed": true
+}
