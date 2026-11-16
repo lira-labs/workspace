@@ -4,9 +4,9 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 20:01
+- **Última Atualização:** 15/11/2026 21:40
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
-- **Branch Ativo:** `feature/grafoparada-dev` (Desenvolvimento) e `main` (Produção Imutável)
+- **Branch Ativo:** `feature/grafoparada-voice` (Desenvolvimento Laya Voice) e `main` (Produção Imutável em `52c78107`)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -34,6 +34,26 @@
 ---
 
 ## ✅ O que foi Concluído nesta Sessão
+
+### 0i. Nova Identidade Sonora, Gemini Cloud TTS (`/api/tts`) & UX da Assistente Laya (15/11/2026)
+- **Ciclo Completo Multiagente Executado (`feature/grafoparada-voice`):** `ux-spec-planner` -> `backend-engineer` -> `frontend-map-engine` -> `frontend-layout-ui` -> `visual-design-critic` (3 rodadas no Chrome Headless `390×844` Mobile e `1280×800` Desktop até **APROVADO**) -> `qa-gatekeeper` (**APROVADO**).
+- **Backend Serverless & Contrato OpenAPI (`code/grafoparada_web/api/tts.js`, `code/grafoparada_web/vercel.json`, `contracts/api-contract.yaml`):**
+  - Endpoint `POST /api/tts` na Vercel com suporte aos presets Gemini TTS (`gemini-3.8-flash-tts` / `Sulafat`, `gemini-3.8-flash-lite-tts` / `pt-br-assistant-6`, `gemini-3.8-flash-tts` / `Vindemiatrix`), rate limiting, validação de payload e fallback gracioso quando `GEMINI_API_KEY` não está configurada.
+  - Contrato OpenAPI `3.0.3` (`v2.1.0`) atualizado em `contracts/api-contract.yaml` com a rota `/api/tts` e os schemas `TTSSynthesisRequest` e `TTSFallbackResponse`.
+  - Regra de cache imutável (`public, max-age=86400, immutable`) para `/audio/(.*)` em `code/grafoparada_web/vercel.json`.
+- **Motor Híbrido de Voz & Banco Estático (`code/grafoparada_web/laya_voice_engine.js`, `code/grafoparada_web/audio/laya/`):**
+  - Arquitetura em cascata **Clipes Estáticos `.wav` (`<30ms`) -> Gemini Cloud TTS (`/api/tts`) -> Web Speech PT-BR Offline**.
+  - Banco de áudio com `manifest.json` e 7 arquivos `.wav` (`16 kHz`, PCM `s16le`, mono) para boas-vindas, chegada, atraso, alerta na PE-60 e conversa casual nos presets `ptbr_warm` e `sulafat_expressive`.
+  - Normalizador fonético `formatForSpeech()` (`PE-60` -> `P E sessenta`, `TI` -> `T I`, `ST-GCN` -> `rede neural espaço-temporal`, `min`, `km`), alternância de perfil e eventos globais de estado (`static`, `cloud`, `offline`, `muted`).
+- **Refinamentos de UX no Modal Laya e Motor de Rotas (`code/grafoparada_web/index.html`, `code/grafoparada_web/real_transit_engine.js`):**
+  - Cabeçalho do modal com seletor de perfil (`#btn-laya-voice-profile`), indicador vivo de modo (`#laya-voice-status-badge`), sincronização bidirecional entre `#btn-laya-voice-mute` e `#top-voice-toggle-pill` e botão de envio único (`id="btn-send-laya"`).
+  - Cartões O-D compactados com resumo `<details>` em 1 linha (`Ver +N alternativa(s)`), função `_sanitizeOriginName()` para evitar nomes crus de ID numérico (`Parada #<id>`) e proteção em `"Onde estou?"` (`current_stop`) sob `gps_denied` para responder `"sua região atual"` sem vazar parada residual.
+- **Verificação Final Pós-Edição (`100% APROVADO`):**
+  - `pre_flight_check.py`: **40/40 PASS (100,0%)** (inclui checagem Node VM de `real_transit_engine.js`, `laya_voice_engine.js`, `api/tts.js` e `index.html`).
+  - `pytest code/grafoparada_tec -v`: **26/26 PASSED** (`test_e2e_e_motor.py` ajustado para filtrar apenas `.gp-svg` confiável de `_layaSvgIcon` mantendo bloqueio estrito XSS e verificando `current_stop` sob `gps_denied`).
+  - `verify_voice_stack.js`: **8/8 checks OK** (`api/tts.js`) + **7/7 suítes OK** (`laya_voice_engine.js`).
+  - Auditoria Visual Chrome Headless CDP (`390×844` e `1280×800`, Rodada 3): **APROVADO** (`overflowX = 0`, `duplicateIds = []`, zero erros de console/HTTP).
+- **Configuração Pendente no Deploy Vercel:** Adicionar `GEMINI_API_KEY` nas Environment Variables da Vercel antes/após o merge para `main` para ativar síntese dinâmica `Gemini Nuvem` em produção; sem a chave, o fallback estático + PT-BR offline funciona normalmente.
 
 ### 0h. Polimento Full-App 360°, Otimização do Motor O-D & Bloqueadores Visuais Desktop (15/11/2026)
 - **Ciclo Completo Multiagente + Gatekeeper + Crítico Visual Independente:**
@@ -706,14 +726,14 @@
 
 ---
 
-## 📋 Próximos Passos para a Próxima Sessão (Amanhã)
-1. **Revisão Final e Links no Painel**:
-   - Confirmar os links públicos do Overleaf (`share -> view only`) para os relatórios técnicos (`arn·p`, `mlp·p`, `arq·p`).
-   - Apresentar em 5 minutos ao Prof. Lucas os itens de verificação na checagem.
-2. **Treino do Seminário 1 (04/11)**:
-   - Rodar uma passada de 4 minutos no slide deck `va2/GrafoParada_Seminario1_CauaLira.pptx` usando o Modo Apresentador com as anotações prontas.
+## 📋 Próximos Passos para a Próxima Sessão
+1. **Promoção Controlada para Produção (`main`):**
+   - Com autorização explícita de Cauã, realizar o merge de `feature/grafoparada-voice` para `main` somente após reconfirmar `uv run --project code/grafoparada_tec python code/grafoparada_tec/pre_flight_check.py` (40/40 PASS).
+   - Configurar `GEMINI_API_KEY` nas variáveis de ambiente do projeto Vercel (`grafoparadaweb.vercel.app`) para habilitar síntese Gemini Cloud TTS em `/api/tts`.
+2. **Ensaio Final da Apresentação (`17/11/2026`):**
+   - Validar demonstração ao vivo (Home -> Mapa Ao Vivo -> Chat/Voz Laya Sulafat -> Modo `Central CTM` e `Pesquisa & Banca`) usando `GrafoParada_Seminario2_CauaLira.pptx` e `https://grafoparadaweb.vercel.app/roteiro.html`.
 
 ---
 
 ## ⚡ Prompt de 1 Linha para o Próximo Agente
-> *"Estou iniciando uma nova sessão. Leia o arquivo `HANDOFF.md` e `AGENTS.md` para se situar no estado atual do workspace. Todas as entregas da VA2 e os relatórios técnicos da VA1 em `papers/` já foram organizados e sincronizados com o Overleaf."*
+> *"Estou iniciando uma nova sessão. Leia `HANDOFF.md` e `AGENTS.md`, execute `git pull` e verifique o status das branches `feature/grafoparada-voice` e `main` antes de prosseguir."*

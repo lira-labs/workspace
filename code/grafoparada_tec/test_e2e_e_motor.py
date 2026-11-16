@@ -210,13 +210,23 @@ window.RealTransit.renderMultiLegRoute(
   [-8.0101, -34.8545]
 );
 
-// C) Teste XSS na NLU
+// C) Teste XSS na NLU (remove apenas ícones UI confiáveis de _layaSvgIcon após validar atributos)
 const xssResults = [
   window.RealTransit.answerLayaQuery('Quero ir de Olinda <img src=x onerror=alert(1)> até Boa Viagem'),
   window.RealTransit.answerLayaQuery('Quero ir de <script>alert(1)</script> até Olinda'),
   window.RealTransit.answerLayaQuery('Quero ir para <svg onload=alert(1)>')
 ];
-const xssLeaky = xssResults.some(r => /<(img|script|svg)\b/i.test((r && r.html) || ''));
+const stripTrustedUiIcons = (html) => String(html || '').replace(/<svg class="gp-svg" width="\d+" height="\d+" style="width:\d+px;height:\d+px;flex-shrink:0;" aria-hidden="true" viewBox="0 0 24 24">(?:<(?:circle|polyline|polygon|line|path|rect)\b[^<>]*\/>)+<\/svg>/g, '');
+const xssLeaky = xssResults.length !== 3 || xssResults.some((r) => {
+  const rawHtml = (r && r.html) || '';
+  if (!rawHtml) return true;
+  if (/<[^>]*\bon(?:load|error)\s*=/i.test(rawHtml) || /\bjavascript\s*:/i.test(rawHtml)) {
+    return true;
+  }
+  const stripped = stripTrustedUiIcons(rawHtml);
+  return /<(img|script|svg|iframe|object|embed)\b/i.test(stripped);
+});
+const escapeHtmlSvgOk = window.RealTransit.escapeHtml('<svg onload=alert(1)>') === '&lt;svg onload=alert(1)&gt;';
 
 // D) Destino implicito ancorado em GPS real + bordas RMR
 const gpsPoints = [
@@ -236,6 +246,27 @@ window.RealTransit.adaptToUserLocation(-8.0631, -34.8711, 'Recife Antigo');
 const impTrip = window.RealTransit.answerLayaQuery('Quero ir para Casa Caiada');
 const okImp = impTrip && (impTrip.routeOptions || []).length >= 1 && (impTrip.html || '').includes('Casa Caiada');
 
+// Verifica current_stop sob gps_denied (sem coords em cache) sem vazar código 160107 nem "GPS indisponível"
+window.userCurrentCoords = null;
+localStorage._store = {};
+window.RealTransit.userAdaptState = {
+  status: 'gps_denied',
+  stopName: 'GPS indisponível · Escolha sua parada',
+  distanceKm: null,
+  originSource: null,
+  isManualOrigin: false,
+  gpsErrorCode: 'unavailable'
+};
+const currentStopDeniedRes = window.RealTransit.answerLayaQuery('onde estou', { activeStopName: '160107' });
+const currentStopDeniedHtml = (currentStopDeniedRes && currentStopDeniedRes.html) || '';
+const currentStopDeniedOk = Boolean(
+  currentStopDeniedRes &&
+  currentStopDeniedRes.intent === 'current_stop' &&
+  currentStopDeniedHtml.includes('sua região atual') &&
+  !currentStopDeniedHtml.includes('160107') &&
+  !/gps indispon[ií]vel/i.test(currentStopDeniedHtml)
+);
+
 // E) Extrai e valida formatSpeechPortuguese de index.html
 const htmlText = fs.readFileSync(indexPath, 'utf8');
 const fnMatch = htmlText.match(/function formatSpeechPortuguese\(raw\)\s*\{[\s\S]*?\n\s*\}/);
@@ -254,8 +285,10 @@ console.log(JSON.stringify({
   leafletMarkers: leafletCalls.markers.length,
   leafletFitBounds: leafletCalls.fitBounds,
   xssLeaky,
+  escapeHtmlSvgOk,
   gpsOk,
   okImp,
+  currentStopDeniedOk,
   speechCheck
 }));
 """
@@ -278,8 +311,10 @@ console.log(JSON.stringify({
         assert out["leafletMarkers"] >= 3
         assert out["leafletFitBounds"] == 1
         assert out["xssLeaky"] is False
+        assert out["escapeHtmlSvgOk"] is True
         assert out["gpsOk"] is True
         assert out["okImp"] is True
+        assert out["currentStopDeniedOk"] is True
         assert "Terminal Integrado Cabo" in out["speechCheck"]
         assert "rede neural espaço-temporal" in out["speechCheck"]
         assert "10 minutos" in out["speechCheck"]
@@ -492,6 +527,45 @@ class TestRealBrowserE2E:
                   return msgs.length ? msgs[msgs.length - 1].innerText : '';
                 })()""")
                 assert "Casa Caiada" in bot_text
+
+                # Testa controles e estados de voz da Laya (Laya PT-BR -> Sulafat IA -> Offline) sem HTTP 404/501
+                voice_init = eval_js("""(() => {
+                  const status = document.getElementById('laya-voice-status');
+                  const btn = document.getElementById('btn-laya-voice-style');
+                  const pill = document.getElementById('laya-voice-status-pill');
+                  return {
+                    hasStatus: Boolean(status),
+                    styleLabel: btn ? btn.textContent.trim() : '',
+                    pillText: pill ? pill.textContent.trim() : ''
+                  };
+                })()""")
+                assert voice_init["hasStatus"] is True
+                assert voice_init["styleLabel"] == "Laya PT-BR"
+
+                eval_js("cycleLayaVoice()")
+                time.sleep(0.2)
+                voice_sulafat = eval_js("""(() => ({
+                  profile: (document.getElementById('btn-laya-voice-style') || {}).textContent.trim(),
+                  statusText: (document.getElementById('laya-voice-status-text') || {}).textContent.trim(),
+                  stateAttr: (document.getElementById('laya-voice-status') || {}).getAttribute('data-voice-state') || ''
+                }))()""")
+                assert voice_sulafat["profile"] == "Sulafat IA"
+                assert "Sulafat IA" in voice_sulafat["statusText"]
+
+                eval_js("cycleLayaVoice()")
+                time.sleep(0.15)
+                voice_offline = eval_js("""(() => ({
+                  profile: (document.getElementById('btn-laya-voice-style') || {}).textContent.trim(),
+                  statusText: (document.getElementById('laya-voice-status-text') || {}).textContent.trim(),
+                  stateAttr: (document.getElementById('laya-voice-status') || {}).getAttribute('data-voice-state') || ''
+                }))()""")
+                assert voice_offline["profile"] == "Offline"
+                assert "Offline" in voice_offline["statusText"]
+
+                eval_js("speakDriverCourtesyAudio()")
+                time.sleep(0.15)
+                eval_js("cycleLayaVoice(); toggleLayaVoiceMute(); closeLayaModal();")
+                time.sleep(0.1)
 
                 # Testa abertura dos modais principais sem lançar exceções JS
                 for open_fn, close_fn in [

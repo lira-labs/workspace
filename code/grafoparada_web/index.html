@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="laya_voice_engine.js"></script>
   <script src="real_transit_engine.js"></script>
 
   <style>
@@ -803,21 +804,22 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #0284c7 0%, #059669 100%);
+      background: #0F766E;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
       color: #fff;
+      flex-shrink: 0;
     }
     .laya-msg-bot {
       background: #f0f9ff;
       color: #0f172a;
       border: 1px solid #bae6fd;
       border-radius: 14px 14px 14px 2px;
-      padding: 10px 14px;
+      padding: 9px 13px;
       font-size: 12.5px;
-      line-height: 1.45;
+      line-height: 1.4;
       align-self: flex-start;
       max-width: 88%;
     }
@@ -2534,8 +2536,8 @@
     }
 
     #modal-laya .modal-card {
-      height: min(640px, 86dvh) !important;
-      max-height: 86dvh !important;
+      height: min(672px, 88dvh) !important;
+      max-height: 88dvh !important;
       max-width: 420px !important;
       display: flex !important;
       flex-direction: column !important;
@@ -2547,13 +2549,249 @@
       min-height: 0 !important;
       max-height: none !important;
       overflow-y: auto !important;
-      padding: 14px 14px 20px !important;
+      padding: 9px 12px 10px !important;
       scroll-behavior: smooth;
     }
     #laya-chat-input {
       font-size: 13px !important;
       padding: 9px 12px !important;
       min-width: 0;
+    }
+    .laya-modal-header {
+      background: #0F766E;
+      color: #ffffff;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .laya-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      flex: 1;
+    }
+    .laya-header-title {
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.2;
+      color: #ffffff;
+    }
+    .laya-header-subtitle {
+      font-size: 10.5px;
+      line-height: 1.25;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .laya-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    #btn-laya-voice-style,
+    .laya-voice-style-btn {
+      width: auto;
+      min-width: 74px;
+      padding: 0 9px;
+      height: 28px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    #btn-laya-voice-style:hover,
+    .laya-voice-style-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+    .laya-header-icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+      transition: background 0.15s ease;
+    }
+    .laya-header-icon-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+    #laya-voice-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 14px;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+      flex-shrink: 0;
+      min-width: 0;
+    }
+    .laya-voice-status-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    #laya-voice-status-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .laya-voice-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      line-height: 1.25;
+      white-space: nowrap;
+      flex-shrink: 0;
+      border: 1px solid #CBD5E1;
+      background: #F1F5F9;
+      color: #475569;
+    }
+    .laya-voice-status-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .laya-voice-status-pill[data-voice-state="muted"] {
+      background: #F1F5F9;
+      color: #475569;
+      border-color: #CBD5E1;
+    }
+    .laya-voice-status-pill[data-voice-state="loading"] {
+      background: #FEF3C7;
+      color: #92400E;
+      border-color: #FDE68A;
+    }
+    .laya-voice-status-pill[data-voice-state="static"] {
+      background: #D1FAE5;
+      color: #065F46;
+      border-color: #A7F3D0;
+    }
+    .laya-voice-status-pill[data-voice-state="cloud"] {
+      background: #EDE9FE;
+      color: #5B21B6;
+      border-color: #DDD6FE;
+    }
+    .laya-voice-status-pill[data-voice-state="offline"] {
+      background: #EFF6FF;
+      color: #1E40AF;
+      border-color: #BFDBFE;
+    }
+    .laya-msg-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+      padding-top: 5px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .laya-msg-meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #64748b;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 2px 7px;
+      white-space: nowrap;
+    }
+    .laya-msg-listen-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 10.5px;
+      font-weight: 800;
+      line-height: 1.2;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .laya-msg-listen-btn:hover {
+      background: #d1fae5;
+      border-color: #6ee7b7;
+    }
+    .laya-msg-bot details.laya-alt-options {
+      margin-top: 6px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 5px 9px;
+      min-width: 0;
+    }
+    .laya-msg-bot details.laya-alt-options > summary {
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+      color: #0f766e;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      user-select: none;
+    }
+    .laya-msg-bot details.laya-alt-options > summary::-webkit-details-marker {
+      display: none;
+    }
+    .laya-msg-bot details.laya-alt-options > summary::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-right: 1.75px solid #64748b;
+      border-bottom: 1.75px solid #64748b;
+      transform: rotate(45deg);
+      flex-shrink: 0;
+      margin-right: 2px;
+      transition: transform 0.15s ease;
+    }
+    .laya-msg-bot details.laya-alt-options[open] > summary {
+      margin-bottom: 6px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .laya-msg-bot details.laya-alt-options[open] > summary::after {
+      transform: rotate(-135deg);
+      margin-top: 3px;
     }
 
     /* TELA 3 (MAPA) DESPOLUIDA NO TOPO */
@@ -4140,37 +4378,43 @@
 
     <!-- 17. MODAL CONVERSACIONAL LAYA (ASSISTENTE IA INTELIGENTE + GTFS) -->
     <div id="modal-laya" class="modal-overlay" style="display:none; z-index:1100;">
-      <div class="modal-card" style="height:min(640px, 86dvh); max-height:86dvh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:420px;">
+      <div class="modal-card" style="height:min(672px, 88dvh); max-height:88dvh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:420px;">
         <!-- LAYA HEADER -->
-        <div style="background:linear-gradient(135deg, #0284c7 0%, #059669 100%); color:#ffffff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <div class="laya-avatar-mini" style="font-size:18px; border:2px solid #ffffff; display:flex; align-items:center; justify-content:center;">
-              <svg class="gp-svg" style="width:18px; height:18px; stroke:#ffffff;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div class="laya-modal-header">
+          <div class="laya-header-brand">
+            <div class="laya-avatar-mini" style="border:2px solid rgba(255,255,255,0.88);">
+              <svg class="gp-svg" style="width:17px; height:17px; stroke:#ffffff;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
-            <div>
-              <div style="font-weight:800; font-size:15px; display:flex; align-items:center; gap:6px;">
-                Laya IA
-                <span style="font-size:10px; background:rgba(255,255,255,0.22); padding:2px 8px; border-radius:999px;">Rotas + Voz PT-BR</span>
-              </div>
-              <div style="font-size:11px; opacity:0.92;">Conectada às 393 linhas reais e 26 Terminais SEI</div>
+            <div style="min-width:0; flex:1;">
+              <div class="laya-header-title">Laya IA</div>
+              <div class="laya-header-subtitle">Conectada às 393 linhas reais e 26 Terminais SEI</div>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <button type="button" id="btn-laya-voice-style" onclick="cycleLayaVoice()" title="Trocar timbre de voz da Laya" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center;">VOZ</button>
-            <button type="button" id="btn-laya-voice-mute" onclick="toggleLayaVoiceMute()" title="Ativar ou silenciar voz da Laya" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;" aria-label="Alternar áudio da Laya"><svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
-            <button onclick="closeLayaModal()" style="background:rgba(255,255,255,0.2); border:none; color:#ffffff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:800; font-size:14px; display:inline-flex; align-items:center; justify-content:center;">✕</button>
+          <div class="laya-header-actions">
+            <button type="button" id="btn-laya-voice-style" class="laya-voice-style-btn" onclick="cycleLayaVoice()" title="Trocar timbre de voz da Laya">Laya PT-BR</button>
+            <button type="button" id="btn-laya-voice-mute" class="laya-header-icon-btn" onclick="toggleLayaVoiceMute()" title="Ativar ou silenciar voz da Laya" aria-label="Alternar áudio da Laya"><svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button>
+            <button type="button" class="laya-header-icon-btn" onclick="closeLayaModal()" aria-label="Fechar assistente Laya IA"><svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
         </div>
 
+        <!-- FAIXA DISCRETA DE ESTADO DA VOZ DA LAYA -->
+        <div id="laya-voice-status" data-voice-state="muted" aria-live="polite">
+          <div class="laya-voice-status-meta">
+            <span id="laya-voice-status-icon" style="display:inline-flex; align-items:center; flex-shrink:0;"><svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></span>
+            <span id="laya-voice-status-text">Perfil: Laya PT-BR</span>
+          </div>
+          <span id="laya-voice-status-pill" class="laya-voice-status-pill" data-voice-state="muted">Silenciada</span>
+        </div>
+
         <!-- CHAT HISTORY -->
-        <div id="laya-chat-history" style="flex:1 1 auto; overflow-y:auto; padding:14px 14px 20px; display:flex; flex-direction:column; gap:10px; background:#f8fafc; min-height:0;">
+        <div id="laya-chat-history" style="flex:1 1 auto; overflow-y:auto; padding:9px 12px 10px; display:flex; flex-direction:column; gap:8px; background:#f8fafc; min-height:0;">
           <div class="laya-msg-bot">
             <div class="laya-msg-body">
               Olá, Cauã! Conheço as <strong>393 linhas reais e 26 Terminais SEI</strong> do Grande Recife e a inteligência ST-GCN do GrafoParada.<br><br>Pergunte de onde até onde quer ir, consulte a lotação ou simule anomalias operacionais na malha!
             </div>
-            <div class="laya-msg-footer" style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; padding-top:6px; border-top:1px solid #e2e8f0;">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; color:#64748b; background:#f8fafc; border:1px solid #cbd5e1; border-radius:999px; padding:2px 7px;">ST-GCN 0,96 ms · GTFS CTM</span>
-              <button type="button" class="laya-msg-listen-btn" onclick="speakText(this.closest('.laya-msg-bot').querySelector('.laya-msg-body').innerText)" style="display:inline-flex; align-items:center; gap:4px; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:999px; padding:2px 8px; font-size:10.5px; font-weight:800; cursor:pointer; font-family:inherit;">
+            <div class="laya-msg-footer">
+              <span class="laya-msg-meta-tag">ST-GCN 0,96 ms · GTFS CTM</span>
+              <button type="button" class="laya-msg-listen-btn" onclick="speakText(this.closest('.laya-msg-bot').querySelector('.laya-msg-body').innerText)">
                 <svg class="gp-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                 <span>Ouvir</span>
               </button>
@@ -4179,8 +4423,8 @@
         </div>
 
         <!-- QUICK PROMPTS WRAP -->
-        <div style="display:flex; flex-wrap:wrap; gap:5px; padding:8px 12px; background:#ffffff; border-top:1px solid #e2e8f0; flex-shrink:0;">
-          <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('Como ir de Camela para a UFRPE?')">Camela ➔ UFRPE</button>
+        <div style="display:flex; flex-wrap:wrap; gap:4px; padding:5px 12px; background:#ffffff; border-top:1px solid #e2e8f0; flex-shrink:0;">
+          <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('Como ir de Camela para a UFRPE?')">Camela → UFRPE</button>
           <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('Estou perdido no centro à noite, como volto pra Camela?')" style="background:#fef3c7; color:#92400e; border-color:#fde68a; font-weight:800;">Perdido no Centro à noite</button>
           <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('O 199 está lotado agora?')">O 199 está lotado?</button>
           <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('O que acontece se houver engarrafamento repentino na PE-60?')">Anomalia PE-60 (Nó 10)</button>
@@ -4188,13 +4432,13 @@
         </div>
 
         <!-- INPUT BAR (MIC + TEXT + SEND) -->
-        <div style="padding:10px 12px; background:#ffffff; border-top:1px solid #e2e8f0; display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <div style="padding:6px 12px; background:#ffffff; border-top:1px solid #e2e8f0; display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <button type="button" id="btn-laya-mic" class="laya-mic-btn" onclick="toggleLayaVoiceRecognition()" title="Falar com a Laya por voz" style="width:38px; height:38px; font-size:15px;">
             <svg class="gp-svg" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
           </button>
           <input type="text" id="laya-chat-input" placeholder="Ex: Camela para UFRPE ou linha 199" class="field-input" style="font-size:13px; padding:9px 12px; border-radius:999px; margin-bottom:0; min-width:0; flex:1;" onkeydown="if(event.key==='Enter') sendLayaTextMessage();" />
-          <button type="button" onclick="sendLayaTextMessage()" style="width:38px; height:38px; border-radius:50%; border:none; background:#0284c7; color:#ffffff; font-weight:800; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
-            ➔
+          <button type="button" id="btn-send-laya" onclick="sendLayaTextMessage()" aria-label="Enviar mensagem" title="Enviar" style="width:38px; height:38px; border-radius:50%; border:none; background:#0284c7; color:#ffffff; font-weight:800; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+            <svg class="gp-svg" style="width:16px; height:16px;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </div>
       </div>
@@ -5086,7 +5330,15 @@
       const stopName = st ? st.name : "Parada de Camela";
       const eta = (st && st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4";
       playSimpleChime();
-      playNaturalVoice("Próximo ônibus da Linha 199 chega em " + eta + " minutos na parada " + stopName + ". Destino Terminal Integrado do Cabo.");
+      ensureLayaVoiceUnmuted();
+      playNaturalVoice(
+        "Boa notícia: a linha cento e noventa e nove está chegando em uns " + eta + " minutinhos aí na parada " + stopName + ". Já dá pra se ajeitar!",
+        {
+          explicit: true,
+          tone: "arriving",
+          clipId: (String(eta) === "3" || String(eta) === "4") ? "chegada_199" : null
+        }
+      );
     }
 
     function renderStopsAccordion(telemetria) {
@@ -5410,7 +5662,10 @@
           mapBusTag.className = "live-bus-eta-tag slide3-alert";
         }
 
-        playNaturalVoice("Atenção: Demonstração da falha do Nó 10 na PE-60 ativa. A rede neural ST-GCN suavizou o atraso para 14,3 minutos, mas o GPS bruto detectou bloqueio no Trevo de Ipojuca com 45 minutos. A trava híbrida acendeu o alerta para proteger o passageiro.");
+        playNaturalVoice(
+          "Atenção: Demonstração da falha do Nó 10 na PE-60 ativa. A rede neural ST-GCN suavizou o atraso para 14,3 minutos, mas o GPS bruto detectou bloqueio no Trevo de Ipojuca com 45 minutos. A trava híbrida acendeu o alerta para proteger o passageiro.",
+          { explicit: true, tone: "alert" }
+        );
       } else {
         if (mainSheet) mainSheet.classList.remove("slide3-failure-active");
         if (restingPrefix) {
@@ -5436,7 +5691,7 @@
           mapBusTag.textContent = "199 · 4 min (14 vagas)";
           mapBusTag.className = "live-bus-eta-tag";
         }
-        playNaturalVoice("Simulação de interdição finalizada. Retornando ao fluxo padrão do corredor.");
+        playNaturalVoice("Simulação de interdição finalizada. Retornando ao fluxo padrão do corredor.", { explicit: true, tone: "info" });
       }
     }
 
@@ -5630,10 +5885,11 @@
     }
 
     function testNeuralVoice() {
-      layaVoiceMuted = false;
-      try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
-      syncLayaVoiceButtons();
-      playNaturalVoice("Olá, Cauã! A voz da Laya está ativa e pronta para orientar sua viagem.", { explicit: true });
+      ensureLayaVoiceUnmuted();
+      playNaturalVoice(
+        "Olá, Cauã! A voz da Laya está ativa e pronta para orientar sua viagem.",
+        { explicit: true, tone: "info", clipId: "boas_vindas" }
+      );
     }
 
     // ONBOARDING & STORAGE
@@ -5944,11 +6200,14 @@
     function speakSeniorDirections() {
       const code = (window.RealTransit && window.RealTransit.activeRouteCode) || "199";
       const adapt = (window.RealTransit && window.RealTransit.userAdaptState) || {};
-      const stopTxt = adapt.stopName || "sua parada atual";
-      layaVoiceMuted = false;
-      try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
-      syncLayaVoiceButtons();
-      playNaturalVoice(`Ônibus da linha ${code} chegando em cerca de 4 minutos na parada ${stopTxt}. Confira o letreiro frontal antes de embarcar.`, { explicit: true });
+      const stopPhrase = (adapt.status === "adapted" && adapt.stopName)
+        ? ("na parada " + adapt.stopName)
+        : "aí na sua parada";
+      ensureLayaVoiceUnmuted();
+      playNaturalVoice(
+        `Fica tranquilo: o ônibus da linha ${code} está chegando em uns 4 minutinhos ${stopPhrase}. Dê uma olhada no letreiro da frente antes de subir!`,
+        { explicit: true, tone: "arriving" }
+      );
     }
 
     // ==========================================
@@ -6157,7 +6416,10 @@
         navigator.vibrate([400, 200, 400, 200, 800]);
       }
       playSimpleChime();
-      playNaturalVoice("Alerta urgente: Queima de parada detectada pelo satélite! O veículo " + ctx.vehicleCode + " cruzou a " + ctx.stopLabel + " a 44 km por hora sem parar. A prova técnica foi gerada para denúncia no WhatsApp do CTM.");
+      playNaturalVoice(
+        "Alerta urgente: Queima de parada detectada pelo satélite! O veículo " + ctx.vehicleCode + " cruzou a " + ctx.stopLabel + " a 44 km por hora sem parar. A prova técnica foi gerada para denúncia no WhatsApp do CTM.",
+        { explicit: true, tone: "alert" }
+      );
     }
     function closeQueimaModal() {
       document.getElementById("modal-queima-parada").style.display = "none";
@@ -6193,13 +6455,20 @@
     // ==========================================
     function openSafeDisembarkModal() {
       document.getElementById("modal-safe-disembark").style.display = "flex";
-      playNaturalVoice("Modo Desembarque Seguro Noturno. Pela Lei Estadual 15.878, você tem direito de desembarcar em qualquer local mais iluminado após as 22 horas.");
+      playNaturalVoice(
+        "Modo Desembarque Seguro Noturno. Pela Lei Estadual 15.878, você tem direito de desembarcar em qualquer local mais iluminado após as 22 horas.",
+        { explicit: true, tone: "info" }
+      );
     }
     function closeSafeDisembarkModal() {
       document.getElementById("modal-safe-disembark").style.display = "none";
     }
     function speakDriverCourtesyAudio() {
-      playNaturalVoice("Motorista, boa noite! Por favor, gostaria de desembarcar aqui no ponto iluminado, conforme a Lei Estadual 15.878. Muito obrigado pela cortesia!");
+      ensureLayaVoiceUnmuted();
+      playNaturalVoice(
+        "Motorista, boa noite! Tudo bem? Por favor, gostaria de desembarcar aqui no ponto iluminado, conforme a Lei Estadual 15.878. Muito obrigada pela cortesia!",
+        { explicit: true, tone: "info" }
+      );
     }
 
     // ==========================================
@@ -6221,10 +6490,16 @@
           banner.style.display = "block";
         }
         playSimpleChime();
-        playNaturalVoice("Atenção: Alagamento detectado na Rodovia PE-60 no quilômetro 14. O ônibus da Linha 199 fez um desvio de 800 metros pela via marginal e atenderá temporariamente no ponto da UPA de Ipojuca.");
+        playNaturalVoice(
+          "Atenção: Alagamento detectado na Rodovia PE-60 no quilômetro 14. O ônibus da Linha 199 fez um desvio de 800 metros pela via marginal e atenderá temporariamente no ponto da UPA de Ipojuca.",
+          { explicit: true, tone: "alert", clipId: "alerta_pe60" }
+        );
       } else {
         if (banner) banner.style.display = "none";
-        playNaturalVoice("Alerta de alagamento encerrado. Rodovia PE-60 liberada no itinerário normal.");
+        playNaturalVoice(
+          "Alerta de alagamento encerrado. Rodovia PE-60 liberada no itinerário normal.",
+          { explicit: true, tone: "info" }
+        );
       }
     }
     function simulateTransbordoRescue() {
@@ -6240,7 +6515,10 @@
         navigator.vibrate([200, 100, 200, 100, 400]);
       }
       playSimpleChime();
-      playNaturalVoice("Atenção: Pane mecânica registrada no coletivo. O socorro mecânico e o veículo reserva foram despachados pelo TI Cabo e chegam em 7 minutos para transbordo seguro.");
+      playNaturalVoice(
+        "Atenção: Pane mecânica registrada no coletivo. O socorro mecânico e o veículo reserva foram despachados pelo TI Cabo e chegam em 7 minutos para transbordo seguro.",
+        { explicit: true, tone: "alert" }
+      );
     }
 
 
@@ -7175,6 +7453,7 @@
       }
       const navBtn = document.getElementById("tab-nav-laya");
       if (navBtn) navBtn.classList.add("active");
+      if (typeof syncLayaVoiceButtons === "function") syncLayaVoiceButtons();
       playSimpleChime();
       setTimeout(function() {
         const inp = document.getElementById("laya-chat-input");
@@ -7457,13 +7736,18 @@
       }, 300);
     }
 
-    // Síntese de voz brasileira natural + controle de timbre e prosódia humana (sem cortar falas)
+    // Síntese de voz brasileira natural + integração desacoplada com window.LayaVoice (fallback seguro)
     let cachedNaturalVoice = null;
     // Calma por padrão: só fala em voz alta quando o usuário ativa o microfone/som ou toca em "Ouvir"
-    let layaVoiceMuted = (typeof localStorage === "undefined" || localStorage.getItem("grafoparada_voice_muted") !== "0");
+    let layaVoiceMuted = (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.isMuted === "function")
+      ? window.LayaVoice.isMuted()
+      : (typeof localStorage === "undefined" || localStorage.getItem("grafoparada_voice_muted") !== "0");
     let preferredVoiceIndex = (typeof localStorage !== "undefined" && Number(localStorage.getItem("grafoparada_voice_idx"))) || 0;
 
     function getRankedPortugueseVoices() {
+      if (typeof window !== "undefined" && window.LayaVoice && window.LayaVoice.offlineProvider && typeof window.LayaVoice.offlineProvider.getRankedPortugueseVoices === "function") {
+        return window.LayaVoice.offlineProvider.getRankedPortugueseVoices();
+      }
       if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
       const voices = window.speechSynthesis.getVoices() || [];
       if (!voices.length) return [];
@@ -7497,6 +7781,7 @@
     }
 
     function formatSpeechPortuguese(raw) {
+      if (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.formatForSpeech === "function") return window.LayaVoice.formatForSpeech(raw);
       if (!raw) return "";
       let s = String(raw);
       s = s.replace(/<[^>]+>/g, " ");
@@ -7539,14 +7824,55 @@
       return chunks.length ? chunks : [text];
     }
 
-    function syncLayaVoiceButtons() {
+    function updateLayaVoiceStatusUI(snapshot) {
+      const engine = (typeof window !== "undefined" && window.LayaVoice) ? window.LayaVoice : null;
+      const snap = (snapshot && typeof snapshot === "object")
+        ? snapshot
+        : (engine && typeof engine.getState === "function"
+            ? engine.getState()
+            : {
+                state: layaVoiceMuted ? "muted" : "offline",
+                label: layaVoiceMuted ? "Silenciada" : "Offline PT-BR",
+                profile: { id: "offline_only", buttonLabel: "Offline", title: "Voz Local Offline PT-BR (Web Speech)" },
+                muted: layaVoiceMuted
+              });
+
+      layaVoiceMuted = typeof snap.muted === "boolean"
+        ? snap.muted
+        : (engine && typeof engine.isMuted === "function" ? engine.isMuted() : layaVoiceMuted);
+
+      const stateLabels = {
+        muted: "Silenciada",
+        loading: "Sintetizando...",
+        static: "Estático <30ms",
+        cloud: "Gemini Nuvem",
+        offline: "Offline PT-BR"
+      };
+      const stateKey = (snap.state && stateLabels[snap.state]) ? snap.state : (layaVoiceMuted ? "muted" : "offline");
+      const stateLabel = snap.label || stateLabels[stateKey];
+      const profile = snap.profile || (engine && typeof engine.getProfile === "function" ? engine.getProfile() : null) || {
+        id: "ptbr_warm",
+        buttonLabel: "Laya PT-BR",
+        title: "Laya pt-BR Nativa (Gemini 3.8 Lite)"
+      };
+
+      const styleBtn = document.getElementById("btn-laya-voice-style");
+      if (styleBtn) {
+        styleBtn.textContent = profile.buttonLabel || "Laya PT-BR";
+        styleBtn.title = "Trocar timbre de voz · Ativo: " + (profile.title || profile.buttonLabel || "Laya PT-BR");
+        styleBtn.setAttribute("data-voice-profile", profile.id || "ptbr_warm");
+        styleBtn.setAttribute("aria-label", "Alternar timbre de voz da Laya (atual: " + (profile.buttonLabel || "Laya PT-BR") + ")");
+      }
+
       const speakerOnSvg = '<svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
       const speakerOffSvg = '<svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
       const muteBtn = document.getElementById("btn-laya-voice-mute");
       if (muteBtn) {
         muteBtn.innerHTML = layaVoiceMuted ? speakerOffSvg : speakerOnSvg;
         muteBtn.title = layaVoiceMuted ? "Voz silenciada (toque para ativar)" : "Voz ativa (toque para silenciar)";
+        muteBtn.setAttribute("aria-pressed", layaVoiceMuted ? "false" : "true");
       }
+
       const topPill = document.getElementById("top-voice-toggle-pill");
       const topIcon = document.getElementById("top-voice-icon");
       const topLbl = document.getElementById("top-voice-label");
@@ -7560,22 +7886,94 @@
         topPill.style.background = layaVoiceMuted ? "#f1f5f9" : "#ecfdf5";
         topPill.style.borderColor = layaVoiceMuted ? "#cbd5e1" : "#86efac";
         topPill.style.color = layaVoiceMuted ? "#334155" : "#047857";
+        topPill.setAttribute("data-voice-state", stateKey);
+      }
+
+      const statusBar = document.getElementById("laya-voice-status");
+      const statusIcon = document.getElementById("laya-voice-status-icon");
+      const statusText = document.getElementById("laya-voice-status-text");
+      const statusPill = document.getElementById("laya-voice-status-pill");
+      if (statusBar) {
+        statusBar.setAttribute("data-voice-state", stateKey);
+      }
+      if (statusIcon) {
+        statusIcon.innerHTML = layaVoiceMuted
+          ? '<svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>'
+          : '<svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+      }
+      if (statusText) {
+        statusText.textContent = "Perfil: " + (profile.buttonLabel || "Laya PT-BR");
+      }
+      if (statusPill) {
+        statusPill.textContent = stateLabel;
+        statusPill.setAttribute("data-voice-state", stateKey);
       }
     }
 
+    function syncLayaVoiceButtons() {
+      updateLayaVoiceStatusUI();
+    }
+
+    function ensureLayaVoiceUnmuted() {
+      if (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.setMuted === "function") {
+        if (typeof window.LayaVoice.isMuted === "function" && window.LayaVoice.isMuted()) {
+          window.LayaVoice.setMuted(false);
+        }
+        layaVoiceMuted = typeof window.LayaVoice.isMuted === "function" ? window.LayaVoice.isMuted() : false;
+      } else {
+        layaVoiceMuted = false;
+        try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
+      }
+      syncLayaVoiceButtons();
+    }
+
     function toggleLayaVoiceMute() {
+      if (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.toggleMute === "function") {
+        layaVoiceMuted = window.LayaVoice.toggleMute();
+        syncLayaVoiceButtons();
+        if (layaVoiceMuted) {
+          showFloatingVoicePill("Voz da Laya silenciada.");
+        } else {
+          playNaturalVoice("Voz ativada. Respondo em áudio apenas quando você perguntar.", { explicit: true, tone: "info" });
+        }
+        return;
+      }
+
       layaVoiceMuted = !layaVoiceMuted;
       try { localStorage.setItem("grafoparada_voice_muted", layaVoiceMuted ? "1" : "0"); } catch(e) {}
       syncLayaVoiceButtons();
-      if (layaVoiceMuted && "speechSynthesis" in window) {
+      if (layaVoiceMuted && typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
         showFloatingVoicePill("Voz da Laya silenciada.");
-      } else {
-        playNaturalVoice("Voz ativada. Respondo em áudio apenas quando você perguntar.", { explicit: true });
+      } else if (!layaVoiceMuted) {
+        playNaturalVoice("Voz ativada. Respondo em áudio apenas quando você perguntar.", { explicit: true, tone: "info" });
       }
     }
 
     function cycleLayaVoice() {
+      if (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.cycleProfile === "function") {
+        const profile = window.LayaVoice.cycleProfile();
+        if (typeof window.LayaVoice.setMuted === "function" && window.LayaVoice.isMuted()) {
+          window.LayaVoice.setMuted(false);
+        }
+        layaVoiceMuted = typeof window.LayaVoice.isMuted === "function" ? window.LayaVoice.isMuted() : false;
+        syncLayaVoiceButtons();
+        if (profile && profile.id === "offline_only") {
+          playNaturalVoice("Modo offline em português ativado para trechos sem sinal.", {
+            explicit: true,
+            tone: "info"
+          });
+        } else {
+          const previewLabel = (profile && profile.buttonLabel) ? profile.buttonLabel : "Laya PT-BR";
+          playNaturalVoice("Olá, você está ouvindo o perfil " + previewLabel + " da Laya.", {
+            explicit: true,
+            tone: "info",
+            clipId: "boas_vindas"
+          });
+        }
+        return;
+      }
+
       const ranked = getRankedPortugueseVoices();
       if (!ranked.length) {
         showFloatingVoicePill("Apenas a voz padrão do aparelho está disponível neste navegador.");
@@ -7588,15 +7986,24 @@
       try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
       syncLayaVoiceButtons();
       const shortName = (cachedNaturalVoice.name || "Voz PT-BR").split("-")[0].trim();
-      playNaturalVoice("Agora você está ouvindo a Laya com a voz " + shortName + ".", { explicit: true });
+      playNaturalVoice("Agora você está ouvindo a Laya com a voz " + shortName + ".", { explicit: true, tone: "info" });
     }
 
     window.toggleLayaVoiceMute = toggleLayaVoiceMute;
     window.cycleLayaVoice = cycleLayaVoice;
     window.formatSpeechPortuguese = formatSpeechPortuguese;
     window.syncLayaVoiceButtons = syncLayaVoiceButtons;
+    window.updateLayaVoiceStatusUI = updateLayaVoiceStatusUI;
+    window.ensureLayaVoiceUnmuted = ensureLayaVoiceUnmuted;
+    if (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.onStateChange === "function") {
+      window.LayaVoice.onStateChange(updateLayaVoiceStatusUI);
+    }
     if (typeof document !== "undefined") {
-      document.addEventListener("DOMContentLoaded", syncLayaVoiceButtons);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", syncLayaVoiceButtons);
+      } else {
+        syncLayaVoiceButtons();
+      }
     }
 
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -7609,13 +8016,27 @@
       if (!text) return;
       showFloatingVoicePill(text);
       // Nunca interrompe cliques passivos falando sozinha: só sintetiza áudio quando explicit=true e voz não silenciada
-      if (layaVoiceMuted || !opts || !opts.explicit) return;
+      if (!opts || !opts.explicit) return;
 
+      if (typeof window !== "undefined" && window.LayaVoice && typeof window.LayaVoice.speak === "function") {
+        layaVoiceMuted = typeof window.LayaVoice.isMuted === "function" ? window.LayaVoice.isMuted() : layaVoiceMuted;
+        if (layaVoiceMuted) {
+          syncLayaVoiceButtons();
+          return;
+        }
+        try {
+          return window.LayaVoice.speak(text, opts);
+        } catch (e) {
+          console.warn("LayaVoice speak error:", e);
+        }
+      }
+
+      if (layaVoiceMuted) return;
       const spoken = formatSpeechPortuguese(text);
       if (!spoken) return;
 
       try {
-        if ("speechSynthesis" in window) {
+        if (typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function") {
           window.speechSynthesis.cancel();
           const voice = findBestNaturalVoice();
           cachedNaturalVoice = voice;
@@ -7640,6 +8061,7 @@
         console.warn("Audio synthesis error:", e);
       }
     }
+    window.playNaturalVoice = playNaturalVoice;
 
     // ==========================================
     // RECONHECIMENTO DE VOZ & ASSISTENTE LAYA IA
@@ -7753,9 +8175,7 @@
 
     function speakText(text) {
       if (!text) return;
-      layaVoiceMuted = false;
-      try { localStorage.setItem("grafoparada_voice_muted", "0"); } catch(e) {}
-      syncLayaVoiceButtons();
+      ensureLayaVoiceUnmuted();
       playNaturalVoice(String(text).trim(), { explicit: true });
     }
     window.speakText = speakText;
@@ -7799,29 +8219,34 @@
         });
       } else {
         const contentWrap = document.createElement("div");
-        contentWrap.className = "laya-msg-content";
+        contentWrap.className = "laya-msg-body laya-msg-content";
         contentWrap.innerHTML = msg;
         div.appendChild(contentWrap);
 
         const footer = document.createElement("div");
         footer.className = "laya-msg-footer";
-        footer.style.cssText = "display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:8px; padding-top:6px; border-top:1px solid #e2e8f0;";
         footer.innerHTML =
-          '<span style="font-size:10px; font-weight:800; color:#047857; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:2px 6px; font-family:\'JetBrains Mono\',monospace;">ST-GCN 0,96 ms · GTFS CTM</span>' +
-          '<button type="button" class="laya-listen-btn" style="background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; padding:3px 8px; font-size:10.5px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">' +
+          '<span class="laya-msg-meta-tag">ST-GCN 0,96 ms · GTFS CTM</span>' +
+          '<button type="button" class="laya-msg-listen-btn">' +
             '<svg class="gp-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>' +
-            'Ouvir' +
+            '<span>Ouvir</span>' +
           '</button>';
-        const listenBtn = footer.querySelector(".laya-listen-btn");
+        const listenBtn = footer.querySelector(".laya-msg-listen-btn");
         if (listenBtn) {
           listenBtn.addEventListener("click", function() {
-            const cleanText = contentWrap.innerText || div.innerText.replace(/ST-GCN 0,96 ms · GTFS CTM\s*Ouvir$/i, "").trim();
+            const cleanText = (contentWrap.innerText || contentWrap.textContent || "").trim();
             speakText(cleanText);
           });
         }
         div.appendChild(footer);
         hist.appendChild(div);
-        setTimeout(() => { div.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40);
+        setTimeout(function() {
+          const fitsViewport = div.offsetHeight <= Math.max(120, hist.clientHeight - 12);
+          div.scrollIntoView({
+            behavior: "smooth",
+            block: fitsViewport ? "nearest" : "start"
+          });
+        }, 40);
       }
     }
 
@@ -7900,14 +8325,18 @@
         }
         appendLayaChatMessage(res.html, "bot");
         if (res.speech && typeof playNaturalVoice === "function") {
-          playNaturalVoice(res.speech, { explicit: true });
+          playNaturalVoice(res.speech, {
+            explicit: true,
+            tone: res.speechTone || "info",
+            clipId: res.clipId || null
+          });
         }
         return;
       }
 
       const fallbackReply = "Entendi sua mensagem! Posso buscar linhas GTFS de origem a destino nas 393 linhas reais e 26 Terminais SEI (ex: Camela até UFRPE) ou checar o próximo ônibus.";
       appendLayaChatMessage(fallbackReply, "bot");
-      if (typeof playNaturalVoice === "function") playNaturalVoice(fallbackReply, { explicit: true });
+      if (typeof playNaturalVoice === "function") playNaturalVoice(fallbackReply, { explicit: true, tone: "info" });
     }
 
     window.navigateToScreen = navigateToScreen;
