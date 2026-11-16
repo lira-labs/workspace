@@ -15,6 +15,8 @@
     activeBoardingIndex: 0,
     activeStopIndex: 0,
     activeBusCoordIndex: 0,
+    activeBoardingLatLon: null,
+    activeBusLatLon: null,
     userAdaptState: {
       status: 'initializing',
       stopName: null,
@@ -350,6 +352,15 @@
       }
       this.activeBoardingIndex = boardIdx;
       this.activeStopIndex = boardIdx;
+      this.activeBoardingLatLon = null;
+      this.activeBusLatLon = null;
+
+      const activeBStop = (Array.isArray(dirData.stops) && dirData.stops[boardIdx]) ? dirData.stops[boardIdx] : null;
+      if (activeBStop && Number.isFinite(activeBStop.lat) && Number.isFinite(activeBStop.lon)) {
+        this.activeBoardingLatLon = [activeBStop.lat, activeBStop.lon];
+      } else if (Array.isArray(userCoords) && userCoords.length >= 2 && Number.isFinite(userCoords[0]) && Number.isFinite(userCoords[1])) {
+        this.activeBoardingLatLon = [userCoords[0], userCoords[1]];
+      }
 
       // 1. Limpa camadas anteriores
       if (this.polylineLayer && this.map) {
@@ -367,7 +378,7 @@
 
       const coords = dirData.polyline || [];
       let splitIdx = 0;
-      if (coords.length > 0 && this.map) {
+      if (coords.length > 0) {
         // Divide a polilinha no ponto mais próximo à parada de embarque (Passado esmaecido vs Restante da sua parada até o destino)
         if (boardIdx > 0 && dirData.stops[boardIdx]) {
           const bStop = dirData.stops[boardIdx];
@@ -377,7 +388,9 @@
             if (d < minP) { minP = d; splitIdx = idx; }
           });
         }
+      }
 
+      if (coords.length > 0 && this.map) {
         if (splitIdx > 1 && splitIdx < coords.length - 1) {
           const passedCoords = coords.slice(0, splitIdx + 1);
           const forwardCoords = coords.slice(splitIdx);
@@ -402,17 +415,6 @@
             smoothFactor: 1
           }).addTo(this.map);
         }
-
-        try {
-          this.map.fitBounds(this.polylineLayer.getBounds(), {
-            paddingTopLeft: [24, 140],
-            paddingBottomRight: [24, 245],
-            maxZoom: 15,
-            animate: true
-          });
-        } catch (e) {
-          console.warn('Erro ao ajustar bounds:', e);
-        }
       }
 
       // 2. Plota as Paradas Reais no Mapa destacando Seu Embarque e os trechos à frente
@@ -425,13 +427,137 @@
         window.connectUserToActiveStop(window.userCurrentCoords[0], window.userCurrentCoords[1]);
       }
       if (typeof window.updateLiveBusMarker === 'function' && coords.length > 2) {
-        const anchorIdx = Math.max(boardIdx, splitIdx);
-        const span = Math.max(1, (coords.length - 1) - anchorIdx);
-        const targetIdx = Math.min(coords.length - 2, anchorIdx + Math.max(6, Math.floor(span * 0.35)));
+        const bStop = (Array.isArray(dirData.stops) && dirData.stops[boardIdx]) ? dirData.stops[boardIdx] : null;
+        const hasBoardCoords = Boolean(bStop && Number.isFinite(bStop.lat) && Number.isFinite(bStop.lon));
+        const activeUserCoords = Array.isArray(userCoords) && userCoords.length >= 2
+          ? userCoords
+          : (Array.isArray(window.userCurrentCoords) && window.userCurrentCoords.length >= 2 ? window.userCurrentCoords : null);
+        const hasUserCoords = Boolean(
+          activeUserCoords &&
+          Number.isFinite(activeUserCoords[0]) &&
+          Number.isFinite(activeUserCoords[1])
+        );
+        const refLat = hasBoardCoords ? bStop.lat : (hasUserCoords ? activeUserCoords[0] : coords[splitIdx][0]);
+        const refLon = hasBoardCoords ? bStop.lon : (hasUserCoords ? activeUserCoords[1] : coords[splitIdx][1]);
+        const MIN_CLEAR_KM = 0.38;
+        const midPt = coords[Math.floor(coords.length / 2)];
+        const routeSpanKm = (coords.length >= 2)
+          ? Math.max(
+              this.haversineKm(coords[0][0], coords[0][1], coords[coords.length - 1][0], coords[coords.length - 1][1]),
+              midPt ? this.haversineKm(coords[0][0], coords[0][1], midPt[0], midPt[1]) : 0
+            )
+          : 0;
+        const isLongRoute = routeSpanKm > 6 && coords.length >= 25;
+        const preferredClearKm = isLongRoute
+          ? Math.max(4.5, Math.min(8.5, routeSpanKm * 0.28))
+          : MIN_CLEAR_KM;
+        const upstreamTargetKm = isLongRoute
+          ? Math.max(12.5, Math.min(routeSpanKm * 0.62, routeSpanKm * 0.52))
+          : preferredClearKm;
+        const minOriginKm = isLongRoute ? Math.min(4.0, routeSpanKm * 0.18) : 0;
+        const distToBoard = (pt) => this.haversineKm(refLat, refLon, pt[0], pt[1]);
+        const distToOrigin = (pt) => this.haversineKm(coords[0][0], coords[0][1], pt[0], pt[1]);
+        const isClearWith = (minKm, checkUser, minOrigKm = 0) => (pt) => {
+          if (distToBoard(pt) < minKm) return false;
+          if (minOrigKm > 0 && distToOrigin(pt) < minOrigKm) return false;
+          if (checkUser && hasUserCoords && this.haversineKm(activeUserCoords[0], activeUserCoords[1], pt[0], pt[1]) < 0.25) return false;
+          return true;
+        };
+        const findFirstIdx = (indices, pred) => {
+          for (const idx of indices) {
+            if (coords[idx] && pred(coords[idx])) return idx;
+          }
+          return null;
+        };
+
+        const lastValidAhead = coords.length - 2;
+        const remainingAhead = (coords.length - 1) - splitIdx;
+        const isNearRouteEnd = splitIdx >= 12 && (splitIdx >= coords.length * 0.55 || remainingAhead <= 8);
+
+        const aheadIndices = [];
+        const span = Math.max(1, (coords.length - 1) - splitIdx);
+        const seedIdx = Math.min(lastValidAhead, splitIdx + Math.max(6, Math.floor(span * 0.35)));
+        for (let i = seedIdx; i <= lastValidAhead; i++) aheadIndices.push(i);
+        for (let i = splitIdx + 1; i < seedIdx; i++) aheadIndices.push(i);
+
+        let targetIdx = null;
+        if (isNearRouteEnd) {
+          // Embarque próximo ao fim da rota (ex.: Parada #50 em Camela): centraliza no meio do corredor a montante (~50-55% de routeSpanKm), longe de T e de Seu Embarque
+          const upstreamSeedIdx = Math.max(0, Math.floor(splitIdx * 0.45));
+          const upstreamIndices = [];
+          for (let i = upstreamSeedIdx; i >= 0; i--) upstreamIndices.push(i);
+          for (let i = upstreamSeedIdx + 1; i <= splitIdx - 1; i++) upstreamIndices.push(i);
+          targetIdx = (isLongRoute
+              ? (findFirstIdx(upstreamIndices, isClearWith(upstreamTargetKm, true, minOriginKm))
+                ?? findFirstIdx(upstreamIndices, isClearWith(upstreamTargetKm, false, minOriginKm)))
+              : null)
+            ?? findFirstIdx(upstreamIndices, isClearWith(preferredClearKm, true, minOriginKm))
+            ?? findFirstIdx(upstreamIndices, isClearWith(preferredClearKm, false, minOriginKm))
+            ?? findFirstIdx(upstreamIndices, isClearWith(preferredClearKm, true))
+            ?? findFirstIdx(upstreamIndices, isClearWith(preferredClearKm, false))
+            ?? findFirstIdx(upstreamIndices, isClearWith(MIN_CLEAR_KM, true))
+            ?? findFirstIdx(upstreamIndices, isClearWith(MIN_CLEAR_KM, false))
+            ?? findFirstIdx(aheadIndices, isClearWith(preferredClearKm, true))
+            ?? findFirstIdx(aheadIndices, isClearWith(preferredClearKm, false))
+            ?? findFirstIdx(aheadIndices, isClearWith(MIN_CLEAR_KM, true))
+            ?? findFirstIdx(aheadIndices, isClearWith(MIN_CLEAR_KM, false));
+
+          if (targetIdx === null) {
+            // Rota muito curta (< 0.38 km): recuo mínimo de ~25% de splitIdx priorizando maior separação
+            const retreatIdx = Math.max(0, Math.min(splitIdx - 1, Math.floor(splitIdx * 0.75)));
+            let bestIdx = retreatIdx;
+            let bestDist = distToBoard(coords[retreatIdx]);
+            for (let i = retreatIdx - 1; i >= 0; i--) {
+              const d = distToBoard(coords[i]);
+              if (d > bestDist) {
+                bestDist = d;
+                bestIdx = i;
+              }
+            }
+            targetIdx = bestIdx;
+          }
+        } else {
+          // Embarque no início/meio da rota: garante avanço na polilinha com separação perceptível sem tocar o último vértice
+          targetIdx = findFirstIdx(aheadIndices, isClearWith(preferredClearKm, true))
+            ?? findFirstIdx(aheadIndices, isClearWith(preferredClearKm, false))
+            ?? findFirstIdx(aheadIndices, isClearWith(MIN_CLEAR_KM, true))
+            ?? findFirstIdx(aheadIndices, isClearWith(MIN_CLEAR_KM, false));
+
+          if (targetIdx === null) {
+            let bestIdx = Math.min(lastValidAhead, Math.max(splitIdx + 1, seedIdx));
+            let bestDist = -1;
+            for (const i of aheadIndices) {
+              const d = distToBoard(coords[i]);
+              if (d > bestDist) {
+                bestDist = d;
+                bestIdx = i;
+              }
+            }
+            if (bestDist < MIN_CLEAR_KM) {
+              for (let i = splitIdx - 1; i >= 0; i--) {
+                const d = distToBoard(coords[i]);
+                if (d > bestDist) {
+                  bestDist = d;
+                  bestIdx = i;
+                }
+              }
+            }
+            targetIdx = bestIdx;
+          }
+        }
+
         this.activeBusCoordIndex = targetIdx;
         const bp = coords[targetIdx] || coords[Math.floor(coords.length / 2)];
+        if (bp && Number.isFinite(bp[0]) && Number.isFinite(bp[1])) {
+          this.activeBusLatLon = [bp[0], bp[1]];
+        }
         const busEta = (window.isSlide3FailureActive && String(code) === '199') ? 45 : 4;
         window.updateLiveBusMarker(bp[0], bp[1], code, busEta, 14);
+      }
+
+      // 2.2 Enquadramento único após plotar polilinha, paradas e liveBusMarker (respeitando legenda e bottom sheet)
+      if (this.map) {
+        this.fitActiveBounds();
       }
 
       // 3. Atualiza Elementos do DOM (LED, Sentido Ida/Volta, Drawer fatiado da sua parada)
@@ -443,6 +569,43 @@
 
       // 4. Consulta API ao Vivo do Cittamobi para Dados em Tempo Real da Frota
       this.fetchCittamobiLiveData(code);
+    },
+
+    fitActiveBounds(extraOpts) {
+      if (!this.map) return;
+      try {
+        const padOpts = (typeof window.getMapFitPadding === 'function')
+          ? Object.assign({ maxZoom: 15, animate: true }, window.getMapFitPadding(), extraOpts || {})
+          : Object.assign({ paddingTopLeft: [24, 152], paddingBottomRight: [24, 325], maxZoom: 15, animate: true }, extraOpts || {});
+
+        if (typeof L !== 'undefined' && typeof L.latLngBounds === 'function') {
+          const bounds = L.latLngBounds([]);
+          if (this.polylineLayer && typeof this.polylineLayer.getBounds === 'function') {
+            const polyBounds = this.polylineLayer.getBounds();
+            if (polyBounds) bounds.extend(polyBounds);
+          }
+          if (Array.isArray(this.activeBoardingLatLon) && this.activeBoardingLatLon.length >= 2) {
+            bounds.extend(this.activeBoardingLatLon);
+          }
+          if (Array.isArray(this.activeBusLatLon) && this.activeBusLatLon.length >= 2) {
+            bounds.extend(this.activeBusLatLon);
+          }
+          if (typeof window !== 'undefined' && window.liveBusMarker && typeof window.liveBusMarker.getLatLng === 'function') {
+            const livePos = window.liveBusMarker.getLatLng();
+            if (livePos) bounds.extend(livePos);
+          }
+          if (typeof bounds.isValid === 'function' ? bounds.isValid() : true) {
+            this.map.fitBounds(bounds, padOpts);
+            return;
+          }
+        }
+
+        if (this.polylineLayer && typeof this.polylineLayer.getBounds === 'function') {
+          this.map.fitBounds(this.polylineLayer.getBounds(), padOpts);
+        }
+      } catch (e) {
+        console.warn('Erro ao ajustar bounds:', e);
+      }
     },
 
     // Plota uma jornada completa estilo Google Maps (caminhada + etapas de ônibus + baldeações + destino)
@@ -572,12 +735,10 @@
 
       if (bounds.isValid()) {
         try {
-          this.map.fitBounds(bounds, {
-            paddingTopLeft: [24, 140],
-            paddingBottomRight: [24, 245],
-            maxZoom: 14,
-            animate: true
-          });
+          const multiPad = (typeof window.getMapFitPadding === 'function')
+            ? Object.assign({ animate: true }, window.getMapFitPadding(), { maxZoom: 14 })
+            : { paddingTopLeft: [24, 152], paddingBottomRight: [24, 325], maxZoom: 14, animate: true };
+          this.map.fitBounds(bounds, multiPad);
         } catch (e) {}
       }
     },
@@ -998,32 +1159,32 @@
         if (clearBtn) clearBtn.style.display = 'none';
         drop.innerHTML = `
           <div style="padding:8px 12px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center;">
-            <span>🔥 Linhas Populares no Grande Recife</span>
-            <span style="font-size:10.5px; color:#0284c7; cursor:pointer; font-weight:800;" onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();">Ver 400 Linhas ➔</span>
+            <span style="display:inline-flex; align-items:center; gap:5px;">${this._layaSvgIcon('compass', 13)}<span>Linhas Populares no Grande Recife</span></span>
+            <span style="font-size:10.5px; color:#0284c7; cursor:pointer; font-weight:800;" onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();">Ver 393 Linhas →</span>
           </div>
           <div class="search-item" onclick="window.RealTransit.loadRoute('522'); if(window.clearQuickSearch) window.clearQuickSearch();">
-            <div><strong style="color:#0f172a;">🚌 522 · Dois Irmãos (Rui Barbosa / UFRPE)</strong><div style="font-size:11px; color:var(--text-secondary);">Linha Oficial da UFRPE · Derby · Rui Barbosa</div></div>
-            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">UFRPE</span>
+            <div style="min-width:0;"><strong style="color:#0f172a; display:inline-flex; align-items:center; gap:5px;">${this._layaSvgIcon('bus', 13)}<span>522 · Dois Irmãos (Rui Barbosa / UFRPE)</span></strong><div style="font-size:11px; color:var(--text-secondary);">Linha Oficial da UFRPE · Derby · Rui Barbosa</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px; flex-shrink:0;">UFRPE</span>
           </div>
           <div class="search-item" onclick="window.RealTransit.loadRoute('2060'); if(window.clearQuickSearch) window.clearQuickSearch();">
-            <div><strong style="color:#0f172a;">🚌 2060 · TI Tancredo Neves / TI Macaxeira (Linha 060)</strong><div style="font-size:11px; color:var(--text-secondary);">Espinha Dorsal Metropolitana · Av. Recife</div></div>
-            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Linha 060</span>
+            <div style="min-width:0;"><strong style="color:#0f172a; display:inline-flex; align-items:center; gap:5px;">${this._layaSvgIcon('bus', 13)}<span>2060 · TI Tancredo Neves / TI Macaxeira (Linha 060)</span></strong><div style="font-size:11px; color:var(--text-secondary);">Espinha Dorsal Metropolitana · Av. Recife</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px; flex-shrink:0;">Linha 060</span>
           </div>
           <div class="search-item" onclick="window.RealTransit.loadRoute('2040'); if(window.clearQuickSearch) window.clearQuickSearch();">
-            <div><strong style="color:#0f172a;">🚌 2040 · CDU / Boa Viagem / Caxangá</strong><div style="font-size:11px; color:var(--text-secondary);">Conexão Universitária UFPE / Zona Sul</div></div>
-            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">CDU</span>
+            <div style="min-width:0;"><strong style="color:#0f172a; display:inline-flex; align-items:center; gap:5px;">${this._layaSvgIcon('bus', 13)}<span>2040 · CDU / Boa Viagem / Caxangá</span></strong><div style="font-size:11px; color:var(--text-secondary);">Conexão Universitária UFPE / Zona Sul</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px; flex-shrink:0;">CDU</span>
           </div>
           <div class="search-item" onclick="window.RealTransit.loadRoute('050'); if(window.clearQuickSearch) window.clearQuickSearch();">
-            <div><strong style="color:#0f172a;">🚌 050 · PE-15 / Boa Viagem</strong><div style="font-size:11px; color:var(--text-secondary);">Corredor Agamenon Magalhães</div></div>
-            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Agamenon</span>
+            <div style="min-width:0;"><strong style="color:#0f172a; display:inline-flex; align-items:center; gap:5px;">${this._layaSvgIcon('bus', 13)}<span>050 · PE-15 / Boa Viagem</span></strong><div style="font-size:11px; color:var(--text-secondary);">Corredor Agamenon Magalhães</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px; flex-shrink:0;">Agamenon</span>
           </div>
           <div class="search-item" onclick="window.RealTransit.loadRoute('199'); if(window.clearQuickSearch) window.clearQuickSearch();">
-            <div><strong style="color:#0f172a;">🚌 199 · Camela / TI Cabo</strong><div style="font-size:11px; color:var(--text-secondary);">Corredor Rodoviário PE-60 · São Judas Tadeu</div></div>
-            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">PE-60</span>
+            <div style="min-width:0;"><strong style="color:#0f172a; display:inline-flex; align-items:center; gap:5px;">${this._layaSvgIcon('bus', 13)}<span>199 · Camela / TI Cabo</span></strong><div style="font-size:11px; color:var(--text-secondary);">Corredor Rodoviário PE-60 · São Judas Tadeu</div></div>
+            <span style="font-size:11px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px; flex-shrink:0;">PE-60</span>
           </div>
           <div style="padding:8px 12px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-            <button onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="width:100%; background:#0284c7; color:#ffffff; border:none; border-radius:8px; padding:7px; font-size:12px; font-weight:800; cursor:pointer;">
-              🔍 Explorar Catálogo Completo (400 Linhas GTFS)
+            <button type="button" onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="width:100%; display:inline-flex; align-items:center; justify-content:center; gap:6px; background:#0284c7; color:#ffffff; border:none; border-radius:8px; padding:7px; font-size:12px; font-weight:800; cursor:pointer;">
+              ${this._layaSvgIcon('compass', 13)}<span>Explorar Catálogo Completo (393 Linhas GTFS)</span>
             </button>
           </div>
         `;
@@ -1049,7 +1210,7 @@
         });
       }
 
-      // 2. Busca nas 400 Linhas do Catálogo GTFS
+      // 2. Busca nas 393 Linhas do Catálogo GTFS
       if (this.networkData && this.networkData.routes_catalog) {
         this.networkData.routes_catalog.forEach(r => {
           if (r.code.toLowerCase().includes(q) || r.label.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) {
@@ -1083,11 +1244,11 @@
       if (results.length === 0) {
         drop.innerHTML = `
           <div style="padding:16px; text-align:center; color:#64748b;">
-            <div style="font-size:22px; margin-bottom:4px;">🔍</div>
-            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha ou parada para "${query}"</div>
+            <div style="display:flex; justify-content:center; margin-bottom:6px; color:#64748b;">${this._layaSvgIcon('compass', 20)}</div>
+            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha ou parada para "${this.escapeHtml(query)}"</div>
             <div style="font-size:11.5px; color:#64748b; line-height:1.4; margin-bottom:10px;">Dica: Digite o número (ex: 522, 060, 2040) ou nome do terminal (ex: Macaxeira, CDU, Derby).</div>
-            <button onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="background:#0284c7; color:#ffffff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">
-              Abrir Catálogo de 400 Linhas ➔
+            <button type="button" onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="background:#0284c7; color:#ffffff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">
+              Abrir Catálogo de 393 Linhas →
             </button>
           </div>
         `;
@@ -2227,8 +2388,8 @@
             `<div style="display:flex; align-items:center; gap:5px; font-weight:800; color:#38bdf8; margin-bottom:4px;">${this._layaSvgIcon('shield', 14)}<span>Modo Segurança Noturna (Lei Estadual 15.878/2016)</span></div>` +
             `<div style="color:#cbd5e1; line-height:1.35; margin-bottom:7px;">Aguarde em parada iluminada. Entre 22h e 05h (alerta às 21h), mulheres, idosos e PcD podem desembarcar fora da parada oficial em local seguro da rota.</div>` +
             `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-              `<button type="button" onclick="closeModal('modal-laya'); setBottomNav('central'); if(typeof activateNightBeacon==='function') activateNightBeacon();" style="display:inline-flex; align-items:center; gap:5px; background:#0284c7; color:#fff; border:none; padding:5px 9px; border-radius:7px; font-size:10.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('beacon', 12)}<span>Ativar Farol Noturno</span></button>` +
-              `<button type="button" onclick="closeModal('modal-laya'); if(typeof openSafeDisembarkModal==='function') openSafeDisembarkModal();" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:5px 9px; border-radius:7px; font-size:10.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('shield', 12)}<span>Parada Segura 22h–05h</span></button>` +
+              `<button type="button" onclick="if(window.closeLayaModal){window.closeLayaModal();} if(window.navigateToScreen){window.navigateToScreen('central');} if(typeof activateNightBeacon==='function'){activateNightBeacon();}" style="display:inline-flex; align-items:center; gap:5px; background:#0284c7; color:#fff; border:none; padding:5px 9px; border-radius:7px; font-size:10.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('beacon', 12)}<span>Ativar Farol Noturno</span></button>` +
+              `<button type="button" onclick="if(window.closeLayaModal){window.closeLayaModal();} if(typeof openSafeDisembarkModal==='function'){openSafeDisembarkModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:5px 9px; border-radius:7px; font-size:10.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('shield', 12)}<span>Parada Segura 22h–05h</span></button>` +
             `</div>` +
           `</div>`
         : '';
@@ -2439,7 +2600,7 @@
           const html = `<strong>Anomalia no Nó 10 (Trevo de Ipojuca / PE-60) &amp; Trava Híbrida:</strong><br><br>` +
             `• <strong>Por que a ST-GCN pura falha em acidentes súbitos?</strong> A convolução espacial em grafo (<code>D⁻¹/²ÃD⁻¹/²</code>) suaviza o estado do Nó 10 com os nós vizinhos livres. Em um bloqueio abrupto de <strong>45,0 min</strong> no GPS Bruto, a ST-GCN pura prevê apenas <strong>14,3 min</strong> (<em>Over-smoothing</em>, erro Δ = 30,7 min).<br>` +
             `• <strong>Trava Híbrida de Segurança (&gt; 15 min):</strong> Quando <code>|GPS Bruto - ST-GCN| &gt; 15 min</code>, o GrafoParada aciona <code>ALERTA_AMARELO_OVER_SMOOTHING</code>, descarta a suavização naquele trecho, exibe os <strong>45,0 min</strong> reais e sugere rota alternativa via <strong>TI Cabo</strong>.<br><br>` +
-            `<button type="button" onclick="closeModal('modal-laya'); if(typeof simulateSlide3Failure==='function') simulateSlide3Failure();" style="background:#d97706; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Simular Anomalia Nó 10 (PE-60) no Mapa</button>`;
+            `<button type="button" onclick="if(window.closeLayaModal){window.closeLayaModal();} if(typeof simulateSlide3Failure==='function'){simulateSlide3Failure();}" style="background:#d97706; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">Simular Anomalia Nó 10 (PE-60) no Mapa</button>`;
           return {
             intent: 'platform_knowledge',
             type: 'platform_knowledge',
@@ -2458,8 +2619,8 @@
             `• <strong>Farol Noturno de Alto Contraste:</strong> Sinalizador visual de tela cheia para impedir que o ônibus passe direto em trechos escuros (PE-60 / BR-101).<br>` +
             `• <strong>Auditoria de Queima de Ponto:</strong> Registra telemetria de velocidade (&gt; 25 km/h no raio da parada) para fiscalização do CTM.<br><br>` +
             `<div style="display:flex; flex-wrap:wrap; gap:6px;">` +
-              `<button type="button" onclick="closeModal('modal-laya'); if(typeof openSafeDisembarkModal==='function') openSafeDisembarkModal();" style="background:#059669; color:#fff; border:none; padding:7px 11px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;">Solicitar Parada Segura</button>` +
-              `<button type="button" onclick="closeModal('modal-laya'); setBottomNav('central'); if(typeof activateNightBeacon==='function') activateNightBeacon();" style="background:#0284c7; color:#fff; border:none; padding:7px 11px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;">Abrir Farol Noturno</button>` +
+              `<button type="button" onclick="if(window.closeLayaModal){window.closeLayaModal();} if(typeof openSafeDisembarkModal==='function'){openSafeDisembarkModal();}" style="background:#059669; color:#fff; border:none; padding:7px 11px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;">Solicitar Parada Segura</button>` +
+              `<button type="button" onclick="if(window.closeLayaModal){window.closeLayaModal();} if(window.navigateToScreen){window.navigateToScreen('central');} if(typeof activateNightBeacon==='function'){activateNightBeacon();}" style="background:#0284c7; color:#fff; border:none; padding:7px 11px; border-radius:9px; font-size:11px; font-weight:800; cursor:pointer;">Abrir Farol Noturno</button>` +
             `</div>`;
           return {
             intent: 'platform_knowledge',

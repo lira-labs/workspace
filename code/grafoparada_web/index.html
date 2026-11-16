@@ -405,6 +405,9 @@
       flex-direction: column;
       gap: 7px;
     }
+    .phone-simulator-frame.slide3-sheet-active .map-floating-controls {
+      bottom: 328px;
+    }
     .map-ctrl-btn {
       width: 44px;
       height: 44px;
@@ -581,6 +584,10 @@
 
     .mobile-bottom-sheet.expanded {
       max-height: calc(100% - 135px);
+    }
+
+    .mobile-bottom-sheet.slide3-failure-active:not(.expanded) {
+      max-height: min(296px, 38dvh);
     }
 
     /* PROFESSIONAL BOTTOM TAB NAVIGATION (iOS/Android Style) */
@@ -952,6 +959,15 @@
     }
     .mobile-bottom-sheet.slide3-failure-active #resting-reallocation-banner {
       display: block !important;
+    }
+    #resting-reallocation-banner.slide3-failure-alert {
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 7px 10px;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      box-shadow: none;
+      animation: none;
     }
     .live-bus-eta-tag.slide3-alert {
       background: #991b1b !important;
@@ -2403,6 +2419,9 @@
       box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
       pointer-events: none;
     }
+    .phone-simulator-frame.slide3-sheet-active .map-floating-legend {
+      bottom: 326px;
+    }
     .legend-dot {
       width: 8px;
       height: 8px;
@@ -2520,6 +2539,48 @@
       body[data-app-mode="lab"] #desktop-lab-workspace {
         display: block;
       }
+    }
+
+    /* FILA DE DESPACHOS DA CENTRAL CTM */
+    .ctm-dispatch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .ctm-dispatch-row + .ctm-dispatch-row {
+      margin-top: 6px;
+    }
+    .ctm-dispatch-row.is-active-199 {
+      background: #f0fdf4;
+      border: 1.5px solid #059669;
+    }
+    .ctm-dispatch-row.is-active-522 {
+      background: #f0f9ff;
+      border: 1.5px solid #0284c7;
+    }
+    .ctm-dispatch-btn {
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ctm-dispatch-btn.is-active {
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.14);
     }
 
     /* LIMPEZA DO RADAR (TELA 3) & DO MODAL LAYA */
@@ -2923,19 +2984,19 @@
 
     <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:10px 14px;">
       <div style="font-size:11.5px; font-weight:800; color:#334155; text-transform:uppercase; margin-bottom:8px;">Fila de Despachos Priorizados</div>
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; margin-bottom:6px;">
-        <div>
+      <div class="ctm-dispatch-row" data-ctm-line="199">
+        <div style="min-width:0;">
           <div style="font-size:13px; font-weight:800; color:#0f172a;">Linha 199 · Camela / TI Cabo (Corredor PE-60)</div>
           <div style="font-size:11.5px; color:#64748b;">Pico 06h–08h · +2 carros da reserva ociosa · Redução estimada de espera: -6 min</div>
         </div>
-        <button type="button" id="btn-ctm-dispatch-199" onclick="applyDesktopCtmScenario('199', 'Linha 199 · Camela / TI Cabo (Corredor PE-60)', '+2 carros da reserva ociosa · Espera reduzida em -6 min (ETA: 4 min)')" style="background:#0284c7; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">Aplicar Reforço</button>
+        <button type="button" id="btn-ctm-dispatch-199" class="ctm-dispatch-btn" aria-pressed="false" onclick="applyDesktopCtmScenario('199', 'Linha 199 · Camela / TI Cabo (Corredor PE-60)', '+2 carros da reserva ociosa · Espera reduzida em -6 min (ETA: 4 min)')" style="background:#0284c7;">Aplicar Reforço</button>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px;">
-        <div>
+      <div class="ctm-dispatch-row" data-ctm-line="522">
+        <div style="min-width:0;">
           <div style="font-size:13px; font-weight:800; color:#0f172a;">Linha 522 · Dois Irmãos / Rui Barbosa (UFRPE)</div>
-          <div style="font-size:11.5px; color:#64748b;">Pico Universitário 18h · Despacho expresso Derby ➔ UFRPE · Confiança ST-GCN 91%</div>
+          <div style="font-size:11.5px; color:#64748b;">Pico Universitário 18h · Despacho expresso Derby → UFRPE · Confiança ST-GCN 91%</div>
         </div>
-        <button type="button" id="btn-ctm-dispatch-522" onclick="applyDesktopCtmScenario('522', 'Linha 522 · Dois Irmãos / Rui Barbosa (UFRPE)', 'Despacho expresso Derby ➔ UFRPE ativado · Confiança ST-GCN 91%')" style="background:#0f172a; color:#fff; border:none; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">Simular Cenário</button>
+        <button type="button" id="btn-ctm-dispatch-522" class="ctm-dispatch-btn" aria-pressed="false" onclick="applyDesktopCtmScenario('522', 'Linha 522 · Dois Irmãos / Rui Barbosa (UFRPE)', 'Despacho expresso Derby → UFRPE ativado · Confiança ST-GCN 91%')" style="background:#0f172a;">Simular Cenário</button>
       </div>
     </div>
   </section>
@@ -2956,16 +3017,20 @@
         <div style="font-size:11px; font-weight:800; color:#ea580c; text-transform:uppercase;">Apresentação Oficial</div>
         <h3 style="font-size:15px; font-weight:800; margin:5px 0;">Deck PowerPoint (16:9)</h3>
         <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:10px;">Slide deck oficial completo com arquitetura ST-GCN, métricas MAE/RMSE da PE-60 e validação de usabilidade.</p>
-        <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="display:inline-flex; align-items:center; justify-content:center; width:100%; background:#ea580c; color:#fff; padding:8px 12px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none;">Baixar PPTX Oficial</a>
+        <div style="display:flex; gap:6px;">
+          <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="flex:1.35; display:inline-flex; align-items:center; justify-content:center; background:#ea580c; color:#fff; padding:8px 8px; border-radius:9px; font-size:11.5px; font-weight:800; text-decoration:none; white-space:nowrap;">Baixar PPTX Oficial</a>
+          <a href="GrafoParada_Sem2_Roteiro.pptx" download="GrafoParada_Sem2_Roteiro.pptx" style="flex:1; display:inline-flex; align-items:center; justify-content:center; background:#0f172a; color:#fff; padding:8px 8px; border-radius:9px; font-size:11.5px; font-weight:800; text-decoration:none; white-space:nowrap;">PPTX Sem2</a>
+        </div>
       </div>
 
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px 16px;">
         <div style="font-size:11px; font-weight:800; color:#7c3aed; text-transform:uppercase;">Projeção Web</div>
         <h3 style="font-size:15px; font-weight:800; margin:5px 0;">Slides Web &amp; Roteiro</h3>
         <p style="font-size:12px; color:#475569; line-height:1.4; margin-bottom:10px;">Slides em HTML5 e roteiro de defesa minuto a minuto com respostas para a banca examinadora.</p>
-        <div style="display:flex; gap:6px;">
-          <a href="slides_canva.html" target="_blank" style="flex:1; text-align:center; background:#7c3aed; color:#fff; padding:8px 8px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none;">Slides Web</a>
-          <a href="roteiro.html" target="_blank" style="flex:1; text-align:center; background:#0284c7; color:#fff; padding:8px 8px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none;">Roteiro</a>
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px;">
+          <a href="slides_canva.html" target="_blank" style="text-align:center; background:#7c3aed; color:#fff; padding:8px 4px; border-radius:9px; font-size:11.5px; font-weight:800; text-decoration:none; white-space:nowrap;">Slides Web</a>
+          <a href="slides_sem2.html" target="_blank" style="text-align:center; background:#1e293b; color:#fff; padding:8px 4px; border-radius:9px; font-size:11.5px; font-weight:800; text-decoration:none; white-space:nowrap;">Slides Sem2</a>
+          <a href="roteiro.html" target="_blank" style="text-align:center; background:#0284c7; color:#fff; padding:8px 4px; border-radius:9px; font-size:11.5px; font-weight:800; text-decoration:none; white-space:nowrap;">Roteiro</a>
         </div>
       </div>
 
@@ -3048,6 +3113,14 @@
             Simular Falha Nó 10 (PE-60) no Mapa
           </button>
         </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px; padding-top:9px; border-top:1px solid #e2e8f0; font-size:11.5px; color:#334155;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span class="gp-badge gp-badge-real">Laya Voz · Cascata Híbrida</span>
+          <span>Estático &lt;30ms (<code style="font-family:'JetBrains Mono',monospace; font-size:11px;">.wav</code>) → Gemini <code style="font-family:'JetBrains Mono',monospace; font-size:11px;">/api/tts</code> → Web Speech PT-BR</span>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#64748b;">laya_voice_engine.js</span>
       </div>
     </div>
   </section>
@@ -3219,7 +3292,7 @@
           </div>
 
           <!-- REAL-TIME FLEET REALLOCATION BANNER (ABAIXO DO CARD PRINCIPAL) -->
-          <div id="resting-reallocation-banner" class="reallocation-banner" style="padding:6px 10px; margin-bottom:8px; border-radius:10px;"></div>
+          <div id="resting-reallocation-banner" class="reallocation-banner"></div>
 
           <!-- PARADAS FAVORITAS -->
           <div class="resting-secondary-block" style="margin-bottom:8px;">
@@ -4306,13 +4379,15 @@
       <div class="modal-card" style="border:2px solid #7c3aed; max-width:440px; max-height:88vh; overflow-y:auto;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <div style="width:38px; height:38px; border-radius:10px; background:#ede9fe; color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800;">🎓</div>
+            <div style="width:38px; height:38px; border-radius:10px; background:#ede9fe; color:#7c3aed; display:flex; align-items:center; justify-content:center;">
+              <svg class="gp-svg" style="width:20px; height:20px;" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
             <div>
               <div style="font-size:11px; font-weight:800; color:#7c3aed; text-transform:uppercase;">Banca Examinadora · UFRPE</div>
               <h3 style="font-size:17px; font-weight:800; color:#0f172a; margin:0;">Apresentação do Seminário 2</h3>
             </div>
           </div>
-          <button style="border:none; background:#f1f5f9; width:30px; height:30px; border-radius:50%; font-size:16px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closePresentationModal()">✕</button>
+          <button style="border:none; background:#f1f5f9; width:30px; height:30px; border-radius:50%; font-size:16px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closePresentationModal()" aria-label="Fechar janela">✕</button>
         </div>
 
         <div style="font-size:12px; color:#475569; line-height:1.5; margin-bottom:14px; background:#f8fafc; padding:10px 12px; border-radius:12px; border:1px solid #e2e8f0;">
@@ -4322,8 +4397,8 @@
         <!-- OPÇÃO 1: PPTX OFICIAL -->
         <div style="background:#fff7ed; border:1.5px solid #fdba74; border-radius:14px; padding:12px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:18px;">📥</span>
+            <div style="display:flex; align-items:center; gap:6px; color:#9a3412;">
+              <svg class="gp-svg" style="width:16px; height:16px;" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <strong style="font-size:13.5px; color:#9a3412;">Apresentação Oficial PPTX</strong>
             </div>
             <span style="font-size:10px; font-weight:800; background:#ea580c; color:#ffffff; padding:2px 7px; border-radius:999px;">16:9 Widescreen</span>
@@ -4332,15 +4407,16 @@
             Arquivo PowerPoint oficial completo (13.1 MB) com arquitetura ST-GCN, métricas de erro MAE/RMSE da PE-60 e gráficos de telemetria GTFS.
           </div>
           <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; background:#ea580c; color:#ffffff; padding:10px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; box-shadow:0 3px 12px rgba(234,88,12,0.3); transition:background 0.2s;">
-            <span>📥 Baixar PPTX Direto (13.1 MB)</span>
+            <svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Baixar PPTX Direto (13.1 MB)</span>
           </a>
         </div>
 
         <!-- OPÇÃO 2: SLIDES WEB INTERATIVOS -->
         <div style="background:#f5f3ff; border:1.5px solid #ddd6fe; border-radius:14px; padding:12px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:18px;">📊</span>
+            <div style="display:flex; align-items:center; gap:6px; color:#5b21b6;">
+              <svg class="gp-svg" style="width:16px; height:16px;" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               <strong style="font-size:13.5px; color:#5b21b6;">Slides Web Interativos (Canva Style)</strong>
             </div>
             <span style="font-size:10px; font-weight:800; background:#7c3aed; color:#ffffff; padding:2px 7px; border-radius:999px;">HTML5 Live</span>
@@ -4349,15 +4425,16 @@
             Apresentação responsiva projetável em sala ou monitor sem necessidade do Microsoft Office instalado.
           </div>
           <a href="slides_canva.html" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; background:#7c3aed; color:#ffffff; padding:10px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; box-shadow:0 3px 12px rgba(124,58,237,0.3);">
-            <span>📊 Abrir Slides Web ➔</span>
+            <svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Abrir Slides Web →</span>
           </a>
         </div>
 
         <!-- OPÇÃO 3: ROTEIRO PEDAGÓGICO -->
         <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:14px; padding:12px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:18px;">📜</span>
+            <div style="display:flex; align-items:center; gap:6px; color:#0369a1;">
+              <svg class="gp-svg" style="width:16px; height:16px;" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               <strong style="font-size:13.5px; color:#0369a1;">Roteiro da Apresentação Minuto a Minuto</strong>
             </div>
             <span style="font-size:10px; font-weight:800; background:#0284c7; color:#ffffff; padding:2px 7px; border-radius:999px;">Guia da Banca</span>
@@ -4366,7 +4443,8 @@
             Estrutura de fala dividida por minutos, perguntas esperadas da banca da UFRPE e fundamentação teórica.
           </div>
           <a href="roteiro.html" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; background:#0284c7; color:#ffffff; padding:10px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none;">
-            <span>📜 Ver Roteiro Oficial ➔</span>
+            <svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Ver Roteiro Oficial →</span>
           </a>
         </div>
 
@@ -4623,7 +4701,7 @@
 
       <!-- CAMPO OPCIONAL DE DESTINO (WEBMCP) -->
       <form toolname="grafoparada_plan_from_locate" tooldescription="Planeja rota de ônibus na RMR a partir da localização atual do usuário até o destino informado." onsubmit="event.preventDefault(); askLayaFromLocate();" style="margin-top:12px; display:flex; gap:6px; align-items:center;">
-        <input type="text" id="locate-dest-input" name="destination" toolparamdescription="Bairro, terminal ou ponto de destino no Grande Recife (ex: Olinda, Ipojuca, Derby)" placeholder="Para onde você vai? (ex: UFRPE, TI Recife)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" />
+        <input type="text" id="locate-dest-input" name="destination" toolparamdescription="Bairro, terminal ou ponto de destino no Grande Recife (ex: Olinda, Ipojuca, Derby)" placeholder="Destino (ex: UFRPE, TI Cabo)" class="field-input" style="margin-bottom:0; flex:1; font-size:12.5px; padding:9px 12px;" />
         <button type="submit" style="background:#0f172a; color:#fff; border:none; border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap;">Ver Opções</button>
       </form>
 
@@ -5052,33 +5130,109 @@
     function startLiveBusGlideAnimation() {
       if (busAnimationTimer) clearInterval(busAnimationTimer);
       let stepIndex = -1;
+      let lastRouteKey = "";
+
+      function distKmBetween(lat1, lon1, lat2, lon2) {
+        if (window.RealTransit && typeof window.RealTransit.haversineKm === "function") {
+          return window.RealTransit.haversineKm(lat1, lon1, lat2, lon2);
+        }
+        const toRad = function(v) { return (v * Math.PI) / 180; };
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
 
       busAnimationTimer = setInterval(function() {
-        if (!leafletMap) return;
+        if (!leafletMap || isSlide3FailureActive) return;
+
         let coords = [];
+        let activeStops = [];
+        let boardIdx = -1;
+        let routeKey = "fallback";
+
         if (window.RealTransit && window.RealTransit.activeRoute) {
-          const dirData = (typeof window.RealTransit.getDirectionData === "function")
-            ? window.RealTransit.getDirectionData(window.RealTransit.activeRoute, window.RealTransit.activeDirection)
+          const rt = window.RealTransit;
+          const dirData = (typeof rt.getDirectionData === "function")
+            ? rt.getDirectionData(rt.activeRoute, rt.activeDirection)
             : null;
           coords = (dirData && Array.isArray(dirData.polyline) && dirData.polyline.length > 5)
             ? dirData.polyline
-            : (window.RealTransit.activeRoute.polyline || []);
+            : (rt.activeRoute.polyline || []);
+          activeStops = (dirData && Array.isArray(dirData.stops))
+            ? dirData.stops
+            : (rt.activeRoute.stops || []);
+          if (typeof rt.activeBoardingIndex === "number") {
+            boardIdx = rt.activeBoardingIndex;
+          }
+          routeKey = String(rt.activeRouteCode || "") + ":" + String(rt.activeDirection || "ida") + ":" + String(boardIdx);
         } else if (TELEMETRIA && TELEMETRIA.polyline) {
           coords = TELEMETRIA.polyline;
         }
 
+        if (routeKey !== lastRouteKey) {
+          lastRouteKey = routeKey;
+          stepIndex = -1;
+        }
+
         if (coords.length > 5) {
+          const boardStop = (boardIdx >= 0 && activeStops[boardIdx] &&
+            typeof activeStops[boardIdx].lat === "number" &&
+            typeof activeStops[boardIdx].lon === "number")
+            ? activeStops[boardIdx]
+            : null;
+
+          const isPointClear = function(idx) {
+            const pt = coords[idx];
+            if (!pt || typeof pt[0] !== "number" || typeof pt[1] !== "number") return false;
+            if (!boardStop) return true;
+            return distKmBetween(pt[0], pt[1], boardStop.lat, boardStop.lon) >= 0.32;
+          };
+
           const minIdx = Math.max(6, Math.floor(coords.length * 0.30));
           const maxIdx = Math.min(coords.length - 2, Math.max(minIdx + 4, Math.floor(coords.length * 0.48)));
-          if (stepIndex < minIdx || stepIndex > maxIdx) {
-            stepIndex = minIdx;
-          } else {
-            stepIndex += 1;
-            if (stepIndex > maxIdx) stepIndex = minIdx;
+
+          let nextIdx = (stepIndex < minIdx || stepIndex > maxIdx) ? minIdx : stepIndex + 1;
+          if (nextIdx > maxIdx) nextIdx = minIdx;
+
+          if (!isPointClear(nextIdx)) {
+            let foundIdx = -1;
+            for (let offset = 1; offset <= (maxIdx - minIdx + 1); offset++) {
+              const cand = minIdx + ((nextIdx - minIdx + offset) % (maxIdx - minIdx + 1));
+              if (isPointClear(cand)) {
+                foundIdx = cand;
+                break;
+              }
+            }
+            if (foundIdx === -1) {
+              const anchorBusIdx = (window.RealTransit && typeof window.RealTransit.activeBusCoordIndex === "number")
+                ? window.RealTransit.activeBusCoordIndex
+                : maxIdx + 1;
+              if (anchorBusIdx >= 0 && anchorBusIdx < coords.length && isPointClear(anchorBusIdx)) {
+                foundIdx = anchorBusIdx;
+              } else {
+                for (let idx = maxIdx + 1; idx < coords.length - 1; idx++) {
+                  if (isPointClear(idx)) { foundIdx = idx; break; }
+                }
+                if (foundIdx === -1) {
+                  for (let idx = minIdx - 1; idx >= 1; idx--) {
+                    if (isPointClear(idx)) { foundIdx = idx; break; }
+                  }
+                }
+              }
+            }
+            if (foundIdx !== -1) {
+              nextIdx = foundIdx;
+            } else {
+              return;
+            }
           }
+
+          stepIndex = nextIdx;
           const p = coords[stepIndex];
-          if (p && p[0] && p[1] && !isSlide3FailureActive) {
-            const eta = Math.max(2, 5 - Math.floor((stepIndex - minIdx) / 6));
+          if (p && typeof p[0] === "number" && typeof p[1] === "number" && !isSlide3FailureActive) {
+            const eta = Math.max(2, 5 - Math.floor(Math.max(0, stepIndex - minIdx) / 6));
             updateLiveBusMarker(p[0], p[1], null, eta, 14);
           }
         }
@@ -5617,6 +5771,32 @@
       } catch(e){}
     }
 
+    function getMapFitPadding() {
+      const sheet = document.getElementById("main-bottom-sheet");
+      const isSlide3 = Boolean(
+        (typeof isSlide3FailureActive !== "undefined" && isSlide3FailureActive) ||
+        (sheet && sheet.classList.contains("slide3-failure-active") && !sheet.classList.contains("expanded"))
+      );
+      let bottomPad = isSlide3 ? 385 : 325;
+      if (sheet && !sheet.classList.contains("expanded")) {
+        const nav = document.querySelector(".mobile-tab-nav");
+        const navH = nav ? Math.round(nav.getBoundingClientRect().height || 60) : 60;
+        const sheetH = Math.round(sheet.getBoundingClientRect().height || 0);
+        if (sheetH > 0) {
+          const measuredMin = sheetH + navH + (isSlide3 ? 64 : 58);
+          if (measuredMin > bottomPad) {
+            bottomPad = Math.min(430, measuredMin);
+          }
+        }
+      }
+      return {
+        paddingTopLeft: [24, 152],
+        paddingBottomRight: [24, bottomPad],
+        maxZoom: 15,
+        animate: true
+      };
+    }
+
     // SIMULATE SLIDE 3 FAILURE REAL (DEMO DO SEMINÁRIO 2)
     function simulateSlide3Failure() {
       isSlide3FailureActive = !isSlide3FailureActive;
@@ -5625,6 +5805,7 @@
       const restingEta = document.getElementById("resting-eta-val");
       const restingPrefix = document.getElementById("resting-line-prefix");
       const mainSheet = document.getElementById("main-bottom-sheet");
+      const phoneFrame = document.querySelector(".phone-simulator-frame");
       const badgeGps = document.getElementById("badge-gps-status");
       const restingBanner = document.getElementById("resting-reallocation-banner");
 
@@ -5633,6 +5814,11 @@
       }
 
       if (isSlide3FailureActive) {
+        if (mainSheet) {
+          mainSheet.classList.remove("expanded");
+          mainSheet.classList.add("slide3-failure-active");
+        }
+        if (phoneFrame) phoneFrame.classList.add("slide3-sheet-active");
         if (window.RealTransit && typeof window.RealTransit.loadRoute === "function") {
           window.RealTransit.loadRoute("199");
         }
@@ -5642,7 +5828,6 @@
           restingPrefix.textContent = "LINHA 199 · TRAVA HÍBRIDA (>15 MIN)";
           restingPrefix.style.color = "#b91c1c";
         }
-        if (mainSheet) mainSheet.classList.add("slide3-failure-active");
         if (badgeGps) {
           badgeGps.style.background = "var(--warning-bg)";
           badgeGps.style.color = "var(--warning-amber)";
@@ -5661,6 +5846,15 @@
           mapBusTag.textContent = "199 · GPS 45 min (IA 14,3*)";
           mapBusTag.className = "live-bus-eta-tag slide3-alert";
         }
+        setTimeout(function() {
+          if (window.RealTransit && typeof window.RealTransit.fitActiveBounds === "function") {
+            window.RealTransit.fitActiveBounds();
+          } else if (leafletMap && window.RealTransit && window.RealTransit.polylineLayer) {
+            try {
+              leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), getMapFitPadding());
+            } catch(e) {}
+          }
+        }, 120);
 
         playNaturalVoice(
           "Atenção: Demonstração da falha do Nó 10 na PE-60 ativa. A rede neural ST-GCN suavizou o atraso para 14,3 minutos, mas o GPS bruto detectou bloqueio no Trevo de Ipojuca com 45 minutos. A trava híbrida acendeu o alerta para proteger o passageiro.",
@@ -5668,6 +5862,7 @@
         );
       } else {
         if (mainSheet) mainSheet.classList.remove("slide3-failure-active");
+        if (phoneFrame) phoneFrame.classList.remove("slide3-sheet-active");
         if (restingPrefix) {
           restingPrefix.textContent = "Próximo Ônibus";
           restingPrefix.style.color = "#047857";
@@ -6240,16 +6435,38 @@
       playNaturalVoice("Simulação de despacho operacional executada. O modelo preditivo gerou a recomendação algorítmica de reforço de frota para a Central reguladora do CTM.");
     }
 
+    function setCtmDispatchButtonContent(btn, label, showCheck) {
+      if (!btn) return;
+      btn.replaceChildren();
+      if (showCheck) {
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("class", "gp-svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("aria-hidden", "true");
+        svg.style.width = "14px";
+        svg.style.height = "14px";
+        const poly = document.createElementNS(svgNS, "polyline");
+        poly.setAttribute("points", "20 6 9 17 4 12");
+        svg.appendChild(poly);
+        btn.appendChild(svg);
+      }
+      const span = document.createElement("span");
+      span.textContent = label;
+      btn.appendChild(span);
+    }
+
     function applyDesktopCtmScenario(lineCode, titleText, detailText) {
+      const activeCode = String(lineCode || "199");
       executeFleetReallocation();
-      if (lineCode && window.RealTransit && typeof window.RealTransit.loadRoute === "function") {
-        window.RealTransit.loadRoute(lineCode);
+      if (activeCode && window.RealTransit && typeof window.RealTransit.loadRoute === "function") {
+        window.RealTransit.loadRoute(activeCode);
       }
       const banner = document.getElementById("ctm-live-status-banner");
       const tagEl = document.getElementById("ctm-live-status-tag");
       const textEl = document.getElementById("ctm-live-status-text");
       if (tagEl) {
-        tagEl.textContent = "Despacho Ativo · Linha " + (lineCode || "199");
+        tagEl.textContent = "Despacho Ativo · Linha " + activeCode;
         tagEl.className = "gp-badge gp-badge-pred";
       }
       if (textEl) {
@@ -6274,17 +6491,66 @@
         alertsVal.style.color = "#059669";
       }
       if (alertsSub) {
-        alertsSub.textContent = "1 Mitigado · Linha " + (lineCode || "199");
+        alertsSub.textContent = "1 Mitigado · Linha " + activeCode;
         alertsSub.className = "gp-badge gp-badge-real";
       }
-      const dispatchedCount = String(lineCode) === "199" ? 2 : 1;
+      const dispatchedCount = activeCode === "199" ? 2 : 1;
       if (reserveVal) {
         reserveVal.textContent = "+" + String(4 - dispatchedCount);
         reserveVal.style.color = "#0284c7";
       }
       if (reserveSub) {
-        reserveSub.textContent = dispatchedCount + " em rota · Linha " + (lineCode || "199");
+        reserveSub.textContent = dispatchedCount + " em rota · Linha " + activeCode;
         reserveSub.className = "gp-badge gp-badge-pred";
+      }
+
+      const btn199 = document.getElementById("btn-ctm-dispatch-199");
+      const btn522 = document.getElementById("btn-ctm-dispatch-522");
+      document.querySelectorAll("#desktop-ctm-workspace .ctm-dispatch-row").forEach(function(row) {
+        row.classList.remove("is-active-199", "is-active-522");
+        row.style.background = "";
+        row.style.borderColor = "";
+      });
+
+      if (btn199) {
+        btn199.classList.remove("is-active");
+        btn199.setAttribute("aria-pressed", "false");
+        btn199.style.background = "#0284c7";
+        btn199.style.whiteSpace = "nowrap";
+        setCtmDispatchButtonContent(btn199, "Aplicar Reforço", false);
+      }
+      if (btn522) {
+        btn522.classList.remove("is-active");
+        btn522.setAttribute("aria-pressed", "false");
+        btn522.style.background = "#0f172a";
+        btn522.style.whiteSpace = "nowrap";
+        setCtmDispatchButtonContent(btn522, "Simular Cenário", false);
+      }
+
+      if (activeCode === "199" && btn199) {
+        btn199.classList.add("is-active");
+        btn199.setAttribute("aria-pressed", "true");
+        btn199.style.background = "#059669";
+        btn199.style.whiteSpace = "nowrap";
+        setCtmDispatchButtonContent(btn199, "Reforço Aplicado", true);
+        const row199 = btn199.closest(".ctm-dispatch-row");
+        if (row199) {
+          row199.classList.add("is-active-199");
+          row199.style.borderColor = "#059669";
+          row199.style.background = "#f0fdf4";
+        }
+      } else if (activeCode === "522" && btn522) {
+        btn522.classList.add("is-active");
+        btn522.setAttribute("aria-pressed", "true");
+        btn522.style.background = "#0284c7";
+        btn522.style.whiteSpace = "nowrap";
+        setCtmDispatchButtonContent(btn522, "Cenário Ativo", true);
+        const row522 = btn522.closest(".ctm-dispatch-row");
+        if (row522) {
+          row522.classList.add("is-active-522");
+          row522.style.borderColor = "#0284c7";
+          row522.style.background = "#f0f9ff";
+        }
       }
     }
     window.applyDesktopCtmScenario = applyDesktopCtmScenario;
@@ -6751,7 +7017,11 @@
             leafletMap.invalidateSize();
             if (window.RealTransit && window.RealTransit.polylineLayer && !(opts && opts.skipFit)) {
               try {
-                leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { paddingTopLeft: [24, 140], paddingBottomRight: [24, 245], maxZoom: 15, animate: true });
+                if (typeof window.RealTransit.fitActiveBounds === "function") {
+                  window.RealTransit.fitActiveBounds();
+                } else {
+                  leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), getMapFitPadding());
+                }
               } catch(e) {}
             }
           }, 260);
@@ -7493,14 +7763,18 @@
       if (!leafletMap) return;
       if (window.RealTransit && window.RealTransit.polylineLayer) {
         try {
-          leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), { paddingTopLeft: [24, 140], paddingBottomRight: [24, 245], maxZoom: 15, animate: true });
+          if (typeof window.RealTransit.fitActiveBounds === "function") {
+            window.RealTransit.fitActiveBounds();
+          } else {
+            leafletMap.fitBounds(window.RealTransit.polylineLayer.getBounds(), getMapFitPadding());
+          }
           playSimpleChime();
           showFloatingVoicePill("Enquadrando o trajeto completo da linha no mapa.");
         } catch(e) {
           console.warn(e);
         }
       } else if (routePolylineLayer) {
-        leafletMap.fitBounds(routePolylineLayer.getBounds(), { paddingTopLeft: [24, 140], paddingBottomRight: [24, 245], maxZoom: 15, animate: true });
+        leafletMap.fitBounds(routePolylineLayer.getBounds(), getMapFitPadding());
       }
     }
 
@@ -8549,6 +8823,10 @@
     window.clearQuickSearch = clearQuickSearch;
     window.openLayaModal = openLayaModal;
     window.closeLayaModal = closeLayaModal;
+    window.activateNightBeacon = activateNightBeacon;
+    window.openSafeDisembarkModal = openSafeDisembarkModal;
+    window.simulateSlide3Failure = simulateSlide3Failure;
+    window.getMapFitPadding = getMapFitPadding;
     window.toggleLayaVoiceRecognition = toggleLayaVoiceRecognition;
     window.handleLayaQuickPrompt = handleLayaQuickPrompt;
     window.sendLayaTextMessage = sendLayaTextMessage;
