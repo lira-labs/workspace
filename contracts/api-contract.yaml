@@ -7,7 +7,7 @@ info:
     os algoritmos de predição comportamental e percepção temporal,
     e as interfaces do passageiro (Frontend Mobile/PWA/Laya IA).
     Fundamentado na literatura A1: Kim et al. (2026), Yap & Cats (2021) e Tan & Ramli (2024).
-  version: 2.1.0
+  version: 2.2.0
 
 paths:
   /api/v1/network/gtfs:
@@ -219,6 +219,182 @@ paths:
               example:
                 fallback: "web_speech"
                 reason: "upstream_unavailable"
+
+  /api/register:
+    get:
+      summary: Consulta Cadastro LGPD e Disponibilidade de Persistência
+      description: >
+        Retorna disponibilidade do banco Neon Postgres ou degradação graciosa para
+        armazenamento local (`client_local`). Quando `user_id` ou `contact_hint` (>= 3 caracteres)
+        é fornecido e o banco está ativo, retorna o perfil cadastrado sem expor dados sensíveis ou CPF.
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "usr_a1b2c3d4e5f6"
+        - name: contact_hint
+          in: query
+          required: false
+          description: Dica de contato (>= 3 caracteres, case-insensitive) para recuperação de perfil LGPD.
+          schema:
+            type: string
+            minLength: 3
+            maxLength: 120
+            example: "maria@teste.com"
+      responses:
+        '200':
+          description: Estado da persistência e perfil opcional do usuário.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+    post:
+      summary: Cadastro / Atualização de Perfil LGPD do Passageiro
+      description: >
+        Registra ou atualiza perfil leve do passageiro (`users`) sem exigir CPF.
+        Persiste no Neon Postgres quando `DATABASE_URL` está configurado (200/201) ou
+        retorna 202 com fallback `client_local_pending_db`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '200':
+          description: Perfil atualizado no Neon Postgres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '201':
+          description: Perfil criado no Neon Postgres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '202':
+          description: Payload validado; aguardando provisionamento de `DATABASE_URL` (armazenamento local no cliente).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: "Payload inválido (ex.: nome ausente ou fora do tamanho permitido)."
+
+  /api/routine:
+    get:
+      summary: Consulta Rotinas Pendulares Persistidas
+      description: >
+        Lista rotinas salvas para `user_id` no Neon Postgres ou informa degradação
+        para armazenamento local (`client_local`) sem gerar HTTP 500.
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "usr_a1b2c3d4e5f6"
+      responses:
+        '200':
+          description: Lista de rotinas ou estado de armazenamento local.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutinePersistResponse'
+    post:
+      summary: Salva Rotina Diária de Origem e Destino do Passageiro
+      description: >
+        Persiste a rotina (`routines`) com paradas de origem/destino, horários e linha preferencial
+        para personalização da Laya IA e agregação de demanda para treino da ST-GCN.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutinePersistRequest'
+      responses:
+        '200':
+          description: Rotina atualizada no Neon Postgres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutinePersistResponse'
+        '201':
+          description: Rotina criada no Neon Postgres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutinePersistResponse'
+        '202':
+          description: Payload validado; persistido localmente no cliente enquanto `DATABASE_URL` não está configurada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutinePersistResponse'
+        '400':
+          description: Payload inválido (campos obrigatórios de origem/destino ou `user_id` ausentes).
+
+  /api/telemetry:
+    get:
+      summary: Status do Banco, Telemetria Coletada e Histórico de Treinos ST-GCN
+      description: >
+        Retorna contagens das 4 tabelas (`users`, `routines`, `demand_observations`, `training_runs`),
+        últimas observações reais e métricas do ciclo mais recente da ST-GCN.
+      parameters:
+        - name: route_code
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "199"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Estado consolidado do banco de dados e histórico de treinos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseStatusAndTrainingResponse'
+    post:
+      summary: Registra Observação Real de Espera e Demanda (`demand_observations`)
+      description: >
+        Persiste observação de campo do passageiro ou telemetria associada para alimentação contínua
+        do `transit-trainer` (`treinar_modelo_continuo.py`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemandObservationRequest'
+      responses:
+        '200':
+          description: Observação registrada no Neon Postgres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseStatusAndTrainingResponse'
+        '201':
+          description: Observação criada no Neon Postgres.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseStatusAndTrainingResponse'
+        '202':
+          description: Observação validada e mantida localmente no cliente (`client_local_pending_db`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseStatusAndTrainingResponse'
+        '400':
+          description: Payload inválido (`route_code` ou `source` ausente, ou métricas fora de faixa).
 
 components:
   schemas:
@@ -515,3 +691,257 @@ components:
           type: string
           description: Motivo estruturado para ativação silenciosa do fallback local/Web Speech.
           example: "missing_api_key"
+
+    UserRegistrationRequest:
+      type: object
+      required:
+        - name
+      properties:
+        user_id:
+          type: string
+          description: Identificador pseudonimizado opcional para atualização idempotente.
+          example: "usr_a1b2c3d4e5f6"
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+          description: Nome ou apelido de tratamento do passageiro (sem exigência de CPF).
+          example: "Cauã Lira"
+        contact_hint:
+          type: string
+          maxLength: 120
+          description: Dica opcional de contato (ex. final do telefone ou e-mail mascarado).
+          example: "whatsapp ****-1234"
+
+    UserProfileResponse:
+      type: object
+      required:
+        - available
+        - storage
+      properties:
+        ok:
+          type: boolean
+          example: true
+        available:
+          type: boolean
+          example: false
+        db_configured:
+          type: boolean
+          example: false
+        persisted:
+          type: string
+          enum: [neon_postgres, client_local_pending_db]
+          example: "client_local_pending_db"
+        storage:
+          type: string
+          enum: [neon_postgres, client_local]
+          example: "client_local"
+        reason:
+          type: string
+          example: "missing_database_url"
+        record:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            contact_hint:
+              type: string
+              nullable: true
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+        user:
+          type: object
+          nullable: true
+          description: Perfil consultado no Neon Postgres quando `user_id` é informado.
+
+    RoutinePersistRequest:
+      type: object
+      required:
+        - user_id
+        - origin_city
+        - origin_stop_name
+        - dest_city
+        - dest_stop_name
+      properties:
+        id:
+          type: string
+          example: "rtn_a1b2c3d4e5f6"
+        user_id:
+          type: string
+          example: "usr_a1b2c3d4e5f6"
+        origin_city:
+          type: string
+          example: "Ipojuca"
+        origin_neighborhood:
+          type: string
+          example: "Camela"
+        origin_stop_id:
+          type: string
+          example: "030613"
+        origin_stop_name:
+          type: string
+          example: "Praça Pedro Serafim (Terminal de Camela)"
+        origin_lat:
+          type: number
+          format: double
+          example: -8.514888
+        origin_lon:
+          type: number
+          format: double
+          example: -35.123539
+        dest_city:
+          type: string
+          example: "Cabo de Santo Agostinho"
+        dest_neighborhood:
+          type: string
+          example: "Centro"
+        dest_stop_id:
+          type: string
+          example: "030001"
+        dest_stop_name:
+          type: string
+          example: "Terminal Integrado do Cabo"
+        dest_lat:
+          type: number
+          format: double
+          example: -8.2869
+        dest_lon:
+          type: number
+          format: double
+          example: -35.0355
+        departure_time:
+          type: string
+          example: "06:30"
+        return_time:
+          type: string
+          example: "17:45"
+        preferred_line:
+          type: string
+          example: "199"
+        frequency:
+          type: string
+          example: "DUT"
+
+    RoutinePersistResponse:
+      type: object
+      required:
+        - available
+        - storage
+      properties:
+        ok:
+          type: boolean
+          example: true
+        available:
+          type: boolean
+          example: false
+        db_configured:
+          type: boolean
+          example: false
+        persisted:
+          type: string
+          enum: [neon_postgres, client_local_pending_db]
+          example: "client_local_pending_db"
+        storage:
+          type: string
+          enum: [neon_postgres, client_local]
+          example: "client_local"
+        reason:
+          type: string
+          example: "missing_database_url"
+        record:
+          type: object
+          nullable: true
+        routines:
+          type: array
+          items:
+            type: object
+
+    DemandObservationRequest:
+      type: object
+      required:
+        - route_code
+        - source
+      properties:
+        user_id:
+          type: string
+          example: "usr_a1b2c3d4e5f6"
+        stop_id:
+          type: string
+          example: "030613"
+        route_code:
+          type: string
+          example: "199"
+        direction:
+          type: string
+          example: "IDA"
+        observed_wait_min:
+          type: number
+          minimum: 0
+          example: 14.5
+        predicted_wait_min:
+          type: number
+          minimum: 0
+          example: 12.0
+        occupancy_est:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 3
+        source:
+          type: string
+          description: Procedência da observação (`passenger_checkin`, `Horário Programado · GTFS`, `avl_telemetry`).
+          example: "passenger_checkin"
+
+    DatabaseStatusAndTrainingResponse:
+      type: object
+      required:
+        - available
+        - storage
+      properties:
+        ok:
+          type: boolean
+          example: true
+        available:
+          type: boolean
+          example: false
+        db_configured:
+          type: boolean
+          example: false
+        persisted:
+          type: string
+          enum: [neon_postgres, client_local_pending_db]
+        storage:
+          type: string
+          enum: [neon_postgres, client_local]
+          example: "client_local"
+        reason:
+          type: string
+          example: "missing_database_url"
+        counts:
+          type: object
+          properties:
+            users:
+              type: integer
+            routines:
+              type: integer
+            demand_observations:
+              type: integer
+            training_runs:
+              type: integer
+        latest_training_run:
+          type: object
+          nullable: true
+        recent_observations:
+          type: array
+          items:
+            type: object
+        record:
+          type: object
+          nullable: true

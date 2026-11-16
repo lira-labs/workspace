@@ -32,6 +32,8 @@ INDEX_HTML = WEB_DIR / "index.html"
 ENGINE_JS = WEB_DIR / "real_transit_engine.js"
 LAYA_VOICE_JS = WEB_DIR / "laya_voice_engine.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
+GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
+MODEL_STATUS_JSON = WEB_DIR / "data" / "model_training_status.json"
 
 CHROME_PATHS = [
     Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
@@ -534,6 +536,228 @@ const { CloudProxyTTSProvider } = require(path.resolve(process.argv[1]));
         assert all(c["method"] != "POST" for c in out["fetchLog"])
         assert len(out["errors"]) == 3
 
+    def test_novos_metodos_rmr_horarios_gtfs_e_status_treino(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+const schedPath = process.argv[3];
+const statusPath = process.argv[4];
+
+global.window = {};
+global.document = { getElementById: () => null };
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); }
+};
+
+eval(fs.readFileSync(enginePath, 'utf8'));
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.schedulesData = JSON.parse(fs.readFileSync(schedPath, 'utf8'));
+window.RealTransit.modelTrainingStatus = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+
+const emptySearch = window.RealTransit.searchRmrPlaces('', 8);
+const camelaHits = window.RealTransit.searchRmrPlaces('Camela', 8);
+const olindaHits = window.RealTransit.searchRmrPlaces('Olinda', 8);
+const boaViagemHits = window.RealTransit.searchRmrPlaces('Boa Viagem', 8);
+const tiCaboHits = window.RealTransit.searchRmrPlaces('TI Cabo', 8);
+
+const camelaStops = window.RealTransit.getStopsForPlace(
+  camelaHits[0].lat, camelaHits[0].lon, camelaHits[0].label, 6
+);
+const tiCaboStops = window.RealTransit.getStopsForPlace(
+  tiCaboHits[0].lat, tiCaboHits[0].lon, tiCaboHits[0].label, 6
+);
+
+const mondayMorning = new Date('2026-11-16T08:00:00');
+const sched199 = window.RealTransit.getScheduledEstimate('199', 'ida', null, mondayMorning);
+const schedUnknown = window.RealTransit.getScheduledEstimate('999999', 'ida', null, mondayMorning);
+
+const line199Stops = window.RealTransit.networkData.popular_lines['199'].stops;
+const suggestedDirect = window.RealTransit.suggestLinesBetweenStops(
+  line199Stops[0].stop_id,
+  line199Stops[Math.min(5, line199Stops.length - 1)].stop_id,
+  mondayMorning
+);
+const suggestedPlaces = window.RealTransit.suggestLinesBetweenStops(
+  camelaStops[0].stop_id,
+  tiCaboStops[0].stop_id,
+  mondayMorning
+);
+const trainStatus = window.RealTransit.getModelTrainingStatus();
+
+console.log(JSON.stringify({
+  emptySearch,
+  camelaHitsCount: camelaHits.length,
+  camelaFirst: camelaHits[0] || null,
+  olindaHitsCount: olindaHits.length,
+  boaViagemHitsCount: boaViagemHits.length,
+  camelaStopsCount: camelaStops.length,
+  camelaStop0: camelaStops[0] || null,
+  tiCaboStopsCount: tiCaboStops.length,
+  sched199,
+  schedUnknown,
+  suggestedDirectCount: suggestedDirect.length,
+  suggestedDirect0: suggestedDirect[0] || null,
+  suggestedPlacesCount: suggestedPlaces.length,
+  suggestedPlacesCodes: suggestedPlaces.map(s => s.code),
+  trainStatus
+}));
+"""
+        res = subprocess.run(
+            [
+                "node",
+                "-e",
+                js_harness,
+                str(ENGINE_JS),
+                str(GTFS_JSON),
+                str(GTFS_SCHEDULES_JSON),
+                str(MODEL_STATUS_JSON),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=25,
+        )
+        assert res.returncode == 0, f"Erro testando novos métodos RealTransit v3: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert out["emptySearch"] == []
+        assert out["camelaHitsCount"] >= 1 and out["camelaFirst"] is not None
+        assert out["olindaHitsCount"] >= 1
+        assert out["boaViagemHitsCount"] >= 1
+        assert out["camelaStopsCount"] >= 1 and out["camelaStop0"]["stop_id"]
+        assert out["camelaStop0"]["lines"]
+        assert out["tiCaboStopsCount"] >= 1
+
+        sched = out["sched199"]
+        assert sched is not None
+        assert sched["routeCode"] == "199"
+        assert sched["serviceDay"] == "DUT"
+        assert sched["provenanceLabel"] == "Horário Programado · GTFS"
+        assert sched["firstDep"] and sched["lastDep"] and sched["nextDepFormatted"]
+        assert out["schedUnknown"] is None
+
+        assert out["suggestedDirectCount"] >= 1
+        assert out["suggestedDirect0"]["code"] == "199"
+        assert out["suggestedDirect0"]["isDirect"] is True
+        assert out["suggestedDirect0"]["schedule"]["provenanceLabel"] == "Horário Programado · GTFS"
+        assert out["suggestedPlacesCount"] >= 1 and "199" in out["suggestedPlacesCodes"]
+
+        ts = out["trainStatus"]
+        assert ts is not None
+        assert ts["lines_covered"] == 393
+        assert ts["schedules_indexed"] == 393
+        assert ts["validation_393_passed"] is True
+
+    def test_telemetria_live_e_recuperacao_contato(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+
+(async () => {
+  global.window = {};
+  global.document = { getElementById: () => null };
+  global.localStorage = { getItem: () => null, setItem: () => {} };
+  delete global.fetch;
+
+  eval(fs.readFileSync(enginePath, 'utf8'));
+
+  // 1. Sem contexto HTTP/browser: fallback seguro
+  const telOffline = await window.RealTransit.fetchLiveTelemetrySummary();
+  const recOffline = await window.RealTransit.recoverUserByContact('maria@teste.com');
+
+  // 2. Com contexto HTTP simulado + mock fetch
+  window.location = { protocol: 'https:', hostname: 'grafoparadaweb.vercel.app' };
+  const fetchUrls = [];
+  global.fetch = async (url) => {
+    fetchUrls.push(String(url));
+    if (String(url).startsWith('/api/telemetry')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          available: true,
+          db_configured: true,
+          storage: 'neon_postgres',
+          counts: { users: 4, routines: 3, demand_observations: 12, training_runs: 2 },
+          latest_training_run: { stgcn_mae: 1.285 },
+          recent_observations: [{ route_code: '199', occupancy_est: 15 }]
+        })
+      };
+    }
+    if (String(url).startsWith('/api/register?contact_hint=')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          available: true,
+          storage: 'neon_postgres',
+          user: { id: 'usr_maria_1', name: 'Maria Silva', contact_hint: 'maria@teste.com' }
+        })
+      };
+    }
+    if (String(url).startsWith('/api/routine?user_id=usr_maria_1')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          available: true,
+          storage: 'neon_postgres',
+          routines: [{ id: 'rtn_1', user_id: 'usr_maria_1', preferred_line: '199', origin_city: 'Ipojuca', dest_city: 'Cabo de Santo Agostinho' }]
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({}) };
+  };
+
+  const recShort = await window.RealTransit.recoverUserByContact('ab');
+  const telMock = await window.RealTransit.fetchLiveTelemetrySummary();
+  const recMock = await window.RealTransit.recoverUserByContact('maria@teste.com');
+
+  console.log(JSON.stringify({
+    telOffline,
+    recOffline,
+    recShort,
+    telMock,
+    recMock,
+    fetchUrls
+  }));
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+"""
+        res = subprocess.run(
+            ["node", "-e", js_harness, str(ENGINE_JS)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=20,
+        )
+        assert res.returncode == 0, f"Erro testando fetchLiveTelemetrySummary/recoverUserByContact: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert out["telOffline"]["ok"] is False
+        assert out["telOffline"]["storage"] == "client_local"
+        assert out["recOffline"] == {"found": False, "user": None, "routines": []}
+        assert out["recShort"] == {"found": False, "user": None, "routines": []}
+
+        assert out["telMock"]["ok"] is True
+        assert out["telMock"]["storage"] == "neon_postgres"
+        assert out["telMock"]["counts"]["demand_observations"] == 12
+
+        assert out["recMock"]["found"] is True
+        assert out["recMock"]["user"]["id"] == "usr_maria_1"
+        assert len(out["recMock"]["routines"]) == 1
+        assert "/api/telemetry?limit=8" in out["fetchUrls"]
+        assert "/api/register?contact_hint=maria%40teste.com" in out["fetchUrls"]
+        assert "/api/routine?user_id=usr_maria_1" in out["fetchUrls"]
+
 
 # ---------------------------------------------------------------------------
 # 3. TESTE END-TO-END REAL NO CHROME HEADLESS VIA CDP + SERVIDOR HTTP LOCAL
@@ -545,18 +769,113 @@ class TestRealBrowserE2E:
         if not browser_exe:
             pytest.skip("Chrome/Edge não encontrado nesta máquina para E2E headless")
 
-        # Sobe servidor HTTP estático em thread daemon apontando para code/grafoparada_web
-        handler_cls = functools.partial(
-            http.server.SimpleHTTPRequestHandler,
-            directory=str(WEB_DIR),
-        )
+        mock_store = {"users": [], "routines": [], "observations": []}
 
+        # Sobe servidor HTTP local com suporte a /api/* (register, routine, telemetry)
         class QuietHandler(http.server.SimpleHTTPRequestHandler):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, directory=str(WEB_DIR), **kwargs)
 
             def log_message(self, format, *args):
                 pass
+
+            def _send_json(self, status_code: int, payload: dict):
+                raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+                self.send_response(status_code)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+
+            def do_OPTIONS(self):
+                self.send_response(204)
+                self.send_header("Allow", "GET, POST, OPTIONS")
+                self.end_headers()
+
+            def do_GET(self):
+                from urllib.parse import parse_qs, urlparse
+
+                parsed_url = urlparse(self.path)
+                clean_path = parsed_url.path
+                qs = parse_qs(parsed_url.query)
+
+                if clean_path == "/api/register":
+                    hint = (qs.get("contact_hint") or [""])[0].strip().lower()
+                    matched = next(
+                        (u for u in mock_store["users"] if str(u.get("contact_hint") or "").strip().lower() == hint),
+                        None,
+                    ) if hint else None
+                    self._send_json(200, {
+                        "ok": True,
+                        "available": True,
+                        "db_configured": True,
+                        "storage": "neon_postgres",
+                        "user": matched,
+                    })
+                    return
+
+                if clean_path == "/api/routine":
+                    uid = (qs.get("user_id") or [""])[0].strip()
+                    rtns = [r for r in mock_store["routines"] if not uid or r.get("user_id") == uid]
+                    self._send_json(200, {
+                        "ok": True,
+                        "available": True,
+                        "db_configured": True,
+                        "storage": "neon_postgres",
+                        "routines": rtns,
+                    })
+                    return
+
+                if clean_path == "/api/telemetry":
+                    self._send_json(200, {
+                        "ok": True,
+                        "available": True,
+                        "db_configured": True,
+                        "storage": "neon_postgres",
+                        "counts": {
+                            "users": len(mock_store["users"]),
+                            "routines": len(mock_store["routines"]),
+                            "demand_observations": len(mock_store["observations"]),
+                            "training_runs": 1,
+                        },
+                        "latest_training_run": {"stgcn_mae": 1.285},
+                        "recent_observations": mock_store["observations"][-8:],
+                    })
+                    return
+
+                super().do_GET()
+
+            def do_POST(self):
+                clean_path = self.path.split("?")[0]
+                length = int(self.headers.get("Content-Length") or 0)
+                raw_body = self.rfile.read(length) if length > 0 else b"{}"
+                try:
+                    parsed = json.loads(raw_body.decode("utf-8"))
+                except Exception:
+                    parsed = {}
+
+                rec = dict(parsed) if isinstance(parsed, dict) else {}
+                if clean_path == "/api/register":
+                    rec.setdefault("id", rec.get("user_id") or f"usr_e2e_{len(mock_store['users']) + 1}")
+                    mock_store["users"].append(rec)
+                elif clean_path == "/api/routine":
+                    rec.setdefault("id", f"rtn_e2e_{len(mock_store['routines']) + 1}")
+                    mock_store["routines"].append(rec)
+                elif clean_path == "/api/telemetry":
+                    rec.setdefault("id", len(mock_store["observations"]) + 1)
+                    mock_store["observations"].append(rec)
+                else:
+                    self._send_json(404, {"ok": False, "error": "not_found"})
+                    return
+
+                self._send_json(201, {
+                    "ok": True,
+                    "persisted": "neon_postgres",
+                    "db_configured": True,
+                    "available": True,
+                    "storage": "neon_postgres",
+                    "record": rec,
+                })
 
         server = socketserver.ThreadingTCPServer(("127.0.0.1", 0), QuietHandler)
         http_port = server.server_address[1]
@@ -646,6 +965,14 @@ class TestRealBrowserE2E:
                         raise AssertionError(f"JS eval exception: {res['exceptionDetails']}")
                     return res.get("result", {}).get("value")
 
+                def wait_until(expr: str, timeout_s: float = 8.0, err_msg: str = "Condição não satisfeita"):
+                    deadline_w = time.time() + timeout_s
+                    while time.time() < deadline_w:
+                        if eval_js(expr):
+                            return
+                        time.sleep(0.15)
+                    raise AssertionError(err_msg)
+
                 cdp_call("Page.enable")
                 cdp_call("Runtime.enable")
                 cdp_call("Network.enable")
@@ -656,27 +983,163 @@ class TestRealBrowserE2E:
 
                 cdp_call("Page.navigate", {"url": f"http://127.0.0.1:{http_port}/index.html"})
 
-                # Aguarda RealTransit carregar os dados GTFS reais no navegador
-                loaded = False
-                for _ in range(30):
-                    state = eval_js("Boolean(window.RealTransit && window.RealTransit.networkData && window.RealTransit.networkData.total_lines_ready === 393)")
-                    if state:
-                        loaded = True
-                        break
-                    time.sleep(0.25)
-                assert loaded, "window.RealTransit.networkData (393 linhas) não carregou no Chrome"
+                # Aguarda RealTransit carregar os dados GTFS reais (rede + horários 393 + status)
+                wait_until(
+                    "Boolean(window.RealTransit && window.RealTransit.networkData && window.RealTransit.networkData.total_lines_ready === 393 && window.RealTransit.schedulesData && Object.keys(window.RealTransit.schedulesData.lines || {}).length === 393)",
+                    timeout_s=10.0,
+                    err_msg="window.RealTransit.networkData/schedulesData (393 linhas) não carregou no Chrome",
+                )
 
-                # Checa 0 IDs duplicados no DOM real e 0 overflow horizontal na Tela 1 (Mobile)
-                dom_audit = eval_js("""(() => {
+                # Garante estado limpo em localStorage no primeiro acesso
+                eval_js("localStorage.clear(); if (typeof checkAuthStatus === 'function') checkAuthStatus();")
+                time.sleep(0.2)
+
+                # 1) Primeiro acesso em passenger abre #modal-onboarding no Passo 1 (#onboarding-step-register)
+                onb_step1 = eval_js("""(() => {
+                  const modal = document.getElementById('modal-onboarding');
+                  const s1 = document.getElementById('onboarding-step-register');
+                  const s2 = document.getElementById('onboarding-step-routine');
                   const ids = Array.from(document.querySelectorAll('[id]')).map(e => e.id);
                   const counts = {};
                   ids.forEach(i => counts[i] = (counts[i] || 0) + 1);
                   const dups = Object.entries(counts).filter(([, c]) => c > 1);
-                  const overflowPx = document.documentElement.scrollWidth - window.innerWidth;
-                  return { dups, overflowPx };
+                  return {
+                    modalVisible: Boolean(modal && getComputedStyle(modal).display === 'flex'),
+                    step1Visible: Boolean(s1 && getComputedStyle(s1).display !== 'none'),
+                    step2Hidden: Boolean(s2 && getComputedStyle(s2).display === 'none'),
+                    dups,
+                    overflowPx: document.documentElement.scrollWidth - window.innerWidth
+                  };
                 })()""")
-                assert dom_audit["dups"] == [], f"IDs duplicados no DOM ao vivo: {dom_audit['dups']}"
-                assert dom_audit["overflowPx"] <= 2, f"Overflow horizontal mobile na Tela 1: {dom_audit['overflowPx']}px"
+                assert onb_step1["modalVisible"] is True
+                assert onb_step1["step1Visible"] is True
+                assert onb_step1["step2Hidden"] is True
+                assert onb_step1["dups"] == [], f"IDs duplicados no DOM ao vivo: {onb_step1['dups']}"
+                assert onb_step1["overflowPx"] <= 2, f"Overflow horizontal mobile no Onboarding Passo 1: {onb_step1['overflowPx']}px"
+
+                # Em Desktop 1280x800 com onboarding aberto, .desktop-outer-bar (#mode-btn-ctm / #mode-btn-lab) segue visível e acessível
+                cdp_call(
+                    "Emulation.setDeviceMetricsOverride",
+                    {"width": 1280, "height": 800, "deviceScaleFactor": 1, "mobile": False},
+                )
+                time.sleep(0.2)
+                desk_onb_bar = eval_js("""(() => {
+                  const bar = document.querySelector('.desktop-outer-bar');
+                  const btnCtm = document.getElementById('mode-btn-ctm');
+                  const btnLab = document.getElementById('mode-btn-lab');
+                  const hitCheck = (el) => {
+                    if (!el) return false;
+                    const r = el.getBoundingClientRect();
+                    if (r.width <= 0 || r.height <= 0) return false;
+                    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+                    return Boolean(hit && (hit === el || el.contains(hit)));
+                  };
+                  return {
+                    barVisible: Boolean(bar && getComputedStyle(bar).display !== 'none'),
+                    ctmAccessible: hitCheck(btnCtm),
+                    labAccessible: hitCheck(btnLab),
+                    overflowPx: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert desk_onb_bar["barVisible"] is True
+                assert desk_onb_bar["ctmAccessible"] is True, "Botão #mode-btn-ctm bloqueado durante onboarding em 1280x800"
+                assert desk_onb_bar["labAccessible"] is True, "Botão #mode-btn-lab bloqueado durante onboarding em 1280x800"
+                assert desk_onb_bar["overflowPx"] <= 2
+
+                # Volta para Mobile 390x844 para concluir cadastro + rotina em cascata
+                cdp_call(
+                    "Emulation.setDeviceMetricsOverride",
+                    {"width": 390, "height": 844, "deviceScaleFactor": 2, "mobile": True},
+                )
+                time.sleep(0.2)
+
+                # 2) Preenche #inp-name e clica #btn-onb-register-continue -> Passo 2 (#onboarding-step-routine)
+                eval_js("""(() => {
+                  const nameEl = document.getElementById('inp-name');
+                  const contactEl = document.getElementById('inp-sync-contact');
+                  nameEl.value = 'Maria Silva';
+                  if (contactEl) contactEl.value = 'maria@recife.pe';
+                  document.getElementById('btn-onb-register-continue').click();
+                })()""")
+                wait_until(
+                    "getComputedStyle(document.getElementById('onboarding-step-routine')).display !== 'none'",
+                    timeout_s=6.0,
+                    err_msg="Passo 2 (#onboarding-step-routine) não abriu após clicar #btn-onb-register-continue",
+                )
+
+                # Busca origem em #onb-origin-place -> seleciona em #onb-origin-place-list -> seleciona parada em #onb-origin-stops-list
+                eval_js("""(() => {
+                  const inp = document.getElementById('onb-origin-place');
+                  inp.value = 'Camela';
+                  inp.dispatchEvent(new Event('input', { bubbles: true }));
+                })()""")
+                wait_until(
+                    "document.querySelectorAll('#onb-origin-place-list .gp-place-option').length > 0",
+                    timeout_s=5.0,
+                    err_msg="Autocomplete #onb-origin-place-list não exibiu opções para Camela",
+                )
+                eval_js("document.querySelector('#onb-origin-place-list .gp-place-option').click()")
+                wait_until(
+                    "document.querySelectorAll('#onb-origin-stops-list .gp-stop-card').length > 0",
+                    timeout_s=5.0,
+                    err_msg="Lista #onb-origin-stops-list não exibiu paradas reais",
+                )
+                eval_js("document.querySelector('#onb-origin-stops-list .gp-stop-card').click()")
+
+                # Busca destino em #onb-dest-place -> seleciona em #onb-dest-place-list -> seleciona parada em #onb-dest-stops-list
+                eval_js("""(() => {
+                  const inp = document.getElementById('onb-dest-place');
+                  inp.value = 'TI Cabo';
+                  inp.dispatchEvent(new Event('input', { bubbles: true }));
+                })()""")
+                wait_until(
+                    "document.querySelectorAll('#onb-dest-place-list .gp-place-option').length > 0",
+                    timeout_s=5.0,
+                    err_msg="Autocomplete #onb-dest-place-list não exibiu opções para TI Cabo",
+                )
+                eval_js("document.querySelector('#onb-dest-place-list .gp-place-option').click()")
+                wait_until(
+                    "document.querySelectorAll('#onb-dest-stops-list .gp-stop-card').length > 0",
+                    timeout_s=5.0,
+                    err_msg="Lista #onb-dest-stops-list não exibiu paradas reais",
+                )
+                eval_js("document.querySelector('#onb-dest-stops-list .gp-stop-card').click()")
+
+                # Verifica sugestões GTFS em #onb-suggested-lines-box com "Horário Programado · GTFS"
+                wait_until(
+                    "document.querySelectorAll('#onb-suggested-lines-box .gp-suggested-line-card').length > 0 && document.getElementById('onb-suggested-lines-box').innerText.includes('Horário Programado · GTFS')",
+                    timeout_s=5.0,
+                    err_msg="#onb-suggested-lines-box não exibiu linhas sugeridas com 'Horário Programado · GTFS'",
+                )
+
+                # Preenche horários e clica #btn-onb-save-routine
+                eval_js("""(() => {
+                  document.getElementById('inp-custom-time').value = '06:15';
+                  document.getElementById('inp-custom-return').value = '18:10';
+                  document.getElementById('btn-onb-save-routine').click();
+                })()""")
+                wait_until(
+                    "getComputedStyle(document.getElementById('modal-onboarding')).display === 'none'",
+                    timeout_s=6.0,
+                    err_msg="#modal-onboarding não fechou após salvar rotina",
+                )
+
+                # 3) Verifica Home (saudação com primeiro nome, zero "Cauã", rotina salva, favoritos vazio inicial)
+                home_audit = eval_js("""(() => {
+                  const greet = (document.getElementById('home-dynamic-greeting') || {}).textContent || '';
+                  const brief = (document.getElementById('home-routine-brief') || {}).textContent || '';
+                  const favRow = document.getElementById('favorites-pills-row');
+                  const favPills = favRow ? favRow.querySelectorAll('.fav-stop-pill').length : -1;
+                  const favEmpty = Boolean(favRow && favRow.querySelector('.gp-fav-empty'));
+                  const overflowPx = document.documentElement.scrollWidth - window.innerWidth;
+                  return { greet, brief, favPills, favEmpty, overflowPx };
+                })()""")
+                assert "Maria" in home_audit["greet"], f"Saudação inesperada na Home: {home_audit['greet']}"
+                assert "Cauã" not in home_audit["greet"] and "Cauã" not in home_audit["brief"]
+                assert "Configure sua rotina diária" not in home_audit["brief"]
+                assert "→" in home_audit["brief"]
+                assert home_audit["favPills"] == 0 and home_audit["favEmpty"] is True
+                assert home_audit["overflowPx"] <= 2, f"Overflow horizontal mobile na Home: {home_audit['overflowPx']}px"
 
                 # Fluxo 1 -> 2 -> Escolher Camela -> Digitar Olinda -> Opções Google Maps -> Traçar Mapa -> Tela 3
                 eval_js("startGoingNowFlow()")
@@ -722,6 +1185,54 @@ class TestRealBrowserE2E:
                 assert radar_state["locateHidden"] is True
                 assert radar_state["activeCode"] == "199"
                 assert "Linha 522 · Dois Irmãos" not in radar_state["chipText"]
+
+                # Check-in cidadão na parada (#resting-extra-tools -> #stop-checkin-box -> Vazio)
+                eval_js("""(() => {
+                  const sheet = document.getElementById('main-bottom-sheet');
+                  if (sheet && !sheet.classList.contains('expanded')) {
+                    const handle = sheet.querySelector('.sheet-handle-zone');
+                    if (handle) handle.click();
+                  }
+                  const details = document.getElementById('resting-extra-tools');
+                  if (details && !details.open) {
+                    const summary = details.querySelector('summary');
+                    if (summary) summary.click();
+                  }
+                })()""")
+                wait_until(
+                    "Boolean(document.querySelector('#stop-checkin-box .gp-checkin-btn.is-empty') && getComputedStyle(document.getElementById('stop-checkin-box')).display !== 'none')",
+                    timeout_s=4.0,
+                    err_msg="#stop-checkin-box não ficou visível ao expandir o bottom sheet",
+                )
+                eval_js("document.querySelector('#stop-checkin-box .gp-checkin-btn.is-empty').click()")
+                wait_until(
+                    "Boolean(document.getElementById('checkin-feedback-msg') && getComputedStyle(document.getElementById('checkin-feedback-msg')).display !== 'none' && document.getElementById('checkin-feedback-msg').textContent.includes('Vazio'))",
+                    timeout_s=5.0,
+                    err_msg="#checkin-feedback-msg não confirmou check-in 'Vazio'",
+                )
+                checkin_audit = eval_js("""(() => ({
+                  feedback: (document.getElementById('checkin-feedback-msg') || {}).textContent || '',
+                  btnActive: Boolean(document.querySelector('#stop-checkin-box .gp-checkin-btn.is-empty.is-active')),
+                  overflowX: document.documentElement.scrollWidth - window.innerWidth
+                }))()""")
+                assert "Observação (Vazio) registrada" in checkin_audit["feedback"]
+                assert checkin_audit["btnActive"] is True
+                assert checkin_audit["overflowX"] <= 2
+
+                # Recolhe sheet antes dos testes de modais e anomalia Slide 3
+                eval_js("""(() => {
+                  const details = document.getElementById('resting-extra-tools');
+                  if (details && details.open) {
+                    const summary = details.querySelector('summary');
+                    if (summary) summary.click();
+                  }
+                  const sheet = document.getElementById('main-bottom-sheet');
+                  if (sheet && sheet.classList.contains('expanded')) {
+                    const handle = sheet.querySelector('.sheet-handle-zone');
+                    if (handle) handle.click();
+                  }
+                })()""")
+                time.sleep(0.25)
 
                 # Testa Chat Laya com payload XSS e consulta real de destino implicito
                 eval_js("openLayaModal()")
@@ -781,9 +1292,21 @@ class TestRealBrowserE2E:
                 eval_js("cycleLayaVoice(); toggleLayaVoiceMute(); closeLayaModal();")
                 time.sleep(0.1)
 
-                # Testa abertura dos modais principais sem lançar exceções JS
+                # Testa abertura dos modais principais e #prof-cloud-status (linguagem cidadã) sem lançar exceções JS
+                eval_js("openProfileModal()")
+                wait_until(
+                    "Boolean(document.getElementById('prof-cloud-status') && document.getElementById('prof-cloud-status').textContent.includes('Nuvem ativa'))",
+                    timeout_s=5.0,
+                    err_msg="#prof-cloud-status não atualizou com status cidadão 'Nuvem ativa'",
+                )
+                prof_cloud_text = eval_js("document.getElementById('prof-cloud-status').textContent.trim()")
+                assert "Nuvem ativa" in prof_cloud_text
+                assert "rotina" in prof_cloud_text and "registro" in prof_cloud_text
+                assert "ST-GCN MAE" not in prof_cloud_text and "393 linhas" not in prof_cloud_text
+                eval_js("closeProfileModal()")
+                time.sleep(0.1)
+
                 for open_fn, close_fn in [
-                    ("openProfileModal", "closeProfileModal"),
                     ("openDispatchModal", "closeDispatchModal"),
                     ("openAuditModal", "closeAuditModal"),
                     ("openRoutineModal", "closeRoutineModal"),
@@ -792,17 +1315,23 @@ class TestRealBrowserE2E:
                     time.sleep(0.1)
                     eval_js(f"if (typeof {close_fn} === 'function') {close_fn}();")
 
-                # Regressão Mobile (390x844): Laya IA -> Anomalia PE-60 (Nó 10) -> Simular no Mapa
+                # Regressão Mobile (390x844): Laya IA -> Trânsito na PE-60 agora -> Simular no Mapa
                 eval_js("openLayaModal()")
                 time.sleep(0.15)
+                has_legacy_jargon = eval_js("""(() => {
+                  return Array.from(document.querySelectorAll('#modal-laya .laya-quick-cmd'))
+                    .some(b => b.textContent.includes('Anomalia PE-60 (Nó 10)'));
+                })()""")
+                assert has_legacy_jargon is False, "Jargão acadêmico 'Anomalia PE-60 (Nó 10)' ainda presente em #modal-laya"
+
                 clicked_quick = eval_js("""(() => {
                   const btn = Array.from(document.querySelectorAll('#modal-laya .laya-quick-cmd'))
-                    .find(b => b.textContent.includes('Anomalia PE-60 (Nó 10)'));
+                    .find(b => b.textContent.includes('Trânsito na PE-60 agora'));
                   if (!btn) return false;
                   btn.click();
                   return true;
                 })()""")
-                assert clicked_quick is True, "Botão rápido 'Anomalia PE-60 (Nó 10)' não encontrado na Laya IA"
+                assert clicked_quick is True, "Botão rápido 'Trânsito na PE-60 agora' não encontrado na Laya IA"
 
                 clicked_sim = False
                 for _ in range(20):
@@ -862,20 +1391,26 @@ class TestRealBrowserE2E:
                 desk_overflow = eval_js("document.documentElement.scrollWidth - window.innerWidth")
                 assert desk_overflow <= 2, f"Overflow horizontal Desktop: {desk_overflow}px"
 
-                # Regressão Desktop CTM (1280x800): setAppMode('ctm') + despacho Linha 522
+                # Regressão Desktop CTM (1280x800): setAppMode('ctm') + despacho Linha 522 + #ctm-neon-sync-line
                 eval_js("setAppMode('ctm')")
-                time.sleep(0.15)
+                wait_until(
+                    "Boolean(document.getElementById('ctm-neon-sync-line') && document.getElementById('ctm-neon-sync-line').textContent.includes('ST-GCN MAE'))",
+                    timeout_s=5.0,
+                    err_msg="#ctm-neon-sync-line não atualizou em Desktop CTM",
+                )
                 eval_js("document.getElementById('btn-ctm-dispatch-522').click()")
                 time.sleep(0.25)
                 ctm_audit = eval_js("""(() => {
                   const btn = document.getElementById('btn-ctm-dispatch-522');
                   const kpi = document.getElementById('ctm-kpi-alerts-val');
+                  const neon = document.getElementById('ctm-neon-sync-line');
                   return {
                     appMode: document.body ? document.body.dataset.appMode : '',
                     ariaPressed: btn ? btn.getAttribute('aria-pressed') : null,
                     isActive: Boolean(btn && btn.classList.contains('is-active')),
                     btnText: btn ? btn.innerText.trim() : '',
                     kpiAlertsVal: kpi ? kpi.textContent.trim() : '',
+                    neonSyncText: neon ? neon.textContent.trim() : '',
                     overflowX: document.documentElement.scrollWidth - window.innerWidth
                   };
                 })()""")
@@ -884,7 +1419,35 @@ class TestRealBrowserE2E:
                 assert ctm_audit["isActive"] is True
                 assert "Cenário Ativo" in ctm_audit["btnText"]
                 assert ctm_audit["kpiAlertsVal"] == "1"
+                assert "Neon Postgres" in ctm_audit["neonSyncText"] and "verificando" not in ctm_audit["neonSyncText"].lower()
                 assert ctm_audit["overflowX"] <= 2, f"Overflow horizontal Desktop CTM: {ctm_audit['overflowX']}px"
+
+                # Alternância Desktop para Pesquisa & Banca (#mode-btn-lab) + #lab-neon-live-status e retorno para Passageiro
+                eval_js("document.getElementById('mode-btn-lab').click()")
+                wait_until(
+                    "Boolean(document.getElementById('lab-neon-live-status') && document.getElementById('lab-neon-live-status').textContent.includes('ST-GCN MAE'))",
+                    timeout_s=5.0,
+                    err_msg="#lab-neon-live-status não atualizou em Desktop Lab",
+                )
+                lab_audit = eval_js("""(() => {
+                  const lab = document.getElementById('desktop-lab-workspace');
+                  const neon = document.getElementById('lab-neon-live-status');
+                  return {
+                    appMode: document.body ? document.body.dataset.appMode : '',
+                    labVisible: Boolean(lab && getComputedStyle(lab).display !== 'none'),
+                    labNeonText: neon ? neon.textContent.trim() : '',
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert lab_audit["appMode"] == "lab"
+                assert lab_audit["labVisible"] is True
+                assert "Neon Postgres" in lab_audit["labNeonText"] and "393" in lab_audit["labNeonText"]
+                assert "verificando" not in lab_audit["labNeonText"].lower()
+                assert lab_audit["overflowX"] <= 2, f"Overflow horizontal Desktop Lab: {lab_audit['overflowX']}px"
+
+                eval_js("document.getElementById('mode-btn-passenger').click()")
+                time.sleep(0.2)
+                assert eval_js("document.body ? document.body.dataset.appMode : ''") == "passenger"
 
                 # Filtra apenas erros locais reais (ignora eventuais bloqueios de tiles externos se offline)
                 local_console_errors = [e for e in console_errors if "tile" not in e.lower()]

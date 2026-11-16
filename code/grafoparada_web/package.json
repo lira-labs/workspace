@@ -1,0 +1,12 @@
+{
+  "name": "grafoparada-web",
+  "version": "2.2.0",
+  "private": true,
+  "description": "GrafoParada Web & Vercel Serverless APIs (Neon Postgres + Gemini TTS)",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  }
+}

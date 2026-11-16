@@ -15,7 +15,13 @@ import tempfile
 from pathlib import Path
 
 HOOKS_DIR = Path(__file__).resolve().parent
+AGENTS_DIR = HOOKS_DIR.parent
+WORKSPACE_DIR = AGENTS_DIR.parent
 STATUS_LOG = HOOKS_DIR / "last_lint_error.log"
+UNSLOP_LOG = HOOKS_DIR / "last_unslop_warning.log"
+RETRAIN_FLAG = HOOKS_DIR / "retrain_recommended.flag"
+UNSLOP_SCRIPT = AGENTS_DIR / "skills" / "unslop" / "scripts" / "banned_phrase_scan.py"
+CONTINUOUS_HOOK_SCRIPT = WORKSPACE_DIR / "code" / "grafoparada_tec" / "hook_continuous_train.py"
 
 
 def _read_payload() -> dict:
@@ -36,7 +42,10 @@ def _validate_file(path_str: str) -> str | None:
             py_compile.compile(str(p), doraise=True)
         elif suffix == ".json":
             if p.stat().st_size < 10_000_000:
-                json.loads(p.read_text(encoding="utf-8"))
+                parsed = json.loads(p.read_text(encoding="utf-8"))
+                if p.name == "gtfs_schedules.json":
+                    if len(parsed.get("lines", {})) != 393 or "rmr_places" not in parsed:
+                        return "gtfs_schedules.json invalido: esperado 393 linhas e chave rmr_places."
         elif suffix == ".js":
             res = subprocess.run(
                 ["node", "--check", str(p)],
@@ -83,11 +92,66 @@ def _validate_file(path_str: str) -> str | None:
     return None
 
 
+def _check_unslop(p: Path) -> None:
+    """Roda scanner anti-AI-slop leve em textos/documentos do app ou apresentacao."""
+    if not UNSLOP_SCRIPT.exists() or p.suffix.lower() not in {".md", ".txt"}:
+        return
+    if p.name in {"HANDOFF.md", "AGENTS.md", "CONTEXT.md"} or "node_modules" in p.parts:
+        return
+    try:
+        res = subprocess.run(
+            [sys.executable, str(UNSLOP_SCRIPT), str(p)],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        out = (res.stdout or "").strip()
+        if res.returncode != 0 or ("match" in out.lower() and "0 matches" not in out.lower()):
+            UNSLOP_LOG.write_text(f"{p.name}: {out[:300]}", encoding="utf-8")
+        else:
+            UNSLOP_LOG.unlink(missing_ok=True)
+    except Exception:
+        pass
+
+
+def _maybe_check_continuous_train(p: Path) -> str | None:
+    """Verifica DB + GTFS rapidamente e sinaliza quando treino continuo e recomendado."""
+    triggers = {
+        "treinar_modelo_continuo.py",
+        "compilar_horarios_gtfs.py",
+        "compilar_rede_real_gtfs.py",
+        "db_manager.py",
+        "gtfs_schedules.json",
+        "gtfs_real_network.json",
+        "model_training_status.json",
+    }
+    if p.name not in triggers:
+        return None
+    if p.name in {"treinar_modelo_continuo.py", "compilar_horarios_gtfs.py", "gtfs_schedules.json"}:
+        RETRAIN_FLAG.write_text(p.name, encoding="utf-8")
+    elif p.name == "model_training_status.json":
+        RETRAIN_FLAG.unlink(missing_ok=True)
+    if CONTINUOUS_HOOK_SCRIPT.exists():
+        res = subprocess.run(
+            [sys.executable, str(CONTINUOUS_HOOK_SCRIPT), "--quick"],
+            capture_output=True,
+            text=True,
+            timeout=8,
+        )
+        if res.returncode != 0:
+            return f"Continuous train/DB check falhou apos editar {p.name}: {(res.stderr or res.stdout).strip()[:300]}"
+    return None
+
+
 def handle_post_edit(payload: dict) -> dict:
     args = (payload.get("toolCall") or {}).get("args") or {}
     path_str = args.get("Path") or args.get("path") or ""
     if path_str:
+        p = Path(str(path_str))
         err = _validate_file(str(path_str))
+        if not err and p.exists() and p.is_file():
+            err = _maybe_check_continuous_train(p)
+            _check_unslop(p)
         if err:
             STATUS_LOG.write_text(err, encoding="utf-8")
         else:
@@ -96,18 +160,31 @@ def handle_post_edit(payload: dict) -> dict:
 
 
 def handle_pre_invocation(_payload: dict) -> dict:
+    alerts: list[str] = []
     if STATUS_LOG.exists():
         msg = STATUS_LOG.read_text(encoding="utf-8").strip()
         if msg:
-            return {
-                "injectSteps": [
-                    {
-                        "systemMessage": {
-                            "systemMessage": f"[Hook PostToolUse Alert] Corrija antes de prosseguir: {msg}"
-                        }
+            alerts.append(f"[Hook PostToolUse Alert] Corrija antes de prosseguir: {msg}")
+    if RETRAIN_FLAG.exists():
+        src = RETRAIN_FLAG.read_text(encoding="utf-8").strip()
+        alerts.append(
+            f"[Hook Continuous Train] '{src}' foi alterado; rode "
+            "`uv run --project code/grafoparada_tec python code/grafoparada_tec/hook_continuous_train.py --retrain`."
+        )
+    if UNSLOP_LOG.exists():
+        u = UNSLOP_LOG.read_text(encoding="utf-8").strip()
+        if u:
+            alerts.append(f"[Hook Unslop] Padrao de prose AI detectado em {u}")
+    if alerts:
+        return {
+            "injectSteps": [
+                {
+                    "systemMessage": {
+                        "systemMessage": " | ".join(alerts)
                     }
-                ]
-            }
+                }
+            ]
+        }
     return {}
 
 

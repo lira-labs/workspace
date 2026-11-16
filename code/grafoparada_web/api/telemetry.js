@@ -1,0 +1,207 @@
+'use strict';
+
+/**
+ * Vercel Serverless Function: GET / POST /api/telemetry
+ * Coleta observações reais de espera/lotação (`demand_observations`) e expõe
+ * métricas agregadas e último ciclo de treino (`training_runs`) para o GrafoParada.
+ */
+
+const {
+  getReadyDb,
+  sendJson,
+  handleOptions,
+  readJsonBody,
+  getQueryParam,
+  sanitizeText,
+  toNullableText,
+  toNullableNumber,
+  toNullableInt
+} = require('./_db');
+
+module.exports = async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    handleOptions(res);
+    return;
+  }
+
+  if (req.method === 'GET') {
+    try {
+      const { sql, reason } = await getReadyDb();
+      if (!sql) {
+        sendJson(res, 200, {
+          ok: true,
+          available: false,
+          db_configured: false,
+          reason,
+          storage: 'client_local',
+          counts: {
+            users: 0,
+            routines: 0,
+            demand_observations: 0,
+            training_runs: 0
+          },
+          latest_training_run: null,
+          recent_observations: []
+        });
+        return;
+      }
+
+      const routeCode = getQueryParam(req, 'route_code');
+      const rawLimit = toNullableInt(getQueryParam(req, 'limit'));
+      const limit = Number.isFinite(rawLimit) && rawLimit >= 1 && rawLimit <= 100 ? rawLimit : 20;
+
+      const [userCnt, routineCnt, obsCnt, runCnt, latestRunRows, obsRows] = await Promise.all([
+        sql`SELECT COUNT(*)::int AS total FROM users`,
+        sql`SELECT COUNT(*)::int AS total FROM routines`,
+        sql`SELECT COUNT(*)::int AS total FROM demand_observations`,
+        sql`SELECT COUNT(*)::int AS total FROM training_runs`,
+        sql`SELECT * FROM training_runs ORDER BY id DESC LIMIT 1`,
+        routeCode
+          ? sql`
+              SELECT * FROM demand_observations
+              WHERE route_code = ${routeCode}
+              ORDER BY id DESC
+              LIMIT ${limit}
+            `
+          : sql`
+              SELECT * FROM demand_observations
+              ORDER BY id DESC
+              LIMIT ${limit}
+            `
+      ]);
+
+      sendJson(res, 200, {
+        ok: true,
+        available: true,
+        db_configured: true,
+        storage: 'neon_postgres',
+        counts: {
+          users: Number(userCnt[0] && userCnt[0].total) || 0,
+          routines: Number(routineCnt[0] && routineCnt[0].total) || 0,
+          demand_observations: Number(obsCnt[0] && obsCnt[0].total) || 0,
+          training_runs: Number(runCnt[0] && runCnt[0].total) || 0
+        },
+        latest_training_run: latestRunRows[0] || null,
+        recent_observations: obsRows
+      });
+    } catch (err) {
+      console.error('[api/telemetry GET] error:', err && err.message ? err.message : err);
+      sendJson(res, 503, {
+        ok: false,
+        available: false,
+        db_configured: true,
+        reason: 'db_query_error',
+        storage: 'client_local'
+      });
+    }
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
+    sendJson(res, 405, { ok: false, error: 'method_not_allowed' });
+    return;
+  }
+
+  let body;
+  try {
+    body = await readJsonBody(req);
+  } catch (_) {
+    sendJson(res, 400, { ok: false, error: 'invalid_json' });
+    return;
+  }
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    sendJson(res, 400, { ok: false, error: 'invalid_request' });
+    return;
+  }
+
+  const routeCode = sanitizeText(body.route_code, 32);
+  const source = sanitizeText(body.source, 80);
+  if (!routeCode || !source) {
+    sendJson(res, 400, {
+      ok: false,
+      error: 'missing_required_fields',
+      message: 'Campos route_code e source são obrigatórios.'
+    });
+    return;
+  }
+
+  const observedWait = toNullableNumber(body.observed_wait_min);
+  const predictedWait = toNullableNumber(body.predicted_wait_min);
+  const occupancyEst = toNullableInt(body.occupancy_est);
+
+  if (
+    Number.isNaN(observedWait) ||
+    Number.isNaN(predictedWait) ||
+    Number.isNaN(occupancyEst) ||
+    (observedWait !== null && observedWait < 0) ||
+    (predictedWait !== null && predictedWait < 0) ||
+    (occupancyEst !== null && (occupancyEst < 0 || occupancyEst > 100))
+  ) {
+    sendJson(res, 400, { ok: false, error: 'invalid_metrics' });
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const localRecord = {
+    user_id: toNullableText(body.user_id, 80),
+    stop_id: toNullableText(body.stop_id, 64),
+    route_code: routeCode,
+    direction: toNullableText(body.direction, 24),
+    observed_wait_min: observedWait,
+    predicted_wait_min: predictedWait,
+    occupancy_est: occupancyEst,
+    source,
+    created_at: now
+  };
+
+  try {
+    const { sql, reason } = await getReadyDb();
+    if (!sql) {
+      sendJson(res, 202, {
+        ok: true,
+        persisted: 'client_local_pending_db',
+        db_configured: false,
+        available: false,
+        storage: 'client_local',
+        reason,
+        record: localRecord
+      });
+      return;
+    }
+
+    const rows = await sql`
+      INSERT INTO demand_observations (
+        user_id, stop_id, route_code, direction,
+        observed_wait_min, predicted_wait_min, occupancy_est,
+        source, created_at
+      ) VALUES (
+        ${localRecord.user_id}, ${localRecord.stop_id}, ${localRecord.route_code},
+        ${localRecord.direction}, ${localRecord.observed_wait_min}, ${localRecord.predicted_wait_min},
+        ${localRecord.occupancy_est}, ${localRecord.source}, ${localRecord.created_at}
+      )
+      RETURNING *
+    `;
+
+    sendJson(res, 201, {
+      ok: true,
+      persisted: 'neon_postgres',
+      db_configured: true,
+      available: true,
+      storage: 'neon_postgres',
+      record: rows[0] || localRecord
+    });
+  } catch (err) {
+    console.error('[api/telemetry POST] error:', err && err.message ? err.message : err);
+    sendJson(res, 503, {
+      ok: false,
+      persisted: 'client_local_pending_db',
+      db_configured: true,
+      available: false,
+      storage: 'client_local',
+      reason: 'db_query_error',
+      record: localRecord
+    });
+  }
+};
