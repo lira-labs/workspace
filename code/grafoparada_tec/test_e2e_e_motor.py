@@ -30,6 +30,7 @@ ROOT_DIR = TEC_DIR.parent.parent
 WEB_DIR = ROOT_DIR / "code" / "grafoparada_web"
 INDEX_HTML = WEB_DIR / "index.html"
 ENGINE_JS = WEB_DIR / "real_transit_engine.js"
+LAYA_VOICE_JS = WEB_DIR / "laya_voice_engine.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
 
 CHROME_PATHS = [
@@ -86,7 +87,7 @@ class TestBundleAndGTFSIntegrity:
         assert not dups, f"IDs duplicados no index.html: {dups}"
 
         # Verifica referências locais src="..." e href="..." em todos os HTMLs de grafoparada_web
-        for page_name in ["index.html", "roteiro.html", "slides_canva.html", "conversa.html"]:
+        for page_name in ["index.html", "roteiro.html", "slides_canva.html", "slides_sem2.html", "conversa.html"]:
             page = WEB_DIR / page_name
             if not page.is_file():
                 continue
@@ -102,6 +103,24 @@ class TestBundleAndGTFSIntegrity:
                     continue
                 target = WEB_DIR / clean_ref
                 assert target.exists(), f"Asset 404 referenciado em {page_name}: {ref}"
+
+    def test_documentos_sem2_sincronizados_com_medir_custo(self):
+        assert (TEC_DIR / "medir_custo_sem2.py").is_file()
+        docs = [
+            WEB_DIR / "roteiro.html",
+            ROOT_DIR / "va2" / "roteiro_fala_aula_hoje_sem2.html",
+            WEB_DIR / "slides_canva.html",
+        ]
+        required_tokens = ("14,3 min", "0,96 ms", "324,7 MB", "56,68 µs", "393")
+        stale_tokens = ("18 min", "18 minutos", "400 linhas", "Quarta, 11/11")
+
+        for doc in docs:
+            assert doc.is_file(), f"Documento Sem2 ausente: {doc}"
+            content = doc.read_text(encoding="utf-8")
+            for token in required_tokens:
+                assert token in content, f"Métrica '{token}' ausente em {doc.relative_to(ROOT_DIR)}"
+            for stale in stale_tokens:
+                assert stale not in content, f"Valor desatualizado '{stale}' presente em {doc.relative_to(ROOT_DIR)}"
 
 
 # ---------------------------------------------------------------------------
@@ -319,6 +338,201 @@ console.log(JSON.stringify({
         assert "rede neural espaço-temporal" in out["speechCheck"]
         assert "10 minutos" in out["speechCheck"]
         assert "3 quilômetros" in out["speechCheck"]
+
+    def test_regressao_busca_xss_e_embarque_fim_rota_camela(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+
+const mockElements = {
+  'search-results-dropdown': { innerHTML: '', style: { display: 'none' } },
+  'search-clear-btn': { style: { display: 'none' } }
+};
+global.window = {};
+global.document = {
+  getElementById: (id) => mockElements[id] || null
+};
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); }
+};
+
+let liveBusCall = null;
+window.updateLiveBusMarker = (lat, lon, code, eta, seats) => {
+  liveBusCall = { lat, lon, code: String(code), eta, seats };
+};
+
+const makeLayer = () => ({
+  _layers: [],
+  addTo() { return this; },
+  clearLayers() { this._layers = []; },
+  addLayer(l) { this._layers.push(l); },
+  getLayers() { return this._layers; }
+});
+global.L = {
+  layerGroup: makeLayer,
+  polyline: (pts, opts) => ({
+    pts, opts,
+    addTo() { return this; },
+    getBounds() { return { isValid: () => true }; }
+  }),
+  divIcon: (cfg) => cfg,
+  marker: (coords) => ({
+    addTo() { return this; },
+    bindPopup() { return this; },
+    on() { return this; },
+    getLatLng() { return coords; }
+  })
+};
+
+eval(fs.readFileSync(enginePath, 'utf8'));
+const gtfs = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.networkData = gtfs;
+window.RealTransit.map = {
+  fitBounds() {},
+  removeLayer() {},
+  panTo() {}
+};
+window.RealTransit.stopsLayer = makeLayer();
+
+// 1. Escape XSS no estado vazio da busca (handleSearch)
+window.RealTransit.handleSearch('<img src=x onerror=alert(1)>');
+const dropHtml = mockElements['search-results-dropdown'].innerHTML;
+
+// 2. Embarque próximo ao fim da rota em Camela (Linha 199): ônibus sem colisão com Seu Embarque
+window.RealTransit.loadRoute('199', { originCoords: [-8.514931, -35.123469] });
+const dirData = window.RealTransit.getDirectionData(
+  window.RealTransit.activeRoute,
+  window.RealTransit.activeDirection
+);
+const boardIdx = window.RealTransit.activeBoardingIndex;
+const boardStop = dirData.stops[boardIdx];
+const busDistKm = liveBusCall && boardStop
+  ? window.RealTransit.haversineKm(boardStop.lat, boardStop.lon, liveBusCall.lat, liveBusCall.lon)
+  : null;
+
+console.log(JSON.stringify({
+  hasEscapedImg: dropHtml.includes('&lt;img'),
+  hasRawImgTag: /<img\b/i.test(dropHtml) || /<[^>]*\bon(?:error|load)\s*=/i.test(dropHtml),
+  dropDisplay: mockElements['search-results-dropdown'].style.display,
+  activeRouteCode: window.RealTransit.activeRouteCode,
+  boardIdx,
+  liveBusCall,
+  busDistKm
+}));
+"""
+        res = subprocess.run(
+            ["node", "-e", js_harness, str(ENGINE_JS), str(GTFS_JSON)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=20,
+        )
+        assert res.returncode == 0, f"Erro no harness Node.js: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert out["hasEscapedImg"] is True
+        assert out["hasRawImgTag"] is False
+        assert out["dropDisplay"] == "flex"
+        assert out["activeRouteCode"] == "199"
+        assert out["liveBusCall"] is not None
+        assert out["busDistKm"] is not None and out["busDistKm"] >= 0.35, (
+            f"liveBusMarker colidindo com Seu Embarque (dist={out['busDistKm']} km)"
+        )
+
+    def test_cloud_proxy_tts_revalida_get_apos_cooldown(self):
+        js_harness = r"""
+const path = require('path');
+const { CloudProxyTTSProvider } = require(path.resolve(process.argv[1]));
+
+(async () => {
+  let fakeNow = 10000;
+  const fetchLog = [];
+  const provider = new CloudProxyTTSProvider({
+    endpoint: '/api/tts',
+    cooldownMs: 1000,
+    now: () => fakeNow,
+    window: { location: { protocol: 'https:', hostname: 'grafoparadaweb.vercel.app' } },
+    storage: { getItem: () => null, setItem: () => {} },
+    playAudioFn: async (url) => ({ played: true, url }),
+    createObjectURL: () => 'blob:mock-audio',
+    revokeObjectURL: () => {},
+    fetchFn: async (url, init = {}) => {
+      const method = String(init.method || 'GET').toUpperCase();
+      fetchLog.push({ url, method });
+      if (method === 'GET') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            available: false,
+            fallback: 'web_speech',
+            reason: 'missing_api_key',
+            presets: ['ptbr_warm']
+          })
+        };
+      }
+      return { ok: false, status: 501, headers: { get: () => 'application/json' } };
+    }
+  });
+
+  const errors = [];
+  // 1a tentativa: GET /api/tts retorna available=false -> entra em cooldown sem POST
+  try {
+    await provider.synthesize('Primeira fala de teste');
+  } catch (err) {
+    errors.push(err.message);
+  }
+  const availableDuringCooldown = provider.isAvailable();
+
+  // 2a tentativa durante cooldown: rejeita localmente sem qualquer requisição HTTP
+  fakeNow = 10500;
+  try {
+    await provider.synthesize('Segunda fala em cooldown');
+  } catch (err) {
+    errors.push(err.message);
+  }
+  const callsBeforeExpiry = fetchLog.slice();
+
+  // 3a tentativa após expirar cooldownMs: deve refazer GET /api/tts antes de qualquer POST
+  fakeNow = 11001;
+  const availableAfterCooldown = provider.isAvailable();
+  try {
+    await provider.synthesize('Terceira fala pos cooldown');
+  } catch (err) {
+    errors.push(err.message);
+  }
+
+  console.log(JSON.stringify({
+    availableDuringCooldown,
+    availableAfterCooldown,
+    callsBeforeExpiry,
+    fetchLog,
+    errors
+  }));
+})().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+"""
+        res = subprocess.run(
+            ["node", "-e", js_harness, str(LAYA_VOICE_JS)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=15,
+        )
+        assert res.returncode == 0, f"Erro testando CloudProxyTTSProvider: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert out["availableDuringCooldown"] is False
+        assert out["availableAfterCooldown"] is True
+        assert [c["method"] for c in out["callsBeforeExpiry"]] == ["GET"]
+        assert [c["method"] for c in out["fetchLog"]] == ["GET", "GET"]
+        assert all(c["method"] != "POST" for c in out["fetchLog"])
+        assert len(out["errors"]) == 3
 
 
 # ---------------------------------------------------------------------------
@@ -578,6 +792,67 @@ class TestRealBrowserE2E:
                     time.sleep(0.1)
                     eval_js(f"if (typeof {close_fn} === 'function') {close_fn}();")
 
+                # Regressão Mobile (390x844): Laya IA -> Anomalia PE-60 (Nó 10) -> Simular no Mapa
+                eval_js("openLayaModal()")
+                time.sleep(0.15)
+                clicked_quick = eval_js("""(() => {
+                  const btn = Array.from(document.querySelectorAll('#modal-laya .laya-quick-cmd'))
+                    .find(b => b.textContent.includes('Anomalia PE-60 (Nó 10)'));
+                  if (!btn) return false;
+                  btn.click();
+                  return true;
+                })()""")
+                assert clicked_quick is True, "Botão rápido 'Anomalia PE-60 (Nó 10)' não encontrado na Laya IA"
+
+                clicked_sim = False
+                for _ in range(20):
+                    clicked_sim = eval_js("""(() => {
+                      const btn = Array.from(document.querySelectorAll('#laya-chat-history button'))
+                        .find(b => b.textContent.includes('Simular Anomalia Nó 10 (PE-60) no Mapa'));
+                      if (!btn) return false;
+                      btn.click();
+                      return true;
+                    })()""")
+                    if clicked_sim:
+                        break
+                    time.sleep(0.15)
+                assert clicked_sim is True, "Botão 'Simular Anomalia Nó 10 (PE-60) no Mapa' não apareceu no chat"
+
+                time.sleep(0.5)  # Aguarda transição CSS de max-height (0.35s) do bottom sheet
+                slide3_audit = eval_js("""(() => {
+                  const modal = document.getElementById('modal-laya');
+                  const sheet = document.getElementById('main-bottom-sheet');
+                  const etaVal = document.getElementById('resting-eta-val');
+                  const banner = document.getElementById('resting-reallocation-banner');
+                  const nav = document.querySelector('.mobile-tab-nav');
+                  const bannerRect = banner ? banner.getBoundingClientRect() : null;
+                  const sheetRect = sheet ? sheet.getBoundingClientRect() : null;
+                  const navRect = nav ? nav.getBoundingClientRect() : null;
+                  return {
+                    modalDisplay: modal ? modal.style.display : null,
+                    hasFailureClass: Boolean(sheet && sheet.classList.contains('slide3-failure-active')),
+                    etaText: etaVal ? etaVal.textContent.trim() : '',
+                    bannerDisplay: banner ? getComputedStyle(banner).display : 'none',
+                    bannerWidth: bannerRect ? bannerRect.width : 0,
+                    bannerHeight: bannerRect ? bannerRect.height : 0,
+                    bannerFitsInSheet: Boolean(
+                      bannerRect && sheetRect &&
+                      bannerRect.top >= sheetRect.top - 1 &&
+                      bannerRect.bottom <= sheetRect.bottom + 1
+                    ),
+                    bannerAboveNav: Boolean(bannerRect && navRect && bannerRect.bottom <= navRect.top),
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert slide3_audit["modalDisplay"] == "none"
+                assert slide3_audit["hasFailureClass"] is True
+                assert slide3_audit["etaText"] == "14,3*"
+                assert slide3_audit["bannerDisplay"] != "none"
+                assert slide3_audit["bannerWidth"] > 0 and slide3_audit["bannerHeight"] > 0
+                assert slide3_audit["bannerFitsInSheet"] is True, f"Banner cortado no bottom sheet: {slide3_audit}"
+                assert slide3_audit["bannerAboveNav"] is True, f"Banner invadindo/cortado pela .mobile-tab-nav: {slide3_audit}"
+                assert slide3_audit["overflowX"] <= 2, f"Overflow horizontal mobile na anomalia Slide 3: {slide3_audit['overflowX']}px"
+
                 # Valida layout Desktop (1280x800) sem overflow nem exceções
                 cdp_call(
                     "Emulation.setDeviceMetricsOverride",
@@ -586,6 +861,30 @@ class TestRealBrowserE2E:
                 time.sleep(0.2)
                 desk_overflow = eval_js("document.documentElement.scrollWidth - window.innerWidth")
                 assert desk_overflow <= 2, f"Overflow horizontal Desktop: {desk_overflow}px"
+
+                # Regressão Desktop CTM (1280x800): setAppMode('ctm') + despacho Linha 522
+                eval_js("setAppMode('ctm')")
+                time.sleep(0.15)
+                eval_js("document.getElementById('btn-ctm-dispatch-522').click()")
+                time.sleep(0.25)
+                ctm_audit = eval_js("""(() => {
+                  const btn = document.getElementById('btn-ctm-dispatch-522');
+                  const kpi = document.getElementById('ctm-kpi-alerts-val');
+                  return {
+                    appMode: document.body ? document.body.dataset.appMode : '',
+                    ariaPressed: btn ? btn.getAttribute('aria-pressed') : null,
+                    isActive: Boolean(btn && btn.classList.contains('is-active')),
+                    btnText: btn ? btn.innerText.trim() : '',
+                    kpiAlertsVal: kpi ? kpi.textContent.trim() : '',
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert ctm_audit["appMode"] == "ctm"
+                assert ctm_audit["ariaPressed"] == "true"
+                assert ctm_audit["isActive"] is True
+                assert "Cenário Ativo" in ctm_audit["btnText"]
+                assert ctm_audit["kpiAlertsVal"] == "1"
+                assert ctm_audit["overflowX"] <= 2, f"Overflow horizontal Desktop CTM: {ctm_audit['overflowX']}px"
 
                 # Filtra apenas erros locais reais (ignora eventuais bloqueios de tiles externos se offline)
                 local_console_errors = [e for e in console_errors if "tile" not in e.lower()]

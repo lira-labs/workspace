@@ -421,6 +421,10 @@
         throw new Error('Cloud TTS proxy temporarily unavailable');
       }
 
+      if (this._proxyCapability === false && this._now() >= this._proxyUnavailableUntil) {
+        this._proxyCapability = null;
+      }
+
       // Em browser remoto, consulta GET /api/tts antes de POST para evitar 501 vermelho no console
       if (!this.skipCapabilityCheck && this._proxyCapability === null) {
         try {

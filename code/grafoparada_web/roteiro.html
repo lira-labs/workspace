@@ -188,20 +188,22 @@
   <header>
     <div class="badge">UFRPE · AI4Good · Seminário 2</div>
     <h1>GrafoParada: Roteiro da Fala na Aula</h1>
-    <div class="meta">Cauã da Cunha Lira · Quarta, 11/11 · Duração cronometrada: 4 minutos</div>
+    <div class="meta">Cauã da Cunha Lira · Terça, 17/11/2026 · Duração cronometrada: 4 minutos</div>
   </header>
 
   <div class="quick-links">
-    <a href="index.html" class="quick-link-btn">📱 Abrir App ao Vivo</a>
-    <a href="slides_canva.html" target="_blank" class="quick-link-btn" style="background:#0284c7; color:#fff; border-color:#0284c7;">✨ Slides Canva Pro</a>
-    <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" class="quick-link-btn" style="background:#ea580c; color:#fff; border-color:#ea580c;">📥 Baixar PPTX Oficial (13.1 MB)</a>
+    <a href="index.html" class="quick-link-btn">Abrir App ao Vivo</a>
+    <a href="slides_canva.html" target="_blank" class="quick-link-btn" style="background:#0284c7; color:#fff; border-color:#0284c7;">Slides Canva Pro</a>
+    <a href="slides_sem2.html" target="_blank" class="quick-link-btn" style="background:#0f172a; color:#fff; border-color:#0f172a;">Slides Sem2</a>
+    <a href="GrafoParada_Seminario2_CauaLira.pptx" download="GrafoParada_Seminario2_CauaLira.pptx" class="quick-link-btn" style="background:#ea580c; color:#fff; border-color:#ea580c;">Baixar PPTX Oficial (13.1 MB)</a>
+    <a href="GrafoParada_Sem2_Roteiro.pptx" download="GrafoParada_Sem2_Roteiro.pptx" class="quick-link-btn" style="background:#334155; color:#fff; border-color:#334155;">PPTX Sem2</a>
   </div>
 
   <div class="box-regras">
     <h3>Como conduzir em sala (Critérios do Prof. Lucas):</h3>
     <ul style="padding-left: 20px; font-size: 0.9rem;">
       <li><strong>Fale de cabeça, não leia:</strong> O slide é minimalista e só serve de apoio visual para sua fala.</li>
-      <li><strong>Demo ao vivo:</strong> Celular espelhado rodando dados reais do GTFS (400 linhas) e Cittamobi ao vivo.</li>
+      <li><strong>Demo ao vivo:</strong> Celular espelhado rodando dados reais do GTFS (393 linhas reais · 15.239 paradas) e Cittamobi ao vivo.</li>
       <li><strong>Seja direto na falha:</strong> O professor pontua quem demonstra onde a IA erra de verdade.</li>
       <li><strong>Tempo total:</strong> 4 minutos cravados (duas passadas cronometradas com sucesso).</li>
     </ul>
@@ -209,38 +211,38 @@
 
   <!-- AS 4 FRASES SEM IA -->
   <div class="frases-aluno">
-    <h2>🎯 As 4 Frases (Decore para falar de cabeça em 1 min):</h2>
+    <h2>As 4 Frases (Decore para falar de cabeça em 1 min):</h2>
     <div class="frase-item">
-      <strong>1. A Demo:</strong> O estudante ou passageiro no Grande Recife abre o app, consulta qualquer uma das 400 linhas reais do GTFS (como a Linha 522 da UFRPE ou a Linha 060), vê a previsão em 4 minutos e sai de casa no horário exato sem mofar no ponto de ônibus.
+      <strong>1. A Demo:</strong> O passageiro ou trabalhador no Grande Recife abre o app, usa GPS dinâmico + destino entre as 393 linhas reais do GTFS (15.239 paradas, como a Linha 199 na PE-60 ou a Linha 522 da UFRPE), vê a previsão com rota multi-etapas SEI e voz Laya e sai no horário certo sem esperar no vazio.
     </div>
     <div class="frase-item">
-      <strong>2. O Custo:</strong> No celular levou 4,98 milissegundos e 12 KB de RAM; no servidor a STGCN levou 0,77 milissegundo e 358 MB no processo PyTorch na CPU. A estimativa inicial de arquitetura previa menos de 500 ms e 300 MB, e a diferença é que a CPU calculou muito mais rápido e o runtime segura bibliotecas no SO.
+      <strong>2. O Custo:</strong> No celular (<code>KinematicStopFSM_V3</code>, trajetória de 15 passos) levou 56,68 µs e 11,02 KB de RAM (contra 14,29 µs e 8,92 KB no passo único do <code>flx.md</code>); no servidor a ST-GCN (20 nós PE-60 em CPU AMD Ryzen 7 5700G, Python 3.12.15, PyTorch 2.14.1+cpu) levou 0,96 ms por inferência e 324,7 MB de Working Set físico (2,22 KB heap Python, 34.627 parâmetros em 138 KB, treino 25 épocas em 0,86 s, R$ 0,00 local). Contra o teto do <code>flx.md</code> (&lt; 500 ms e ~300 MB), a inferência foi ~520× mais rápida e os +8,2% de RAM vêm das DLLs LibTorch/Windows.
     </div>
     <div class="frase-item">
-      <strong>3. A Falha:</strong> Num choque súbito com 45 minutos de retenção simulada na via, a STGCN previu 18 minutos porque suavizou o atraso pelo grafo. Quem sofre é o passageiro que perde a prova ou o turno, e o erro ensina que choques pontuais exigem uma trava híbrida que corte a IA.
+      <strong>3. A Falha:</strong> Num bloqueio pontual de 45,0 min no GPS bruto do Nó 10 (Trevo de Ipojuca · PE-60), a ST-GCN previu 14,3 min porque super-suavizou 30,7 min pelo grafo. Quem sofre é o trabalhador ou estudante na PE-60 que perde o transporte alternativo e perde o turno, e o erro ensina que |GPS − ST-GCN| &gt; 15,0 min exige a trava híbrida (<code>ALERTA_AMARELO_OVER_SMOOTHING</code>) para cortar a IA.
     </div>
     <div class="frase-item">
-      <strong>4. O Que Mudou:</strong> No sem1 uma conta simples bateu a rede em 5 paradas e eu ia descartar a STGCN; mantive a STGCN para testar em escala: na malha expandida de 20 paradas, em dados simulados por difusão espaço-temporal, a STGCN obteve 1,51 minuto de erro contra 1,93 minuto da regressão linear e 7,13 da persistência, mostrando que o grafo mitiga a explosão dimensional quando a rede cresce.
+      <strong>4. O Que Mudou:</strong> No sem1 (5 paradas) a regressão linear bateu a ST-GCN (2,46 min vs 4,42 min) e eu ia descartar a rede; mantive para testar escala: no sem2 (20 paradas sintéticas da PE-60), a ST-GCN obteve 1,51 min MAE contra 1,93 min da OLS linear (-21,8%, achatando 121 colunas para 70 treinos) e 7,13 min da persistência (-78,8%), ainda dependente de GPS contínuo do CTM para validação em rua real.
     </div>
   </div>
 
   <!-- SLIDE 1 -->
   <div class="slide-card">
     <div class="slide-header">
-      <div class="slide-title">Slide 1 · Ponta a Ponta (Demo ao Vivo · Linha 199 & Malha GTFS)</div>
-      <div class="slide-time">⏱️ 80 segundos</div>
+      <div class="slide-title">Slide 1 · Ponta a Ponta (Demo ao Vivo · Linha 199 &amp; Malha GTFS)</div>
+      <div class="slide-time">80 segundos</div>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Quem usa (Trabalhador em Camela / PE-60 no turno Suape às 06h10 e estudantes da UFRPE), Entrada (Linha 199 Camela/Cabo e 400 linhas GTFS), Saída (4 min, assentos livres e Laya IA por voz) e O que deixa fazer (sair às 06h08 sem mofar no acostamento escuro). Ao lado: link do repositório e demo viva.</p>
+      <p style="font-size:0.9rem;">Quem usa (Trabalhador em Camela / PE-60 no turno Suape e estudantes da UFRPE), Entrada (GPS + destino nas 393 linhas reais GTFS · 15.239 paradas), Saída (rota SEI, previsão e Laya Voz em cascata híbrida: clipes estáticos <code>.wav</code> &lt;30ms → Gemini <code>/api/tts</code> → Web Speech PT-BR offline com <code>formatForSpeech</code>) e O que deixa fazer (sair na janela segura sem esperar no acostamento escuro).</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala (com o celular espelhado):</div>
       <div class="bloco-fala">
         <p>"Bom dia a todos e professor Lucas. Esse é o GrafoParada rodando ao vivo do nosso repositório."</p>
-        <p>"Aqui na tela está o celular espelhado no nosso caso de estudo principal da Rodovia PE-60: o trabalhador em Camela que precisa chegar ao turno em Suape. Ele abre o app e tem na mão as 400 linhas reais do Grande Recife com traçado oficial e paradas do GTFS. A tela entrega a previsão exata da Linha 199: 4 minutos para chegar, com assento garantido. O app calcula que ele deve sair às 06h08 para caminhar 6 minutos com calma e não ficar mofando no acostamento escuro da rodovia."</p>
+        <p>"Aqui na tela está o celular espelhado no nosso caso de estudo principal da Rodovia PE-60: o trabalhador em Camela que precisa chegar ao turno em Suape. Ele abre o app e tem na mão as 393 linhas reais do Grande Recife (15.239 paradas) com traçado oficial e paradas do GTFS. A tela entrega a previsão exata da Linha 199: 4 minutos para chegar, com assento garantido. O app calcula a janela segura para ele caminhar até o ponto sem ficar mofando no acostamento escuro da rodovia."</p>
         <p>"Notem no mapa o radar de localização em tempo real e o coletivo deslizando com tag de ocupação. O mapa roda sobre camadas abertas da Esri e OpenStreetMap, 100% livres de tokens e sem marcas d'água. Na busca inteligente com autocomplete, ele localiza qualquer parada, linha ou campus metropolitano em segundos."</p>
-        <p>"E respondendo diretamente à sugestão do professor de trazer IA generativa acessível: integramos a <strong>Laya IA</strong>. O usuário toca no microfone e pergunta em voz natural: <em>'Laya, quando passa meu ônibus?'</em> ou <em>'Quero ir para a UFRPE'</em>. A Laya processa localmente, traça a rota para a Linha 522 e responde com voz acolhedora. Além disso, o usuário favorita suas paradas de Casa, Faculdade e Trabalho em 1 toque, garantindo uma interface limpa, minimalista e focada 100% na experiência do passageiro."</p>
+        <p>"E respondendo diretamente à sugestão do professor de trazer IA generativa acessível: integramos a <strong>Laya Voz</strong> em cascata híbrida (clipes estáticos <code>.wav</code> em &lt;30ms → Gemini Cloud TTS em <code>/api/tts</code> → Web Speech PT-BR offline com <code>formatForSpeech</code>). O usuário toca no microfone e pergunta em voz natural: <em>'Laya, quando passa meu ônibus?'</em> ou <em>'Quero ir para a UFRPE'</em>, traçando a rota multi-etapas SEI com resposta falada e atalhos de 1 toque."</p>
       </div>
     </div>
   </div>
@@ -249,18 +251,18 @@
   <div class="slide-card">
     <div class="slide-header">
       <div class="slide-title">Slide 2 · Quanto Custa (Medido vs Estimado)</div>
-      <div class="slide-time">⏱️ 50 segundos</div>
+      <div class="slide-time">50 segundos</div>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Três colunas limpas: <strong>4,98 ms · 12 KB</strong> no celular (on-device) | <strong>0,77 ms · 358 MB</strong> no servidor (CPU pura) | <strong>R$ 0,00</strong> de custo vs <strong>&lt; 500 ms · ~300 MB</strong> da estimativa inicial de arquitetura.</p>
+      <p style="font-size:0.9rem;">On-device (<code>KinematicStopFSM_V3</code> · 15 passos): <strong>56,68 µs · 11,02 KB</strong> RAM (vs <strong>14,29 µs · 8,92 KB</strong> passo único no <code>flx.md</code>) | Servidor (ST-GCN 20 nós PE-60 em CPU AMD Ryzen 7 5700G · Python 3.12.15 · PyTorch 2.14.1+cpu): <strong>0,96 ms</strong> inferência · <strong>324,7 MB</strong> Working Set físico (<strong>2,22 KB</strong> heap Python · 34.627 parâmetros <strong>138 KB</strong> · treino 25 épocas <strong>0,86 s</strong>) | <strong>R$ 0,00</strong> local vs <strong>&lt; 500 ms · ~300 MB</strong> no <code>flx.md</code> (~520× abaixo do teto; +8,2% pelas DLLs LibTorch/Windows).</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"Esses números vieram da medição que rodou no repositório com o script <code>medir_custo_sem2.py</code>."</p>
-        <p>"No celular do passageiro, a máquina cinemática levou 4,98 milissegundos e gastou apenas 12 kilobytes de RAM, sem consumir bateria. No servidor de desenvolvimento, a STGCN rodou em 0,77 milissegundo na CPU comum (Python 3.12 / PyTorch)."</p>
-        <p>"A estimativa inicial de arquitetura previa até 500 milissegundos e 300 megabytes. A diferença no tempo é que a inferência em CPU pura é centenas de vezes mais rápida do que o teto estimado; e na memória, os 358 megabytes são o processo do PyTorch mantendo as bibliotecas dinâmicas em memória, enquanto os pesos da rede ocupam menos de 100 kilobytes. O custo no ambiente de desenvolvimento é zero reais; para escala metropolitana com centenas de milhares de requisições, o dimensionamento prevê contêineres de borda rodando inferências a cada ciclo de 30 segundos."</p>
+        <p>"Esses números vieram da medição reprodutível no repositório com o script <code>medir_custo_sem2.py</code> na máquina AMD Ryzen 7 5700G (Windows 11, Python 3.12.15, PyTorch 2.14.1+cpu)."</p>
+        <p>"No celular do passageiro, a <code>KinematicStopFSM_V3</code> avaliou toda a trajetória de 15 passos em apenas 56,68 microssegundos com 11,02 kilobytes de RAM (contra 14,29 microssegundos e 8,92 KB do passo único no <code>flx.md</code>). No servidor em CPU comum, a ST-GCN de 20 nós treinou 25 épocas em 0,86 segundo e fez inferência em 0,96 milissegundo usando apenas 2,22 KB de heap Python nos tensores."</p>
+        <p>"A estimativa inicial do <code>flx.md</code> previa menos de 500 milissegundos e ~300 megabytes. Nossa inferência foi ~520× mais rápida que o teto de 500 ms; e os 324,7 MB de Working Set físico (+8,2% acima dos 300 MB) são explicados pelas DLLs do runtime C++/LibTorch carregadas no Windows, enquanto os 34.627 parâmetros da rede pesam só 138 KB. Custo financeiro local: R$ 0,00."</p>
       </div>
     </div>
   </div>
@@ -268,20 +270,20 @@
   <!-- SLIDE 3 -->
   <div class="slide-card">
     <div class="slide-header">
-      <div class="slide-title">Slide 3 · A Falha (Over-smoothing na STGCN)</div>
-      <div class="slide-time">⏱️ 60 segundos</div>
+      <div class="slide-title">Slide 3 · A Falha (Over-smoothing no Nó 10 · PE-60)</div>
+      <div class="slide-time">60 segundos</div>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Saída da IA sob super-suavização: <strong>18 min</strong> (em vermelho). Choque de referência: <strong>45 min</strong> (em verde). Quem sofre o erro e a trava híbrida de segurança adotada.</p>
+      <p style="font-size:0.9rem;">Nó 10 (Trevo de Ipojuca · PE-60): ST-GCN previu <strong>14,3 min</strong> (em vermelho) contra <strong>45,0 min</strong> no GPS bruto (em verde) — <strong>Δ = 30,7 min</strong> &gt; trava híbrida 15,0 min → <code>ALERTA_AMARELO_OVER_SMOOTHING</code> <strong>[?]</strong>. Quem sofre o erro e a trava híbrida defensiva.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
         <p>"Eu escolhi trazer este caso de propósito porque ele erra de verdade."</p>
-        <p>"Simulamos um bloqueio severo de via no trecho e o atraso de referência pulou para 45 minutos. Olhem a tela: a STGCN previu apenas 18 minutos. O número parece razoável, mas mente."</p>
-        <p>"Quem sofre é o trabalhador ou estudante: ele confia no '18 minutos', espera um ônibus que não vem e perde o turno ou a prova na universidade. O erro me ensinou que redes de grafo sofrem de super-suavização (over-smoothing): a matriz Laplaciana dilui o atraso brusco com as paradas vizinhas desimpedidas."</p>
-        <p>"Como nós resolvemos? Colocamos uma trava híbrida defensiva de AI4Good: se o desvio entre a STGCN e o GPS passar de 15 minutos, o sistema corta a previsão da IA e acende o alerta de interdição. O GPS protege o passageiro no curto prazo contra o erro da rede, enquanto a ST-GCN continua modelando o efeito dominó de desbalanceamento a jusante nas próximas 15 paradas para a Central CTM. É exatamente essa convivência híbrida que vira a medida do sem3."</p>
+        <p>"Injetamos um bloqueio pontual de 45,0 minutos no GPS bruto no Nó 10, Trevo de Ipojuca na PE-60, com as demais paradas em 10,0 minutos. Olhem a tela: a ST-GCN previu apenas 14,3 minutos. O número parece razoável, mas esconde 30,7 minutos de erro."</p>
+        <p>"Quem sofre é o trabalhador ou estudante na parada da PE-60: ele confia no '14,3 minutos', deixa passar o transporte alternativo e perde o turno ou a aula. O erro mostra a super-suavização (over-smoothing): a matriz Laplaciana dilui o pico do Nó 10 com os nós vizinhos desimpedidos."</p>
+        <p>"Como resolvemos? Com a trava híbrida defensiva: quando |GPS − ST-GCN| passa de 15,0 minutos (aqui Δ = 30,7 min), dispara <code>ALERTA_AMARELO_OVER_SMOOTHING</code>, o app corta a previsão da IA, exibe o GPS bruto de 45,0 min com selo [?] e mantém a ST-GCN só para projetar o desbalanceamento a jusante para a Central CTM."</p>
       </div>
     </div>
   </div>
@@ -290,18 +292,18 @@
   <div class="slide-card">
     <div class="slide-header">
       <div class="slide-title">Slide 4 · O Que Mudou desde o Sem1</div>
-      <div class="slide-time">⏱️ 45 segundos</div>
+      <div class="slide-time">45 segundos</div>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que aparece no slide:</div>
-      <p style="font-size:0.9rem;">Sem1 (5 paradas): Linear bateu STGCN (2,46 min vs 4,42 min). Sem2 (malha GTFS expandida · 20 paradas): STGCN obteve 1,51 min vs 1,93 min linear e 7,13 min persistência em dados simulados de difusão.</p>
+      <p style="font-size:0.9rem;">Sem1 (5 paradas): Linear <strong>2,46 min</strong> vs ST-GCN <strong>4,42 min</strong>. Sem2 (20 paradas sintéticas PE-60): ST-GCN <strong>1,51 min</strong> vs OLS Linear <strong>1,93 min (-21,8%)</strong> vs Persistência <strong>7,13 min (-78,8%)</strong>.</p>
     </div>
     <div class="bloco">
       <div class="bloco-label">O que você fala:</div>
       <div class="bloco-fala">
-        <p>"No sem1, uma conta simples de padaria tinha errado menos que a STGCN num trecho curto de 5 paradas: 2,46 contra 4,42 minutos. A banca questionou com razão se valia a pena usar IA pesada."</p>
-        <p>"Eu prometi testar na malha completa. Mantive a STGCN para avaliar em escala: na malha expandida com 20 paradas da PE-60, em dados simulados por difusão espaço-temporal, a STGCN obteve 1,51 minuto, superando a regressão linear que deu 1,93 minuto e a persistência de 7,13 minutos."</p>
-        <p>"A regressão linear sofre ao tentar ajustar 120 variáveis achatadas e colineares, enquanto o grafo preserva a invariância espacial. Reconhecemos com rigor científico que a ST-GCN foi favorecida pela hipótese de difusão Laplaciana do gerador sintético. O experimento comprova a eficiência estrutural do grafo contra a colinearidade, mas a validação empírica da física real dependerá de telemetria contínua AVL que o consórcio ainda não abre publicamente."</p>
+        <p>"No sem1, num trecho curto de 5 paradas (<code>avaliar_piloto.py</code>), uma regressão linear simples tinha vencido a ST-GCN: 2,46 contra 4,42 minutos de MAE. A banca questionou com razão se valia manter o grafo."</p>
+        <p>"Eu mantive a ST-GCN para testar em escala no <code>motor_evolucao_prototipo.py</code> com 20 paradas da PE-60 em simulação sintética de difusão (70 treino / 50 teste): a ST-GCN fez <strong>1,51 min</strong> de MAE, contra <strong>1,93 min</strong> da OLS linear (-21,8%) e <strong>7,13 min</strong> da persistência (-78,8%)."</p>
+        <p>"A OLS linear sofre ao tentar ajustar 121 colunas achatadas para apenas 70 casos de treino, enquanto o grafo compartilha pesos pela topologia física. Reconhecemos com honestidade científica que a difusão sintética favorece o grafo e que a validação empírica em rua real depende de GPS contínuo do CTM."</p>
       </div>
     </div>
   </div>
@@ -369,7 +371,7 @@
 
     <div class="qa-item">
       <div class="qa-q">1. "Se os dados são sintéticos, por que a ST-GCN venceu a regressão linear?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "A ST-GCN venceu porque resolve a maldição da dimensionalidade. Em 5 paradas (Sem1), uma reta simples tinha poucas variáveis e aprendeu com facilidade. Ao expandir para 20 paradas no Sem2 com 6 lags temporais, na representação tabular o modelo recebe 120 variáveis de entrada (features) — 20 paradas por 6 defasagens temporais — e precisa aprender suas relações em uma estrutura achatada e altamente colinear. A ST-GCN, por sua vez, compartilha pesos espaciais via convolução espectral de Chebyshev sobre a topologia física da rodovia. Reconheço, contudo, que parte dessa vantagem advém da hipótese de difusão em rede utilizada no gerador sintético, o que reforça que o resultado demonstra eficiência estrutural do grafo, mas não substitui a validação de campo."</div>
+      <div class="qa-a"><strong>Resposta:</strong> "A ST-GCN venceu porque resolve a maldição da dimensionalidade. Em 5 paradas (Sem1), uma reta simples tinha poucas variáveis e aprendeu com facilidade. Ao expandir para 20 paradas no Sem2 com 6 lags temporais, na representação tabular o modelo OLS recebe 121 colunas achatadas para apenas 70 casos de treino (20 paradas × 6 defasagens + intercepto) e sofre forte colinearidade. A ST-GCN, por sua vez, compartilha pesos espaciais via convolução espectral de Chebyshev sobre a topologia física da rodovia (-21,8% vs OLS e -78,8% vs persistência). Reconheço, contudo, que parte dessa vantagem advém da hipótese de difusão em rede utilizada no gerador sintético, o que reforça que o resultado demonstra eficiência estrutural do grafo, mas não substitui a validação de campo."</div>
     </div>
 
     <div class="qa-item">
@@ -384,7 +386,7 @@
 
     <div class="qa-item">
       <div class="qa-q">4. "O que exatamente o projeto consegue afirmar hoje e o que ainda é hipótese?"</div>
-      <div class="qa-a"><strong>Resposta:</strong> "O que afirmamos com dados concretos hoje: (1) Que é viável processar a malha metropolitana oficial inteira do Grande Recife (393 linhas, 15.239 paradas) com inferência ultrarrápida (0,77 ms na CPU e 4,98 ms on-device); (2) Que convoluções espaciais em grafo sofrem de super-suavização (over-smoothing) em choques bruscos de trânsito, exigindo obrigatoriamente uma trava híbrida que corte a IA se o desvio ultrapassar 15 min; (3) Que a formulação de despacho deve ser probabilística, baseada em P(Demanda > Limiar de Conforto). O que ainda é hipótese: A magnitude exata da redução do erro de previsão em tráfego metropolitano real, que depende do acesso a dados contínuos de GPS da frota."</div>
+      <div class="qa-a"><strong>Resposta:</strong> "O que afirmamos com dados concretos hoje: (1) Que é viável processar a malha metropolitana oficial inteira do Grande Recife (393 linhas reais, 15.239 paradas) com inferência ultrarrápida (0,96 ms em CPU / 324,7 MB Working Set na ST-GCN e 56,68 µs / 11,02 KB on-device na FSM de 15 passos); (2) Que convoluções espaciais em grafo sofrem de super-suavização (over-smoothing — 14,3 min vs 45,0 min no Nó 10 da PE-60), exigindo obrigatoriamente a trava híbrida (<code>ALERTA_AMARELO_OVER_SMOOTHING</code>) se |GPS − STGCN| &gt; 15,0 min; (3) Que a formulação de despacho deve ser probabilística, baseada em P(Demanda &gt; Limiar de Conforto). O que ainda é hipótese: A magnitude exata da redução do erro de previsão em tráfego metropolitano real, que depende do acesso a dados contínuos de GPS da frota."</div>
     </div>
 
     <div class="qa-item">
