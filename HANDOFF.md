@@ -4,9 +4,9 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 15/11/2026 21:40
+- **Última Atualização:** 15/11/2026 22:34
 - **Data da Apresentação:** Terça-feira (17/11/2026) · Tópicos Avançados em IA (AI4Good) / UFRPE
-- **Branch Ativo:** `feature/grafoparada-voice` (Desenvolvimento Laya Voice) e `main` (Produção Imutável em `52c78107`)
+- **Branch Ativo:** `main` (Produção atualizada com Laya Voice em `cfa4c4a`+) · `feature/grafoparada-voice` (`72351c2` mesclado; contém commit local extra `4a553ea` de ESO II isolado fora da `main`)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -53,7 +53,10 @@
   - `pytest code/grafoparada_tec -v`: **26/26 PASSED** (`test_e2e_e_motor.py` ajustado para filtrar apenas `.gp-svg` confiável de `_layaSvgIcon` mantendo bloqueio estrito XSS e verificando `current_stop` sob `gps_denied`).
   - `verify_voice_stack.js`: **8/8 checks OK** (`api/tts.js`) + **7/7 suítes OK** (`laya_voice_engine.js`).
   - Auditoria Visual Chrome Headless CDP (`390×844` e `1280×800`, Rodada 3): **APROVADO** (`overflowX = 0`, `duplicateIds = []`, zero erros de console/HTTP).
-- **Configuração Pendente no Deploy Vercel:** Adicionar `GEMINI_API_KEY` nas Environment Variables da Vercel antes/após o merge para `main` para ativar síntese dinâmica `Gemini Nuvem` em produção; sem a chave, o fallback estático + PT-BR offline funciona normalmente.
+- **Status do Merge & Deploy Vercel (Confirmado em 15/11/2026 22:34):**
+  - Merge autorizado por Cauã e concluído: `72351c2` (`origin/feature/grafoparada-voice`) -> `main` (`cfa4c4a`), aprovado em `pre_flight_check.py` (40/40) e `pytest code/grafoparada_tec -v` (26/26 em 28,83s) sobre a `main`.
+  - Checagem `vercel env ls --cwd code/grafoparada_web` confirmou **`No Environment Variables found`** em `caualira-3186/grafoparada_web`: a chave `GEMINI_API_KEY` ainda precisa ser configurada na Vercel para habilitar síntese dinâmica `Gemini Nuvem` em `/api/tts` em produção (sem a chave, os clipes estáticos `.wav` + fallback Web Speech PT-BR seguem ativos).
+  - **Nota de Higiene Git:** A branch local `feature/grafoparada-voice` manteve o commit `4a553ea` (`feat(eso2): adiciona apresentacao final de equiparacao ESO II`), isolado fora da `main`. Para novos trabalhos do GrafoParada, abrir branch limpa a partir da `main`.
 
 ### 0h. Polimento Full-App 360°, Otimização do Motor O-D & Bloqueadores Visuais Desktop (15/11/2026)
 - **Ciclo Completo Multiagente + Gatekeeper + Crítico Visual Independente:**
@@ -726,14 +729,20 @@
 
 ---
 
-## 📋 Próximos Passos para a Próxima Sessão
-1. **Promoção Controlada para Produção (`main`):**
-   - Com autorização explícita de Cauã, realizar o merge de `feature/grafoparada-voice` para `main` somente após reconfirmar `uv run --project code/grafoparada_tec python code/grafoparada_tec/pre_flight_check.py` (40/40 PASS).
-   - Configurar `GEMINI_API_KEY` nas variáveis de ambiente do projeto Vercel (`grafoparadaweb.vercel.app`) para habilitar síntese Gemini Cloud TTS em `/api/tts`.
-2. **Ensaio Final da Apresentação (`17/11/2026`):**
-   - Validar demonstração ao vivo (Home -> Mapa Ao Vivo -> Chat/Voz Laya Sulafat -> Modo `Central CTM` e `Pesquisa & Banca`) usando `GrafoParada_Seminario2_CauaLira.pptx` e `https://grafoparadaweb.vercel.app/roteiro.html`.
+## 📋 Próximos Passos para a Próxima Sessão (GrafoParada · Pré-Banca 17/11/2026)
+1. **Validar Produção Vercel (`https://grafoparadaweb.vercel.app`) & `GEMINI_API_KEY`:**
+   - Confirmar via navegador real/inspeção se o auto-deploy da `main` está ativo com a nova arquitetura Laya Voice (`/api/tts` e `/audio/laya/manifest.json`).
+   - Configurar `GEMINI_API_KEY` na Vercel (`vercel env add GEMINI_API_KEY --cwd code/grafoparada_web` ou dashboard `caualira-3186/grafoparada_web`) caso deseje respostas dinâmicas na voz **Sulafat (`Gemini Nuvem`)** ao vivo; testar o fluxo completo com a chave ativa.
+2. **Rodada Final de Benchmark, Laya Live, ST-GCN & Polimento Leve (se necessário abrir branch a partir da `main`):**
+   - Criar branch `feature/grafoparada-banca-final` a partir da `main` antes de qualquer edição de código.
+   - Checar item visual menor não-bloqueante da Central CTM Desktop: glifo `"➔"` em `"Despacho expresso Derby ➔ UFRPE"`.
+   - Comparar UX com apps de referência internacionais e validar em tempo real Laya Voz + motor GTFS/O-D + ST-GCN no simulador mobile e desktop.
+3. **Ensaio Geral da Apresentação (`17/11/2026`):**
+   - Passar roteiro completo (`Home` -> `Mapa Ao Vivo` -> `Laya Voz Sulafat` -> `Central CTM` -> `Pesquisa & Banca`) com [GrafoParada_Seminario2_CauaLira.pptx](code/grafoparada_web/GrafoParada_Seminario2_CauaLira.pptx) e `https://grafoparadaweb.vercel.app/roteiro.html`.
+4. **Higiene Opcional de Branches:**
+   - Avaliar mover o commit local `4a553ea` (`feat(eso2): adiciona apresentacao final de equiparacao ESO II`, hoje em `feature/grafoparada-voice`) para `feature/eso2-equiparacao-slides` sem tocar na `main`.
 
 ---
 
 ## ⚡ Prompt de 1 Linha para o Próximo Agente
-> *"Estou iniciando uma nova sessão. Leia `HANDOFF.md` e `AGENTS.md`, execute `git pull` e verifique o status das branches `feature/grafoparada-voice` e `main` antes de prosseguir."*
+> *"Estamos continuando o projeto GrafoParada antes da banca de 17/11. Execute `git pull`, leia `AGENTS.md` e `HANDOFF.md` (seção `0i` e Próximos Passos), abra uma branch limpa a partir da `main` se formos editar código e me diga o status atual da produção na Vercel e os próximos testes."*
