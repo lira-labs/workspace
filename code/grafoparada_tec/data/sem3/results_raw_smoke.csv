@@ -1,0 +1,7 @@
+scenario_id,seed,group,shock_node,true_delay_min,gps_obs_min,is_grave,pred_c1_persist,alert_c1,pred_c2_tabular,alert_c2,pred_c3_stgcn,alert_c3,diff_gps_stgcn,trava_triggered,pred_c4_hybrid,alert_c4
+SCN-001,2000,grave,4,44.25,43.42,True,19.91,False,44.51,True,9.43,False,33.99,True,43.42,True
+SCN-002,2001,grave,15,41.64,43.69,True,18.74,False,40.6,True,9.43,False,34.26,True,43.69,True
+SCN-003,2060,intermediario,5,21.44,22.43,False,15.0,False,20.14,False,9.4,False,13.03,False,9.4,False
+SCN-004,2061,intermediario,17,26.01,25.3,False,18.21,False,38.76,False,9.43,False,15.87,True,25.3,False
+SCN-005,2120,normal,8,11.91,12.61,False,7.51,False,12.73,False,9.34,False,3.27,False,9.34,False
+SCN-006,2121,normal,9,6.16,3.91,False,8.26,False,6.95,False,9.37,False,5.46,False,9.37,False

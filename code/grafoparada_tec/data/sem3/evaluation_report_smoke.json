@@ -1,0 +1,68 @@
+{
+  "mode": "smoke",
+  "total_scenarios": 6,
+  "graves": 2,
+  "non_graves": 4,
+  "conditions": {
+    "C1_Persistencia": {
+      "fn": 2,
+      "tcgns_pct": 100.0,
+      "tcgns_ic95": [
+        15.81,
+        100.0
+      ],
+      "fp": 0,
+      "fpr_pct": 0.0,
+      "fpr_ic95": [
+        0.0,
+        60.24
+      ],
+      "mae_min": 11.33
+    },
+    "C2_Tabular": {
+      "fn": 0,
+      "tcgns_pct": 0.0,
+      "tcgns_ic95": [
+        0.0,
+        84.19
+      ],
+      "fp": 0,
+      "fpr_pct": 0.0,
+      "fpr_ic95": [
+        0.0,
+        60.24
+      ],
+      "mae_min": 2.83
+    },
+    "C3_STGCN_Pura": {
+      "fn": 2,
+      "tcgns_pct": 100.0,
+      "tcgns_ic95": [
+        15.81,
+        100.0
+      ],
+      "fp": 0,
+      "fpr_pct": 0.0,
+      "fpr_ic95": [
+        0.0,
+        60.24
+      ],
+      "mae_min": 16.91
+    },
+    "C4_STGCN_Trava_Hibrida": {
+      "fn": 0,
+      "tcgns_pct": 0.0,
+      "tcgns_ic95": [
+        0.0,
+        84.19
+      ],
+      "fp": 0,
+      "fpr_pct": 0.0,
+      "fpr_ic95": [
+        0.0,
+        60.24
+      ],
+      "mae_min": 3.57
+    }
+  }
+}
