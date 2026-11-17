@@ -4,7 +4,7 @@
 > [exp.md](exp.md), [cmp.md](cmp.md) e [sem2.md](sem2.md).
 > código no painel: `sem3` · de 4 a 6 slides · 5 a 7 minutos.
 
-**link dos slides:** [va2/GrafoParada_Sem3_CauaLira.pptx](https://grafoparadaweb.vercel.app/GrafoParada_Sem3_CauaLira.pptx) *(cópia versionada em `va2/GrafoParada_Sem3_CauaLira.pptx`)*
+**link dos slides:** [Ver no Canva](https://www.canva.com/d/KsDvgkjJgBk2Cxr) · [Editar no Canva](https://www.canva.com/d/ZdkDfrWBdPQDITL) · [Baixar PPTX](https://grafoparadaweb.vercel.app/GrafoParada_Sem3_CauaLira.pptx) *(cópia em `va2/GrafoParada_Sem3_CauaLira.pptx`)*
 
 **o commit da regra:** pré-registrado na branch `main` em **17/11/2026** (antes da apresentação de 18/11) com a frase 2, a métrica **TCGNS** + **Falso Alarme** e os limiares congelados de **passou**, **caiu** e **inconclusivo**.
 
