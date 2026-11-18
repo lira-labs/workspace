@@ -128,77 +128,77 @@ def build_deck():
     set_bg(s1)
     add_header(
         s1,
-        "Slide 1 · O Competidor e o Que Ele Consegue",
-        "Por que comparar C1, C2 e C3 nos mesmos cenários",
-        "Falha do sem2 (Nó 10 PE-60): choque real de 45,0 min suavizado para 14,3 min sem aviso.",
+        "Slide 1 · O Problema e os Concorrentes",
+        "Por que comparar 3 modelos nos mesmos cenários",
+        "No teste anterior (PE-60), um atraso grave de 45 min foi previsto como 14 min sem nenhum alerta.",
     )
 
     cards_s1 = [
-        ("C1 · Persistência (Hoje)", "7,13 min MAE (20 nós)\n97% sem aviso (5 nós)", "Olha só o atraso atual.\nSempre chega atrasado.", RED_SOFT, RED),
-        ("C2 · Tabular Corredor", "1,93 min MAE (20 nós)\n2,46 min MAE (5 nós)", "Lags achatados sem grafo.\nForte em amostra pequena.", BLUE_SOFT, BLUE),
-        ("C3 · ST-GCN Pura", "1,51 min MAE normal\n14,3 min no choque 45m", "Aprende difusão da via,\nmas suaviza pico súbito.", AMBER_SOFT, AMBER),
+        ("1. Modelo Simples (Hoje)", "Erro médio: 7,13 min\nPerdeu 97% dos alertas", "Olha só o atraso do momento.\nSempre avisa tarde demais.", RED_SOFT, RED),
+        ("2. Modelo de Tabela", "Erro médio: 1,93 min\nBom em amostras pequenas", "Usa histórico fixo da linha,\nmas não enxerga a rede toda.", BLUE_SOFT, BLUE),
+        ("3. Rede Neural Pura", "Erro médio normal: 1,51 min\n14 min no atraso de 45 min", "Aprende o ritmo da cidade,\nmas suaviza bloqueios súbitos.", AMBER_SOFT, AMBER),
     ]
     for i, (t, metric, desc, bgc, fg) in enumerate(cards_s1):
         x = 0.65 + i * 4.1
         add_card(s1, x, 1.75, 3.85, 3.35, bgc, fg)
         add_lines(s1, x + 0.22, 1.95, 3.4, 3.0, [
-            (t, 16, True, DARK),
-            (metric, 20, True, fg),
+            (t, 16.5, True, DARK),
+            (metric, 19, True, fg),
             (desc, 13.5, False, MUTED),
         ])
 
     add_card(s1, 0.65, 5.35, 12.03, 1.45, CARD, BORDER)
     add_lines(s1, 0.9, 5.5, 11.5, 1.2, [
-        ("Por que apps fechados (Cittamobi / Moovit) e datasets externos ficam fora da tabela principal:", 13.5, True, DARK),
-        ("• Apps fechados não rodam nos mesmos cenários controlados. Fontes abertas (Horn et al., 2025; Mansurova et al., 2025; Niemann Tygesen et al., 2023) validam dados AVL e incidentes, sem benchmark publicado de FN > 40 min.", 12.5, False, MUTED),
+        ("Por que comparamos com modelos abertos e não apenas com apps comerciais (Cittamobi / Moovit)?", 13.5, True, DARK),
+        ("• Apps fechados não permitem rodar os mesmos cenários controlados. Nossa avaliação mede em igualdade de condições quem evita deixar o passageiro esperando sem aviso.", 12.5, False, MUTED),
     ])
     add_footer(s1, 1)
 
-    # SLIDE 2: O QUE QUERO MOSTRAR + REGRA PRÉ-REGISTRADA
+    # SLIDE 2: O QUE QUEREMOS MEDIR E QUANDO PASSA
     s2 = prs.slides.add_slide(blank)
     set_bg(s2)
     add_header(
         s2,
-        "Slide 2 · O Alvo e a Regra Escrita Antes do Resultado",
-        "Medir falha silenciosa (> 40 min), nunca 'nota de gosto'",
-        "Trava Híbrida Defensiva [?]: dispara alerta quando |GPS cinemático (min) − ST-GCN| > 15,0 min.",
+        "Slide 2 · O Alvo e a Regra de Aprovação",
+        "Evitar atrasos graves sem aviso (acima de 40 min)",
+        "Trava de Segurança: dispara alerta quando o GPS mostra mais de 15 min de diferença para a previsão.",
     )
 
     add_card(s2, 0.65, 1.7, 12.03, 1.45, BLUE_SOFT, BLUE)
     add_lines(s2, 0.9, 1.85, 11.5, 1.15, [
-        ("Métrica Principal: TCGNS = (FN_choques / N_choques) × 100", 18, True, DARK),
-        ("Secundárias: Taxa de Falso Alarme (FPR), Sensibilidade, Precisão do alerta, MAE geral e MAE nos choques graves.", 13.5, False, MUTED),
+        ("Pergunta central: quantos atrasos graves passam sem alerta ao passageiro?", 18, True, DARK),
+        ("Também medimos: quantos alarmes falsos ocorrem, acerto dos alertas e erro médio em minutos.", 13.5, False, MUTED),
     ])
 
     rules = [
-        ("PASSOU", "TCGNS ≤ 5%\nFalso Alarme ≤ 10%", "Suportado pelo IC 95%\n(Clopper–Pearson por cenário)", GREEN_SOFT, GREEN),
-        ("INCONCLUSIVO", "5% < TCGNS ≤ 15%\nou 10% < FPR ≤ 20%", "Ou se o IC 95%\ncruzar o limiar definido", AMBER_SOFT, AMBER),
-        ("CAIU", "TCGNS > 15%\nou Falso Alarme > 20%", "Reprovação técnica\ndocumentada sem ajustes", RED_SOFT, RED),
+        ("APROVADO", "Até 5% de falhas graves\nAté 10% de alarmes falsos", "Resultado firme e confiável\nem todos os cenários", GREEN_SOFT, GREEN),
+        ("INCONCLUSIVO", "Entre 5% e 15% de falhas\nou 10% a 20% de alarmes falsos", "Precisa de mais testes\npara confirmar o ganho", AMBER_SOFT, AMBER),
+        ("REPROVADO", "Acima de 15% de falhas\nou mais de 20% de alarmes falsos", "Reprovação registrada\ncom transparência", RED_SOFT, RED),
     ]
     for i, (lbl, cond, note, bgc, fg) in enumerate(rules):
         x = 0.65 + i * 4.1
         add_card(s2, x, 3.45, 3.85, 3.25, bgc, fg)
         add_lines(s2, x + 0.22, 3.65, 3.4, 2.8, [
             (lbl, 18, True, fg),
-            (cond, 19, True, DARK),
+            (cond, 17.5, True, DARK),
             (note, 13.5, False, MUTED),
         ])
     add_footer(s2, 2)
 
-    # SLIDE 3: ESQUEMA DA COMPARAÇÃO PAREADA (180 CENÁRIOS)
+    # SLIDE 3: COMO SERÁ O TESTE PAREADO
     s3 = prs.slides.add_slide(blank)
     set_bg(s3)
     add_header(
         s3,
         "Slide 3 · Como Será a Comparação",
-        "Protocolo pareado em 180 cenários novos (20 paradas · PE-60)",
-        "Seeds de treino congeladas (100–159) separadas das seeds de teste (2000–2179).",
+        "Mesmos 180 cenários testados nos 4 modelos lado a lado",
+        "Dados de treino separados dos cenários de teste para garantir avaliação justa.",
     )
 
     cols = [
-        ("1. ENTRADA ÚNICA\n(180 Cenários)", "60 Graves (> 40 min)\n60 Interm. (15–40 min)\n60 Normais (≤ 15 min)\n\nMesma topologia (20 nós),\nmesmo GPS e mesmo input.", BLUE_SOFT, BLUE),
-        ("2. 4 CONDIÇÕES\nLADO A LADO", "C1: Persistência\nC2: Tabular Corredor\nC3: ST-GCN Pura\nC4: ST-GCN + Trava [?]\n\nLimiar 15 min congelado\nantes da execução.", CARD, DARK),
-        ("3. GABARITO &\nANÁLISE", "Gabarito independente\ninjetado no cenário.\n\nIC 95% Clopper–Pearson\nBootstrap 2000x pareado\npor cenário completo.", GREEN_SOFT, GREEN),
+        ("1. MESMA ENTRADA\n(180 Cenários)", "60 Atrasos Graves (mais de 40 min)\n60 Atrasos Médios (15 a 40 min)\n60 Dias Normais (até 15 min)\n\nMesmas 20 paradas da PE-60\ne mesmo sinal de GPS.", BLUE_SOFT, BLUE),
+        ("2. 4 MODELOS\nLADO A LADO", "1. Modelo Simples (Hoje)\n2. Modelo de Tabela\n3. Rede Neural Pura\n4. Rede Neural + Trava\n\nRegra de 15 min fixada\nantes de rodar os testes.", CARD, DARK),
+        ("3. ANÁLISE\nTRANSPARENTE", "Gabarito real salvo\nem cada cenário.\n\nComparamos a taxa de\nfalhas e o erro em minutos\ncom margem estatística.", GREEN_SOFT, GREEN),
     ]
     for i, (head, body, bgc, fg) in enumerate(cols):
         x = 0.65 + i * 4.1
@@ -209,65 +209,65 @@ def build_deck():
         ])
     add_footer(s3, 3)
 
-    # SLIDE 4: CAMINHO ATÉ 02/12 + TESTE PEQUENO + PLANO B
+    # SLIDE 4: CRONOGRAMA E TESTE PILOTO
     s4 = prs.slides.add_slide(blank)
     set_bg(s4)
     add_header(
         s4,
-        "Slide 4 · Caminho até o Pitch (18/11 → 02/12)",
-        "Cronograma, teste pequeno já executado e Plano B",
-        "Ética: 100% técnico sem participantes humanos (E2 humano adiado por exigir protocolo CEP).",
+        "Slide 4 · Cronograma até o Pitch (18/11 a 02/12)",
+        "Etapas planejadas, teste piloto já aprovado e Plano B",
+        "Ética: teste técnico sem expor passageiros reais (coleta com pessoas fica para etapa futura).",
     )
 
     dates = [
-        ("18/11", "Plano sem3\n& Regra"),
-        ("19/11", "Congelar pesos,\nlimiar & seeds"),
-        ("20–24/11", "Gerar 180 casos\n& auditar CSV"),
-        ("25/11", "Execução\noficial"),
-        ("27/11", "Auditoria\n& ICs 95%"),
-        ("02/12", "Tabela no\nPitch Final"),
+        ("18/11", "Definir plano\ne regras"),
+        ("19/11", "Congelar modelo\ne cenários"),
+        ("20 a 24/11", "Gerar 180 casos\ne conferir dados"),
+        ("25/11", "Rodar o teste\noficial"),
+        ("27/11", "Conferir\nresultados"),
+        ("02/12", "Apresentar\nno Pitch Final"),
     ]
     for i, (dt, desc) in enumerate(dates):
         x = 0.65 + i * 2.02
         add_card(s4, x, 1.75, 1.88, 1.7, BLUE_SOFT if i != 3 else GREEN_SOFT, BLUE if i != 3 else GREEN)
         add_lines(s4, x + 0.12, 1.92, 1.64, 1.4, [
-            (dt, 18, True, DARK),
+            (dt, 17, True, DARK),
             (desc, 12.5, False, MUTED),
         ], align=PP_ALIGN.CENTER)
 
     add_card(s4, 0.65, 3.75, 5.9, 2.95, AMBER_SOFT, AMBER)
     add_lines(s4, 0.88, 3.92, 5.45, 2.6, [
-        ("Teste pequeno já rodou (--mode smoke, 6 cenários):", 15, True, DARK),
-        ("• Quebrou na 1ª tentativa (assinatura STGCN: in_channels=1 e HISTORY_LEN=12). Corrigido antes de 18/11.\n• Na 2ª execução (7s): gerou CSV/JSON sem erros; C1 e C3 perderam 2/2 choques, C4 capturou 2/2.", 13, False, MUTED),
+        ("Teste piloto já executado (6 cenários):", 15, True, DARK),
+        ("• Ajustamos a entrada do modelo antes da apresentação.\n• No teste completo (7s): gerou planilhas e resultados sem erros; os modelos sem trava perderam 2 de 2 atrasos graves, enquanto o modelo com trava detectou os 2.", 13, False, MUTED),
     ])
 
     add_card(s4, 6.78, 3.75, 5.9, 2.95, CARD, BORDER)
     add_lines(s4, 7.0, 3.92, 5.45, 2.6, [
-        ("Plano B (execução blindada em 25/11):", 15, True, DARK),
-        ("• Conjunto test_set.csv congelado localmente antes de 25/11.\n• Execução em Python/CPU 100% offline (sem depender de internet, navegador web ou banco Neon remoto).", 13, False, MUTED),
+        ("Plano B (garantia no dia 25/11):", 15, True, DARK),
+        ("• Base de cenários salva localmente no computador.\n• Execução 100% offline em Python, sem depender de internet, navegador ou servidor externo.", 13, False, MUTED),
     ])
     add_footer(s4, 4)
 
-    # SLIDE 5: FECHO E LIMITE HONESTO
+    # SLIDE 5: O QUE ESTE TESTE PROVA E O QUE NÃO PROVA
     s5 = prs.slides.add_slide(blank)
     set_bg(s5)
     add_header(
         s5,
-        "Slide 5 · Escopo e Limite Honesto",
-        "O que este teste prova em 02/12 — e o que ele não prova",
-        "Rigor metodológico: preservar a possibilidade de a hipótese ser rejeitada pelos dados.",
+        "Slide 5 · Escopo e Transparência",
+        "O que este teste comprova em 02/12 — e seus limites",
+        "Honestidade científica: aceitar o resultado que os dados mostrarem.",
     )
 
     add_card(s5, 0.65, 1.9, 5.85, 4.65, GREEN_SOFT, GREEN)
     add_lines(s5, 0.92, 2.15, 5.3, 4.15, [
-        ("O QUE O TESTE PROVA", 18, True, GREEN),
-        ("• Se a Trava Híbrida [?] reduz falhas silenciosas (> 40 min) frente à ST-GCN pura e baselines.\n\n• Qual o custo exato em falsos alarmes.\n\n• Robustez controlada em perturbações fora da distribuição de treino (topologia de 20 nós da PE-60).", 14, False, DARK),
+        ("O QUE O TESTE COMPROVA", 18, True, GREEN),
+        ("• Se a Trava de Segurança reduz falhas silenciosas em atrasos graves (mais de 40 min).\n\n• Quantos alarmes falsos ela gera na prática.\n\n• Como o modelo reage a bloqueios inesperados fora do padrão de treino.", 14, False, DARK),
     ])
 
     add_card(s5, 6.83, 1.9, 5.85, 4.65, RED_SOFT, RED)
     add_lines(s5, 7.1, 2.15, 5.3, 4.15, [
-        ("O QUE O TESTE NÃO PROVA", 18, True, RED),
-        ("• Validação operacional em tráfego real do Recife (depende de streaming AVL/GPS do CTM).\n\n• Redução direta de desistência humana sem coleta ética aprovada (CEP/UFRPE).\n\n• Superioridade garantida em MAE sobre regressão tabular.", 14, False, DARK),
+        ("O QUE O TESTE NÃO COMPROVA", 18, True, RED),
+        ("• Operação em tempo real com todos os ônibus do Recife (depende de sinal oficial ao vivo).\n\n• Mudança no comportamento de passageiros reais (exige pesquisa aprovada com usuários).\n\n• Que a rede neural vença sempre em dias comuns sem incidentes.", 14, False, DARK),
     ])
     add_footer(s5, 5)
 
