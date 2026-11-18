@@ -138,6 +138,150 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  if (sanitizeText(body.kind, 40) === 'training_run') {
+    const expectedSyncToken =
+      typeof process.env.GRAFOPARADA_SYNC_TOKEN === 'string'
+        ? process.env.GRAFOPARADA_SYNC_TOKEN.trim()
+        : '';
+    if (expectedSyncToken) {
+      const headerToken = req.headers
+        ? req.headers['x-sync-token'] || req.headers['X-Sync-Token']
+        : '';
+      const rawHeaderToken = Array.isArray(headerToken) ? headerToken[0] : headerToken;
+      const providedToken = sanitizeText(
+        rawHeaderToken || body.sync_token || '',
+        256
+      );
+      if (!providedToken || providedToken !== expectedSyncToken) {
+        sendJson(res, 401, {
+          ok: false,
+          error: 'unauthorized',
+          message: 'Sync token inválido ou ausente.'
+        });
+        return;
+      }
+    }
+
+    const weightsHash = sanitizeText(body.weights_hash, 128);
+    const stgcnMae = toNullableNumber(body.stgcn_mae);
+    if (!weightsHash || stgcnMae === null || Number.isNaN(stgcnMae) || stgcnMae < 0) {
+      sendJson(res, 400, {
+        ok: false,
+        error: 'invalid_training_run',
+        message: 'Campos weights_hash e stgcn_mae numéricos válidos são obrigatórios.'
+      });
+      return;
+    }
+
+    const datasetRows =
+      body.dataset_rows !== undefined && body.dataset_rows !== null && body.dataset_rows !== ''
+        ? toNullableInt(body.dataset_rows)
+        : 0;
+    const realObservations =
+      body.real_observations !== undefined && body.real_observations !== null && body.real_observations !== ''
+        ? toNullableInt(body.real_observations)
+        : 0;
+    const linesCovered =
+      body.lines_covered !== undefined && body.lines_covered !== null && body.lines_covered !== ''
+        ? toNullableInt(body.lines_covered)
+        : 0;
+    const olsMae =
+      body.ols_mae !== undefined && body.ols_mae !== null && body.ols_mae !== ''
+        ? toNullableNumber(body.ols_mae)
+        : 0;
+    const persistenceMae =
+      body.persistence_mae !== undefined && body.persistence_mae !== null && body.persistence_mae !== ''
+        ? toNullableNumber(body.persistence_mae)
+        : 0;
+
+    if (
+      Number.isNaN(datasetRows) ||
+      Number.isNaN(realObservations) ||
+      Number.isNaN(linesCovered) ||
+      Number.isNaN(olsMae) ||
+      Number.isNaN(persistenceMae) ||
+      datasetRows < 0 ||
+      realObservations < 0 ||
+      linesCovered < 0 ||
+      olsMae < 0 ||
+      persistenceMae < 0
+    ) {
+      sendJson(res, 400, { ok: false, error: 'invalid_metrics' });
+      return;
+    }
+
+    const localTrainingRun = {
+      dataset_rows: datasetRows,
+      real_observations: realObservations,
+      lines_covered: linesCovered,
+      stgcn_mae: stgcnMae,
+      ols_mae: olsMae,
+      persistence_mae: persistenceMae,
+      weights_hash: weightsHash,
+      notes: toNullableText(body.notes, 500),
+      created_at: toNullableIso(body.created_at) || new Date().toISOString()
+    };
+
+    try {
+      const { sql, reason } = await getReadyDb();
+      if (!sql) {
+        sendJson(res, 202, {
+          ok: true,
+          persisted: 'client_local_pending_db',
+          db_configured: false,
+          available: false,
+          storage: 'client_local',
+          kind: 'training_run',
+          reason,
+          training_run: localTrainingRun
+        });
+        return;
+      }
+
+      const rows = await sql`
+        INSERT INTO training_runs (
+          dataset_rows, real_observations, lines_covered,
+          stgcn_mae, ols_mae, persistence_mae,
+          weights_hash, notes, created_at
+        ) VALUES (
+          ${localTrainingRun.dataset_rows},
+          ${localTrainingRun.real_observations},
+          ${localTrainingRun.lines_covered},
+          ${localTrainingRun.stgcn_mae},
+          ${localTrainingRun.ols_mae},
+          ${localTrainingRun.persistence_mae},
+          ${localTrainingRun.weights_hash},
+          ${localTrainingRun.notes},
+          ${localTrainingRun.created_at}
+        )
+        RETURNING *
+      `;
+
+      sendJson(res, 201, {
+        ok: true,
+        persisted: 'neon_postgres',
+        db_configured: true,
+        available: true,
+        storage: 'neon_postgres',
+        kind: 'training_run',
+        training_run: rows[0] || localTrainingRun
+      });
+    } catch (err) {
+      console.error('[api/telemetry POST training_run] error:', err && err.message ? err.message : err);
+      sendJson(res, 503, {
+        ok: false,
+        persisted: 'client_local_pending_db',
+        db_configured: true,
+        available: false,
+        storage: 'client_local',
+        kind: 'training_run',
+        reason: 'db_query_error',
+        training_run: localTrainingRun
+      });
+    }
+    return;
+  }
+
   const eventType = sanitizeText(body.event_type, 80);
   if (eventType) {
     let payloadJson = null;

@@ -698,3 +698,78 @@ def sync_cloud_observations(
         "observations_added": observations_added,
         "routines_added": routines_added,
     }
+
+
+def push_latest_training_run_to_cloud(
+    cloud_url: str | None = None,
+    timeout: float = 5.0,
+    db_path: str | Path | None = None,
+    sync_token: str | None = None,
+) -> dict[str, Any]:
+    """
+    Envia o último registro local de `training_runs` para `POST /api/telemetry`
+    (`kind="training_run"`) quando `cloud_url` ou `GRAFOPARADA_CLOUD_URL` estiver definido.
+    Falha silenciosamente com retorno estruturado quando offline ou sem URL configurada.
+    """
+    raw_url = cloud_url if cloud_url is not None else os.environ.get("GRAFOPARADA_CLOUD_URL", "")
+    base_url = str(raw_url or "").strip().rstrip("/")
+    if not base_url:
+        return {"pushed": False, "reason": "no_cloud_url"}
+
+    try:
+        resolved = init_db(db_path)
+        with _connect(resolved) as conn:
+            latest_row = conn.execute(
+                "SELECT * FROM training_runs ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+    except Exception:
+        return {"pushed": False, "reason": "local_db_error"}
+
+    if not latest_row:
+        return {"pushed": False, "reason": "no_training_run"}
+
+    run = dict(latest_row)
+    endpoint = base_url if base_url.endswith("/api/telemetry") else f"{base_url}/api/telemetry"
+    payload = {
+        "kind": "training_run",
+        "dataset_rows": run.get("dataset_rows"),
+        "real_observations": run.get("real_observations"),
+        "lines_covered": run.get("lines_covered"),
+        "stgcn_mae": run.get("stgcn_mae"),
+        "ols_mae": run.get("ols_mae"),
+        "persistence_mae": run.get("persistence_mae"),
+        "weights_hash": run.get("weights_hash"),
+        "notes": run.get("notes"),
+        "created_at": run.get("created_at"),
+    }
+
+    raw_token = sync_token if sync_token is not None else os.environ.get("GRAFOPARADA_SYNC_TOKEN", "")
+    token = str(raw_token or "").strip()
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "User-Agent": "GrafoParada-Trainer/3.1",
+    }
+    if token:
+        headers["x-sync-token"] = token
+
+    req = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload).encode("utf-8"),
+        headers=headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            status = int(getattr(resp, "status", 200))
+            raw_body = resp.read().decode("utf-8")
+        parsed = json.loads(raw_body) if raw_body.strip() else {}
+        return {
+            "pushed": True,
+            "reason": "ok",
+            "status": status,
+            "weights_hash": run.get("weights_hash"),
+            "response": parsed if isinstance(parsed, dict) else {},
+        }
+    except Exception:
+        return {"pushed": False, "reason": "offline_or_error"}

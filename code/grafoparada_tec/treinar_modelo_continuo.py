@@ -74,6 +74,7 @@ WEB_DATA_DIR = BASE_DIR.parent / "grafoparada_web" / "data"
 NETWORK_JSON = WEB_DATA_DIR / "gtfs_real_network.json"
 SCHEDULES_JSON = WEB_DATA_DIR / "gtfs_schedules.json"
 STATUS_JSON = WEB_DATA_DIR / "model_training_status.json"
+PRIORS_JSON = WEB_DATA_DIR / "stgcn_calibration_priors.json"
 
 EXPECTED_LINES = 393
 HISTORY_LEN = 12
@@ -620,15 +621,59 @@ def train_and_evaluate_models(
     with torch.no_grad():
         pred_dy_norm = model(x_te_t, l_matrix).numpy()
     pred_stgcn = np.repeat(last_wait_test[:, None, :], HORIZON, axis=1) + (pred_dy_norm * std_dy + mean_dy)
-    stgcn_mae = float(np.mean(np.abs(y_test - pred_stgcn)))
+    abs_residuals = np.abs(y_test - pred_stgcn)
+    stgcn_mae = float(np.mean(abs_residuals))
+
+    # Intervalos de incerteza conformal (quantil 90% dos residuos absolutos no teste purgado)
+    conformal_p90_margin_min = float(np.quantile(abs_residuals, 0.90))
+    conformal_coverage_90_pct = float(np.mean(abs_residuals <= conformal_p90_margin_min) * 100.0)
+    ti_transfer_safety_min = float(max(3.0, conformal_p90_margin_min + stgcn_mae))
 
     # Metricas estratificadas por horizonte (+10, +20, +30 min) e regime (pico vs vale)
-    mae_h10 = float(np.mean(np.abs(y_test[:, 0, :] - pred_stgcn[:, 0, :])))
-    mae_h20 = float(np.mean(np.abs(y_test[:, 1, :] - pred_stgcn[:, 1, :])))
-    mae_h30 = float(np.mean(np.abs(y_test[:, 2, :] - pred_stgcn[:, 2, :])))
+    mae_h10 = float(np.mean(abs_residuals[:, 0, :]))
+    mae_h20 = float(np.mean(abs_residuals[:, 1, :]))
+    mae_h30 = float(np.mean(abs_residuals[:, 2, :]))
     peak_mask = x_test[:, 4, -1, 0] > 0.5
-    mae_pico = float(np.mean(np.abs(y_test[peak_mask] - pred_stgcn[peak_mask]))) if np.any(peak_mask) else stgcn_mae
-    mae_vale = float(np.mean(np.abs(y_test[~peak_mask] - pred_stgcn[~peak_mask]))) if np.any(~peak_mask) else stgcn_mae
+    mae_pico = float(np.mean(abs_residuals[peak_mask])) if np.any(peak_mask) else stgcn_mae
+    mae_vale = float(np.mean(abs_residuals[~peak_mask])) if np.any(~peak_mask) else stgcn_mae
+
+    # Multiplicadores horarios (0..23) e priors calibrados por no do grafo
+    angles_test = np.arctan2(x_test[:, 2, -1, 0], x_test[:, 3, -1, 0])
+    mins_test = np.mod(angles_test / (2.0 * math.pi) * 1440.0, 1440.0)
+    hours_test = (np.floor(mins_test / 60.0).astype(int)) % 24
+    non_peak_mean_wait = float(np.mean(y_test[~peak_mask])) if np.any(~peak_mask) else float(np.mean(y_test))
+    hourly_multipliers: dict[str, dict[str, Any]] = {}
+    for hour in range(24):
+        band_h = band_for_minute(hour * 60 + 30)
+        is_peak_h = band_h in ("pico_manha", "pico_tarde")
+        h_mask = hours_test == hour
+        if np.any(h_mask):
+            p90_h = float(np.quantile(abs_residuals[h_mask], 0.90))
+            mean_wait_h = float(np.mean(y_test[h_mask]))
+            peak_factor_h = max(0.75, min(1.85, mean_wait_h / max(1.0, non_peak_mean_wait)))
+        else:
+            p90_h = conformal_p90_margin_min
+            peak_factor_h = 1.35 if is_peak_h else 1.0
+        hourly_multipliers[str(hour)] = {
+            "peak_factor": round(peak_factor_h, 4),
+            "p90_margin_min": round(p90_h, 4),
+            "is_peak": is_peak_h,
+        }
+
+    node_calibration: list[dict[str, float]] = []
+    for node_i in range(num_nodes):
+        node_res = abs_residuals[:, :, node_i]
+        node_p90 = float(np.quantile(node_res, 0.90))
+        node_mae = float(np.mean(node_res))
+        base_w = float(np.mean(y_test[~peak_mask, :, node_i])) if np.any(~peak_mask) else float(np.mean(y_test[:, :, node_i]))
+        peak_w = float(np.mean(y_test[peak_mask, :, node_i])) if np.any(peak_mask) else base_w * 1.35
+        reliability = 1.0 / (1.0 + 0.25 * node_mae)
+        node_calibration.append({
+            "base_wait_min": round(base_w, 2),
+            "peak_wait_min": round(peak_w, 2),
+            "p90_margin_min": round(node_p90, 4),
+            "reliability_score": round(float(np.clip(reliability, 0.1, 0.99)), 4),
+        })
 
     # Avaliacao controlada de choque severo (> 40 min) e auditoria da Trava Hibrida Defensiva
     # Trava Hibrida: aciona quando |y_true - y_pred_stgcn| > TRAVA_HIBRIDA_LIMIAR_MIN (15.0 min)
@@ -697,8 +742,112 @@ def train_and_evaluate_models(
         "mae_h20": round(mae_h20, 4),
         "mae_h30": round(mae_h30, 4),
         "mae_choque_severo": round(mae_choque_severo, 4),
+        "conformal_p90_margin_min": round(conformal_p90_margin_min, 4),
+        "conformal_coverage_90_pct": round(conformal_coverage_90_pct, 2),
+        "ti_transfer_safety_min": round(ti_transfer_safety_min, 2),
         "trava_hibrida_triggers": trava_triggers,
         "weights_hash": weights_hash,
+        "_calibration_artifacts": {
+            "hourly_multipliers": hourly_multipliers,
+            "node_calibration": node_calibration,
+        },
+    }
+
+
+def _median_ti_headway(
+    ti_lines: list[dict[str, Any]], sched_lines: dict[str, Any], bands: tuple[str, ...]
+) -> float | None:
+    """Calcula mediana de headways GTFS (DUT) para as linhas de um TI nas faixas informadas."""
+    hws: list[float] = []
+    for entry in ti_lines:
+        code = str(entry.get("code") or "").strip()
+        dkey = str(entry.get("direction") or "ida")
+        svc_data = sched_lines.get(code, {}).get(dkey, {}).get("DUT", {})
+        hw_map = svc_data.get("headways_min", {})
+        for b in bands:
+            val = hw_map.get(b)
+            if val is not None and float(val) > 0:
+                hws.append(float(val))
+    return float(np.median(hws)) if hws else None
+
+
+def build_calibration_priors_payload(
+    hubs: list[dict[str, Any]],
+    schedules: dict[str, Any],
+    metrics: dict[str, Any],
+    cal_artifacts: dict[str, Any],
+    generated_at: str,
+) -> dict[str, Any]:
+    """Monta payload compacto de priors calibrados da ST-GCN para os 24 nos + 133 ti_hubs."""
+    node_cal = cal_artifacts.get("node_calibration", [])
+    hub_priors: dict[str, dict[str, Any]] = {}
+
+    for idx, hub in enumerate(hubs):
+        name = str(hub.get("name") or "").strip()
+        norm_key = _normalize_hub_name(name)
+        if not norm_key:
+            continue
+        cal = node_cal[idx] if idx < len(node_cal) else {}
+        hub_priors[norm_key] = {
+            "name": name,
+            "base_wait_min": cal.get("base_wait_min", 10.0),
+            "peak_wait_min": cal.get("peak_wait_min", 13.5),
+            "p90_margin_min": cal.get("p90_margin_min", metrics["conformal_p90_margin_min"]),
+            "reliability_score": cal.get("reliability_score", 0.78),
+        }
+
+    sched_lines = schedules.get("lines", {})
+    for th in schedules.get("ti_hubs", []):
+        name = str(th.get("name") or "").strip()
+        norm_key = _normalize_hub_name(name)
+        if not norm_key or norm_key in hub_priors:
+            continue
+
+        lat = th.get("lat")
+        lon = th.get("lon")
+        if lat is not None and lon is not None and hubs:
+            nearest_idx = min(
+                range(len(hubs)),
+                key=lambda i: approx_km(float(lat), float(lon), hubs[i]["lat"], hubs[i]["lon"]),
+            )
+        else:
+            nearest_idx = 0
+        nearest_cal = node_cal[nearest_idx] if nearest_idx < len(node_cal) else {}
+
+        ti_lines = th.get("lines", [])
+        base_hw = _median_ti_headway(ti_lines, sched_lines, ("entre_picos",))
+        peak_hw = _median_ti_headway(ti_lines, sched_lines, ("pico_manha", "pico_tarde"))
+
+        base_wait = (
+            min(45.0, max(3.5, 0.5 * base_hw))
+            if base_hw is not None
+            else float(nearest_cal.get("base_wait_min", 10.0))
+        )
+        peak_wait = (
+            min(55.0, max(base_wait * 1.1, 0.5 * peak_hw * 1.15))
+            if peak_hw is not None
+            else max(base_wait * 1.32, float(nearest_cal.get("peak_wait_min", base_wait * 1.32)))
+        )
+
+        hub_priors[norm_key] = {
+            "name": name,
+            "base_wait_min": round(base_wait, 2),
+            "peak_wait_min": round(peak_wait, 2),
+            "p90_margin_min": nearest_cal.get("p90_margin_min", metrics["conformal_p90_margin_min"]),
+            "reliability_score": nearest_cal.get("reliability_score", 0.75),
+        }
+
+    return {
+        "generated_at": generated_at,
+        "weights_hash": metrics["weights_hash"],
+        "stgcn_mae": metrics["stgcn_mae"],
+        "ols_mae": metrics["ols_mae"],
+        "persistence_mae": metrics["persistence_mae"],
+        "graph_nodes": len(hubs),
+        "conformal_p90_margin_min": metrics["conformal_p90_margin_min"],
+        "ti_transfer_safety_min": metrics["ti_transfer_safety_min"],
+        "hourly_multipliers": cal_artifacts.get("hourly_multipliers", {}),
+        "hub_priors": hub_priors,
     }
 
 
@@ -756,6 +905,7 @@ def run_continuous_training() -> dict[str, Any]:
         step_min=10,
     )
     metrics = train_and_evaluate_models(series, l_matrix, adj=adj)
+    cal_artifacts = metrics.pop("_calibration_artifacts", {})
     trained_at_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     ti_hubs_indexed = int(mesh_report.get("ti_hubs_indexed", 0))
@@ -775,6 +925,8 @@ def run_continuous_training() -> dict[str, Any]:
         "mae_h20": metrics["mae_h20"],
         "mae_h30": metrics["mae_h30"],
         "mae_choque_severo": metrics["mae_choque_severo"],
+        "conformal_p90_margin_min": metrics["conformal_p90_margin_min"],
+        "conformal_coverage_90_pct": metrics["conformal_coverage_90_pct"],
         "weights_hash": metrics["weights_hash"],
         "trained_at_utc": trained_at_utc,
         "dataset_rows": metrics["dataset_rows"],
@@ -791,9 +943,19 @@ def run_continuous_training() -> dict[str, Any]:
         "validation_393_passed": True,
     }
 
-    print(f"[5/5] Gravando {STATUS_JSON} e registrando execucao em training_runs...")
+    priors_payload = build_calibration_priors_payload(
+        hubs=hubs,
+        schedules=schedules,
+        metrics=metrics,
+        cal_artifacts=cal_artifacts,
+        generated_at=trained_at_utc,
+    )
+
+    print(f"[5/5] Gravando {STATUS_JSON}, {PRIORS_JSON} e registrando execucao em training_runs...")
     with open(STATUS_JSON, "w", encoding="utf-8") as f:
         json.dump(status_payload, f, ensure_ascii=False, indent=2)
+    with open(PRIORS_JSON, "w", encoding="utf-8") as f:
+        json.dump(priors_payload, f, ensure_ascii=False, separators=(",", ":"))
 
     if DB_MANAGER_AVAILABLE:
         run_record = log_training_run(

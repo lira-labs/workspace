@@ -11,6 +11,7 @@
     networkData: null,
     schedulesData: null,
     modelTrainingStatus: null,
+    calibrationPriors: null,
     stopsIndex: null,
     activeRouteCode: null, // Definido dinamicamente pela geolocalizacao ou escolha do usuario
     activeRoute: null,
@@ -267,14 +268,16 @@
       this.map = leafletMap || null;
       console.log('[RealTransit] Inicializando engine com dados reais do Grande Recife...');
 
-      const [networkData, schedulesData, trainingStatus] = await Promise.all([
+      const [networkData, schedulesData, trainingStatus, calibrationPriors] = await Promise.all([
         this._safeFetchJson('data/gtfs_real_network.json'),
         this._safeFetchJson('data/gtfs_schedules.json'),
-        this._safeFetchJson('data/model_training_status.json')
+        this._safeFetchJson('data/model_training_status.json'),
+        this._safeFetchJson('data/stgcn_calibration_priors.json')
       ]);
 
       this.schedulesData = schedulesData || null;
       this.modelTrainingStatus = trainingStatus || null;
+      this.calibrationPriors = (calibrationPriors && typeof calibrationPriors === 'object') ? calibrationPriors : null;
 
       if (!networkData) {
         console.error('[RealTransit] Erro ao carregar gtfs_real_network.json (modo offline ou indisponível).');
@@ -1337,11 +1340,14 @@
 
       if (clearBtn) clearBtn.style.display = 'block';
       const results = [];
+      const seenTerminals = new Set();
+      const seenRouteCodes = new Set();
 
       // 1. Busca nos Terminais Integrados (SEI)
       if (this.networkData && this.networkData.terminals_sei) {
         this.networkData.terminals_sei.forEach(t => {
           if (this._matchesQueryText(t.name, q)) {
+            seenTerminals.add(this.normalizeText(t.name));
             results.push({
               type: 'terminal',
               title: t.name,
@@ -1353,10 +1359,34 @@
         });
       }
 
+      // 1b. Busca nos Bairros, Cidades e Polos da RMR (gtfs_schedules.rmr_places)
+      const rmrMatches = this.searchRmrPlaces(query, 5).filter(p => p && p.type !== 'stop');
+      rmrMatches.forEach(p => {
+        const pNorm = this.normalizeText(p.label);
+        if (seenTerminals.has(pNorm)) return;
+        const typeLabelMap = {
+          city: 'Cidade RMR',
+          terminal: 'Terminal RMR',
+          station: 'Estação',
+          pole: 'Bairro / Polo'
+        };
+        results.push({
+          type: 'place',
+          placeType: p.type || 'pole',
+          badge: typeLabelMap[p.type] || 'Local RMR',
+          title: p.label,
+          sub: p.sublabel || 'Localidade na Região Metropolitana do Recife',
+          lat: p.lat,
+          lon: p.lon,
+          lines: Array.isArray(p.lines) ? p.lines : []
+        });
+      });
+
       // 2. Busca nas 393 Linhas do Catálogo GTFS
       if (this.networkData && this.networkData.routes_catalog) {
         this.networkData.routes_catalog.forEach(r => {
           if (this._matchesQueryText(`${r.code} ${r.label} ${r.name}`, q)) {
+            seenRouteCodes.add(String(r.code));
             results.push({
               type: 'route',
               title: r.label,
@@ -1365,6 +1395,31 @@
             });
           }
         });
+      }
+
+      // 2b. Complementa com linhas GTFS que atendem os bairros/cidades encontrados
+      if (seenRouteCodes.size < 6 && rmrMatches.length > 0 && this.networkData && this.networkData.routes_catalog) {
+        const catalogByCode = new Map(
+          this.networkData.routes_catalog.map(r => [String(r.code), r])
+        );
+        for (const p of rmrMatches) {
+          const pLines = Array.isArray(p.lines) ? p.lines : [];
+          for (const code of pLines) {
+            const cStr = String(code);
+            if (seenRouteCodes.has(cStr)) continue;
+            const cat = catalogByCode.get(cStr);
+            if (!cat) continue;
+            seenRouteCodes.add(cStr);
+            results.push({
+              type: 'route',
+              title: cat.label,
+              sub: `Linha GTFS que atende ${p.label}`,
+              code: cat.code
+            });
+            if (seenRouteCodes.size >= 8) break;
+          }
+          if (seenRouteCodes.size >= 8) break;
+        }
       }
 
       // 3. Busca nas Paradas da Linha Atual
@@ -1414,6 +1469,16 @@
               <span style="font-size:11.5px; font-weight:700; color:var(--blue-accent); background:#e0f2fe; padding:2px 8px; border-radius:6px;">T.I. SEI</span>
             </div>
           `;
+        } else if (r.type === 'place') {
+          return `
+            <div class="search-item" onclick="window.RealTransit.selectSearchResult(${idx})">
+              <div style="min-width:0;">
+                <div style="display:flex; align-items:center; gap:5px; color:#0369a1; font-weight:800;">${this._layaSvgIcon('compass', 13)}<span>${this.escapeHtml(r.title)}</span></div>
+                <div style="font-size:11px; color:var(--text-secondary);">${this.escapeHtml(r.sub)}</div>
+              </div>
+              <span style="font-size:11.5px; font-weight:700; color:#0369a1; background:#e0f2fe; padding:2px 8px; border-radius:6px; flex-shrink:0;">${this.escapeHtml(r.badge || 'Local RMR')}</span>
+            </div>
+          `;
         } else if (r.type === 'stop') {
           return `
             <div class="search-item" onclick="window.RealTransit.selectSearchResult(${idx})">
@@ -1448,8 +1513,19 @@
       const r = window.currentRealSearchResults[idx];
 
       if (r.type === 'terminal') {
-        this.map.flyTo([r.lat, r.lon], 16, { animate: true });
-        L.popup().setLatLng([r.lat, r.lon]).setContent(`<strong>${this.escapeHtml(r.title)}</strong><br>Terminal Integrado do SEI`).openOn(this.map);
+        if (this.map && Number.isFinite(r.lat) && Number.isFinite(r.lon)) {
+          this.map.flyTo([r.lat, r.lon], 16, { animate: true });
+          if (typeof L !== 'undefined' && typeof L.popup === 'function') {
+            L.popup().setLatLng([r.lat, r.lon]).setContent(`<strong>${this.escapeHtml(r.title)}</strong><br>Terminal Integrado do SEI`).openOn(this.map);
+          }
+        }
+      } else if (r.type === 'place') {
+        if (this.map && Number.isFinite(r.lat) && Number.isFinite(r.lon)) {
+          this.map.flyTo([r.lat, r.lon], 14, { animate: true });
+          if (typeof L !== 'undefined' && typeof L.popup === 'function') {
+            L.popup().setLatLng([r.lat, r.lon]).setContent(`<strong>${this.escapeHtml(r.title)}</strong><br>${this.escapeHtml(r.sub)}`).openOn(this.map);
+          }
+        }
       } else if (r.type === 'stop') {
         this.selectStop(r.index, true);
       } else if (r.type === 'route') {
@@ -1636,7 +1712,10 @@
         const stopCount = Number(p.stop_count) || 0;
         const score = baseScore + typeBonus(p.type) + Math.min(50, stopCount / 50);
         const rawNeighborhood = String(p.neighborhood || '').trim();
-        const cleanNeighborhood = rawNeighborhood.replace(/^(?:de|do|da|dos|das)\s+/i, '').trim();
+        const cleanNeighborhood = rawNeighborhood
+          .replace(/^(?:de|do|da|dos|das)\s+/i, '')
+          .replace(/^[-–—:\s]+/, '')
+          .trim();
         const linesCountLabel = `${lines.length} ${lines.length === 1 ? 'linha' : 'linhas'}`;
         const sublabel = p.type === 'city'
           ? `Cidade RMR · ${cleanNeighborhood || p.city} · ${linesCountLabel}`
@@ -1964,7 +2043,7 @@
       const upcomingSlice = (isNextDay ? adjustedDeps : upcomingToday).slice(0, 4);
       const upcomingFormatted = upcomingSlice.map(m => isNextDay ? `${fmtMin(m)} (dia seguinte)` : fmtMin(m));
 
-      return {
+      const result = {
         routeCode: resolvedCode,
         routeName: lineSched.name || resolvedCode,
         direction: usedDir,
@@ -1987,6 +2066,50 @@
         upcomingFormatted,
         provenanceLabel: 'Horário Programado · GTFS'
       };
+
+      if (this.calibrationPriors && typeof this.calibrationPriors === 'object') {
+        const priors = this.calibrationPriors;
+        const linePriorsMap = priors.line_priors || priors.lines || priors.route_priors || null;
+        const linePrior = (linePriorsMap && typeof linePriorsMap === 'object') ? linePriorsMap[resolvedCode] : null;
+        const bandPriorsMap = priors.time_band_priors || priors.band_priors || null;
+        const bandPrior = (bandPriorsMap && typeof bandPriorsMap === 'object') ? bandPriorsMap[timeBand] : null;
+        const peakFactorsMap = (linePrior && linePrior.peak_factors) || priors.peak_factors || priors.band_factors || null;
+
+        const rawPeakFactor =
+          (linePrior && (linePrior.peak_factor != null ? linePrior.peak_factor : linePrior.peakFactor)) ??
+          (peakFactorsMap && peakFactorsMap[timeBand]) ??
+          (bandPrior && (bandPrior.peak_factor != null ? bandPrior.peak_factor : bandPrior.peakFactor)) ??
+          (priors.peak_factor != null ? priors.peak_factor : priors.peakFactor);
+        const defaultPeakFactor = (timeBand === 'pico_manha' || timeBand === 'pico_tarde')
+          ? 1.25
+          : (timeBand === 'entre_picos' ? 1.0 : 0.9);
+        const peakFactor = Number.isFinite(Number(rawPeakFactor))
+          ? Math.round(Number(rawPeakFactor) * 1000) / 1000
+          : defaultPeakFactor;
+
+        const rawP90Margin =
+          (linePrior && (linePrior.p90_margin_min != null ? linePrior.p90_margin_min : linePrior.p90MarginMin)) ??
+          (bandPrior && (bandPrior.p90_margin_min != null ? bandPrior.p90_margin_min : bandPrior.p90MarginMin)) ??
+          (priors.p90_margin_min != null ? priors.p90_margin_min : priors.p90MarginMin) ??
+          (priors.global && (priors.global.p90_margin_min != null ? priors.global.p90_margin_min : priors.global.p90MarginMin));
+        const baseMae = Number(
+          (timeBand === 'pico_manha' || timeBand === 'pico_tarde')
+            ? (priors.mae_pico ?? priors.stgcn_mae)
+            : (priors.mae_vale ?? priors.stgcn_mae)
+        );
+        const fallbackP90 = Number.isFinite(baseMae) && baseMae > 0
+          ? Math.round(baseMae * 1.645 * peakFactor * 10) / 10
+          : (headwayMin ? Math.max(2, Math.round(Math.min(8, headwayMin * 0.15) * 10) / 10) : 2.5);
+        const p90MarginMin = Number.isFinite(Number(rawP90Margin))
+          ? Math.round(Number(rawP90Margin) * 10) / 10
+          : fallbackP90;
+
+        result.p90MarginMin = p90MarginMin;
+        result.peakFactor = peakFactor;
+        result.calibrationSource = 'stgcn_calibration_priors';
+      }
+
+      return result;
     },
 
     getIntegrationTransferWindow(routeA, routeB, tiHintOrStopId = null, dateObj = new Date()) {
@@ -2106,9 +2229,9 @@
 
         const waitAtTiMin = Math.max(0, Math.round(departsTiAbs - arrivesAtTiAbs));
         const departsTiMin = ((Math.round(departsTiAbs) % 1440) + 1440) % 1440;
-        const riskLevel = waitAtTiMin < 4 ? 'tight' : (waitAtTiMin <= 15 ? 'comfortable' : 'long');
+        let riskLevel = waitAtTiMin < 4 ? 'tight' : (waitAtTiMin <= 15 ? 'comfortable' : 'long');
 
-        return {
+        const winResult = {
           tiName: hubName,
           tiLat: hubLat != null ? Number(hubLat) : null,
           tiLon: hubLon != null ? Number(hubLon) : null,
@@ -2126,6 +2249,73 @@
           riskLevel,
           provenanceLabel: 'Horário Programado · GTFS'
         };
+
+        if (this.calibrationPriors && typeof this.calibrationPriors === 'object') {
+          const priors = this.calibrationPriors;
+          const hubNorm = this.normalizeText(hubName || '');
+          let hubPrior = null;
+
+          if (Array.isArray(priors.hub_priors)) {
+            hubPrior = priors.hub_priors.find(h => {
+              if (!h) return false;
+              const hn = this.normalizeText(h.name || h.tiName || h.hub_name || '');
+              return hn && (hn === hubNorm || hn.includes(hubNorm) || hubNorm.includes(hn));
+            }) || null;
+          } else if (priors.hub_priors && typeof priors.hub_priors === 'object') {
+            if (priors.hub_priors[hubName]) {
+              hubPrior = priors.hub_priors[hubName];
+            } else {
+              const matchedKey = Object.keys(priors.hub_priors).find(k => {
+                const kn = this.normalizeText(k);
+                return kn && (kn === hubNorm || kn.includes(hubNorm) || hubNorm.includes(kn));
+              });
+              if (matchedKey) hubPrior = priors.hub_priors[matchedKey];
+            }
+          }
+
+          let safetyMin = null;
+          if (hubPrior) {
+            const hpSafety = hubPrior.ti_transfer_safety_min ?? hubPrior.transfer_safety_min ?? hubPrior.safety_min ?? hubPrior.recommended_buffer_min;
+            if (Number.isFinite(Number(hpSafety))) safetyMin = Number(hpSafety);
+          }
+          if (safetyMin == null) {
+            const globalSafety = priors.ti_transfer_safety_min;
+            if (typeof globalSafety === 'number' && Number.isFinite(globalSafety)) {
+              safetyMin = globalSafety;
+            } else if (globalSafety && typeof globalSafety === 'object') {
+              const bandVal = globalSafety[schedA.timeBand] ?? globalSafety[hubName] ?? globalSafety.default;
+              if (Number.isFinite(Number(bandVal))) safetyMin = Number(bandVal);
+            }
+          }
+          const recommendedBufferMin = Math.max(2, Math.round((safetyMin != null ? safetyMin : 4) * 10) / 10);
+
+          let rawRel = hubPrior
+            ? (hubPrior.reliability_score ?? hubPrior.tiReliabilityScore ?? hubPrior.reliability ?? hubPrior.score)
+            : (priors.ti_reliability_default ?? priors.default_ti_reliability);
+          let tiReliabilityScore;
+          if (Number.isFinite(Number(rawRel))) {
+            const nRel = Number(rawRel);
+            tiReliabilityScore = nRel > 1 ? Math.min(1, Math.round((nRel / 100) * 1000) / 1000) : Math.max(0, Math.min(1, Math.round(nRel * 1000) / 1000));
+          } else {
+            tiReliabilityScore = waitAtTiMin >= recommendedBufferMin + 3 ? 0.9 : (waitAtTiMin >= recommendedBufferMin ? 0.78 : 0.45);
+          }
+
+          const longThreshold = Math.max(15, recommendedBufferMin + 10);
+          if (waitAtTiMin < recommendedBufferMin || (tiReliabilityScore < 0.6 && waitAtTiMin < recommendedBufferMin + 2)) {
+            riskLevel = 'tight';
+          } else if (waitAtTiMin <= longThreshold) {
+            riskLevel = 'comfortable';
+          } else {
+            riskLevel = 'long';
+          }
+
+          winResult.recommendedBufferMin = recommendedBufferMin;
+          winResult.tiReliabilityScore = tiReliabilityScore;
+          winResult.riskLevel = riskLevel;
+          winResult.calibrationSource = 'stgcn_calibration_priors';
+        }
+
+        return winResult;
       };
 
       const hubs = Array.isArray(this.schedulesData.ti_hubs) ? this.schedulesData.ti_hubs : [];

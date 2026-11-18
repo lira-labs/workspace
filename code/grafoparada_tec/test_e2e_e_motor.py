@@ -34,6 +34,7 @@ LAYA_VOICE_JS = WEB_DIR / "laya_voice_engine.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
 GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
 MODEL_STATUS_JSON = WEB_DIR / "data" / "model_training_status.json"
+CALIBRATION_PRIORS_JSON = WEB_DIR / "data" / "stgcn_calibration_priors.json"
 
 CHROME_PATHS = [
     Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
@@ -958,6 +959,97 @@ console.log(JSON.stringify({
         assert out["layaLineNotFound"].get("intent") == "line_not_found"
         assert out["layaIntLineNotFound"].get("intent") == "integration_line_not_found"
         assert out["layaIntNoCommonTi"].get("intent") == "integration_no_common_ti"
+
+    def test_v35_calibracao_stgcn_priors_e_busca_rmr_bairros(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+const schedPath = process.argv[3];
+const statusPath = process.argv[4];
+const priorsPath = process.argv[5];
+
+const domMock = {
+  'search-results-dropdown': { innerHTML: '', style: {} },
+  'search-clear-btn': { style: {} },
+};
+
+global.window = {};
+global.document = {
+  getElementById: (id) => domMock[id] || null,
+};
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); },
+};
+
+eval(fs.readFileSync(enginePath, 'utf8'));
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.schedulesData = JSON.parse(fs.readFileSync(schedPath, 'utf8'));
+window.RealTransit.modelTrainingStatus = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+window.RealTransit.calibrationPriors = JSON.parse(fs.readFileSync(priorsPath, 'utf8'));
+
+const mondayMorning = new Date('2026-11-16T08:00:00');
+const schedEst = window.RealTransit.getScheduledEstimate('199', 'ida', null, mondayMorning);
+const transferWin = window.RealTransit.getIntegrationTransferWindow('199', '185', 'TI Cabo', mondayMorning);
+
+const queries = ['Boa Viagem', 'Casa Amarela', 'Olinda', 'Camaragibe'];
+const searchResults = {};
+for (const q of queries) {
+  const rmrHits = window.RealTransit.searchRmrPlaces(q, 8);
+  domMock['search-results-dropdown'].innerHTML = '';
+  window.RealTransit.handleSearch(q);
+  const dropHtml = domMock['search-results-dropdown'].innerHTML;
+  searchResults[q] = {
+    rmrCount: Array.isArray(rmrHits) ? rmrHits.length : 0,
+    rmrLabels: (rmrHits || []).map(h => h.label),
+    hasSearchItemHtml: dropHtml.includes('class="search-item"'),
+    dropLen: dropHtml.length,
+  };
+}
+
+console.log(JSON.stringify({
+  schedEst,
+  transferWin,
+  searchResults,
+}));
+"""
+        res = subprocess.run(
+            [
+                "node",
+                "-e",
+                js_harness,
+                str(ENGINE_JS),
+                str(GTFS_JSON),
+                str(GTFS_SCHEDULES_JSON),
+                str(MODEL_STATUS_JSON),
+                str(CALIBRATION_PRIORS_JSON),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=25,
+        )
+        assert res.returncode == 0, f"Erro testando calibração v3.5 e busca RMR: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        sched = out["schedEst"]
+        assert sched is not None
+        assert isinstance(sched.get("p90MarginMin"), (int, float)) and sched["p90MarginMin"] > 0
+        assert isinstance(sched.get("peakFactor"), (int, float)) and sched["peakFactor"] > 0
+        assert sched.get("calibrationSource") == "stgcn_calibration_priors"
+
+        win = out["transferWin"]
+        assert win is not None
+        assert isinstance(win.get("recommendedBufferMin"), (int, float)) and win["recommendedBufferMin"] > 0
+        assert isinstance(win.get("tiReliabilityScore"), (int, float)) and 0 < win["tiReliabilityScore"] <= 1
+        assert win.get("calibrationSource") == "stgcn_calibration_priors"
+
+        for q in ("Boa Viagem", "Casa Amarela", "Olinda", "Camaragibe"):
+            info = out["searchResults"][q]
+            assert info["rmrCount"] > 0, f"searchRmrPlaces('{q}') não retornou resultados"
+            assert info["hasSearchItemHtml"], f"handleSearch('{q}') não gerou itens no dropdown"
 
 
 # ---------------------------------------------------------------------------
