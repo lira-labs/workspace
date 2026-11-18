@@ -637,6 +637,10 @@ console.log(JSON.stringify({
         assert sched["serviceDay"] == "DUT"
         assert sched["provenanceLabel"] == "Horário Programado · GTFS"
         assert sched["firstDep"] and sched["lastDep"] and sched["nextDepFormatted"]
+        assert sched["firstArr"] and sched["lastArr"]
+        assert sched["arrivalAtDestFormatted"]
+        assert isinstance(sched["tiCheckpoints"], list) and len(sched["tiCheckpoints"]) >= 1
+        assert any(cp.get("stop_id") and cp.get("stop_name") and cp.get("estimatedPassFormatted") for cp in sched["tiCheckpoints"])
         assert out["schedUnknown"] is None
 
         assert out["suggestedDirectCount"] >= 1
@@ -649,7 +653,97 @@ console.log(JSON.stringify({
         assert ts is not None
         assert ts["lines_covered"] == 393
         assert ts["schedules_indexed"] == 393
+        assert ts["ti_hubs_indexed"] == 133
+        assert ts["gtfs_schedule_prior_enabled"] is True
         assert ts["validation_393_passed"] is True
+
+    def test_janelas_integracao_ti_e_laya_chegada_baldeacao(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+const schedPath = process.argv[3];
+const statusPath = process.argv[4];
+
+global.window = {};
+global.document = { getElementById: () => null };
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); }
+};
+
+eval(fs.readFileSync(enginePath, 'utf8'));
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.schedulesData = JSON.parse(fs.readFileSync(schedPath, 'utf8'));
+window.RealTransit.modelTrainingStatus = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+
+const mondayMorning = new Date('2026-11-16T08:00:00');
+const pelopidasWin = window.RealTransit.getIntegrationTransferWindow('1062', '1076', 'TI Pelópidas', mondayMorning);
+const caboWin = window.RealTransit.getIntegrationTransferWindow('199', '185', 'TI Cabo', mondayMorning);
+const sameLineWin = window.RealTransit.getIntegrationTransferWindow('199', '199', 'TI Cabo', mondayMorning);
+
+const layaArrival = window.RealTransit.answerLayaQuery('Que horas a linha 199 chega no TI Cabo?');
+const layaTransfer = window.RealTransit.answerLayaQuery('Qual o horário de chegada e integração da linha 1062 com 1076 no TI Pelópidas?');
+
+console.log(JSON.stringify({
+  pelopidasWin,
+  caboWin,
+  sameLineWin,
+  layaArrival,
+  layaTransfer
+}));
+"""
+        res = subprocess.run(
+            [
+                "node",
+                "-e",
+                js_harness,
+                str(ENGINE_JS),
+                str(GTFS_JSON),
+                str(GTFS_SCHEDULES_JSON),
+                str(MODEL_STATUS_JSON),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=25,
+        )
+        assert res.returncode == 0, f"Erro testando integração TI e Laya chegada/baldeação: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        pel = out["pelopidasWin"]
+        assert pel is not None
+        assert "Pelópidas" in pel["tiName"]
+        assert pel["routeA"] == "1062" and pel["routeB"] == "1076"
+        assert pel["arrivesAtTiFormatted"] and pel["departsTiFormatted"]
+        assert pel["waitAtTiMin"] >= 2
+        assert pel["riskLevel"] in ("tight", "comfortable", "long")
+        assert pel["provenanceLabel"] == "Horário Programado · GTFS"
+
+        cabo = out["caboWin"]
+        assert cabo is not None
+        assert "Cabo" in cabo["tiName"]
+        assert cabo["routeA"] == "199" and cabo["routeB"] == "185"
+        assert cabo["arrivesAtTiFormatted"] and cabo["departsTiFormatted"]
+        assert cabo["waitAtTiMin"] >= 2
+
+        assert out["sameLineWin"] is None
+
+        arr_q = out["layaArrival"]
+        assert arr_q["intent"] == "schedule_lookup"
+        assert arr_q["routeCode"] == "199"
+        assert arr_q["schedule"]["firstArr"] and arr_q["schedule"]["lastArr"]
+        assert arr_q["schedule"]["arrivalAtDestFormatted"]
+        assert "Chegada prevista no terminal" in arr_q["html"]
+
+        tr_q = out["layaTransfer"]
+        assert tr_q["intent"] == "schedule_lookup"
+        assert tr_q["transferWindow"] is not None
+        assert "Pelópidas" in tr_q["transferWindow"]["tiName"]
+        assert tr_q["transferWindow"]["routeA"] == "1062"
+        assert tr_q["transferWindow"]["routeB"] == "1076"
+        assert "Integração em" in tr_q["html"]
 
     def test_telemetria_live_e_recuperacao_contato(self):
         js_harness = r"""
@@ -1186,6 +1280,24 @@ class TestRealBrowserE2E:
                 assert radar_state["activeCode"] == "199"
                 assert "Linha 522 · Dois Irmãos" not in radar_state["chipText"]
 
+                # Valida #resting-gtfs-schedule-meta (chegada/partida GTFS) e .gp-line-transfer-meta no DOM sem overflow
+                gtfs_meta_audit = eval_js("""(() => {
+                  if (typeof updateRestingGtfsScheduleMeta === 'function') updateRestingGtfsScheduleMeta();
+                  const metaEl = document.getElementById('resting-gtfs-schedule-meta');
+                  const metaText = metaEl ? metaEl.textContent.trim() : '';
+                  const metaVisible = Boolean(metaEl && getComputedStyle(metaEl).display !== 'none');
+                  return {
+                    metaText,
+                    metaVisible,
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert gtfs_meta_audit["metaVisible"] is True, "#resting-gtfs-schedule-meta ficou oculto na tela Radar"
+                assert "GTFS: sai" in gtfs_meta_audit["metaText"] and "chega ~" in gtfs_meta_audit["metaText"], (
+                    f"Texto inesperado em #resting-gtfs-schedule-meta: {gtfs_meta_audit['metaText']}"
+                )
+                assert gtfs_meta_audit["overflowX"] <= 2, f"Overflow horizontal mobile com #resting-gtfs-schedule-meta: {gtfs_meta_audit['overflowX']}px"
+
                 # Check-in cidadão na parada (#resting-extra-tools -> #stop-checkin-box -> Vazio)
                 eval_js("""(() => {
                   const sheet = document.getElementById('main-bottom-sheet');
@@ -1309,11 +1421,74 @@ class TestRealBrowserE2E:
                 for open_fn, close_fn in [
                     ("openDispatchModal", "closeDispatchModal"),
                     ("openAuditModal", "closeAuditModal"),
-                    ("openRoutineModal", "closeRoutineModal"),
                 ]:
                     eval_js(f"if (typeof {open_fn} === 'function') {open_fn}();")
                     time.sleep(0.1)
                     eval_js(f"if (typeof {close_fn} === 'function') {close_fn}();")
+
+                # Valida .gp-line-transfer-meta no modal de rotina (Paulista -> Cais de Santa Rita com integração em TI) sem overflow
+                eval_js("if (typeof openRoutineModal === 'function') openRoutineModal();")
+                time.sleep(0.15)
+                eval_js("""(() => {
+                  const orig = document.getElementById('rtn-origin-place');
+                  if (orig) {
+                    orig.value = 'Paulista';
+                    orig.dispatchEvent(new Event('input', { bubbles: true }));
+                  }
+                })()""")
+                wait_until(
+                    "document.querySelectorAll('#rtn-origin-place-list .gp-place-option').length > 0",
+                    timeout_s=5.0,
+                    err_msg="#rtn-origin-place-list não exibiu opções para Paulista",
+                )
+                eval_js("document.querySelector('#rtn-origin-place-list .gp-place-option').click()")
+                wait_until(
+                    "document.querySelectorAll('#rtn-origin-stops-list .gp-stop-card').length > 0",
+                    timeout_s=5.0,
+                    err_msg="#rtn-origin-stops-list não exibiu paradas",
+                )
+                eval_js("document.querySelector('#rtn-origin-stops-list .gp-stop-card').click()")
+
+                eval_js("""(() => {
+                  const dest = document.getElementById('rtn-dest-place');
+                  if (dest) {
+                    dest.value = 'Cais de Santa Rita';
+                    dest.dispatchEvent(new Event('input', { bubbles: true }));
+                  }
+                })()""")
+                wait_until(
+                    "document.querySelectorAll('#rtn-dest-place-list .gp-place-option').length > 0",
+                    timeout_s=5.0,
+                    err_msg="#rtn-dest-place-list não exibiu opções para Cais de Santa Rita",
+                )
+                eval_js("document.querySelector('#rtn-dest-place-list .gp-place-option').click()")
+                wait_until(
+                    "document.querySelectorAll('#rtn-dest-stops-list .gp-stop-card').length > 0",
+                    timeout_s=5.0,
+                    err_msg="#rtn-dest-stops-list não exibiu paradas",
+                )
+                eval_js("document.querySelector('#rtn-dest-stops-list .gp-stop-card').click()")
+
+                wait_until(
+                    "document.querySelectorAll('#rtn-suggested-lines-box .gp-line-transfer-meta').length > 0",
+                    timeout_s=5.0,
+                    err_msg=".gp-line-transfer-meta não renderizou em #rtn-suggested-lines-box para Paulista -> Cais de Santa Rita",
+                )
+                transfer_meta_audit = eval_js("""(() => {
+                  const meta = document.querySelector('#rtn-suggested-lines-box .gp-line-transfer-meta');
+                  return {
+                    text: meta ? meta.textContent.trim() : '',
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert "Integração" in transfer_meta_audit["text"] and "→" in transfer_meta_audit["text"], (
+                    f"Texto inesperado em .gp-line-transfer-meta: {transfer_meta_audit['text']}"
+                )
+                assert transfer_meta_audit["overflowX"] <= 2, (
+                    f"Overflow horizontal mobile com .gp-line-transfer-meta: {transfer_meta_audit['overflowX']}px"
+                )
+                eval_js("if (typeof closeRoutineModal === 'function') closeRoutineModal();")
+                time.sleep(0.1)
 
                 # Regressão Mobile (390x844): Laya IA -> Trânsito na PE-60 agora -> Simular no Mapa
                 eval_js("openLayaModal()")

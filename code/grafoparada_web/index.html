@@ -3236,6 +3236,26 @@
       color: var(--text-secondary);
       font-weight: 600;
     }
+    .gp-line-transfer-meta {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #0369a1;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .gp-resting-gtfs-meta {
+      width: 100%;
+      margin-top: 2px;
+      padding-top: 3px;
+      border-top: 1px dashed #d1fae5;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.35;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
     .gp-time-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3712,25 +3732,28 @@
             </div>
 
             <!-- LIVE ARRIVAL AT CURRENT STOP -->
-            <div style="background:#ffffff; border:1px solid #a7f3d0; border-radius:10px; padding:7px 10px; margin-top:6px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-              <div>
-                <div style="font-size:10px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em; line-height:1.2;" id="resting-line-prefix">
-                  Próximo Ônibus
+            <div style="background:#ffffff; border:1px solid #a7f3d0; border-radius:10px; padding:6px 10px; margin-top:6px; display:flex; flex-direction:column; gap:3px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <div style="min-width:0;">
+                  <div style="font-size:10px; font-weight:800; color:#047857; text-transform:uppercase; letter-spacing:0.02em; line-height:1.2;" id="resting-line-prefix">
+                    Próximo Ônibus
+                  </div>
+                  <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
+                    <span>Em <span id="resting-eta-val" style="font-family:'JetBrains Mono',monospace;">4</span> min</span>
+                    <span class="gp-badge gp-badge-pred">Previsão · ST-GCN</span>
+                  </div>
                 </div>
-                <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
-                  <span>Em <span id="resting-eta-val" style="font-family:'JetBrains Mono',monospace;">4</span> min</span>
-                  <span class="gp-badge gp-badge-pred">Previsão · ST-GCN</span>
+                <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+                  <button onclick="speakCurrentArrival()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:5px 8px; font-size:11.5px; font-weight:800; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Ouvir previsão por voz">
+                    <svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    Ouvir
+                  </button>
+                  <button onclick="triggerTripAction('work')" style="background:#059669; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:800; color:#ffffff; cursor:pointer;">
+                    Acompanhar
+                  </button>
                 </div>
               </div>
-              <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
-                <button onclick="speakCurrentArrival()" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:5px 8px; font-size:11.5px; font-weight:800; color:#0f172a; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Ouvir previsão por voz">
-                  <svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                  Ouvir
-                </button>
-                <button onclick="triggerTripAction('work')" style="background:#059669; border:none; border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:800; color:#ffffff; cursor:pointer;">
-                  Acompanhar
-                </button>
-              </div>
+              <div id="resting-gtfs-schedule-meta" class="gp-resting-gtfs-meta" style="display:none;"></div>
             </div>
           </div>
 
@@ -5591,6 +5614,15 @@
         stopsMarkersLayer = L.layerGroup().addTo(leafletMap);
 
         if (window.RealTransit) {
+          if (typeof window.RealTransit.updateUIForLine === "function" && !window.RealTransit.__gpWrappedUpdateUIForLine) {
+            const origUpdateUIForLine = window.RealTransit.updateUIForLine.bind(window.RealTransit);
+            window.RealTransit.updateUIForLine = function() {
+              const res = origUpdateUIForLine.apply(this, arguments);
+              if (typeof updateRestingGtfsScheduleMeta === "function") updateRestingGtfsScheduleMeta();
+              return res;
+            };
+            window.RealTransit.__gpWrappedUpdateUIForLine = true;
+          }
           window.RealTransit.init(leafletMap);
         } else {
           drawRoute(TELEMETRIA);
@@ -5708,6 +5740,7 @@
       const etaVal = (st.stgcn_horizon_min && st.stgcn_horizon_min[1]) ? st.stgcn_horizon_min[1].toFixed(0) : "4";
       if (etaNum) etaNum.textContent = etaVal;
       if (restingEta) restingEta.textContent = etaVal;
+      if (typeof updateRestingGtfsScheduleMeta === "function") updateRestingGtfsScheduleMeta();
 
       // Trigger Haptic and audio if <= 2 min
       if (parseInt(etaVal) <= 2) {
@@ -7561,6 +7594,9 @@
           headway_min: sched.headwayMin != null ? sched.headwayMin : (item.headway_min || item.headwayMin || item.headway || null),
           first_departure: sched.firstDep || item.first_departure || item.firstDeparture || null,
           last_departure: sched.lastDep || item.last_departure || item.lastDeparture || null,
+          arrival_at_dest: sched.arrivalAtDestFormatted || item.arrival_at_dest || item.arrivalAtDestFormatted || null,
+          ti_checkpoints: Array.isArray(sched.tiCheckpoints) ? sched.tiCheckpoints : (Array.isArray(item.ti_checkpoints) ? item.ti_checkpoints : null),
+          transfer_window: (item.transfer_window && typeof item.transfer_window === "object") ? item.transfer_window : null,
           is_transfer: Boolean(item.isDirect === false || item.is_transfer || item.transferHub || item.transfer_hub),
           transfer_hub: item.transfer_hub || item.transferHub || null,
           source_label: sched.provenanceLabel || item.source_label || "Horário Programado · GTFS"
@@ -7924,15 +7960,30 @@
                 : "";
               scheduleParts.push("Próx. " + line.next_departure + waitTxt);
             }
+            if (line.arrival_at_dest) {
+              scheduleParts.push("Chega ~" + line.arrival_at_dest);
+            }
             if (line.headway_min) scheduleParts.push("Intervalo ~" + line.headway_min + " min");
             if (line.first_departure && line.last_departure) {
               scheduleParts.push("1ª " + line.first_departure + " · Última " + line.last_departure);
             }
-            if (line.is_transfer && line.transfer_hub) {
+            if (line.is_transfer && line.transfer_hub && !line.transfer_window) {
               scheduleParts.push("Integração via " + line.transfer_hub);
             }
             if (!scheduleParts.length) {
               scheduleParts.push("Atende as paradas selecionadas no catálogo GTFS");
+            }
+
+            let transferMetaHtml = "";
+            if (line.transfer_window && typeof line.transfer_window === "object") {
+              const tw = line.transfer_window;
+              if (tw.tiName && tw.arrivesAtTiFormatted && tw.departsTiFormatted) {
+                const twWait = (tw.waitAtTiMin != null && Number.isFinite(Number(tw.waitAtTiMin)))
+                  ? (" (" + Number(tw.waitAtTiMin) + " min)")
+                  : "";
+                const twText = "Integração " + tw.tiName + ": chega " + tw.arrivesAtTiFormatted + " → sai " + tw.departsTiFormatted + twWait;
+                transferMetaHtml = '<div class="gp-line-transfer-meta">' + gpEscapeHtml(twText) + '</div>';
+              }
             }
 
             const routeModeLabel = line.is_transfer ? "Integração" : "Direta";
@@ -7941,7 +7992,8 @@
                 '<strong style="font-size:12.5px; color:var(--text-main);">' + gpEscapeHtml(line.route_label) + '</strong>' +
                 '<span style="font-size:10px; font-weight:700; color:#475569; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:999px; padding:2px 7px; white-space:nowrap; flex-shrink:0;">' + gpEscapeHtml(routeModeLabel) + '</span>' +
               '</div>' +
-              '<div class="gp-line-schedule-meta">' + gpEscapeHtml(scheduleParts.join(" · ")) + '</div>';
+              '<div class="gp-line-schedule-meta">' + gpEscapeHtml(scheduleParts.join(" · ")) + '</div>' +
+              transferMetaHtml;
 
             card.addEventListener("click", function() {
               state.selectedLine = line.route_code;
@@ -8534,7 +8586,46 @@
       nearbyEl.style.display = "flex";
     }
 
+    function updateRestingGtfsScheduleMeta() {
+      const el = document.getElementById("resting-gtfs-schedule-meta");
+      if (!el) return;
+      const rt = window.RealTransit;
+      if (!rt || typeof rt.getScheduledEstimate !== "function") {
+        el.style.display = "none";
+        el.textContent = "";
+        return;
+      }
+      const code = rt.activeRouteCode || (rt.userAdaptState && rt.userAdaptState.lineCode) || "";
+      const dir = rt.activeDirection || (rt.userAdaptState && rt.userAdaptState.direction) || "ida";
+      const stopIdx = (typeof rt.activeStopIndex === "number") ? rt.activeStopIndex : null;
+      const sched = code ? rt.getScheduledEstimate(code, dir, stopIdx) : null;
+      if (!sched || !sched.nextDepFormatted) {
+        el.style.display = "none";
+        el.textContent = "";
+        return;
+      }
+      const parts = [];
+      if (sched.arrivalAtDestFormatted) {
+        parts.push("GTFS: sai " + sched.nextDepFormatted);
+        parts.push("chega ~" + sched.arrivalAtDestFormatted);
+      } else if (Array.isArray(sched.tiCheckpoints) && sched.tiCheckpoints.length > 0) {
+        const cp = sched.tiCheckpoints.find(function(c) { return c && c.stop_name && c.estimatedPassFormatted; });
+        if (cp) {
+          parts.push("GTFS: sai " + sched.nextDepFormatted);
+          parts.push(cp.stop_name + " ~" + cp.estimatedPassFormatted);
+        }
+      }
+      if (!parts.length) {
+        el.style.display = "none";
+        el.textContent = "";
+        return;
+      }
+      el.textContent = parts.join(" · ");
+      el.style.display = "block";
+    }
+
     function updateHomeGreeting() {
+      updateRestingGtfsScheduleMeta();
       const profile = (typeof getStoredUserProfile === "function") ? getStoredUserProfile() : null;
       const isLogged = localStorage.getItem("grafoparada_logged") === "true";
       const firstName = (isLogged && profile && profile.name) ? String(profile.name).trim().split(/\s+/)[0] : "";

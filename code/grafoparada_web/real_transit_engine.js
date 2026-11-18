@@ -1918,6 +1918,21 @@
       const upcomingToday = adjustedDeps.filter(m => m >= nowMin);
       const isNextDay = upcomingToday.length === 0;
       const nextDepMin = Math.round(isNextDay ? adjustedDeps[0] : upcomingToday[0]);
+      const originDepMin = Math.round(nextDepMin - offsetMin);
+      const durationMin = sched.duration_min != null ? Number(sched.duration_min) : null;
+      const arrivalAtDestFormatted = (durationMin != null && Number.isFinite(durationMin))
+        ? fmtMin(originDepMin + durationMin)
+        : null;
+      const rawCheckpoints = Array.isArray(dirObj.ti_checkpoints) ? dirObj.ti_checkpoints : [];
+      const tiCheckpoints = rawCheckpoints.map(cp => ({
+        stop_id: cp && cp.stop_id != null ? String(cp.stop_id) : null,
+        stop_name: (cp && cp.stop_name) || '',
+        stop_idx: cp && cp.stop_idx != null ? Number(cp.stop_idx) : null,
+        offset_min: cp && cp.offset_min != null ? Number(cp.offset_min) : 0,
+        role: (cp && cp.role) || 'integracao',
+        estimatedPassFormatted: fmtMin(originDepMin + (Number(cp && cp.offset_min) || 0))
+      }));
+
       const waitMin = isNextDay
         ? Math.max(0, Math.round((1440 - nowMin) + adjustedDeps[0]))
         : Math.max(0, Math.round(upcomingToday[0] - nowMin));
@@ -1931,6 +1946,8 @@
         serviceDay,
         firstDep: offsetMin > 0 ? fmtMin(adjustedDeps[0]) : (sched.first_dep || fmtMin(adjustedDeps[0])),
         lastDep: offsetMin > 0 ? fmtMin(adjustedDeps[adjustedDeps.length - 1]) : (sched.last_dep || fmtMin(adjustedDeps[adjustedDeps.length - 1])),
+        firstArr: sched.first_arr || null,
+        lastArr: sched.last_arr || null,
         tripCount: sched.trip_count || adjustedDeps.length,
         durationMin: sched.duration_min != null ? sched.duration_min : null,
         timeBand,
@@ -1938,11 +1955,218 @@
         stopOffsetMin: offsetMin,
         nextDepMin,
         nextDepFormatted: fmtMin(nextDepMin),
+        arrivalAtDestFormatted,
+        tiCheckpoints,
         waitMin,
         isNextDay,
         upcomingFormatted,
         provenanceLabel: 'Horário Programado · GTFS'
       };
+    },
+
+    getIntegrationTransferWindow(routeA, routeB, tiHintOrStopId = null, dateObj = new Date()) {
+      if (!this.schedulesData || !this.schedulesData.lines) return null;
+
+      const parseRouteArg = (arg) => {
+        if (arg && typeof arg === 'object') {
+          const raw = String(arg.code || arg.routeCode || '').trim();
+          const code = (this.aliases && this.aliases[raw]) || raw;
+          const dir = arg.direction ? (String(arg.direction).toLowerCase() === 'volta' ? 'volta' : 'ida') : null;
+          return { code, dir };
+        }
+        const raw = String(arg || '').trim();
+        const code = (this.aliases && this.aliases[raw]) || raw;
+        return { code, dir: null };
+      };
+
+      const reqA = parseRouteArg(routeA);
+      const reqB = parseRouteArg(routeB);
+      if (!reqA.code || !reqB.code || reqA.code === reqB.code) return null;
+
+      const dt = (dateObj instanceof Date && !Number.isNaN(dateObj.getTime())) ? dateObj : new Date();
+      const dow = dt.getDay();
+      const dayOrder = dow === 0 ? ['DOM', 'SAB', 'DUT'] : (dow === 6 ? ['SAB', 'DUT', 'DOM'] : ['DUT', 'SAB', 'DOM']);
+
+      const getDirService = (code, dir) => {
+        const lineSched = this.schedulesData.lines[code];
+        if (!lineSched) return null;
+        const dirObj = lineSched[dir];
+        if (!dirObj || typeof dirObj !== 'object') return null;
+        for (let i = 0; i < dayOrder.length; i++) {
+          const dKey = dayOrder[i];
+          if (dirObj[dKey] && Array.isArray(dirObj[dKey].dep_mins) && dirObj[dKey].dep_mins.length > 0) {
+            return { dirObj, service: dirObj[dKey], serviceDay: dKey };
+          }
+        }
+        return null;
+      };
+
+      const fmtMin = (m) => {
+        const normM = ((Math.round(m) % 1440) + 1440) % 1440;
+        const hh = String(Math.floor(normM / 60)).padStart(2, '0');
+        const mm = String(normM % 60).padStart(2, '0');
+        return `${hh}:${mm}`;
+      };
+
+      const hintRaw = tiHintOrStopId != null ? String(tiHintOrStopId).trim() : '';
+      const hintNorm = hintRaw ? this.normalizeText(hintRaw) : '';
+      let hintStopNameNorm = '';
+      if (hintRaw) {
+        for (const c of [reqA.code, reqB.code]) {
+          const ls = this.schedulesData.lines[c];
+          if (!ls) continue;
+          for (const d of ['ida', 'volta']) {
+            const cps = ls[d] && Array.isArray(ls[d].ti_checkpoints) ? ls[d].ti_checkpoints : [];
+            const hit = cps.find(cp => cp && String(cp.stop_id) === hintRaw);
+            if (hit && hit.stop_name) {
+              hintStopNameNorm = this.normalizeText(hit.stop_name);
+              break;
+            }
+          }
+          if (hintStopNameNorm) break;
+        }
+      }
+
+      const scoreHubName = (name) => {
+        const n = this.normalizeText(name || '');
+        if (!hintNorm && !hintStopNameNorm) return 0;
+        if (hintNorm && n === hintNorm) return 3;
+        if (hintStopNameNorm && n === hintStopNameNorm) return 3;
+        if (hintNorm && (n.includes(hintNorm) || hintNorm.includes(n))) return 2;
+        if (hintStopNameNorm && (n.includes(hintStopNameNorm) || hintStopNameNorm.includes(n))) return 2;
+        return 0;
+      };
+
+      const pickEntry = (entries, preferredDir, code) => {
+        const filtered = entries.filter(e => e && e.code === code && (!preferredDir || e.direction === preferredDir));
+        const pool = filtered.length ? filtered : entries.filter(e => e && e.code === code);
+        for (const dPrefer of ['ida', 'volta']) {
+          const hit = pool.find(e => e.direction === dPrefer && getDirService(code, e.direction));
+          if (hit) return hit;
+        }
+        return pool.find(e => getDirService(code, e.direction)) || null;
+      };
+
+      const evaluatePairAtHub = (hubName, hubLat, hubLon, entryA, entryB) => {
+        const schedA = this.getScheduledEstimate(reqA.code, entryA.direction, null, dt);
+        const svcB = getDirService(reqB.code, entryB.direction);
+        if (!schedA || !svcB) return null;
+
+        const offsetA = Number(entryA.offset_min) || 0;
+        const offsetB = Number(entryB.offset_min) || 0;
+        const depA_abs = schedA.isNextDay ? (1440 + schedA.nextDepMin) : schedA.nextDepMin;
+        const arrivesAtTiAbs = depA_abs + Math.round(offsetA);
+        const arrivesAtTiMin = ((arrivesAtTiAbs % 1440) + 1440) % 1440;
+
+        const depBAtTi = svcB.service.dep_mins
+          .map(m => Number(m) + Math.round(offsetB))
+          .filter(Number.isFinite)
+          .sort((a, b) => a - b);
+        if (!depBAtTi.length) return null;
+
+        const minTarget = arrivesAtTiAbs + 2;
+        let departsTiAbs = depBAtTi.find(m => m >= minTarget);
+        if (departsTiAbs == null) {
+          departsTiAbs = depBAtTi.map(m => m + 1440).find(m => m >= minTarget);
+        }
+        if (departsTiAbs == null) {
+          departsTiAbs = depBAtTi.map(m => m + 2880).find(m => m >= minTarget);
+        }
+        if (departsTiAbs == null) {
+          departsTiAbs = depBAtTi[0] + 1440;
+        }
+
+        const waitAtTiMin = Math.max(0, Math.round(departsTiAbs - arrivesAtTiAbs));
+        const departsTiMin = ((Math.round(departsTiAbs) % 1440) + 1440) % 1440;
+        const riskLevel = waitAtTiMin < 4 ? 'tight' : (waitAtTiMin <= 15 ? 'comfortable' : 'long');
+
+        return {
+          tiName: hubName,
+          tiLat: hubLat != null ? Number(hubLat) : null,
+          tiLon: hubLon != null ? Number(hubLon) : null,
+          routeA: reqA.code,
+          directionA: entryA.direction,
+          routeB: reqB.code,
+          directionB: entryB.direction,
+          offsetAMin: offsetA,
+          offsetBMin: offsetB,
+          arrivesAtTiMin,
+          arrivesAtTiFormatted: fmtMin(arrivesAtTiMin),
+          departsTiMin,
+          departsTiFormatted: fmtMin(departsTiMin),
+          waitAtTiMin,
+          riskLevel,
+          provenanceLabel: 'Horário Programado · GTFS'
+        };
+      };
+
+      const hubs = Array.isArray(this.schedulesData.ti_hubs) ? this.schedulesData.ti_hubs : [];
+      const matchingHubs = [];
+      for (let i = 0; i < hubs.length; i++) {
+        const hub = hubs[i];
+        if (!hub || !Array.isArray(hub.lines)) continue;
+        const entryA = pickEntry(hub.lines, reqA.dir, reqA.code);
+        const entryB = pickEntry(hub.lines, reqB.dir, reqB.code);
+        if (entryA && entryB) {
+          matchingHubs.push({ hub, entryA, entryB, hintScore: scoreHubName(hub.name) });
+        }
+      }
+
+      if (matchingHubs.length > 0) {
+        matchingHubs.sort((a, b) => b.hintScore - a.hintScore);
+        for (let i = 0; i < matchingHubs.length; i++) {
+          const m = matchingHubs[i];
+          const res = evaluatePairAtHub(m.hub.name, m.hub.lat, m.hub.lon, m.entryA, m.entryB);
+          if (res) return res;
+        }
+      }
+
+      // Fallback via ti_checkpoints das linhas quando ti_hubs não cobrir o par
+      const lineA = this.schedulesData.lines[reqA.code];
+      const lineB = this.schedulesData.lines[reqB.code];
+      if (!lineA || !lineB) return null;
+
+      const cpList = (line, prefDir) => {
+        const out = [];
+        const dirs = prefDir ? [prefDir] : ['ida', 'volta'];
+        dirs.forEach(d => {
+          const cps = line[d] && Array.isArray(line[d].ti_checkpoints) ? line[d].ti_checkpoints : [];
+          cps.forEach(cp => {
+            if (cp) out.push({ direction: d, stop_id: String(cp.stop_id || ''), stop_name: cp.stop_name || '', offset_min: Number(cp.offset_min) || 0 });
+          });
+        });
+        return out;
+      };
+
+      const cpsA = cpList(lineA, reqA.dir);
+      const cpsB = cpList(lineB, reqB.dir);
+      const cpMatches = [];
+      for (const a of cpsA) {
+        for (const b of cpsB) {
+          const sameId = a.stop_id && b.stop_id && a.stop_id === b.stop_id;
+          const sameName = a.stop_name && b.stop_name && this.normalizeText(a.stop_name) === this.normalizeText(b.stop_name);
+          if (sameId || sameName) {
+            const hintScore = Math.max(
+              scoreHubName(a.stop_name),
+              (hintRaw && (a.stop_id === hintRaw || b.stop_id === hintRaw)) ? 3 : 0
+            );
+            cpMatches.push({ a, b, hintScore });
+          }
+        }
+      }
+      cpMatches.sort((x, y) => y.hintScore - x.hintScore);
+      for (const m of cpMatches) {
+        const res = evaluatePairAtHub(
+          m.a.stop_name || m.b.stop_name || `TI ${m.a.stop_id}`,
+          null,
+          null,
+          { code: reqA.code, direction: m.a.direction, offset_min: m.a.offset_min },
+          { code: reqB.code, direction: m.b.direction, offset_min: m.b.offset_min }
+        );
+        if (res) return res;
+      }
+
+      return null;
     },
 
     suggestLinesBetweenStops(originStopId, destStopId, dateObj = new Date()) {
@@ -2072,7 +2296,36 @@
         return aWait - bWait;
       });
 
-      return candidates.slice(0, 10).map(({ isBacurau, ...rest }) => rest);
+      const destLinesForTransfer = (destStop.lines && destStop.lines.length)
+        ? destStop.lines
+        : Array.from(new Set(this.getStopsForPlace(destStop.lat, destStop.lon, '', 4).flatMap(s => s.lines || [])));
+
+      return candidates.slice(0, 10).map(({ isBacurau, ...rest }) => {
+        let transferWindow = null;
+        if (!rest.isDirect && destLinesForTransfer.length > 0) {
+          let bestWin = null;
+          for (let i = 0; i < destLinesForTransfer.length; i++) {
+            const legB = destLinesForTransfer[i];
+            if (!legB || legB === rest.code) continue;
+            const win = this.getIntegrationTransferWindow(
+              { code: rest.code, direction: rest.direction },
+              legB,
+              null,
+              dateObj
+            );
+            if (win && (!bestWin || win.waitAtTiMin < bestWin.waitAtTiMin)) {
+              bestWin = win;
+            }
+          }
+          transferWindow = bestWin;
+        }
+        return {
+          ...rest,
+          arrival_formatted: (rest.schedule && rest.schedule.arrivalAtDestFormatted) || null,
+          ti_checkpoints: (rest.schedule && Array.isArray(rest.schedule.tiCheckpoints)) ? rest.schedule.tiCheckpoints : [],
+          ...(transferWindow ? { transfer_window: transferWindow } : {})
+        };
+      });
     },
 
     getModelTrainingStatus() {
@@ -3437,7 +3690,9 @@
 
       // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada + WebMCP + Status de Treinamento Real
       const trainStatus = this.getModelTrainingStatus();
-      const isAskingScience = /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|treinamento|pesos|validacao|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|anomalia|no 10|cittamobi|moovit|diferenca|comparar|integracao vem|integracao temporal|integracao|vem|duas horas|2h)\b/.test(q);
+      const hasLineCodeInQuery = /\b(\d{3,4})\b/.test(q);
+      const hasOperationalScheduleTerms = /\b(chega|chegada|baldeacao|conexao|horario|horarios|primeiro|ultimo|proximo|proxima|que horas)\b/.test(q) || /\bti\s+[a-z0-9]/.test(q);
+      const isAskingScience = !hasLineCodeInQuery && !hasOperationalScheduleTerms && /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|treinamento|pesos|validacao|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|anomalia|no 10|cittamobi|moovit|diferenca|comparar|integracao vem|integracao temporal|integracao|vem|duas horas|2h)\b/.test(q);
       if (isAskingScience) {
         // Sub-intenção A — Engarrafamento Repentino na PE-60 / Nó 10 & Limite da ST-GCN (Slide 3)
         if (/\b(engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|over-smoothing|oversmoothing|anomalia|no 10)\b/.test(q)) {
@@ -3559,8 +3814,9 @@
             })
             : []));
 
-      // 5. Pergunta de Horário / Primeiro-Último Ônibus / Intervalo / Próximo Ônibus / Lotação
-      const isAskingSchedule = /\b(horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|que horas|tabela|partida|partidas|saida|saidas|quando passa|proximo|proxima)\b/.test(q);
+      // 5. Pergunta de Horário / Primeiro-Último Ônibus / Intervalo / Próximo Ônibus / Chegada & TI / Lotação
+      const isAskingArrivalOrTi = /\b(chega|chegada|integracao|baldeacao|conexao)\b/.test(q) || /\bti\s+[a-z0-9]/.test(q);
+      const isAskingSchedule = isAskingArrivalOrTi || /\b(horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|que horas|tabela|partida|partidas|saida|saidas|quando passa|proximo|proxima)\b/.test(q);
       const isAskingBus = isAskingSchedule || /\b(onibus|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao)\b/.test(q);
       const isAskingCrowdOrWait = /\b(lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|mofar|demora|demorando|esperando)\b/.test(q);
 
@@ -3581,10 +3837,19 @@
         const nextNote = sched.isNextDay
           ? `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (1ª partida do dia seguinte · em ${sched.waitMin} min)`
           : `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (em <strong>${sched.waitMin} min</strong>)`;
+        const arrivalLineHtml = (isAskingArrivalOrTi && (sched.arrivalAtDestFormatted || sched.firstArr || sched.lastArr))
+          ? `• <strong>Chegada prevista no terminal (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.arrivalAtDestFormatted ? `<strong>${this.escapeHtml(sched.arrivalAtDestFormatted)}</strong>` : 'n/d'}` +
+            (sched.firstArr && sched.lastArr ? ` (1ª chegada: <strong>${this.escapeHtml(sched.firstArr)}</strong> · Última: <strong>${this.escapeHtml(sched.lastArr)}</strong>)` : '') + `<br>`
+          : '';
+        const tiCheckpointsHtml = (isAskingArrivalOrTi && Array.isArray(sched.tiCheckpoints) && sched.tiCheckpoints.length > 0)
+          ? `• <strong>Checkpoints em TIs (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.tiCheckpoints.slice(0, 5).map(cp => `${this.escapeHtml(cp.stop_name)} (<strong>${this.escapeHtml(cp.estimatedPassFormatted)}</strong>)`).join(' → ')}<br>`
+          : '';
         return `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('clock', 14)}<span>Linha ${this.escapeHtml(sched.routeCode)} · ${this.escapeHtml(sched.routeName)}</span></div><br>` +
           `<span class="gp-badge-gtfs" style="display:inline-block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 6px; border-radius:5px; font-size:10px; font-weight:800; margin-bottom:6px;">${this.escapeHtml(sched.provenanceLabel)} · ${this.escapeHtml(sched.direction.toUpperCase())} (${this.escapeHtml(sched.serviceDay)})</span><br>` +
           (stopLabel ? `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopLabel)}<br>` : '') +
           `• <strong>Próxima partida programada:</strong> ${nextNote}<br>` +
+          arrivalLineHtml +
+          tiCheckpointsHtml +
           `• <strong>Primeiro / Último horário:</strong> <strong>${this.escapeHtml(sched.firstDep)}</strong> às <strong>${this.escapeHtml(sched.lastDep)}</strong> (${sched.tripCount} viagens${sched.durationMin ? ` · ~${sched.durationMin} min de percurso` : ''})<br>` +
           `• <strong>Intervalo na faixa (${this.escapeHtml(bandTxt)}):</strong> <strong>${this.escapeHtml(headwayTxt)}</strong><br>` +
           `• <strong>Próximas saídas GTFS:</strong> ${this.escapeHtml(upcomingTxt)}<br>` +
@@ -3601,18 +3866,29 @@
           if (sched && !hasLiveTelemetry) {
             const firstPlace = placeMatches[0];
             const stopHintName = firstPlace && firstPlace.stopHint && firstPlace.stopHint.name ? firstPlace.stopHint.name : null;
-            const crowdInfoHtml = isAskingCrowdOrWait
+            const mentionedCodes = Array.from(new Set((q.match(/\b(\d{3,4})\b/g) || []).map(c => (this.aliases && this.aliases[c]) || c)));
+            const transferWin = (isAskingArrivalOrTi && mentionedCodes.length >= 2)
+              ? this.getIntegrationTransferWindow(mentionedCodes[0], mentionedCodes[1], null)
+              : null;
+            const transferHtml = transferWin
+              ? `<div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:9px; padding:7px 9px; margin:7px 0; font-size:11px; line-height:1.4;">• <strong>Integração em ${this.escapeHtml(transferWin.tiName)} (${this.escapeHtml(transferWin.provenanceLabel)}):</strong> Linha <strong>${this.escapeHtml(transferWin.routeA)}</strong> chega às <strong>${this.escapeHtml(transferWin.arrivesAtTiFormatted)}</strong> → Linha <strong>${this.escapeHtml(transferWin.routeB)}</strong> sai às <strong>${this.escapeHtml(transferWin.departsTiFormatted)}</strong> (espera de <strong>${transferWin.waitAtTiMin} min</strong>).</div>`
+              : '';
+            const crowdInfoHtml = (isAskingCrowdOrWait
               ? `<div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:9px; padding:7px 9px; margin:7px 0; font-size:11px; line-height:1.4;">• <strong>Sem GPS em tempo real (GTFS-RT indisponível para esta linha):</strong> Os horários acima refletem a tabela oficial <strong>${this.escapeHtml(sched.provenanceLabel)}</strong>.</div>`
+              : '') + transferHtml;
+            const arrivalSpeech = isAskingArrivalOrTi && sched.arrivalAtDestFormatted
+              ? ` Chegada prevista no terminal final às ${sched.arrivalAtDestFormatted}.`
               : '';
             return {
               intent: 'schedule_lookup',
               type: 'bus_status',
               routeCode: sched.routeCode,
               schedule: sched,
+              transferWindow: transferWin || null,
               provenanceLabel: sched.provenanceLabel,
               html: buildGtfsScheduleCard(sched, stopHintName, crowdInfoHtml),
               speechTone: 'info',
-              speech: `Pelo Horário Programado GTFS da linha ${sched.routeCode} (${sched.serviceDay}, sentido ${sched.direction}), o primeiro ônibus sai às ${sched.firstDep} e o último às ${sched.lastDep}. Próxima partida prevista em tabela às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos${sched.headwayMin != null ? `, com intervalo médio de ${sched.headwayMin} minutos` : ''}.`
+              speech: `Pelo Horário Programado GTFS da linha ${sched.routeCode} (${sched.serviceDay}, sentido ${sched.direction}), o primeiro ônibus sai às ${sched.firstDep} e o último às ${sched.lastDep}. Próxima partida prevista em tabela às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos${sched.headwayMin != null ? `, com intervalo médio de ${sched.headwayMin} minutos` : ''}.${arrivalSpeech}`
             };
           }
         }
