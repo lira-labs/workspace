@@ -102,7 +102,8 @@ Banco local de desenvolvimento e treino: `code/grafoparada_tec/data/grafoparada.
 #### 1. `users`
 - `id` (`TEXT PRIMARY KEY`): Identificador pseudonimizado do passageiro (ex.: `usr_a1b2c3d4e5f6`).
 - `name` (`TEXT NOT NULL`): Nome ou apelido de tratamento informado voluntariamente pelo usuário.
-- `contact_hint` (`TEXT`): Dica opcional de contato (sem CPF nem documentos sensíveis).
+- `contact_hint` (`TEXT`): Dica opcional de contato (sem CPF nem documentos sensíveis). Indexado por `idx_users_contact_hint_lower`.
+- `consent_at` (`TEXT`): Carimbo ISO-8601 UTC de aceite do termo LGPD (opcional).
 - `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC de criação.
 - `updated_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC da última atualização.
 
@@ -112,17 +113,26 @@ Banco local de desenvolvimento e treino: `code/grafoparada_tec/data/grafoparada.
 - `origin_city` (`TEXT NOT NULL`), `origin_neighborhood` (`TEXT`), `origin_stop_id` (`TEXT`), `origin_stop_name` (`TEXT NOT NULL`), `origin_lat` (`REAL / DOUBLE PRECISION`), `origin_lon` (`REAL / DOUBLE PRECISION`).
 - `dest_city` (`TEXT NOT NULL`), `dest_neighborhood` (`TEXT`), `dest_stop_id` (`TEXT`), `dest_stop_name` (`TEXT NOT NULL`), `dest_lat` (`REAL / DOUBLE PRECISION`), `dest_lon` (`REAL / DOUBLE PRECISION`).
 - `departure_time` (`TEXT`), `return_time` (`TEXT`), `preferred_line` (`TEXT`), `frequency` (`TEXT`).
-- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC de registro.
+- `legs_json` (`TEXT`): JSON serializado opcional com os trechos/integrações da rotina.
+- `transfer_hub_name` (`TEXT`): Nome opcional do Terminal Integrado (TI) de baldeação.
+- `return_origin_name` (`TEXT`): Nome opcional do ponto de embarque da volta.
+- `updated_at` (`TEXT`): Carimbo ISO-8601 UTC da última atualização da rotina.
+- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC de registro (indexado por `idx_routines_created_at`).
 
 #### 3. `demand_observations`
 - `id` (`INTEGER PRIMARY KEY AUTOINCREMENT` / `SERIAL PRIMARY KEY`): Identificador sequencial da observação.
 - `user_id` (`TEXT`): Identificador pseudonimizado opcional do passageiro colaborador.
-- `stop_id` (`TEXT`): Código físico da parada observada.
+- `stop_id` (`TEXT`): Código físico da parada observada (indexado em conjunto com `created_at` por `idx_obs_stop_created`).
 - `route_code` (`TEXT NOT NULL`): Código da linha observada.
 - `direction` (`TEXT`): Sentido operacional (`IDA` / `VOLTA`).
 - `observed_wait_min` (`REAL / DOUBLE PRECISION`): Tempo real de espera medido ou reportado na parada (min).
 - `predicted_wait_min` (`REAL / DOUBLE PRECISION`): Tempo anteriormente estimado pelo motor (`ST-GCN` ou `Horário Programado · GTFS`).
 - `occupancy_est` (`INTEGER`): Grau de lotação observado (`1..4` ou percentual estimado).
+- `delay_min` (`REAL / DOUBLE PRECISION`): Atraso reportado em minutos relativo ao horário esperado.
+- `wait_report_type` (`TEXT`): Tipo de relato de espera (ex.: `on_time`, `delayed`, `crowded`, `denied_boarding`).
+- `ti_hub_id` (`TEXT`): Identificador opcional do Terminal Integrado associado à observação.
+- `transfer_ok` (`INTEGER / BOOLEAN`): Indica se a baldeação/integração no TI foi concluída com sucesso.
+- `notes` (`TEXT`): Observações textuais ou rótulo (`label`) livre do relato.
 - `source` (`TEXT NOT NULL`): Origem da observação (ex.: `passenger_checkin`, `Horário Programado · GTFS`, `avl_telemetry`).
 - `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC da coleta.
 
@@ -137,6 +147,15 @@ Banco local de desenvolvimento e treino: `code/grafoparada_tec/data/grafoparada.
 - `weights_hash` (`TEXT NOT NULL`): Hash SHA-256 ou identificador de versão dos pesos avaliados.
 - `notes` (`TEXT`): Notas técnicas da execução e calibração da Trava Híbrida.
 - `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC do registro.
+
+#### 5. `app_events`
+- `id` (`INTEGER PRIMARY KEY AUTOINCREMENT` / `SERIAL PRIMARY KEY`): Identificador sequencial do evento.
+- `user_id` (`TEXT`): Identificador pseudonimizado opcional do usuário.
+- `event_type` (`TEXT NOT NULL`): Tipo do evento de aplicação (ex.: `routine_configured`, `laya_voice_query`, `ti_transfer_check`), indexado em conjunto com `created_at` por `idx_app_events_type_created`.
+- `route_code` (`TEXT`): Código opcional da linha associada ao evento.
+- `stop_id` (`TEXT`): Código opcional da parada associada ao evento.
+- `payload_json` (`TEXT`): Metadados estruturados opcionais serializados em JSON.
+- `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC do evento.
 
 ---
 

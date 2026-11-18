@@ -1489,6 +1489,12 @@
       }, 3500);
     },
 
+    _formatBriefSpeech(raw, maxLen = 180) {
+      const clean = String(raw || '').replace(/\s+/g, ' ').trim();
+      if (!clean || clean.length <= maxLen) return clean;
+      return `${clean.slice(0, maxLen - 3).trimEnd()}...`;
+    },
+
     // Leitura em voz alta da parada ativa
     speakCurrent() {
       if (!this.activeRoute || !this.activeRoute.stops[this.activeStopIndex]) return;
@@ -1497,9 +1503,13 @@
       const sched = this.getScheduledEstimate(code, this.activeDirection || 'ida', this.activeStopIndex);
       const eta = sched ? sched.waitMin : Math.max(2, ((this.activeStopIndex % 6) * 3) + 2);
       const dest = this.activeRoute.headsign || this.activeRoute.name || 'destino da linha';
-      const text = sched
-        ? `Linha ${code}, parada ${st.name}, sentido ${dest}. Próxima partida programada GTFS às ${sched.nextDepFormatted}, em ${eta} minutos.`
-        : `Linha ${code}, parada ${st.name}, sentido ${dest}. Próximo veículo estimado em ${eta} minutos.`;
+      const fullWithStop = sched
+        ? `Linha ${code}, parada ${st.name}, sentido ${dest}. Próxima saída às ${sched.nextDepFormatted}, em ${eta} minutos.`
+        : `Linha ${code}, parada ${st.name}, sentido ${dest}. Próximo ônibus em cerca de ${eta} minutos.`;
+      const compactFallback = sched
+        ? `Linha ${code}, sentido ${dest}. Próxima saída às ${sched.nextDepFormatted}, em ${eta} minutos.`
+        : `Linha ${code}, sentido ${dest}. Próximo ônibus em cerca de ${eta} minutos.`;
+      const text = this._formatBriefSpeech(fullWithStop.length <= 180 ? fullWithStop : compactFallback, 180);
 
       if (typeof window !== 'undefined' && typeof window.showFloatingVoicePill === 'function') {
         window.showFloatingVoicePill(text);
@@ -2349,9 +2359,25 @@
         if (!this._isHttpBrowserContext()) {
           return false;
         }
+        const basePayload = (payload && typeof payload === 'object' && !Array.isArray(payload))
+          ? payload
+          : { event_type: String(payload || 'ping') };
+        const eventType = String(basePayload.event_type || basePayload.event || 'telemetry_event').trim() || 'telemetry_event';
+        const routeCode = String(basePayload.route_code || basePayload.routeCode || this.activeRouteCode || '199').trim() || '199';
+        const source = String(basePayload.source || `web_${eventType}`).slice(0, 80);
         const body = Object.assign(
-          { ts: new Date().toISOString() },
-          (payload && typeof payload === 'object') ? payload : { event: String(payload || 'ping') }
+          {
+            ts: new Date().toISOString(),
+            event_type: eventType,
+            route_code: routeCode,
+            source
+          },
+          basePayload,
+          {
+            event_type: eventType,
+            route_code: routeCode,
+            source
+          }
         );
         const resp = await fetch('/api/telemetry', {
           method: 'POST',
@@ -3542,12 +3568,8 @@
           html += renderOptionsCardsHtml(plan.routeOptions);
         }
 
-        const altCount = Math.max(0, plan.routeOptions.length - 1);
-        const altNote = altCount > 0
-          ? ` Há também ${altCount} ${altCount === 1 ? 'opção alternativa' : 'opções alternativas'} para comparar.`
-          : '';
         const schedSpeech = mainSched
-          ? ` Próxima partida programada GTFS às ${mainSched.nextDepFormatted}.`
+          ? ` Próxima saída às ${mainSched.nextDepFormatted}.`
           : '';
         return {
           intent: 'trip_plan',
@@ -3560,7 +3582,7 @@
           tripPlan: plan,
           html,
           speechTone: 'info',
-          speech: `De ${cleanOrigLabel} até ${plan.destLabel}, a opção direta recomendada é a linha ${mainRoute.code}, com viagem estimada em ${mainRoute.totalMin || 25} minutos.${schedSpeech}${altNote}`
+          speech: this._formatBriefSpeech(`De ${cleanOrigLabel} até ${plan.destLabel}, vá pela linha ${mainRoute.code}, cerca de ${mainRoute.totalMin || 25} minutos.${schedSpeech}`)
         };
       }
 
@@ -3610,7 +3632,7 @@
           tripPlan: plan,
           html,
           speechTone: 'info',
-          speech: `Rota de ${cleanOrigLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.${leg1Sched ? ` Primeira etapa com partida programada GTFS às ${leg1Sched.nextDepFormatted}.` : ''}`
+          speech: this._formatBriefSpeech(`De ${cleanOrigLabel} até ${plan.destLabel} em ${legs.length} etapas: ${speechSteps}.${leg1Sched ? ` Primeira saída às ${leg1Sched.nextDepFormatted}.` : ''}`)
         };
       }
 
@@ -3623,7 +3645,7 @@
           `Experimente nomes de bairros, cidades ou terminais (ex: <em>Recife Antigo, Olinda, Abreu e Lima, TI PE-15, Camela, Ipojuca, UFRPE, Boa Viagem</em>) ou abra as 393 linhas:<br><br>` +
           `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('bus', 14)}<span>Buscar nas 393 Linhas GTFS</span></button>`,
         speechTone: 'info',
-        speech: `Não encontrei ligação direta nem integrada entre ${cleanOrigLabel} e ${plan.destLabel}. Informe o terminal ou bairro principal mais próximo.`
+        speech: this._formatBriefSpeech(`Não encontrei ligação entre ${cleanOrigLabel} e ${plan.destLabel}. Me diga o terminal ou bairro mais próximo.`)
       };
     },
 
@@ -3652,7 +3674,7 @@
             `<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 13)}<span><strong>Onde você está:</strong> ${this.escapeHtml(curStop)} (Linha próxima: <strong>${this.escapeHtml(curLine)}</strong>)</span></div>` +
             `Informe <strong>para onde você quer ir</strong> (ex: <em>"Quero chegar em Boa Viagem"</em> ou <em>"Ir para o TI Derby"</em>) para calcular a rota determinística:`,
           speechTone: 'info',
-          speech: `Identifiquei seu ponto perto de ${curStop}. Informe o bairro ou terminal de destino para calcular a rota.`
+          speech: this._formatBriefSpeech(`Estou te vendo perto de ${curStop}. Me diga para qual bairro ou terminal você quer ir.`)
         };
       }
 
@@ -3681,7 +3703,7 @@
             html: `${lostPrefix}<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Para traçar a rota até <strong>${safeDest}</strong>, informe sua localização de partida.</span></div>Ative o GPS ou escolha seu bairro de origem abaixo:<br><br>` +
               `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 14)}<span>Informar Onde Estou Agora</span></button>`,
             speechTone: 'info',
-            speech: `Para traçar sua rota até ${plan.destLabel}, informe onde você está ou ative o GPS.`
+            speech: this._formatBriefSpeech(`Para traçar sua rota até ${plan.destLabel}, me diga onde você está ou ative o GPS.`)
           };
         }
 
@@ -3707,7 +3729,7 @@
             decision: layaDecision,
             html,
             speechTone: 'alert',
-            speech: 'Quando ocorre bloqueio repentino no Nó 10 da PE-60, a convolução da ST-GCN suaviza o atraso e prevê 14,3 minutos contra 45 minutos reais no GPS. Acima de 15 minutos de divergência, o GrafoParada aciona a Trava Híbrida de Segurança, exibe os 45 minutos reais e sugere desvio pelo TI Cabo.'
+            speech: this._formatBriefSpeech('Em bloqueio repentino na PE-60, a trava de segurança ignora a suavização, mostra os 45 minutos reais e sugere desvio pelo TI Cabo.')
           };
         }
 
@@ -3728,7 +3750,7 @@
             decision: layaDecision,
             html,
             speechTone: 'info',
-            speech: 'Pela Lei Estadual 15.878 de 2016 em Pernambuco, entre 22 horas e 5 da manhã, com aviso preventivo às 21 horas no GrafoParada, mulheres, idosos e pessoas com mobilidade reduzida podem solicitar desembarque fora da parada oficial em ponto seguro e iluminado do trajeto.'
+            speech: this._formatBriefSpeech('Pela Lei 15.878, entre 22h e 5h, mulheres, idosos e pessoas com mobilidade reduzida podem pedir desembarque em ponto seguro do trajeto.')
           };
         }
 
@@ -3749,7 +3771,7 @@
             modelTrainingStatus: trainStatus,
             html,
             speechTone: 'info',
-            speech: `Enquanto o Cittamobi depende de GPS bruto isolado, o GrafoParada usa rede ST-GCN com erro médio de ${stgcnMaeStr} minutos e filtro cinemático em 56,68 microssegundos. Na integração temporal VEM ou nos 26 Terminais SEI, a troca de linha em até 2 horas ocorre com uma única tarifa.`
+            speech: this._formatBriefSpeech('O GrafoParada acompanha o corredor inteiro mesmo sem sinal e garante integração de até 2 horas no VEM ou nos Terminais Integrados.')
           };
         }
 
@@ -3777,7 +3799,7 @@
           modelTrainingStatus: trainStatus,
           html,
           speechTone: 'info',
-          speech: `A rede ST-GCN do GrafoParada opera com MAE de ${stgcnMaeStr} minutos sobre ${linesCov} linhas GTFS, combinada ao filtro cinemático FSM V3 em 56,68 microssegundos e ao modelo comportamental de Yap e Cats e Kim et al.`
+          speech: this._formatBriefSpeech(`O GrafoParada cruza horários oficiais de ${linesCov} linhas com previsão em grafo e filtro de parada real para estimar chegadas com precisão.`)
         };
       }
 
@@ -3888,7 +3910,7 @@
               provenanceLabel: sched.provenanceLabel,
               html: buildGtfsScheduleCard(sched, stopHintName, crowdInfoHtml),
               speechTone: 'info',
-              speech: `Pelo Horário Programado GTFS da linha ${sched.routeCode} (${sched.serviceDay}, sentido ${sched.direction}), o primeiro ônibus sai às ${sched.firstDep} e o último às ${sched.lastDep}. Próxima partida prevista em tabela às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos${sched.headwayMin != null ? `, com intervalo médio de ${sched.headwayMin} minutos` : ''}.${arrivalSpeech}`
+              speech: this._formatBriefSpeech(`Na linha ${sched.routeCode}, próxima saída às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos. Opera de ${sched.firstDep} até ${sched.lastDep}.${arrivalSpeech}`)
             };
           }
         }
@@ -3932,7 +3954,7 @@
               provenanceLabel: mainSched.provenanceLabel,
               html,
               speechTone: 'info',
-              speech: `Para ${rmrPlaceMatch.label}, pelo Horário Programado GTFS, a linha ${mainSched.routeCode} tem próxima partida às ${mainSched.nextDepFormatted}, em ${mainSched.waitMin} minutos, operando de ${mainSched.firstDep} até ${mainSched.lastDep}.`
+              speech: this._formatBriefSpeech(`Para ${rmrPlaceMatch.label}, a linha ${mainSched.routeCode} sai às ${mainSched.nextDepFormatted}, em ${mainSched.waitMin} minutos, operando de ${mainSched.firstDep} até ${mainSched.lastDep}.`)
             };
           }
         }
@@ -3957,7 +3979,7 @@
               provenanceLabel: sched.provenanceLabel,
               html: buildGtfsScheduleCard(sched, stopName, crowdInfoHtml),
               speechTone: 'info',
-              speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, pelo Horário Programado GTFS, a próxima partida da linha ${best.code} é às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos, operando de ${sched.firstDep} às ${sched.lastDep}.`
+              speech: this._formatBriefSpeech(`Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, a linha ${best.code} sai às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos.`)
             };
           }
 
@@ -4002,7 +4024,7 @@
             schedule: sched,
             html,
             speechTone: 'arriving',
-            speech: `Para ${matchedCorridor ? matchedCorridor.label : 'a linha ' + best.code}, o próximo ônibus da linha ${best.code} chega em cerca de ${waitMin} minutos na parada ${stopName}, com lotação ${crowdLevel.toLowerCase()} e cerca de ${seatsFree} assentos livres.`
+            speech: this._formatBriefSpeech(`A linha ${best.code} chega em cerca de ${waitMin} minutos na parada ${stopName}, com lotação ${crowdLevel.toLowerCase()} e ${seatsFree} assentos livres.`)
           };
         }
 
@@ -4035,7 +4057,7 @@
             provenanceLabel: activeSched.provenanceLabel,
             html: buildGtfsScheduleCard(activeSched, activeStop, ''),
             speechTone: 'info',
-            speech: `Na sua referência perto de ${activeStop}, pelo Horário Programado GTFS, a próxima partida da linha ${activeCode} é às ${activeSched.nextDepFormatted}, em ${activeSched.waitMin} minutos.`
+            speech: this._formatBriefSpeech(`Perto de ${activeStop}, a linha ${activeCode} sai às ${activeSched.nextDepFormatted}, em ${activeSched.waitMin} minutos.`)
           };
         }
 
@@ -4056,7 +4078,7 @@
           schedule: activeSched,
           html,
           speechTone: 'arriving',
-          speech: `Perto de ${activeStop}, a linha ${activeCode} está prevista para chegar em cerca de ${activeEta} minutos.`
+          speech: this._formatBriefSpeech(`Perto de ${activeStop}, a linha ${activeCode} chega em cerca de ${activeEta} minutos.`)
         };
       }
 
@@ -4119,9 +4141,11 @@
             stopsLineHtml +
             `<br><button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(bestCode)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(bestCode)} no Mapa</span></button>`,
           speechTone: 'info',
-          speech: sched
-            ? `Para ${refLabel}, a linha ${bestCode} opera pelo Horário Programado GTFS de ${sched.firstDep} até ${sched.lastDep}, com próxima partida às ${sched.nextDepFormatted}.`
-            : `Para ${refLabel}, a linha principal cadastrada no GTFS é a ${bestCode}.`
+          speech: this._formatBriefSpeech(
+            sched
+              ? `Para ${refLabel}, a linha ${bestCode} opera de ${sched.firstDep} até ${sched.lastDep}, com próxima saída às ${sched.nextDepFormatted}.`
+              : `Para ${refLabel}, a linha principal é a ${bestCode}.`
+          )
         };
       }
 
@@ -4154,7 +4178,7 @@
           `• <em>"Qual o primeiro e último ônibus da linha 199?"</em><br>` +
           `• <em>"Horários de ônibus em Abreu e Lima"</em>`,
         speechTone: 'info',
-        speech: 'Consulto rotas, horários programados GTFS das 393 linhas e localidades da Região Metropolitana do Recife. Informe origem e destino ou o código da linha.'
+        speech: 'Posso consultar rotas e horários das 393 linhas do Recife. Me diga origem e destino ou o número da linha.'
       };
     },
 

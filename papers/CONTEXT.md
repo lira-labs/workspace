@@ -28,6 +28,11 @@
 - **Overleaf:** projeto PRÓPRIO e separado. Excluída de `core/tools/sync_overleaf.ps1` para não vazar no Overleaf das outras disciplinas.
 - **Entrega:** documento + vídeo de até 10 min em 24/11/2026
 
+### 5. `research_system/` — Sistema Acadêmico Reutilizável (HCAI in Education) & Projeto Compasso Cognitivo
+- **Guia Principal:** [`papers/research_system/README.md`](research_system/README.md)
+- **Projeto Ativo:** [`papers/research_system/projects/compasso-cognitivo/PROJECT_BRIEF.md`](research_system/projects/compasso-cognitivo/PROJECT_BRIEF.md)
+- **Overleaf Remoto:** projeto próprio (`6a922427f1ca2007335f685f`), sincronizado separadamente do GrafoParada.
+
 ---
 
 ## 🔄 Como Compilar no Overleaf

@@ -15,6 +15,8 @@ const {
   sanitizeText,
   toNullableText,
   toNullableNumber,
+  toNullableInt,
+  toNullableIso,
   generateId
 } = require('./_db');
 
@@ -40,18 +42,40 @@ module.exports = async function handler(req, res) {
       }
 
       const userId = getQueryParam(req, 'user_id');
-      const rows = userId
-        ? await sql`
-            SELECT * FROM routines
-            WHERE user_id = ${userId}
-            ORDER BY created_at DESC
-            LIMIT 50
-          `
-        : await sql`
-            SELECT * FROM routines
-            ORDER BY created_at DESC
-            LIMIT 25
-          `;
+      const sinceIso = toNullableIso(getQueryParam(req, 'since'));
+      const rawLimit = toNullableInt(getQueryParam(req, 'limit'));
+      const defaultLimit = userId ? 50 : 25;
+      const limit = Number.isFinite(rawLimit) && rawLimit >= 1 ? Math.min(rawLimit, 200) : defaultLimit;
+
+      let rows;
+      if (userId && sinceIso) {
+        rows = await sql`
+          SELECT * FROM routines
+          WHERE user_id = ${userId} AND created_at >= ${sinceIso}
+          ORDER BY created_at DESC
+          LIMIT ${limit}
+        `;
+      } else if (userId) {
+        rows = await sql`
+          SELECT * FROM routines
+          WHERE user_id = ${userId}
+          ORDER BY created_at DESC
+          LIMIT ${limit}
+        `;
+      } else if (sinceIso) {
+        rows = await sql`
+          SELECT * FROM routines
+          WHERE created_at >= ${sinceIso}
+          ORDER BY created_at DESC
+          LIMIT ${limit}
+        `;
+      } else {
+        rows = await sql`
+          SELECT * FROM routines
+          ORDER BY created_at DESC
+          LIMIT ${limit}
+        `;
+      }
 
       sendJson(res, 200, {
         ok: true,
@@ -120,6 +144,17 @@ module.exports = async function handler(req, res) {
   const routineId = toNullableText(body.id, 80) || generateId('rtn');
   const now = new Date().toISOString();
 
+  let legsJson = null;
+  if (typeof body.legs_json === 'string') {
+    legsJson = toNullableText(body.legs_json, 16000);
+  } else if (body.legs !== undefined && body.legs !== null) {
+    try {
+      legsJson = JSON.stringify(body.legs).slice(0, 16000);
+    } catch (_) {
+      legsJson = null;
+    }
+  }
+
   const localRecord = {
     id: routineId,
     user_id: userId,
@@ -139,6 +174,10 @@ module.exports = async function handler(req, res) {
     return_time: toNullableText(body.return_time, 16),
     preferred_line: toNullableText(body.preferred_line, 32),
     frequency: toNullableText(body.frequency, 32),
+    legs_json: legsJson,
+    transfer_hub_name: toNullableText(body.transfer_hub_name, 180),
+    return_origin_name: toNullableText(body.return_origin_name, 180),
+    updated_at: now,
     created_at: now
   };
 
@@ -163,7 +202,8 @@ module.exports = async function handler(req, res) {
         origin_stop_name, origin_lat, origin_lon, dest_city,
         dest_neighborhood, dest_stop_id, dest_stop_name, dest_lat,
         dest_lon, departure_time, return_time, preferred_line,
-        frequency, created_at
+        frequency, legs_json, transfer_hub_name, return_origin_name,
+        updated_at, created_at
       ) VALUES (
         ${localRecord.id}, ${localRecord.user_id}, ${localRecord.origin_city},
         ${localRecord.origin_neighborhood}, ${localRecord.origin_stop_id},
@@ -171,7 +211,8 @@ module.exports = async function handler(req, res) {
         ${localRecord.dest_city}, ${localRecord.dest_neighborhood}, ${localRecord.dest_stop_id},
         ${localRecord.dest_stop_name}, ${localRecord.dest_lat}, ${localRecord.dest_lon},
         ${localRecord.departure_time}, ${localRecord.return_time}, ${localRecord.preferred_line},
-        ${localRecord.frequency}, ${localRecord.created_at}
+        ${localRecord.frequency}, ${localRecord.legs_json}, ${localRecord.transfer_hub_name},
+        ${localRecord.return_origin_name}, ${localRecord.updated_at}, ${localRecord.created_at}
       )
       ON CONFLICT (id) DO UPDATE SET
         user_id = EXCLUDED.user_id,
@@ -190,7 +231,11 @@ module.exports = async function handler(req, res) {
         departure_time = EXCLUDED.departure_time,
         return_time = EXCLUDED.return_time,
         preferred_line = EXCLUDED.preferred_line,
-        frequency = EXCLUDED.frequency
+        frequency = EXCLUDED.frequency,
+        legs_json = EXCLUDED.legs_json,
+        transfer_hub_name = EXCLUDED.transfer_hub_name,
+        return_origin_name = EXCLUDED.return_origin_name,
+        updated_at = EXCLUDED.updated_at
       RETURNING *
     `;
 

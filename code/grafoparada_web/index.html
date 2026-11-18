@@ -276,12 +276,17 @@
 
     .top-pills-row {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
       gap: 5px;
       max-width: 100%;
-      overflow: visible;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
       padding-bottom: 2px;
+    }
+    .top-pills-row::-webkit-scrollbar {
+      display: none;
     }
 
     .top-pill {
@@ -2725,12 +2730,19 @@
     .laya-modal-header {
       background: #0F766E;
       color: #ffffff;
-      padding: 9px 14px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .laya-header-top-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      flex-shrink: 0;
+      min-width: 0;
     }
     .laya-header-brand {
       display: flex;
@@ -2804,9 +2816,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 4px 14px;
-      background: #F8FAFC;
-      border-bottom: 1px solid #E2E8F0;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
       flex-shrink: 0;
       min-width: 0;
     }
@@ -2816,9 +2829,29 @@
       gap: 6px;
       min-width: 0;
       flex: 1;
-      color: #475569;
-      font-size: 11px;
+      color: rgba(255, 255, 255, 0.94);
+      font-size: 10.5px;
       font-weight: 700;
+    }
+    .laya-quick-prompts-row {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+    .laya-quick-prompts-row::-webkit-scrollbar {
+      display: none;
+    }
+    .laya-quick-prompts-row .laya-quick-cmd {
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     #laya-voice-status-text {
       white-space: nowrap;
@@ -2993,13 +3026,31 @@
       pointer-events: none !important;
     }
 
+    #onboarding-step-register {
+      overflow-y: auto;
+    }
     .gp-onb-card {
       max-width: 410px;
       width: 100%;
-      max-height: 90%;
-      overflow-y: auto;
-      padding: 20px;
+      max-height: 88dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 18px 18px 14px;
       text-align: left;
+    }
+    .gp-onb-scroll-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      min-height: 0;
+      padding-right: 2px;
+    }
+    .gp-onb-sticky-footer {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border-color);
+      background: #ffffff;
+      padding-top: 10px;
+      margin-top: 8px;
     }
     .gp-onb-step-head {
       display: flex;
@@ -3623,11 +3674,6 @@
           <span id="label-routine-pill">Rotina</span>
         </div>
 
-        <div class="top-pill" id="senior-pill-btn" onclick="toggleSeniorMode()" title="Ativar Modo Fácil / Letras Grandes" style="font-weight:800;">
-          <svg class="gp-svg" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-          <span id="label-senior-pill">Aa Fácil</span>
-        </div>
-
         <div class="top-pill top-pill-ctm-only" onclick="openDispatchModal()" title="Central CTM de Realocação de Frota" style="color:var(--blue-accent); font-weight:800;">
           <svg class="gp-svg" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span>CTM Frota</span>
@@ -3643,12 +3689,8 @@
       <div class="search-pill-wrapper">
         <div class="search-pill">
           <svg class="gp-svg" style="color:var(--text-muted);" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar linha (ex: 199, 1967)" oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
+          <input type="text" id="quick-search-input" class="search-input" placeholder="Buscar linha, terminal ou parada..." oninput="handleQuickSearch(this.value)" onfocus="handleQuickSearch(this.value)" />
           <button id="search-clear-btn" onclick="clearQuickSearch()" style="display:none; border:none; background:none; color:var(--text-muted); cursor:pointer;">✕</button>
-          <button type="button" onclick="openLayaModal()" style="border:1px solid #a7f3d0; background:#ecfdf5; color:#047857; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px; flex-shrink:0;" title="Conversar com a Laya (Assistente IA)">
-            <svg class="gp-svg" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-            Laya
-          </button>
         </div>
         <div id="search-results-dropdown" class="search-dropdown"></div>
       </div>
@@ -3714,7 +3756,7 @@
           <div style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:14px; padding:8px 10px; margin-bottom:8px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span class="gp-badge gp-badge-real">Dado Real · GTFS</span>
+                <span class="gp-badge gp-badge-real" data-passenger-label="Horário Oficial" data-tech-label="Dado Real · GTFS">Horário Oficial</span>
                 <button id="btn-fav-star" onclick="promptAddCurrentStopToFavorites()" style="border:none; background:none; cursor:pointer; color:#64748b; display:inline-flex; align-items:center;" title="Favoritar parada">
                   <svg class="gp-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </button>
@@ -3740,7 +3782,7 @@
                   </div>
                   <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
                     <span>Em <span id="resting-eta-val" style="font-family:'JetBrains Mono',monospace;">4</span> min</span>
-                    <span class="gp-badge gp-badge-pred">Previsão · ST-GCN</span>
+                    <span class="gp-badge gp-badge-pred" data-passenger-label="Previsão IA" data-tech-label="Previsão · ST-GCN">Previsão IA</span>
                   </div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
@@ -3769,27 +3811,27 @@
             <div id="favorites-pills-row" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; -webkit-overflow-scrolling:touch;"></div>
           </div>
 
+          <div class="gp-checkin-box resting-secondary-block" id="stop-checkin-box" style="margin-bottom:8px;">
+            <div class="gp-checkin-head">
+              <span class="gp-checkin-title">Confirmar passagem na parada</span>
+              <span class="gp-badge gp-badge-real">Alimenta Treino IA</span>
+            </div>
+            <div class="gp-checkin-grid" role="group" aria-label="Lotação observada na parada">
+              <button type="button" class="gp-checkin-btn is-empty" onclick="submitStopTelemetryCheckin('Vazio', 15, this)">Vazio</button>
+              <button type="button" class="gp-checkin-btn is-medium" onclick="submitStopTelemetryCheckin('Médio', 32, this)">Médio</button>
+              <button type="button" class="gp-checkin-btn is-full" onclick="submitStopTelemetryCheckin('Lotado', 48, this)">Lotado</button>
+            </div>
+            <div id="checkin-feedback-msg" class="gp-checkin-feedback" role="status" aria-live="polite"></div>
+          </div>
+
           <!-- PROGRESSIVE DISCLOSURE: ROTINA E ATALHOS -->
           <details id="resting-extra-tools" style="background:#ffffff; border:1px solid var(--border-color); border-radius:12px; padding:8px 12px; margin-bottom:8px;">
             <summary style="font-size:12px; font-weight:800; color:#334155; cursor:pointer; display:flex; align-items:center; justify-content:space-between;">
               <span>Rotina diária e guia de ponto</span>
               <span style="font-size:10.5px; color:#059669;">Expandir ▾</span>
             </summary>
-            <div style="margin-top:10px;">
-              <div class="gp-checkin-box" id="stop-checkin-box">
-                <div class="gp-checkin-head">
-                  <span class="gp-checkin-title">Confirmar passagem na parada</span>
-                  <span class="gp-badge gp-badge-real">Alimenta Treino IA</span>
-                </div>
-                <div class="gp-checkin-grid" role="group" aria-label="Lotação observada na parada">
-                  <button type="button" class="gp-checkin-btn is-empty" onclick="submitStopTelemetryCheckin('Vazio', 15, this)">Vazio</button>
-                  <button type="button" class="gp-checkin-btn is-medium" onclick="submitStopTelemetryCheckin('Médio', 32, this)">Médio</button>
-                  <button type="button" class="gp-checkin-btn is-full" onclick="submitStopTelemetryCheckin('Lotado', 48, this)">Lotado</button>
-                </div>
-                <div id="checkin-feedback-msg" class="gp-checkin-feedback" role="status" aria-live="polite"></div>
-              </div>
-
-              <div class="routine-commute-card" onclick="openRoutineModal()">
+            <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+              <div class="routine-commute-card" onclick="openRoutineModal()" style="margin:0;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:11px; font-weight:800; color:#047857; text-transform:uppercase;">Minha Rotina Diária</span>
                   <span style="font-size:10.5px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:999px;" id="routine-tag-pill">Sem rotina</span>
@@ -3844,7 +3886,7 @@
               <div style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Primeiro Ônibus</div>
               <div class="hero-eta-big"><span id="live-eta-num">4</span> <span style="font-size:18px; font-weight:700;">min</span></div>
               <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-top:2px;" id="live-eta-sub">Encosta às 06:14 · Plataforma 01</div>
-              <span class="gp-badge gp-badge-pred" style="margin-top:4px;">Previsão · ST-GCN</span>
+              <span class="gp-badge gp-badge-pred" style="margin-top:4px;" data-passenger-label="Previsão IA" data-tech-label="Previsão · ST-GCN">Previsão IA</span>
             </div>
             <div style="text-align:right;">
               <div style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Viagem Total</div>
@@ -3994,6 +4036,11 @@
           <span>Ouvir Teste de Voz no Fone</span>
         </button>
 
+        <button type="button" class="btn-secondary" id="senior-pill-btn" onclick="toggleSeniorMode()" title="Ativar Modo Fácil / Letras Grandes" style="margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:7px;">
+          <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span id="label-senior-pill">Aa Fácil</span>
+        </button>
+
         <button class="btn-secondary" style="color:var(--danger-red); border-color:var(--danger-border); display:flex; align-items:center; justify-content:center; gap:7px;" onclick="logoutAndRestart()">
           <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           <span>Sair da Conta / Limpar Dados</span>
@@ -4046,7 +4093,7 @@
 
       <!-- PASSO 2: ROTINA EM CASCATA (CIDADE/BAIRRO -> PARADAS REAIS -> DESTINO -> LINHAS GTFS) -->
       <div id="onboarding-step-routine" class="modal-card gp-onb-card" style="display:none;">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-shrink:0;">
           <button type="button" onclick="showOnboardingStep1()" aria-label="Voltar ao cadastro" style="width:34px; height:34px; border-radius:10px; border:1px solid var(--border-color); background:#f8fafc; color:var(--text-main); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
             <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
@@ -4056,56 +4103,60 @@
           </div>
         </div>
 
-        <p style="font-size:12px; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">
-          Busque sua cidade ou bairro para escolher paradas reais e consultar os horários programados no GTFS.
-        </p>
+        <div class="gp-onb-scroll-body">
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.4; margin-bottom:10px;">
+            Busque sua cidade ou bairro para escolher paradas reais e consultar os horários programados no GTFS.
+          </p>
 
-        <!-- PERGUNTA 1: ORIGEM -->
-        <div class="gp-cascade-block" style="border-top:none; padding-top:0;">
-          <label for="onb-origin-place" class="gp-cascade-label">
-            <svg class="gp-svg" style="color:var(--brand-green);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>1. Onde você pega o ônibus?</span>
-          </label>
-          <input type="text" id="onb-origin-place" class="field-input" placeholder="Digite cidade, bairro ou terminal..." autocomplete="off" />
-          <div id="onb-origin-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de origem"></div>
-          <div id="onb-origin-stops-list" class="gp-stops-scroll"></div>
-        </div>
+          <!-- PERGUNTA 1: ORIGEM -->
+          <div class="gp-cascade-block" style="border-top:none; padding-top:0;">
+            <label for="onb-origin-place" class="gp-cascade-label">
+              <svg class="gp-svg" style="color:var(--brand-green);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>1. Onde você pega o ônibus?</span>
+            </label>
+            <input type="text" id="onb-origin-place" class="field-input" placeholder="Digite cidade, bairro ou terminal..." autocomplete="off" />
+            <div id="onb-origin-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de origem"></div>
+            <div id="onb-origin-stops-list" class="gp-stops-scroll"></div>
+          </div>
 
-        <!-- PERGUNTA 2: DESTINO -->
-        <div class="gp-cascade-block">
-          <label for="onb-dest-place" class="gp-cascade-label">
-            <svg class="gp-svg" style="color:var(--blue-accent);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-            <span>2. Para onde você vai trabalhar ou estudar?</span>
-          </label>
-          <input type="text" id="onb-dest-place" class="field-input" placeholder="Digite cidade, bairro ou local de destino..." autocomplete="off" />
-          <div id="onb-dest-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de destino"></div>
-          <div id="onb-dest-stops-list" class="gp-stops-scroll"></div>
-        </div>
+          <!-- PERGUNTA 2: DESTINO -->
+          <div class="gp-cascade-block">
+            <label for="onb-dest-place" class="gp-cascade-label">
+              <svg class="gp-svg" style="color:var(--blue-accent);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              <span>2. Para onde você vai trabalhar ou estudar?</span>
+            </label>
+            <input type="text" id="onb-dest-place" class="field-input" placeholder="Digite cidade, bairro ou local de destino..." autocomplete="off" />
+            <div id="onb-dest-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de destino"></div>
+            <div id="onb-dest-stops-list" class="gp-stops-scroll"></div>
+          </div>
 
-        <!-- LINHAS REAIS SUGERIDAS + HORÁRIO PROGRAMADO GTFS -->
-        <div id="onb-suggested-lines-box" class="gp-suggested-lines-box"></div>
+          <!-- LINHAS REAIS SUGERIDAS + HORÁRIO PROGRAMADO GTFS -->
+          <div id="onb-suggested-lines-box" class="gp-suggested-lines-box"></div>
 
-        <!-- HORÁRIOS VAZIOS -->
-        <div class="gp-cascade-block">
-          <div class="gp-time-grid">
-            <div style="min-width:0;">
-              <label for="inp-custom-time" class="field-label" style="font-size:12px;">Horário de saída (Ida)</label>
-              <input type="time" id="inp-custom-time" class="field-input" style="min-width:0;" />
-            </div>
-            <div style="min-width:0;">
-              <label for="inp-custom-return" class="field-label" style="font-size:12px;">Horário de volta (opcional)</label>
-              <input type="time" id="inp-custom-return" class="field-input" style="min-width:0;" />
+          <!-- HORÁRIOS VAZIOS -->
+          <div class="gp-cascade-block">
+            <div class="gp-time-grid">
+              <div style="min-width:0;">
+                <label for="inp-custom-time" class="field-label" style="font-size:12px;">Horário de saída (Ida)</label>
+                <input type="time" id="inp-custom-time" class="field-input" style="min-width:0;" />
+              </div>
+              <div style="min-width:0;">
+                <label for="inp-custom-return" class="field-label" style="font-size:12px;">Horário de volta (opcional)</label>
+                <input type="time" id="inp-custom-return" class="field-input" style="min-width:0;" />
+              </div>
             </div>
           </div>
+
+          <div id="onb-routine-error" class="gp-field-error" role="alert"></div>
+          <div id="onb-routine-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
         </div>
 
-        <div id="onb-routine-error" class="gp-field-error" role="alert"></div>
-        <div id="onb-routine-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
-
-        <button type="button" id="btn-onb-save-routine" class="btn-primary" onclick="handleOnboardingRoutineSave()">
-          <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Salvar rotina e começar</span>
-        </button>
+        <div class="gp-onb-sticky-footer">
+          <button type="button" id="btn-onb-save-routine" class="btn-primary" onclick="handleOnboardingRoutineSave()">
+            <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Salvar rotina e começar</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -4113,7 +4164,7 @@
     <!-- 14. MODAL: MINHA ROTINA PENDULAR (FLUXO EM CASCATA COMPARTILHADO) -->
     <div id="modal-routine" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="rtn-modal-title">
       <div class="modal-card gp-onb-card" style="border:2px solid var(--brand-green); max-width:440px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-shrink:0;">
           <div style="display:flex; align-items:center; gap:10px;">
             <div class="gp-onb-icon-badge" aria-hidden="true">
               <svg class="gp-svg gp-svg-lg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -4126,91 +4177,93 @@
           <button type="button" style="border:none; background:none; font-size:20px; font-weight:800; color:var(--text-muted); cursor:pointer;" onclick="closeRoutineModal()" aria-label="Fechar">✕</button>
         </div>
 
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4;">
-          Selecione cidade ou bairro de embarque e destino para consultar paradas reais e calcular sua janela de saída.
-        </p>
+        <div class="gp-onb-scroll-body">
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; line-height:1.4;">
+            Selecione cidade ou bairro de embarque e destino para consultar paradas reais e calcular sua janela de saída.
+          </p>
 
-        <!-- 1. ORIGEM -->
-        <div class="gp-cascade-block" style="border-top:none; padding-top:0;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
-            <label for="rtn-origin-place" class="gp-cascade-label" style="margin-bottom:0;">
-              <svg class="gp-svg" style="color:var(--brand-green);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>1. Onde você pega o ônibus?</span>
+          <!-- 1. ORIGEM -->
+          <div class="gp-cascade-block" style="border-top:none; padding-top:0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+              <label for="rtn-origin-place" class="gp-cascade-label" style="margin-bottom:0;">
+                <svg class="gp-svg" style="color:var(--brand-green);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>1. Onde você pega o ônibus?</span>
+              </label>
+              <button type="button" onclick="useCurrentStopAsOrigin()" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:8px; font-size:10.5px; font-weight:800; padding:4px 8px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+                <svg class="gp-svg" style="width:12px; height:12px;" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>Usar parada atual</span>
+              </button>
+            </div>
+            <input type="text" id="rtn-origin-place" class="field-input" placeholder="Digite cidade, bairro ou terminal..." autocomplete="off" />
+            <div id="rtn-origin-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de origem"></div>
+            <div id="rtn-origin-stops-list" class="gp-stops-scroll"></div>
+          </div>
+
+          <!-- 2. DESTINO -->
+          <div class="gp-cascade-block">
+            <label for="rtn-dest-place" class="gp-cascade-label">
+              <svg class="gp-svg" style="color:var(--blue-accent);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              <span>2. Para onde você vai trabalhar ou estudar?</span>
             </label>
-            <button type="button" onclick="useCurrentStopAsOrigin()" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; border-radius:8px; font-size:10.5px; font-weight:800; padding:4px 8px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
-              <svg class="gp-svg" style="width:12px; height:12px;" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Usar parada atual</span>
-            </button>
+            <input type="text" id="rtn-dest-place" class="field-input" placeholder="Digite cidade, bairro ou local de destino..." autocomplete="off" />
+            <div id="rtn-dest-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de destino"></div>
+            <div id="rtn-dest-stops-list" class="gp-stops-scroll"></div>
           </div>
-          <input type="text" id="rtn-origin-place" class="field-input" placeholder="Digite cidade, bairro ou terminal..." autocomplete="off" />
-          <div id="rtn-origin-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de origem"></div>
-          <div id="rtn-origin-stops-list" class="gp-stops-scroll"></div>
-        </div>
 
-        <!-- 2. DESTINO -->
-        <div class="gp-cascade-block">
-          <label for="rtn-dest-place" class="gp-cascade-label">
-            <svg class="gp-svg" style="color:var(--blue-accent);" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-            <span>2. Para onde você vai trabalhar ou estudar?</span>
-          </label>
-          <input type="text" id="rtn-dest-place" class="field-input" placeholder="Digite cidade, bairro ou local de destino..." autocomplete="off" />
-          <div id="rtn-dest-place-list" class="gp-autocomplete-list" role="listbox" aria-label="Locais de destino"></div>
-          <div id="rtn-dest-stops-list" class="gp-stops-scroll"></div>
-        </div>
+          <!-- LINHAS SUGERIDAS + HORÁRIO PROGRAMADO GTFS -->
+          <div id="rtn-suggested-lines-box" class="gp-suggested-lines-box"></div>
 
-        <!-- LINHAS SUGERIDAS + HORÁRIO PROGRAMADO GTFS -->
-        <div id="rtn-suggested-lines-box" class="gp-suggested-lines-box"></div>
-
-        <!-- HORÁRIOS + RETORNO + FREQUÊNCIA -->
-        <div class="gp-cascade-block">
-          <div class="gp-time-grid" style="margin-bottom:10px;">
-            <div style="min-width:0;">
-              <label for="rtn-time" class="field-label" style="font-size:12px;">Horário de saída (Ida)</label>
-              <input type="time" id="rtn-time" class="field-input" style="min-width:0;" />
+          <!-- HORÁRIOS + RETORNO + FREQUÊNCIA -->
+          <div class="gp-cascade-block">
+            <div class="gp-time-grid" style="margin-bottom:10px;">
+              <div style="min-width:0;">
+                <label for="rtn-time" class="field-label" style="font-size:12px;">Horário de saída (Ida)</label>
+                <input type="time" id="rtn-time" class="field-input" style="min-width:0;" />
+              </div>
+              <div style="min-width:0;">
+                <label for="rtn-return-time" class="field-label" style="font-size:12px;">Horário de volta (opcional)</label>
+                <input type="time" id="rtn-return-time" class="field-input" style="min-width:0;" />
+              </div>
             </div>
-            <div style="min-width:0;">
-              <label for="rtn-return-time" class="field-label" style="font-size:12px;">Horário de volta (opcional)</label>
-              <input type="time" id="rtn-return-time" class="field-input" style="min-width:0;" />
+
+            <div class="field-group" style="margin-bottom:10px;">
+              <label for="inp-custom-return-origin" class="field-label" style="font-size:12px;">Parada de retorno (opcional)</label>
+              <input type="text" id="inp-custom-return-origin" class="field-input" placeholder="Se diferente do destino escolhido" autocomplete="off" />
             </div>
-          </div>
 
-          <div class="field-group" style="margin-bottom:10px;">
-            <label for="inp-custom-return-origin" class="field-label" style="font-size:12px;">Parada de retorno (opcional)</label>
-            <input type="text" id="inp-custom-return-origin" class="field-input" placeholder="Se diferente do destino escolhido" autocomplete="off" />
-          </div>
-
-          <div style="margin-bottom:4px;">
-            <span class="field-label" style="font-size:12px;">Frequência</span>
-            <div class="gp-freq-grid">
-              <label class="gp-freq-chip">
-                <input type="radio" name="custom-routine-freq" value="Seg a Sex" checked /> Seg-Sex
-              </label>
-              <label class="gp-freq-chip">
-                <input type="radio" name="custom-routine-freq" value="Plantão 12x36" /> 12x36
-              </label>
-              <label class="gp-freq-chip">
-                <input type="radio" name="custom-routine-freq" value="Híbrido (2-3x)" /> Híbrido
-              </label>
-              <label class="gp-freq-chip">
-                <input type="radio" name="custom-routine-freq" value="Esporádico" /> Noite
-              </label>
+            <div style="margin-bottom:4px;">
+              <span class="field-label" style="font-size:12px;">Frequência</span>
+              <div class="gp-freq-grid">
+                <label class="gp-freq-chip">
+                  <input type="radio" name="custom-routine-freq" value="Seg a Sex" checked /> Seg-Sex
+                </label>
+                <label class="gp-freq-chip">
+                  <input type="radio" name="custom-routine-freq" value="Plantão 12x36" /> 12x36
+                </label>
+                <label class="gp-freq-chip">
+                  <input type="radio" name="custom-routine-freq" value="Híbrido (2-3x)" /> Híbrido
+                </label>
+                <label class="gp-freq-chip">
+                  <input type="radio" name="custom-routine-freq" value="Esporádico" /> Noite
+                </label>
+              </div>
             </div>
           </div>
+
+          <div id="rtn-routine-error" class="gp-field-error" role="alert"></div>
+          <div id="rtn-routine-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
         </div>
 
-        <div id="rtn-routine-error" class="gp-field-error" role="alert"></div>
-        <div id="rtn-routine-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
+        <div class="gp-onb-sticky-footer">
+          <button type="button" class="btn-primary" onclick="applyCustomRoutineProfile()">
+            <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Salvar rotina completa</span>
+          </button>
 
-        <button type="button" class="btn-primary" onclick="applyCustomRoutineProfile()">
-          <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Salvar rotina completa</span>
-        </button>
-
-        <div style="font-size:11px; color:var(--text-secondary); text-align:center; margin-top:10px;">
-          Privacidade local (LGPD): sua rotina fica salva neste dispositivo sem envio de histórico de GPS.
+          <div style="font-size:10.5px; color:var(--text-secondary); text-align:center; margin-top:6px;">
+            Privacidade local (LGPD): sua rotina fica salva neste dispositivo.
+          </div>
         </div>
-
-        <button type="button" class="btn-secondary" onclick="closeRoutineModal()">Fechar</button>
       </div>
     </div>
 
@@ -4682,39 +4735,41 @@
       <div class="modal-card" style="height:min(672px, 88dvh); max-height:88dvh; display:flex; flex-direction:column; padding:0; overflow:hidden; border-radius:22px; width:100%; max-width:420px;">
         <!-- LAYA HEADER -->
         <div class="laya-modal-header">
-          <div class="laya-header-brand">
-            <div class="laya-avatar-mini" style="border:2px solid rgba(255,255,255,0.88);">
-              <svg class="gp-svg" style="width:17px; height:17px; stroke:#ffffff;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div class="laya-header-top-row">
+            <div class="laya-header-brand">
+              <div class="laya-avatar-mini" style="border:2px solid rgba(255,255,255,0.88);">
+                <svg class="gp-svg" style="width:17px; height:17px; stroke:#ffffff;" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div style="min-width:0; flex:1;">
+                <div class="laya-header-title">Laya IA</div>
+                <div class="laya-header-subtitle">393 linhas reais e 26 Terminais SEI</div>
+              </div>
             </div>
-            <div style="min-width:0; flex:1;">
-              <div class="laya-header-title">Laya IA</div>
-              <div class="laya-header-subtitle">Conectada às 393 linhas reais e 26 Terminais SEI</div>
+            <div class="laya-header-actions">
+              <button type="button" id="btn-laya-voice-style" class="laya-voice-style-btn" onclick="cycleLayaVoice()" title="Trocar timbre de voz da Laya">Laya PT-BR</button>
+              <button type="button" id="btn-laya-voice-mute" class="laya-header-icon-btn" onclick="toggleLayaVoiceMute()" title="Ativar ou silenciar voz da Laya" aria-label="Alternar áudio da Laya"><svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button>
+              <button type="button" class="laya-header-icon-btn" onclick="closeLayaModal()" aria-label="Fechar assistente Laya IA"><svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
           </div>
-          <div class="laya-header-actions">
-            <button type="button" id="btn-laya-voice-style" class="laya-voice-style-btn" onclick="cycleLayaVoice()" title="Trocar timbre de voz da Laya">Laya PT-BR</button>
-            <button type="button" id="btn-laya-voice-mute" class="laya-header-icon-btn" onclick="toggleLayaVoiceMute()" title="Ativar ou silenciar voz da Laya" aria-label="Alternar áudio da Laya"><svg class="gp-svg" style="width:15px; height:15px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button>
-            <button type="button" class="laya-header-icon-btn" onclick="closeLayaModal()" aria-label="Fechar assistente Laya IA"><svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-          </div>
-        </div>
 
-        <!-- FAIXA DISCRETA DE ESTADO DA VOZ DA LAYA -->
-        <div id="laya-voice-status" data-voice-state="muted" aria-live="polite">
-          <div class="laya-voice-status-meta">
-            <span id="laya-voice-status-icon" style="display:inline-flex; align-items:center; flex-shrink:0;"><svg class="gp-svg" style="width:14px; height:14px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></span>
-            <span id="laya-voice-status-text">Perfil: Laya PT-BR</span>
+          <!-- FAIXA COMPACTA DE ESTADO DA VOZ FUNDIDA AO HEADER -->
+          <div id="laya-voice-status" data-voice-state="muted" aria-live="polite">
+            <div class="laya-voice-status-meta">
+              <span id="laya-voice-status-icon" style="display:inline-flex; align-items:center; flex-shrink:0;"><svg class="gp-svg" style="width:13px; height:13px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></span>
+              <span id="laya-voice-status-text">Perfil: Laya PT-BR</span>
+            </div>
+            <span id="laya-voice-status-pill" class="laya-voice-status-pill" data-voice-state="muted">Silenciada</span>
           </div>
-          <span id="laya-voice-status-pill" class="laya-voice-status-pill" data-voice-state="muted">Silenciada</span>
         </div>
 
         <!-- CHAT HISTORY -->
         <div id="laya-chat-history" style="flex:1 1 auto; overflow-y:auto; padding:9px 12px 10px; display:flex; flex-direction:column; gap:8px; background:#f8fafc; min-height:0;">
           <div class="laya-msg-bot">
             <div class="laya-msg-body">
-              Olá! Conheço as <strong>393 linhas reais e 26 Terminais SEI</strong> do Grande Recife e a inteligência ST-GCN do GrafoParada.<br><br>Pergunte de onde até onde quer ir, consulte a lotação ou acompanhe linhas da malha.
+              Olá! Conheço as <strong>393 linhas reais e 26 Terminais SEI</strong> do Grande Recife.<br><br>Pergunte de onde até onde quer ir, consulte a lotação ou acompanhe linhas da malha.
             </div>
             <div class="laya-msg-footer">
-              <span class="laya-msg-meta-tag">Estimativa inteligente · GTFS CTM</span>
+              <span class="laya-msg-meta-tag" data-passenger-label="Base oficial Grande Recife" data-tech-label="Estimativa inteligente · GTFS CTM">Base oficial Grande Recife</span>
               <button type="button" class="laya-msg-listen-btn" onclick="speakText(this.closest('.laya-msg-bot').querySelector('.laya-msg-body').innerText)">
                 <svg class="gp-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                 <span>Ouvir</span>
@@ -4723,8 +4778,8 @@
           </div>
         </div>
 
-        <!-- QUICK PROMPTS WRAP -->
-        <div style="display:flex; flex-wrap:wrap; gap:4px; padding:5px 12px; background:#ffffff; border-top:1px solid #e2e8f0; flex-shrink:0;">
+        <!-- QUICK PROMPTS CARROSSEL 1 LINHA -->
+        <div class="laya-quick-prompts-row">
           <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('Como ir de Camela para a UFRPE?')">Camela → UFRPE</button>
           <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('Estou perdido no centro à noite, como volto pra Camela?')" style="background:#fef3c7; color:#92400e; border-color:#fde68a; font-weight:800;">Perdido no Centro à noite</button>
           <button type="button" class="laya-quick-cmd" onclick="askLayaQuick('O 199 está lotado agora?')">O 199 está lotado?</button>
@@ -5155,7 +5210,7 @@
     function showOnboardingStep1() {
       const step1 = document.getElementById("onboarding-step-register");
       const step2 = document.getElementById("onboarding-step-routine");
-      if (step1) step1.style.display = "block";
+      if (step1) step1.style.display = "flex";
       if (step2) step2.style.display = "none";
     }
 
@@ -5163,7 +5218,7 @@
       const step1 = document.getElementById("onboarding-step-register");
       const step2 = document.getElementById("onboarding-step-routine");
       if (step1) step1.style.display = "none";
-      if (step2) step2.style.display = "block";
+      if (step2) step2.style.display = "flex";
     }
 
     // MAP TILE STYLES (100% LIVRES · ZERO CHAVES · ZERO WATERMARK · ALTA PERFORMANCE ESRI)
@@ -5623,6 +5678,15 @@
             };
             window.RealTransit.__gpWrappedUpdateUIForLine = true;
           }
+          if (typeof window.RealTransit.renderStopsDrawer === "function" && !window.RealTransit.__gpWrappedRenderStopsDrawer) {
+            const origRenderStopsDrawer = window.RealTransit.renderStopsDrawer.bind(window.RealTransit);
+            window.RealTransit.renderStopsDrawer = function() {
+              const res = origRenderStopsDrawer.apply(this, arguments);
+              if (typeof formatStopsContainerTimes === "function") formatStopsContainerTimes();
+              return res;
+            };
+            window.RealTransit.__gpWrappedRenderStopsDrawer = true;
+          }
           window.RealTransit.init(leafletMap);
         } else {
           drawRoute(TELEMETRIA);
@@ -5770,6 +5834,40 @@
           clipId: (String(eta) === "3" || String(eta) === "4") ? "chegada_199" : null
         }
       );
+    }
+
+    function formatStopsContainerTimes() {
+      const container = document.getElementById("stops-container");
+      if (!container) return;
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.nodeValue && /\b\d{2}:\d{2}:\d{2}\b/.test(node.nodeValue)) {
+          node.nodeValue = node.nodeValue.replace(/\b(\d{2}:\d{2}):\d{2}\b/g, "$1");
+        }
+      }
+    }
+
+    if (typeof document !== "undefined") {
+      const initStopsObserver = function() {
+        const sc = document.getElementById("stops-container");
+        if (sc && typeof MutationObserver !== "undefined" && !sc.__gpTimeObserverAttached) {
+          sc.__gpTimeObserverAttached = true;
+          let formatting = false;
+          const obs = new MutationObserver(function() {
+            if (formatting) return;
+            formatting = true;
+            try { formatStopsContainerTimes(); } finally { formatting = false; }
+          });
+          obs.observe(sc, { childList: true, subtree: true });
+          formatStopsContainerTimes();
+        }
+      };
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initStopsObserver);
+      } else {
+        initStopsObserver();
+      }
     }
 
     function renderStopsAccordion(telemetria) {
@@ -7783,9 +7881,16 @@
             card.classList.add("is-selected");
           }
 
-          const distLabel = (st.distanceKm != null && Number.isFinite(st.distanceKm))
-            ? (" · " + (st.distanceKm < 1 ? (Math.round(st.distanceKm * 1000) + "m") : (st.distanceKm.toFixed(1) + "km")))
-            : "";
+          let distLabel = "";
+          if (st.distanceKm != null && Number.isFinite(st.distanceKm)) {
+            const meters = Math.round(st.distanceKm * 1000);
+            if (meters < 1000) {
+              const walkMin = Math.max(1, Math.round(meters / 80));
+              distLabel = " · " + meters + " m (~" + walkMin + " min a pé)";
+            } else {
+              distLabel = " · " + st.distanceKm.toFixed(1) + " km";
+            }
+          }
 
           const linesHtml = (st.lines && st.lines.length)
             ? '<div class="gp-stop-lines-row">' + st.lines.slice(0, 6).map(function(code) {
@@ -8717,7 +8822,16 @@
         if (isPartial) {
           if (badgeEl) {
             badgeEl.className = "gp-badge gp-badge-pred";
-            badgeEl.textContent = adapt.originSource === "gtfs_estimate" ? "Grade GTFS · Estimado" : "Previsão · ST-GCN";
+            const isPassenger = !document.body || !document.body.dataset.appMode || document.body.dataset.appMode === "passenger";
+            if (adapt.originSource === "gtfs_estimate") {
+              badgeEl.removeAttribute("data-passenger-label");
+              badgeEl.removeAttribute("data-tech-label");
+              badgeEl.textContent = "Grade GTFS · Estimado";
+            } else {
+              badgeEl.setAttribute("data-passenger-label", "Previsão IA");
+              badgeEl.setAttribute("data-tech-label", "Previsão · ST-GCN");
+              badgeEl.textContent = isPassenger ? "Previsão IA" : "Previsão · ST-GCN";
+            }
           }
           if (etaSubEl) {
             etaSubEl.textContent = (adapt.isManualOrigin || adapt.originSource === "manual")
@@ -9797,6 +9911,12 @@
         if (micBtn) micBtn.classList.remove("listening");
       } else {
         try {
+          if (window.LayaVoice && typeof window.LayaVoice.stopAll === "function") {
+            window.LayaVoice.stopAll();
+          }
+          if (window.speechSynthesis && typeof window.speechSynthesis.cancel === "function") {
+            window.speechSynthesis.cancel();
+          }
           layaSpeechRecognizer.start();
         } catch(e) {
           console.warn("Speech start error:", e);
@@ -9861,7 +9981,7 @@
     }
     window.renderMultiLegRoute = renderMultiLegRoute;
 
-    function appendLayaChatMessage(msg, sender) {
+    function appendLayaChatMessage(msg, sender, opts) {
       const hist = document.getElementById("laya-chat-history");
       if (!hist) return;
       const div = document.createElement("div");
@@ -9878,18 +9998,26 @@
         contentWrap.innerHTML = msg;
         div.appendChild(contentWrap);
 
+        const isPassenger = !document.body || !document.body.dataset.appMode || document.body.dataset.appMode === "passenger";
+        const metaText = isPassenger ? "Base oficial Grande Recife" : "Estimativa inteligente · GTFS CTM";
+        const speechText = (opts && opts.speech) ? String(opts.speech).trim() : "";
+
         const footer = document.createElement("div");
         footer.className = "laya-msg-footer";
         footer.innerHTML =
-          '<span class="laya-msg-meta-tag">Estimativa inteligente · GTFS CTM</span>' +
+          '<span class="laya-msg-meta-tag" data-passenger-label="Base oficial Grande Recife" data-tech-label="Estimativa inteligente · GTFS CTM">' + metaText + '</span>' +
           '<button type="button" class="laya-msg-listen-btn">' +
             '<svg class="gp-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>' +
             '<span>Ouvir</span>' +
           '</button>';
         const listenBtn = footer.querySelector(".laya-msg-listen-btn");
         if (listenBtn) {
+          if (speechText) {
+            listenBtn.dataset.speech = speechText;
+          }
           listenBtn.addEventListener("click", function() {
-            const cleanText = (contentWrap.innerText || contentWrap.textContent || "").trim();
+            const explicitSpeech = (listenBtn.dataset.speech || "").trim();
+            const cleanText = explicitSpeech || (contentWrap.innerText || contentWrap.textContent || "").trim();
             speakText(cleanText);
           });
         }
@@ -9978,7 +10106,7 @@
         if (res.saveFavorite && typeof promptAddCurrentStopToFavorites === "function") {
           promptAddCurrentStopToFavorites();
         }
-        appendLayaChatMessage(res.html, "bot");
+        appendLayaChatMessage(res.html, "bot", { speech: res.speech || "" });
         if (res.speech && typeof playNaturalVoice === "function") {
           playNaturalVoice(res.speech, {
             explicit: true,
@@ -10038,7 +10166,7 @@
       if (!container) return;
       if (!userFavoriteStops.length) {
         container.innerHTML =
-          '<div class="gp-fav-empty">Nenhuma parada favoritada ainda. Toque na estrela em qualquer parada no mapa para fixá-la aqui.</div>';
+          '<button type="button" class="fav-stop-pill gp-fav-empty-chip" onclick="promptAddCurrentStopToFavorites()" style="background:#f8fafc; border:1px dashed #94a3b8; color:#475569; padding:5px 10px; font-size:11px; font-weight:700; white-space:nowrap;">+ Fixar parada atual</button>';
         return;
       }
 
@@ -10156,6 +10284,7 @@
       const direction = (rt && rt.activeDirection) ? String(rt.activeDirection) : "ida";
       const restingEtaEl = document.getElementById("resting-eta-val");
       const parsedEta = restingEtaEl ? parseInt(restingEtaEl.textContent, 10) : NaN;
+      const estimatedWaitMin = (Number.isFinite(parsedEta) && parsedEta >= 0) ? parsedEta : 4;
 
       const payload = {
         user_id: (profile && profile.id) ? profile.id : null,
@@ -10163,6 +10292,8 @@
         route_code: routeCode,
         direction: direction,
         predicted_wait_min: Number.isFinite(parsedEta) ? parsedEta : null,
+        observed_wait_min: estimatedWaitMin,
+        wait_report_type: "checkin_lotacao",
         occupancy_est: Number(occupancyEst),
         source: "passenger_checkin",
         label: String(label || "")
@@ -10281,12 +10412,20 @@
       }
     }
 
+    function syncAppModeLabels(mode) {
+      const isPassenger = mode === "passenger";
+      document.querySelectorAll("[data-passenger-label][data-tech-label]").forEach(function(el) {
+        el.textContent = isPassenger ? el.dataset.passengerLabel : el.dataset.techLabel;
+      });
+    }
+
     // Alternância limpa entre os 3 Ambientes (Passageiro | Central CTM | Pesquisa & Banca)
     function setAppMode(mode) {
       const target = (mode === "ctm" || mode === "lab") ? mode : "passenger";
       if (document.body) {
         document.body.dataset.appMode = target;
       }
+      syncAppModeLabels(target);
       ["passenger", "ctm", "lab"].forEach(function(m) {
         const btn = document.getElementById("mode-btn-" + m);
         if (btn) btn.classList.toggle("active", m === target);
