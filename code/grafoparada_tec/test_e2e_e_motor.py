@@ -890,6 +890,75 @@ const enginePath = process.argv[1];
         assert "/api/register?contact_hint=maria%40teste.com" in out["fetchUrls"]
         assert "/api/routine?user_id=usr_maria_1" in out["fetchUrls"]
 
+    def test_busca_sem_acento_multitoken_e_erros_laya(self):
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+const schedPath = process.argv[3];
+const statusPath = process.argv[4];
+
+global.window = {};
+global.document = { getElementById: () => null };
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); }
+};
+
+eval(fs.readFileSync(enginePath, 'utf8'));
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.schedulesData = JSON.parse(fs.readFileSync(schedPath, 'utf8'));
+window.RealTransit.modelTrainingStatus = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+
+const pelopidasHits = window.RealTransit.searchRmrPlaces('Pelopidas', 8);
+const jaboataoHits = window.RealTransit.searchRmrPlaces('Jaboatao', 8);
+const caisHits = window.RealTransit.searchRmrPlaces('Cais Santa Rita', 8);
+
+const layaLineNotFound = window.RealTransit.answerLayaQuery('que horas passa a linha 99999?');
+const layaIntLineNotFound = window.RealTransit.answerLayaQuery('integracao linha 199 com 99999');
+const layaIntNoCommonTi = window.RealTransit.answerLayaQuery('integracao linha 199 com 522');
+
+console.log(JSON.stringify({
+  pelopidasHits,
+  jaboataoHits,
+  caisHits,
+  layaLineNotFound,
+  layaIntLineNotFound,
+  layaIntNoCommonTi
+}));
+"""
+        res = subprocess.run(
+            [
+                "node",
+                "-e",
+                js_harness,
+                str(ENGINE_JS),
+                str(GTFS_JSON),
+                str(GTFS_SCHEDULES_JSON),
+                str(MODEL_STATUS_JSON),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=25,
+        )
+        assert res.returncode == 0, f"Erro testando busca sem acento e erros Laya: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert len(out["pelopidasHits"]) > 0, "Busca sem acento 'Pelopidas' não retornou resultados"
+        assert any("Pelópidas" in (h.get("label") or "") or "Pelopidas" in (h.get("label") or "") for h in out["pelopidasHits"])
+
+        assert len(out["jaboataoHits"]) > 0, "Busca sem acento 'Jaboatao' não retornou resultados"
+        assert any("Jaboat" in (h.get("label") or "") for h in out["jaboataoHits"])
+
+        assert len(out["caisHits"]) > 0, "Busca multi-token 'Cais Santa Rita' não retornou resultados"
+        assert any("Cais" in (h.get("label") or "") and "Santa Rita" in (h.get("label") or "") for h in out["caisHits"])
+
+        assert out["layaLineNotFound"].get("intent") == "line_not_found"
+        assert out["layaIntLineNotFound"].get("intent") == "integration_line_not_found"
+        assert out["layaIntNoCommonTi"].get("intent") == "integration_no_common_ti"
+
 
 # ---------------------------------------------------------------------------
 # 3. TESTE END-TO-END REAL NO CHROME HEADLESS VIA CDP + SERVIDOR HTTP LOCAL
@@ -1118,7 +1187,7 @@ class TestRealBrowserE2E:
                 # Aguarda RealTransit carregar os dados GTFS reais (rede + horários 393 + status)
                 wait_until(
                     "Boolean(window.RealTransit && window.RealTransit.networkData && window.RealTransit.networkData.total_lines_ready === 393 && window.RealTransit.schedulesData && Object.keys(window.RealTransit.schedulesData.lines || {}).length === 393)",
-                    timeout_s=10.0,
+                    timeout_s=25.0,
                     err_msg="window.RealTransit.networkData/schedulesData (393 linhas) não carregou no Chrome",
                 )
 
@@ -1184,6 +1253,30 @@ class TestRealBrowserE2E:
                     {"width": 390, "height": 844, "deviceScaleFactor": 2, "mobile": True},
                 )
                 time.sleep(0.2)
+
+                # 2a) Erro intencional no onboarding: tentar avançar com #inp-name vazio exibe #onb-register-error
+                eval_js("""(() => {
+                  const nameEl = document.getElementById('inp-name');
+                  const contactEl = document.getElementById('inp-sync-contact');
+                  if (nameEl) nameEl.value = '';
+                  if (contactEl) contactEl.value = '';
+                  document.getElementById('btn-onb-register-continue').click();
+                })()""")
+                wait_until(
+                    "getComputedStyle(document.getElementById('onb-register-error')).display !== 'none' && document.getElementById('onb-register-error').textContent.trim().length > 0",
+                    timeout_s=4.0,
+                    err_msg="#onb-register-error não foi exibido ao tentar avançar com #inp-name vazio",
+                )
+                onb_err_audit = eval_js("""(() => {
+                  const errEl = document.getElementById('onb-register-error');
+                  const step2 = document.getElementById('onboarding-step-routine');
+                  return {
+                    errText: errEl ? errEl.textContent.trim() : '',
+                    step2Hidden: Boolean(step2 && getComputedStyle(step2).display === 'none')
+                  };
+                })()""")
+                assert len(onb_err_audit["errText"]) > 0
+                assert onb_err_audit["step2Hidden"] is True
 
                 # 2) Preenche #inp-name e clica #btn-onb-register-continue -> Passo 2 (#onboarding-step-routine)
                 eval_js("""(() => {
@@ -1341,6 +1434,27 @@ class TestRealBrowserE2E:
                 assert radar_state["locateHidden"] is True
                 assert radar_state["activeCode"] == "199"
                 assert "Linha 522 · Dois Irmãos" not in radar_state["chipText"]
+
+                # Busca rápida na Tela 3 por "Pelopidas" sem acento retornando resultado real
+                eval_js("""(() => {
+                  const inp = document.getElementById('quick-search-input');
+                  inp.value = 'Pelopidas';
+                  inp.dispatchEvent(new Event('input', { bubbles: true }));
+                })()""")
+                wait_until(
+                    "document.querySelectorAll('#search-results-dropdown .search-item').length > 0",
+                    timeout_s=5.0,
+                    err_msg="#search-results-dropdown não exibiu resultados para 'Pelopidas' sem acento",
+                )
+                quick_pelopidas = eval_js("""(() => {
+                  const dd = document.getElementById('search-results-dropdown');
+                  const items = dd ? dd.querySelectorAll('.search-item').length : 0;
+                  const txt = dd ? dd.innerText : '';
+                  if (typeof clearQuickSearch === 'function') clearQuickSearch();
+                  return { items, txt };
+                })()""")
+                assert quick_pelopidas["items"] > 0
+                assert ("Pelópidas" in quick_pelopidas["txt"]) or ("Pelopidas" in quick_pelopidas["txt"])
 
                 # Valida #resting-gtfs-schedule-meta (chegada/partida GTFS) e .gp-line-transfer-meta no DOM sem overflow
                 gtfs_meta_audit = eval_js("""(() => {

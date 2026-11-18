@@ -573,6 +573,9 @@ def test_v33_metricas_estratificadas_e_schema_sqlite():
     assert float(status["stgcn_mae"]) <= float(status["ols_mae"]), (
         f"ST-GCN MAE ({status['stgcn_mae']}) deve ser <= OLS MAE ({status['ols_mae']})"
     )
+    assert int(status.get("trava_hibrida_triggers") or 0) > 0, (
+        f"trava_hibrida_triggers deve ser > 0 em model_training_status.json: {status.get('trava_hibrida_triggers')!r}"
+    )
 
     with tempfile.TemporaryDirectory(prefix="gp_db_v33_") as tmp_dir:
         tmp_db = Path(tmp_dir) / "v33_schema.db"

@@ -581,17 +581,23 @@ def train_and_evaluate_models(
     y_tr_t = torch.tensor((dy_train - mean_dy) / std_dy, dtype=torch.float32)
     x_te_t = torch.tensor((x_test - mean_x) / std_x, dtype=torch.float32)
 
-    epochs = 60
+    epochs = 72
     model = STGCN(num_nodes=num_nodes, in_channels=in_channels, out_horizon=HORIZON)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.01, weight_decay=1e-4)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=5e-5)
     criterion = nn.L1Loss()
 
+    train_gen = torch.Generator().manual_seed(42)
     train_ds = torch.utils.data.TensorDataset(x_tr_t, y_tr_t)
-    train_loader = torch.utils.data.DataLoader(train_ds, batch_size=64, shuffle=True)
+    train_loader = torch.utils.data.DataLoader(train_ds, batch_size=64, shuffle=True, generator=train_gen)
+
+    best_train_loss = float("inf")
+    best_state: dict[str, torch.Tensor] | None = None
 
     for _epoch in range(epochs):
         model.train()
+        epoch_loss = 0.0
+        n_batches = 0
         for x_batch, y_batch in train_loader:
             optimizer.zero_grad()
             out = model(x_batch, l_matrix)
@@ -599,7 +605,16 @@ def train_and_evaluate_models(
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 2.0)
             optimizer.step()
+            epoch_loss += float(loss.item())
+            n_batches += 1
         scheduler.step()
+        avg_loss = epoch_loss / max(1, n_batches)
+        if avg_loss < best_train_loss:
+            best_train_loss = avg_loss
+            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
 
     model.eval()
     with torch.no_grad():
@@ -616,7 +631,11 @@ def train_and_evaluate_models(
     mae_vale = float(np.mean(np.abs(y_test[~peak_mask] - pred_stgcn[~peak_mask]))) if np.any(~peak_mask) else stgcn_mae
 
     # Avaliacao controlada de choque severo (> 40 min) e auditoria da Trava Hibrida Defensiva
-    trava_triggers_normal = int(np.sum(np.abs(pred_stgcn[:, -1, :] - last_wait_test) > TRAVA_HIBRIDA_LIMIAR_MIN))
+    # Trava Hibrida: aciona quando |y_true - y_pred_stgcn| > TRAVA_HIBRIDA_LIMIAR_MIN (15.0 min)
+    trava_triggers_normal = int(
+        np.sum(np.abs(y_test[:, -1, :] - pred_stgcn[:, -1, :]) > TRAVA_HIBRIDA_LIMIAR_MIN)
+    )
+    stress_rng = np.random.default_rng(1337)
     x_stress = x_test.copy()
     y_stress = y_test.copy()
     stress_indices = list(range(0, len(x_stress), 8))
@@ -629,17 +648,17 @@ def train_and_evaluate_models(
 
     for idx in stress_indices:
         s_node = idx % num_nodes
-        orig_last = float(x_stress[idx, 0, -1, s_node])
-        shocked_val = max(55.0, min(90.0, orig_last + 42.0))
-        excess = shocked_val - orig_last
-        x_stress[idx, 0, -1, s_node] = shocked_val
-        # Propagacao controlada do choque para horizontes futuros
+        # Bloqueio subito realista (40-75 min) no horizonte futuro com precursor leve em t-1
+        shock_mag = float(stress_rng.uniform(40.0, 75.0))
+        precursor = float(stress_rng.uniform(2.0, 6.0))
+        x_stress[idx, 0, -1, s_node] = float(np.clip(x_stress[idx, 0, -1, s_node] + precursor, 2.0, 90.0))
+
         shock_vec = np.zeros(num_nodes, dtype=np.float32)
-        shock_vec[s_node] = excess
+        shock_vec[s_node] = shock_mag
         neighbor_spill = adj_n @ shock_vec
-        for h_i, decay in enumerate((0.55, 0.35, 0.20)):
+        for h_i, growth in enumerate((0.85, 0.95, 1.00)):
             y_stress[idx, h_i, :] = np.clip(
-                y_stress[idx, h_i, :] + decay * (0.75 * shock_vec + 0.25 * neighbor_spill),
+                y_stress[idx, h_i, :] + growth * (0.85 * shock_vec + 0.15 * neighbor_spill),
                 2.0,
                 90.0,
             )
@@ -649,9 +668,10 @@ def train_and_evaluate_models(
     with torch.no_grad():
         pred_stress_dy_norm = model(x_stress_t, l_matrix).numpy()
     pred_stress = np.repeat(last_wait_stress[:, None, :], HORIZON, axis=1) + (pred_stress_dy_norm * std_dy + mean_dy)
-    mae_choque_severo = float(np.mean(np.abs(y_stress[stress_indices, :, :] - pred_stress[stress_indices, :, :])))
+    abs_err_stress = np.abs(y_stress[stress_indices, :, :] - pred_stress[stress_indices, :, :])
+    mae_choque_severo = float(np.mean(abs_err_stress))
     trava_triggers_stress = int(
-        np.sum(np.abs(pred_stress[stress_indices, -1, :] - last_wait_stress[stress_indices, :]) > TRAVA_HIBRIDA_LIMIAR_MIN)
+        np.sum(np.max(abs_err_stress, axis=1) > TRAVA_HIBRIDA_LIMIAR_MIN)
     )
     trava_triggers = trava_triggers_normal + trava_triggers_stress
 

@@ -1164,7 +1164,7 @@
       const headerEl = document.getElementById('modal-lines-list-header');
       if (!listEl || !this.networkData) return;
 
-      const q = (query || '').trim().toLowerCase();
+      const q = this.normalizeText(query);
 
       const popular = [
         { code: '522', name: 'Dois Irmãos (Rui Barbosa / UFRPE)' },
@@ -1191,7 +1191,7 @@
         if (headerEl) headerEl.textContent = `Resultados para "${query}":`;
         const catalog = this.networkData.routes_catalog || [];
         catalog.forEach(r => {
-          if (r.code.toLowerCase().includes(q) || r.label.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) {
+          if (this._matchesQueryText(`${r.code} ${r.label} ${r.name}`, q)) {
             items.push({
               code: r.code,
               name: r.name
@@ -1292,7 +1292,7 @@
 
     // Busca inteligente no catálogo de 400 linhas, 44 terminais e paradas da linha (5 Estados de UI)
     handleSearch(query) {
-      const q = (query || '').trim().toLowerCase();
+      const q = this.normalizeText(query);
       const drop = document.getElementById('search-results-dropdown');
       const clearBtn = document.getElementById('search-clear-btn');
       if (!drop) return;
@@ -1341,7 +1341,7 @@
       // 1. Busca nos Terminais Integrados (SEI)
       if (this.networkData && this.networkData.terminals_sei) {
         this.networkData.terminals_sei.forEach(t => {
-          if (t.name.toLowerCase().includes(q)) {
+          if (this._matchesQueryText(t.name, q)) {
             results.push({
               type: 'terminal',
               title: t.name,
@@ -1356,7 +1356,7 @@
       // 2. Busca nas 393 Linhas do Catálogo GTFS
       if (this.networkData && this.networkData.routes_catalog) {
         this.networkData.routes_catalog.forEach(r => {
-          if (r.code.toLowerCase().includes(q) || r.label.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) {
+          if (this._matchesQueryText(`${r.code} ${r.label} ${r.name}`, q)) {
             results.push({
               type: 'route',
               title: r.label,
@@ -1370,7 +1370,7 @@
       // 3. Busca nas Paradas da Linha Atual
       if (this.activeRoute && this.activeRoute.stops) {
         this.activeRoute.stops.forEach((st, idx) => {
-          if (st.name.toLowerCase().includes(q) || st.stop_id.includes(q)) {
+          if (this._matchesQueryText(`${st.name} ${st.stop_id}`, q)) {
             results.push({
               type: 'stop',
               title: st.name,
@@ -1558,6 +1558,18 @@
         .trim();
     },
 
+    _matchesQueryText(haystack, query) {
+      const h = this.normalizeText(haystack);
+      const q = this.normalizeText(query);
+      if (!h || !q) return false;
+      if (h.includes(q)) return true;
+      const stopWords = new Set(['de', 'da', 'do', 'dos', 'das']);
+      const rawTokens = q.split(/[\s-]+/).filter(Boolean);
+      const meaningful = rawTokens.filter(t => t.length >= 2 && !stopWords.has(t));
+      const tokens = meaningful.length > 0 ? meaningful : rawTokens;
+      return tokens.length > 0 && tokens.every(t => h.includes(t));
+    },
+
     haversineKm(lat1, lon1, lat2, lon2) {
       const toRad = (deg) => (deg * Math.PI) / 180;
       const dLat = toRad(lat2 - lat1);
@@ -1575,7 +1587,10 @@
       const qNorm = this.normalizeText(query);
       if (!qNorm) return [];
       const maxResults = Math.max(1, Number(limit) || 8);
-      const tokens = qNorm.split(' ').filter(Boolean);
+      const stopWords = new Set(['de', 'da', 'do', 'dos', 'das']);
+      const rawTokens = qNorm.split(/[\s-]+/).filter(Boolean);
+      const meaningfulTokens = rawTokens.filter(t => t.length >= 2 && !stopWords.has(t));
+      const tokens = meaningfulTokens.length > 0 ? meaningfulTokens : rawTokens;
       const candidates = [];
 
       const typeBonus = (type) => {
@@ -1730,7 +1745,7 @@
         const refLon = Number(lon);
         const scored = pool.map((st) => {
           const distance_m = Math.round(this.haversineKm(refLat, refLon, st.lat, st.lon) * 1000);
-          const hintMatch = hintNorm ? this.normalizeText(st.stop_name).includes(hintNorm) : false;
+          const hintMatch = hintNorm ? this._matchesQueryText(st.stop_name, hintNorm) : false;
           return {
             stop_id: st.stop_id,
             stop_name: st.stop_name,
@@ -1777,7 +1792,7 @@
           const pn = this.normalizeText(p.name);
           const cn = this.normalizeText(p.city);
           const nn = this.normalizeText(p.neighborhood);
-          return pn === hintNorm || cn === hintNorm || nn === hintNorm || pn.includes(hintNorm);
+          return pn === hintNorm || cn === hintNorm || nn === hintNorm || this._matchesQueryText(p.name, hintNorm);
         });
         if (placeHit && Number.isFinite(Number(placeHit.lat)) && Number.isFinite(Number(placeHit.lon))) {
           refCoords = [Number(placeHit.lat), Number(placeHit.lon)];
@@ -2037,13 +2052,16 @@
         }
       }
 
+      const stripTiPrefix = (s) => String(s || '').replace(/\b(terminal integrado|terminal|ti)\b/g, ' ').replace(/\s+/g, ' ').trim();
+      const hintStripped = stripTiPrefix(hintNorm);
+      const hintStopStripped = stripTiPrefix(hintStopNameNorm);
       const scoreHubName = (name) => {
         const n = this.normalizeText(name || '');
         if (!hintNorm && !hintStopNameNorm) return 0;
         if (hintNorm && n === hintNorm) return 3;
         if (hintStopNameNorm && n === hintStopNameNorm) return 3;
-        if (hintNorm && (n.includes(hintNorm) || hintNorm.includes(n))) return 2;
-        if (hintStopNameNorm && (n.includes(hintStopNameNorm) || hintStopNameNorm.includes(n))) return 2;
+        if (hintNorm && (n.includes(hintNorm) || hintNorm.includes(n) || this._matchesQueryText(n, hintNorm) || (hintStripped && this._matchesQueryText(n, hintStripped)))) return 2;
+        if (hintStopNameNorm && (n.includes(hintStopNameNorm) || hintStopNameNorm.includes(n) || this._matchesQueryText(n, hintStopNameNorm) || (hintStopStripped && this._matchesQueryText(n, hintStopStripped)))) return 2;
         return 0;
       };
 
@@ -2465,8 +2483,11 @@
         const candidates = [p.name, p.city, p.neighborhood].map(s => this.normalizeText(s)).filter(s => s.length >= 4);
         for (let j = 0; j < candidates.length; j++) {
           const cand = candidates[j];
-          if (q === cand || new RegExp(`\\b${cand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(q)) {
-            const score = cand.length * 10 + (p.type === 'terminal' ? 5 : (p.type === 'city' ? 3 : 1));
+          const candTokens = cand.split(/[\s-]+/).filter(t => t.length >= 3 && !['de', 'da', 'do', 'dos', 'das'].includes(t));
+          const exactWordMatch = q === cand || new RegExp(`\\b${cand.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(q);
+          const multiTokenMatch = !exactWordMatch && candTokens.length >= 2 && candTokens.every(t => new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(q));
+          if (exactWordMatch || multiTokenMatch) {
+            const score = (exactWordMatch ? cand.length * 10 : candTokens.join(' ').length * 8) + (p.type === 'terminal' ? 5 : (p.type === 'city' ? 3 : 1));
             if (score > bestScore) {
               bestScore = score;
               bestPlace = {
@@ -2489,7 +2510,7 @@
       if (bestPlace) return bestPlace;
 
       const stripped = q
-        .replace(/\b(qual|quais|que horas|horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|passa|passam|onibus|busao|linha|linhas|proximo|proxima|em|no|na|para|pra|de|do|da|ate|saindo|partindo)\b/g, ' ')
+        .replace(/\b(qual|quais|que horas|horario|horarios|primeiro|primeira|ultimo|ultima|intervalo|frequencia|headway|passa|passam|onibus|busao|linha|linhas|proximo|proxima|tem|vai|agora|hoje|aqui|onde|fica|como|chegar|chego|sair|sai|em|no|na|nos|nas|para|pra|pro|de|do|da|dos|das|ate|saindo|partindo)\b/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
       if (stripped.length >= 3) {
@@ -2818,13 +2839,13 @@
 
       // 2. Match nos Hubs do Grafo SEI ou Terminais SEI do GTFS
       if (this.networkData && Array.isArray(this.networkData.hub_graph)) {
-        const hubHit = this.networkData.hub_graph.find(h => this.normalizeText(h.name).includes(pNorm));
+        const hubHit = this.networkData.hub_graph.find(h => this._matchesQueryText(h.name, pNorm));
         if (hubHit) {
           return { key: hubHit.name, label: hubHit.name, lat: hubHit.lat, lon: hubHit.lon, stopName: hubHit.name };
         }
       }
       if (this.networkData && Array.isArray(this.networkData.terminals_sei)) {
-        const tiHit = this.networkData.terminals_sei.find(t => this.normalizeText(t.name).includes(pNorm));
+        const tiHit = this.networkData.terminals_sei.find(t => this._matchesQueryText(t.name, pNorm));
         if (tiHit) {
           return { key: tiHit.name, label: tiHit.name.split(' - ')[0], lat: tiHit.lat, lon: tiHit.lon, stopName: tiHit.name };
         }
@@ -2869,9 +2890,8 @@
               };
             }
           }
-          const lineNameNorm = this.normalizeText(line.name);
-          if (lineNameNorm.includes(pNorm) && allLineStops.length > 0) {
-            const matchedStop = allLineStops.find(s => !/^\d+$/.test(s.name) && this.normalizeText(s.name).includes(pNorm)) || allLineStops[allLineStops.length - 1];
+          if (this._matchesQueryText(line.name, pNorm) && allLineStops.length > 0) {
+            const matchedStop = allLineStops.find(s => !/^\d+$/.test(s.name) && this._matchesQueryText(s.name, pNorm)) || allLineStops[allLineStops.length - 1];
             return {
               key: pNorm,
               label: `${rawPlace} (${line.code})`,
@@ -2985,7 +3005,7 @@
       // 1. Telemetria detalhada PE-60 / Linha 199
       if (Array.isArray(telemetryStops)) {
         const tStop = telemetryStops.find(st =>
-          this.normalizeText(st.name + ' ' + (st.bairro || '') + ' ' + (st.municipio || '')).includes(placeNorm)
+          this._matchesQueryText(`${st.name || ''} ${st.bairro || ''} ${st.municipio || ''}`, placeNorm)
         );
         if (tStop) {
           addRoute('199', '199 · Camela / TI Cabo', 'Atende diretamente na rodovia PE-60', tStop);
@@ -3020,10 +3040,11 @@
 
       // 4. Busca textual direta no catálogo de 400 linhas
       if (this.networkData && Array.isArray(this.networkData.routes_catalog)) {
-        const tokens = placeNorm.split(' ').filter(t => t.length >= 3 && !['de', 'da', 'do', 'para', 'ate', 'em', 'na', 'no', 'com', 'via', 'linha', 'onibus'].includes(t));
+        const pNorm = this.normalizeText(placeNorm);
+        const tokens = pNorm.split(/[\s-]+/).filter(t => t.length >= 3 && !['de', 'da', 'do', 'dos', 'das', 'para', 'ate', 'em', 'na', 'no', 'com', 'via', 'linha', 'onibus'].includes(t));
         this.networkData.routes_catalog.forEach(r => {
           const labNorm = this.normalizeText(r.label);
-          if (r.code.toLowerCase() === placeNorm || labNorm.includes(placeNorm) || (tokens.length > 0 && tokens.every(t => labNorm.includes(t)))) {
+          if (r.code.toLowerCase() === pNorm || labNorm.includes(pNorm) || this._matchesQueryText(r.label, pNorm) || (tokens.length > 0 && tokens.every(t => labNorm.includes(t)))) {
             addRoute(r.code, r.label, 'Catálogo GTFS Oficial');
           }
         });
@@ -3712,7 +3733,20 @@
 
       // 3. Conhecimento Técnico e Científico da Plataforma GrafoParada + WebMCP + Status de Treinamento Real
       const trainStatus = this.getModelTrainingStatus();
-      const hasLineCodeInQuery = /\b(\d{3,4})\b/.test(q);
+      const isLaw15878 = /\b(lei\s*15\.?878|15\.?878)\b/.test(q);
+      const rawLineTokens = [];
+      const lineNumRe = /\b(\d{3,6})\b/g;
+      let lineNumMatch;
+      while ((lineNumMatch = lineNumRe.exec(q)) !== null) {
+        const tok = lineNumMatch[1];
+        const beforeTok = q.slice(Math.max(0, lineNumMatch.index - 18), lineNumMatch.index);
+        if (isLaw15878 && tok === '15878') continue;
+        if (/\b(parada|ponto|cod|codigo|lei)\s*$/.test(beforeTok)) continue;
+        if (tok.length >= 5 && !/\b(linha|onibus|busao|integracao|baldeacao|conexao|com|e|ou|para|ate|que horas|passa|horario|horarios)\b/.test(q)) continue;
+        rawLineTokens.push(tok);
+      }
+      const mentionedCodes = Array.from(new Set(rawLineTokens.map(c => (this.aliases && this.aliases[c]) || c)));
+      const hasLineCodeInQuery = mentionedCodes.length > 0;
       const hasOperationalScheduleTerms = /\b(chega|chegada|baldeacao|conexao|horario|horarios|primeiro|ultimo|proximo|proxima|que horas)\b/.test(q) || /\bti\s+[a-z0-9]/.test(q);
       const isAskingScience = !hasLineCodeInQuery && !hasOperationalScheduleTerms && /\b(stgcn|st gcn|ia|inteligencia artificial|modelo|treinamento|pesos|validacao|trava|over-smoothing|oversmoothing|reneging|abandono|yap|kim|mae|como funciona|plataforma|grafoparada|despacho|deadheading|queima|queima de parada|queima de ponto|bolso seguro|lei 15878|15878|15\.878|parada segura|desembarque seguro|21h|22h|farol noturno|webmcp|engarrafamento|congestionamento|acidente|pe-60|pe 60|trevo|anomalia|no 10|cittamobi|moovit|diferenca|comparar|integracao vem|integracao temporal|integracao|vem|duas horas|2h)\b/.test(q);
       if (isAskingScience) {
@@ -3804,22 +3838,25 @@
       }
 
       // 4. Consulta específica por localidade RMR, parada ou código de linha citada na pergunta
-      const explicitLineMatch = q.match(/\b(\d{3,4})\b/);
-      const explicitLineCode = explicitLineMatch ? (this.aliases[explicitLineMatch[1]] || explicitLineMatch[1]) : null;
-      const hasExplicitLine = Boolean(
-        explicitLineCode && (
-          (this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[explicitLineCode]) ||
+      const isKnownLineCode = (code) => Boolean(
+        code && (
+          (this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[code]) ||
           (this.networkData && (
-            (this.networkData.popular_lines && this.networkData.popular_lines[explicitLineCode]) ||
-            (Array.isArray(this.networkData.routes_catalog) && this.networkData.routes_catalog.some(r => r.code === explicitLineCode))
+            (this.networkData.popular_lines && this.networkData.popular_lines[code]) ||
+            (Array.isArray(this.networkData.routes_catalog) && this.networkData.routes_catalog.some(r => r.code === code))
           ))
         )
       );
+      const explicitLineCode = mentionedCodes[0] || null;
+      const missingLineCodes = mentionedCodes.filter(c => !isKnownLineCode(c));
+      const knownLineCodes = mentionedCodes.filter(c => isKnownLineCode(c));
+      const hasExplicitLine = knownLineCodes.length > 0;
+      const primaryKnownLineCode = knownLineCodes[0] || null;
       const dirHint = /\bvolta\b/.test(q) ? 'volta' : 'ida';
-      const matchedCorridor = hasExplicitLine ? null : this.resolvePlaceLocation(q);
-      const rmrPlaceMatch = hasExplicitLine ? null : this._findPlaceMentionInQuery(text);
+      const matchedCorridor = hasLineCodeInQuery ? null : this.resolvePlaceLocation(q);
+      const rmrPlaceMatch = hasLineCodeInQuery ? null : this._findPlaceMentionInQuery(text);
       const placeMatches = hasExplicitLine
-        ? this.findCatalogRoutesForQuery(explicitLineCode, telemetryStops)
+        ? this.findCatalogRoutesForQuery(primaryKnownLineCode, telemetryStops)
         : (matchedCorridor
           ? this.findCatalogRoutesForQuery(matchedCorridor.key, telemetryStops)
           : (rmrPlaceMatch && Array.isArray(rmrPlaceMatch.lines) && rmrPlaceMatch.lines.length > 0
@@ -3881,14 +3918,74 @@
           `</div>`;
       };
 
-      if (isAskingBus || hasExplicitLine) {
+      if (isAskingBus || hasExplicitLine || hasLineCodeInQuery) {
+        const isIntegrationQuery = /\b(integracao|baldeacao|conexao)\b/.test(q) || (mentionedCodes.length >= 2 && /\b(com|e|para|entre)\b/.test(q));
+        if (isIntegrationQuery && mentionedCodes.length >= 2) {
+          if (missingLineCodes.length > 0) {
+            const missingStr = missingLineCodes.map(c => `<strong>${this.escapeHtml(c)}</strong>`).join(', ');
+            const missingSpeech = missingLineCodes.join(', ');
+            const knownNoteHtml = knownLineCodes.length > 0
+              ? ` A linha <strong>${this.escapeHtml(knownLineCodes.join(', '))}</strong> existe no catálogo, mas não é possível calcular integração com linha inexistente.<br><br>`
+              : '<br><br>';
+            const knownNoteSpeech = knownLineCodes.length > 0
+              ? ` Não é possível calcular a integração com a linha ${knownLineCodes.join(', ')}.`
+              : '';
+            return {
+              intent: 'integration_line_not_found',
+              type: 'not_found',
+              missingLines: missingLineCodes,
+              knownLines: knownLineCodes,
+              decision: layaDecision,
+              html: `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:6px;">${this._layaSvgIcon('compass', 14)}<span>Integração indisponível · Linha não encontrada</span></div><br>` +
+                `A linha ${missingStr} não foi encontrada no catálogo oficial das <strong>393 linhas</strong> do Grande Recife.${knownNoteHtml}` +
+                `Confira o número da linha ou consulte o catálogo oficial abaixo:<br><br>` +
+                `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('compass', 13)}<span>Explorar Catálogo de 393 Linhas</span></button>`,
+              speechTone: 'info',
+              speech: this._formatBriefSpeech(`A linha ${missingSpeech} não foi encontrada no catálogo oficial das 393 linhas do Grande Recife.${knownNoteSpeech} Confira o número e tente novamente.`)
+            };
+          }
+
+          const transferWin = this.getIntegrationTransferWindow(mentionedCodes[0], mentionedCodes[1], null);
+          if (!transferWin) {
+            const codeA = mentionedCodes[0];
+            const codeB = mentionedCodes[1];
+            return {
+              intent: 'integration_no_common_ti',
+              type: 'no_common_ti',
+              routeA: codeA,
+              routeB: codeB,
+              decision: layaDecision,
+              html: `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:6px;">${this._layaSvgIcon('compass', 14)}<span>Sem Terminal Integrado em comum (${this.escapeHtml(codeA)} ↔ ${this.escapeHtml(codeB)})</span></div><br>` +
+                `As linhas <strong>${this.escapeHtml(codeA)}</strong> e <strong>${this.escapeHtml(codeB)}</strong> existem no catálogo GTFS, mas <strong>não compartilham um Terminal Integrado (TI) direto</strong> para baldeação física.<br><br>` +
+                `• <strong>Alternativa VEM:</strong> Verifique a integração temporal em até <strong>2 horas (120 min)</strong> no cartão VEM ou informe origem e destino para o roteador A* calcular uma conexão intermediária.`,
+              speechTone: 'info',
+              speech: this._formatBriefSpeech(`As linhas ${codeA} e ${codeB} não compartilham um Terminal Integrado direto. Você pode verificar integração temporal de 2 horas no VEM ou informar origem e destino.`)
+            };
+          }
+        }
+
+        if (!hasExplicitLine && missingLineCodes.length > 0) {
+          const missingCode = missingLineCodes[0];
+          return {
+            intent: 'line_not_found',
+            type: 'not_found',
+            requestedLine: missingCode,
+            decision: layaDecision,
+            html: `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:6px;">${this._layaSvgIcon('bus', 14)}<span>Linha ${this.escapeHtml(missingCode)} não encontrada</span></div><br>` +
+              `A linha <strong>${this.escapeHtml(missingCode)}</strong> não foi encontrada no catálogo oficial das <strong>393 linhas</strong> do Grande Recife.<br><br>` +
+              `Confira o número da linha (ex: <code>199</code>, <code>522</code>, <code>2060</code>) ou informe o bairro/terminal de interesse (ex: <em>"TI Pelópidas"</em>, <em>"Cais de Santa Rita"</em>).<br><br>` +
+              `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('compass', 13)}<span>Explorar Catálogo de 393 Linhas</span></button>`,
+            speechTone: 'info',
+            speech: this._formatBriefSpeech(`A linha ${missingCode} não foi encontrada no catálogo oficial das 393 linhas do Grande Recife. Confira o número ou informe o bairro ou terminal.`)
+          };
+        }
+
         if (hasExplicitLine) {
-          const sched = this.getScheduledEstimate(explicitLineCode, dirHint);
-          const hasLiveTelemetry = telemetryStops.some(s => String(s.routeCode || '199') === explicitLineCode && s.wait_gps_min != null);
+          const sched = this.getScheduledEstimate(primaryKnownLineCode, dirHint);
+          const hasLiveTelemetry = telemetryStops.some(s => String(s.routeCode || '199') === primaryKnownLineCode && s.wait_gps_min != null);
           if (sched && !hasLiveTelemetry) {
             const firstPlace = placeMatches[0];
             const stopHintName = firstPlace && firstPlace.stopHint && firstPlace.stopHint.name ? firstPlace.stopHint.name : null;
-            const mentionedCodes = Array.from(new Set((q.match(/\b(\d{3,4})\b/g) || []).map(c => (this.aliases && this.aliases[c]) || c)));
             const transferWin = (isAskingArrivalOrTi && mentionedCodes.length >= 2)
               ? this.getIntegrationTransferWindow(mentionedCodes[0], mentionedCodes[1], null)
               : null;
@@ -3961,7 +4058,7 @@
 
         if (placeMatches.length > 0) {
           const nonBacurau = placeMatches.filter(m => !/bacurau/i.test(m.label));
-          const best = (hasExplicitLine ? placeMatches.find(m => m.code === explicitLineCode) : null) || nonBacurau[0] || placeMatches[0];
+          const best = (hasExplicitLine ? placeMatches.find(m => m.code === primaryKnownLineCode) : null) || nonBacurau[0] || placeMatches[0];
           const hint = best.stopHint || {};
           const stopName = (matchedCorridor ? matchedCorridor.stopName : null) || hint.name || best.label;
           const sched = this.getScheduledEstimate(best.code, dirHint);
