@@ -5959,6 +5959,69 @@
       return tokens.every(function(tok) { return normText.indexOf(tok) !== -1; });
     }
 
+    function gpGetRouteKnowledgeEntry(code) {
+      const rt = window.RealTransit;
+      const c = String(code || "").trim();
+      if (!c || !rt || !rt.routeKnowledge) return null;
+      const rk = rt.routeKnowledge;
+      if (Array.isArray(rk)) {
+        return rk.find(function(item) { return item && String(item.code) === c; }) || null;
+      }
+      if (rk[c]) return rk[c];
+      if (rk.routes && rk.routes[c]) return rk.routes[c];
+      return null;
+    }
+
+    function gpGetLineDisplayName(code, fallbackName) {
+      const rt = window.RealTransit;
+      const c = String(code || "").trim();
+      if (!c) return fallbackName ? String(fallbackName).trim() : "";
+      if (rt && typeof rt.getLineDisplayName === "function") {
+        const dn = rt.getLineDisplayName(c);
+        if (dn && String(dn).trim()) return String(dn).trim();
+      }
+      const entry = gpGetRouteKnowledgeEntry(c);
+      if (entry) {
+        const lbl = entry.full_label || entry.name || entry.label;
+        if (lbl && String(lbl).trim()) return String(lbl).trim();
+      }
+      return fallbackName ? String(fallbackName).trim() : "";
+    }
+
+    function gpFormatLineTitle(code, displayName, fallbackLabel) {
+      const c = String(code || "").trim();
+      const name = String(displayName || "").trim();
+      if (name) {
+        if (c && name.indexOf(c) === 0) return name;
+        return c ? (c + " · " + name) : name;
+      }
+      return String(fallbackLabel || c).trim();
+    }
+
+    function gpGetRouteKnowledgeSearchText(code) {
+      const entry = gpGetRouteKnowledgeEntry(code);
+      if (!entry) return "";
+      const parts = [];
+      [
+        "full_label", "name", "label", "origin", "destination",
+        "summary", "description", "via", "corridor", "corridors",
+        "terminals", "neighborhoods", "bairros", "keywords", "aliases",
+        "municipality", "municipios", "streets", "avenues"
+      ].forEach(function(key) {
+        const val = entry[key];
+        if (!val) return;
+        if (Array.isArray(val)) {
+          val.forEach(function(v) {
+            if (v && typeof v === "string") parts.push(v);
+            else if (v && typeof v === "object" && (v.name || v.label)) parts.push(v.name || v.label);
+          });
+        } else if (typeof val === "string") {
+          parts.push(val);
+        }
+      });
+      return parts.join(" ");
+    }
+
     function gpPatchRealTransitSearch() {
       const rt = window.RealTransit;
       if (!rt) return;
@@ -5994,12 +6057,18 @@
 
           if (this.networkData && Array.isArray(this.networkData.routes_catalog)) {
             this.networkData.routes_catalog.forEach(function(r) {
-              const hay = [r.code, r.label, r.name].filter(Boolean).join(" ");
+              const displayName = gpGetLineDisplayName(r.code, r.name || r.label);
+              const rkText = gpGetRouteKnowledgeSearchText(r.code);
+              const hay = [r.code, r.label, r.name, displayName, rkText].filter(Boolean).join(" ");
               if (gpMatchesSearch(hay, tokens)) {
+                const entry = gpGetRouteKnowledgeEntry(r.code);
+                const rkSub = (entry && Array.isArray(entry.corridors) && entry.corridors.length)
+                  ? ("GTFS Grande Recife · " + entry.corridors.slice(0, 2).join(" / "))
+                  : "Linha Oficial GTFS Grande Recife";
                 results.push({
                   type: "route",
-                  title: r.label,
-                  sub: "Linha Oficial GTFS Grande Recife",
+                  title: gpFormatLineTitle(r.code, displayName, r.label),
+                  sub: rkSub,
                   code: r.code
                 });
               }
@@ -6082,7 +6151,23 @@
         const origFilterModalLines = rt.filterModalLines.bind(rt);
         rt.filterModalLines = function(query) {
           const qNorm = gpNormalizeSearch(query);
-          if (!qNorm) return origFilterModalLines(query);
+          if (!qNorm) {
+            origFilterModalLines(query);
+            const listElEmpty = document.getElementById("modal-lines-list");
+            if (listElEmpty) {
+              listElEmpty.querySelectorAll("[onclick*='loadRoute']").forEach(function(card) {
+                const oc = card.getAttribute("onclick") || "";
+                const m = oc.match(/loadRoute\('([^']+)'\)/);
+                if (!m) return;
+                const code = m[1];
+                const dn = gpGetLineDisplayName(code);
+                if (!dn) return;
+                const titleEl = card.querySelector("div > div > div:first-child");
+                if (titleEl) titleEl.textContent = gpFormatLineTitle(code, dn, code);
+              });
+            }
+            return;
+          }
 
           const listEl = document.getElementById("modal-lines-list");
           const headerEl = document.getElementById("modal-lines-list-header");
@@ -6093,9 +6178,11 @@
           const catalog = this.networkData.routes_catalog || [];
           const items = [];
           catalog.forEach(function(r) {
-            const hay = [r.code, r.label, r.name].filter(Boolean).join(" ");
+            const displayName = gpGetLineDisplayName(r.code, r.name);
+            const rkText = gpGetRouteKnowledgeSearchText(r.code);
+            const hay = [r.code, r.label, r.name, displayName, rkText].filter(Boolean).join(" ");
             if (gpMatchesSearch(hay, tokens)) {
-              items.push({ code: r.code, name: r.name });
+              items.push({ code: r.code, name: displayName || r.name });
             }
           });
 
@@ -6118,7 +6205,7 @@
                 '<div style="display:flex; align-items:center; gap:10px; max-width:80%;">' +
                   busSvgBadge +
                   "<div>" +
-                    '<div style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.2;">' + self.escapeHtml(p.code) + " · " + self.escapeHtml(p.name) + "</div>" +
+                    '<div style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.2;">' + self.escapeHtml(gpFormatLineTitle(p.code, p.name, p.code)) + "</div>" +
                     '<div style="font-size:11px; color:#64748b; margin-top:2px;">Dados Oficiais GTFS</div>' +
                   "</div>" +
                 "</div>" +
@@ -6128,6 +6215,27 @@
           }).join("");
         };
         rt.__gpWrappedFilterModalLines = true;
+      }
+
+      if (typeof rt.updateUIForLine === "function" && !rt.__gpWrappedUpdateUIForLine) {
+        const origUpdateUIForLine = rt.updateUIForLine.bind(rt);
+        rt.updateUIForLine = function(lineData, dirDataOverride, boardIdxOverride) {
+          origUpdateUIForLine(lineData, dirDataOverride, boardIdxOverride);
+          if (!lineData || !lineData.code) return;
+          const displayName = gpGetLineDisplayName(lineData.code, lineData.name);
+          if (!displayName) return;
+          const dirData = dirDataOverride || (typeof this.getDirectionData === "function" ? this.getDirectionData(lineData, this.activeDirection) : null);
+          const dirTag = (dirData && dirData.dir === "volta") ? "VOLTA" : "IDA";
+          const activeHeader = document.getElementById("active-trip-header");
+          if (activeHeader) {
+            activeHeader.textContent = "Linha " + lineData.code + " (" + dirTag + ") → " + displayName;
+          }
+          const destTitle = document.getElementById("active-trip-destination-title");
+          if (destTitle) {
+            destTitle.textContent = displayName + (dirData && dirData.headsign ? (" · Sentido " + dirData.headsign) : "");
+          }
+        };
+        rt.__gpWrappedUpdateUIForLine = true;
       }
 
       if (typeof rt.searchRmrPlaces === "function" && !rt.__gpWrappedSearchRmrPlaces) {
@@ -7486,8 +7594,12 @@
     function syncNightBeaconUI(codeOverride) {
       const activeCode = String(codeOverride || (window.RealTransit && window.RealTransit.activeRouteCode) || activeRouteCode || "199");
       const preset = NIGHT_BEACON_MAIN_LINES.find(function(item) { return item.code === activeCode; });
-      const rName = (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.code === activeCode && window.RealTransit.activeRoute.name)
-        ? String(window.RealTransit.activeRoute.name).toUpperCase()
+      const fallbackActiveName = (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.code === activeCode && window.RealTransit.activeRoute.name)
+        ? window.RealTransit.activeRoute.name
+        : "";
+      const activeDisplayName = gpGetLineDisplayName(activeCode, fallbackActiveName);
+      const rName = activeDisplayName
+        ? activeDisplayName.toUpperCase()
         : (preset ? preset.dest : ("LINHA " + activeCode + " · RMR"));
       const adaptStop = (window.RealTransit && window.RealTransit.userAdaptState && window.RealTransit.userAdaptState.stopName)
         ? window.RealTransit.userAdaptState.stopName
@@ -7541,9 +7653,10 @@
     // ==========================================
     function getDynamicQueimaContext() {
       const code = String((window.RealTransit && window.RealTransit.activeRouteCode) || activeRouteCode || "199");
-      const routeName = (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.name)
+      const fallbackRouteName = (window.RealTransit && window.RealTransit.activeRoute && window.RealTransit.activeRoute.name)
         ? window.RealTransit.activeRoute.name
         : (code === "199" ? "Camela / TI Cabo" : "Corredor RMR");
+      const routeName = gpGetLineDisplayName(code, fallbackRouteName) || fallbackRouteName;
       let stopId = "030613";
       let stopName = "Terminal Camela (PE-60)";
       if (window.RealTransit && window.RealTransit.activeRoute && Array.isArray(window.RealTransit.activeRoute.stops)) {
@@ -8979,7 +9092,8 @@
         chip.type = "button";
         chip.className = "home-nearby-chip";
         chip.textContent = String(item.code);
-        chip.title = item.name ? ("Selecionar linha " + item.code + " · " + item.name) : ("Selecionar linha " + item.code);
+        const itemDisplayName = gpGetLineDisplayName(item.code, item.name);
+        chip.title = itemDisplayName ? ("Selecionar linha " + item.code + " · " + itemDisplayName) : ("Selecionar linha " + item.code);
         chip.addEventListener("click", function() {
           selectHomeNearbyLine(item.code);
         });
@@ -9115,7 +9229,8 @@
 
         const rawSummaryStop = (adapt.stopName || adapt.lineName || "Parada ativa") + distMeters;
         summaryEl.textContent = rawSummaryStop.replace(/\bParada\s+CTM\s+/gi, "Parada ");
-        if (linePillEl) linePillEl.textContent = "Linha " + adapt.lineCode + " · " + dirLabel;
+        const lineDisplayName = gpGetLineDisplayName(adapt.lineCode, adapt.lineName);
+        if (linePillEl) linePillEl.textContent = "Linha " + adapt.lineCode + (lineDisplayName ? (" · " + lineDisplayName) : "") + " · " + dirLabel;
         if (etaWrapEl) etaWrapEl.style.display = "block";
         if (etaEl) etaEl.textContent = etaVal + " min";
 
@@ -9269,7 +9384,8 @@
         ? " · Também passam aqui: " + ctx.nearbyLines.slice(1, 4).map(function(l) { return l.code; }).join(", ")
         : "";
 
-      if (badgeEl) badgeEl.textContent = "Linha " + lineCode + " · Estimativa inteligente" + distStr;
+      const lineDisplayName = gpGetLineDisplayName(lineCode, best && best.name);
+      if (badgeEl) badgeEl.textContent = "Linha " + lineCode + (lineDisplayName ? (" · " + lineDisplayName) : " · Estimativa inteligente") + distStr;
       if (stopEl) stopEl.textContent = stopName;
       if (etaEl) {
         etaEl.textContent = eta + " min";
@@ -9285,7 +9401,7 @@
       }
 
       const prefixEl = document.getElementById("resting-line-prefix");
-      if (prefixEl) prefixEl.textContent = "Linha " + lineCode + " · Mais próxima de você";
+      if (prefixEl) prefixEl.textContent = "Linha " + lineCode + (lineDisplayName ? (" · " + lineDisplayName) : " · Mais próxima de você");
       updateHomeGreeting();
     }
     const updateLocateScreenUI = applyAdaptivePreviewUI;
@@ -9659,7 +9775,8 @@
       const chip = document.getElementById("route-indicator-chip");
       const label = document.getElementById("route-chip-label");
       if (!chip || !label) return;
-      label.textContent = "Linha " + code + " · " + (name || "Trajeto Ativo");
+      const displayName = gpGetLineDisplayName(code, name);
+      label.textContent = "Linha " + code + " · " + (displayName || "Trajeto Ativo");
       chip.style.display = "flex";
     }
 

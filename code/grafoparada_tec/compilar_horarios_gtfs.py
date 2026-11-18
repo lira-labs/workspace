@@ -23,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent
 GTFS_DIR = BASE_DIR / "data" / "gtfs_granderecife"
 NETWORK_JSON = BASE_DIR.parent / "grafoparada_web" / "data" / "gtfs_real_network.json"
 OUTPUT_JSON = BASE_DIR.parent / "grafoparada_web" / "data" / "gtfs_schedules.json"
+KNOWLEDGE_JSON = BASE_DIR.parent / "grafoparada_web" / "data" / "laya_route_knowledge.json"
 
 TIME_BANDS = (
     ("madrugada", 0, 300),
@@ -233,6 +234,17 @@ def approx_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     )
 
 
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (
+        math.sin(dlat / 2.0) ** 2
+        + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2.0) ** 2
+    )
+    return 2.0 * r * math.asin(min(1.0, math.sqrt(a)))
+
+
 def assign_rmr_city(lat: float, lon: float, name: str = "") -> str:
     uname = (name or "").upper()
     for kw, cname in CITY_NAME_KEYWORDS:
@@ -394,11 +406,13 @@ def build_schedules_and_places() -> dict:
     # Carrega sequencia canonica de paradas do gtfs_real_network.json (se disponivel) para alinhar stop_offsets_min 1:1
     canonical_stops_by_code = {}
     hub_graph_raw = []
+    popular_lines_raw = {}
     if NETWORK_JSON.is_file():
         with open(NETWORK_JSON, encoding="utf-8") as f:
             net_data = json.load(f)
         hub_graph_raw = net_data.get("hub_graph", [])
-        for code, ldata in net_data.get("popular_lines", {}).items():
+        popular_lines_raw = net_data.get("popular_lines", {})
+        for code, ldata in popular_lines_raw.items():
             canonical_stops_by_code[(code, "ida")] = [s["stop_id"] for s in ldata.get("stops", [])]
             canonical_stops_by_code[(code, "volta")] = [s["stop_id"] for s in ldata.get("return_stops", [])]
 
@@ -790,13 +804,262 @@ def build_schedules_and_places() -> dict:
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
 
+    knowledge_payload = build_laya_route_knowledge(
+        popular_lines_raw=popular_lines_raw,
+        lines_payload=lines_payload,
+        rmr_places=rmr_places,
+        ti_hubs=ti_hubs,
+        hub_graph_raw=hub_graph_raw,
+        generated_at=payload["generated_at"],
+    )
+    with open(KNOWLEDGE_JSON, "w", encoding="utf-8") as f:
+        json.dump(knowledge_payload, f, ensure_ascii=False, separators=(",", ":"))
+
     size_kb = OUTPUT_JSON.stat().st_size / 1024.0
+    k_size_kb = KNOWLEDGE_JSON.stat().st_size / 1024.0
     print(f"\n[SUCESSO] gtfs_schedules.json gerado em {time.time() - t_start:.2f}s")
     print(f"  -> Tamanho: {size_kb:.1f} KB ({OUTPUT_JSON.stat().st_size:,} bytes)")
     print(f"  -> Linhas compiladas: {len(lines_payload)}/393")
     print(f"  -> Lugares RMR indexados: {len(rmr_places)} ({len(RMR_CITIES_META)} cidades + {len(named_places)} terminais/estacoes/polos)")
     print(f"  -> TIs de integracao indexados (ti_hubs): {len(ti_hubs)}")
+    print(f"  -> Base de conhecimento Laya IA ({KNOWLEDGE_JSON.name}): {knowledge_payload['total_lines']}/393 linhas ({k_size_kb:.1f} KB)")
     return payload
+
+
+def _resolve_endpoint_place(
+    code: str,
+    stop: dict | None,
+    extra_stops: list[dict],
+    ti_hubs: list[dict],
+    hub_graph_raw: list[dict],
+    rmr_places_non_city: list[dict],
+    rmr_cities: list[dict],
+) -> str:
+    if not stop:
+        return ""
+    raw_name = (stop.get("name") or "").strip()
+    cleaned = clean_stop_root_name(raw_name)
+    if cleaned and not cleaned.isdigit():
+        return cleaned
+
+    lat = float(stop["lat"])
+    lon = float(stop["lon"])
+    max_km = 0.65
+
+    ti_serving = [
+        (haversine_km(lat, lon, h["lat"], h["lon"]), h["name"])
+        for h in ti_hubs
+        if any(str(entry.get("code")) == code for entry in h.get("lines", []))
+    ]
+    ti_serving = [c for c in ti_serving if c[0] <= max_km]
+    if ti_serving:
+        return min(ti_serving, key=lambda x: x[0])[1]
+
+    hg_serving = [
+        (haversine_km(lat, lon, float(h["lat"]), float(h["lon"])), str(h["name"]).strip())
+        for h in hub_graph_raw
+        if code in [str(c) for c in h.get("lines", [])] and h.get("name")
+    ]
+    hg_serving = [c for c in hg_serving if c[0] <= max_km]
+    if hg_serving:
+        return min(hg_serving, key=lambda x: x[0])[1]
+
+    rmr_serving = [
+        (haversine_km(lat, lon, p["lat"], p["lon"]), p["name"])
+        for p in rmr_places_non_city
+        if code in p.get("lines", [])
+    ]
+    rmr_serving = [c for c in rmr_serving if c[0] <= max_km]
+    if rmr_serving:
+        return min(rmr_serving, key=lambda x: x[0])[1]
+
+    ti_any = [(haversine_km(lat, lon, h["lat"], h["lon"]), h["name"]) for h in ti_hubs]
+    ti_any = [c for c in ti_any if c[0] <= max_km]
+    if ti_any:
+        return min(ti_any, key=lambda x: x[0])[1]
+
+    rmr_any = [(haversine_km(lat, lon, p["lat"], p["lon"]), p["name"]) for p in rmr_places_non_city]
+    rmr_any = [c for c in rmr_any if c[0] <= max_km]
+    if rmr_any:
+        return min(rmr_any, key=lambda x: x[0])[1]
+
+    stop_cands = []
+    for st in extra_stops:
+        sname = clean_stop_root_name(st.get("name") or "")
+        if sname and not sname.isdigit():
+            d = haversine_km(lat, lon, float(st["lat"]), float(st["lon"]))
+            if d <= max_km:
+                stop_cands.append((d, sname))
+    if stop_cands:
+        return min(stop_cands, key=lambda x: x[0])[1]
+
+    if rmr_cities:
+        nearest_city = min(rmr_cities, key=lambda c: haversine_km(lat, lon, c["lat"], c["lon"]))
+        return nearest_city["name"]
+    return assign_rmr_city(lat, lon)
+
+
+def build_laya_route_knowledge(
+    popular_lines_raw: dict,
+    lines_payload: dict,
+    rmr_places: list[dict],
+    ti_hubs: list[dict],
+    hub_graph_raw: list[dict],
+    generated_at: str,
+) -> dict:
+    rmr_places_non_city = [p for p in rmr_places if p.get("type") != "city"]
+    rmr_cities = [p for p in rmr_places if p.get("type") == "city"]
+
+    # Indexa TI hubs por linha para acesso O(1)
+    ti_by_code: dict[str, list[tuple[float, str]]] = defaultdict(list)
+    for hub in ti_hubs:
+        for entry in hub.get("lines", []):
+            c = str(entry.get("code") or "")
+            if c:
+                ti_by_code[c].append((float(entry.get("offset_min", 0.0)), hub["name"]))
+
+    knowledge_lines: dict[str, dict] = {}
+    all_codes = sorted(set(popular_lines_raw.keys()) | set(lines_payload.keys()))
+
+    for code in all_codes:
+        nl = popular_lines_raw.get(code, {})
+        sl = lines_payload.get(code, {})
+        line_name = (nl.get("name") or sl.get("name") or code).strip()
+
+        stops_ida = nl.get("stops", [])
+        stops_volta = nl.get("return_stops", [])
+
+        orig_stop = stops_ida[0] if stops_ida else (stops_volta[-1] if stops_volta else None)
+        dest_stop = stops_ida[-1] if stops_ida else (stops_volta[0] if stops_volta else None)
+
+        origin_place = _resolve_endpoint_place(
+            code,
+            orig_stop,
+            stops_ida[:6] + stops_volta[-6:],
+            ti_hubs,
+            hub_graph_raw,
+            rmr_places_non_city,
+            rmr_cities,
+        )
+        dest_place = _resolve_endpoint_place(
+            code,
+            dest_stop,
+            stops_ida[-6:] + stops_volta[:6],
+            ti_hubs,
+            hub_graph_raw,
+            rmr_places_non_city,
+            rmr_cities,
+        )
+
+        # Se dest_place ficou vazio ou igual ao codigo, tenta return_stops[0]
+        if (not dest_place or dest_place.isdigit()) and stops_volta:
+            dest_place = _resolve_endpoint_place(
+                code,
+                stops_volta[0],
+                stops_volta[:6] + stops_ida[-6:],
+                ti_hubs,
+                hub_graph_raw,
+                rmr_places_non_city,
+                rmr_cities,
+            )
+
+        # TIs da linha (ordenados por offset)
+        seen_ti: set[str] = set()
+        line_ti_hubs: list[str] = []
+        for _, tname in sorted(ti_by_code.get(code, []), key=lambda x: x[0]):
+            tkey = tname.upper()
+            if tkey not in seen_ti:
+                seen_ti.add(tkey)
+                line_ti_hubs.append(tname)
+        for dkey in ("ida", "volta"):
+            for cp in sl.get(dkey, {}).get("ti_checkpoints", []):
+                cname = (cp.get("stop_name") or "").strip()
+                if cname and cname.upper() not in seen_ti:
+                    seen_ti.add(cname.upper())
+                    line_ti_hubs.append(cname)
+
+        # Principais locais/bairros/TIs ao longo do corredor
+        corridor_places: list[str] = []
+        seen_corr: set[str] = set()
+
+        def _add_corridor(place_name: str) -> None:
+            pn = (place_name or "").strip()
+            if not pn or pn.isdigit():
+                return
+            pk = pn.upper()
+            if pk not in seen_corr:
+                seen_corr.add(pk)
+                corridor_places.append(pn)
+
+        for tname in line_ti_hubs:
+            _add_corridor(tname)
+
+        all_route_stops = stops_ida + stops_volta
+        step = max(1, len(all_route_stops) // 18) if all_route_stops else 1
+        sampled = all_route_stops[::step] if all_route_stops else []
+        for st in sampled:
+            if len(corridor_places) >= 14:
+                break
+            sname = clean_stop_root_name(st.get("name") or "")
+            if sname and not sname.isdigit():
+                _add_corridor(sname)
+                continue
+            slat, slon = float(st["lat"]), float(st["lon"])
+            best_p = None
+            best_d = 0.45
+            for p in rmr_places_non_city:
+                if code not in p.get("lines", []):
+                    continue
+                d = haversine_km(slat, slon, p["lat"], p["lon"])
+                if d < best_d:
+                    best_d = d
+                    best_p = p["name"]
+            if best_p:
+                _add_corridor(best_p)
+
+        if dest_place:
+            _add_corridor(dest_place)
+
+        if origin_place and dest_place and origin_place.lower() != dest_place.lower():
+            full_label = f"{origin_place} / {dest_place}"
+        elif origin_place and origin_place.lower() not in line_name.lower():
+            full_label = f"{line_name} ({origin_place})"
+        else:
+            full_label = line_name
+
+        cities_touched = sorted({
+            assign_rmr_city(float(st["lat"]), float(st["lon"]), st.get("name") or "")
+            for st in (stops_ida[::max(1, len(stops_ida) // 6)] if stops_ida else [])
+        })
+
+        search_tokens = [
+            code,
+            line_name,
+            full_label,
+            origin_place,
+            dest_place,
+            *corridor_places,
+            *line_ti_hubs,
+            *cities_touched,
+        ]
+        search_text = " ".join(dict.fromkeys(t.strip().lower() for t in search_tokens if t and t.strip()))
+
+        knowledge_lines[code] = {
+            "code": code,
+            "name": line_name,
+            "full_label": full_label,
+            "origin_place": origin_place,
+            "dest_place": dest_place,
+            "corridor_places": corridor_places,
+            "ti_hubs": line_ti_hubs,
+            "search_text": search_text,
+        }
+
+    return {
+        "generated_at": generated_at,
+        "total_lines": len(knowledge_lines),
+        "lines": knowledge_lines,
+    }
 
 
 if __name__ == "__main__":

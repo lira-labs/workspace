@@ -38,6 +38,7 @@ if str(TEC_DIR) not in sys.path:
 
 from db_manager import (  # noqa: E402
     get_training_dataset,
+    get_laya_learning_gaps,
     init_db,
     record_app_event,
     record_observation,
@@ -59,6 +60,7 @@ GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
 GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
 MODEL_STATUS_JSON = WEB_DIR / "data" / "model_training_status.json"
 CALIBRATION_PRIORS_JSON = WEB_DIR / "data" / "stgcn_calibration_priors.json"
+LAYA_KNOWLEDGE_JSON = WEB_DIR / "data" / "laya_route_knowledge.json"
 DECK_PATH = WEB_DIR / "GrafoParada_Seminario2_CauaLira.pptx"
 
 FORBIDDEN_HARDCODED_TOKENS = [
@@ -670,6 +672,82 @@ def test_v35_calibracao_stgcn_priors_e_conformal_status():
     )
 
 
+def test_v37_conhecimento_laya_distilacao_e_learning_gaps():
+    assert LAYA_KNOWLEDGE_JSON.is_file(), f"Arquivo ausente: {LAYA_KNOWLEDGE_JSON}"
+    knowledge = json.loads(LAYA_KNOWLEDGE_JSON.read_text(encoding="utf-8"))
+    lines = knowledge.get("lines")
+    assert isinstance(lines, dict), "laya_route_knowledge.json deve conter objeto 'lines'"
+    assert knowledge.get("total_lines") == 393
+    assert len(lines) == 393, f"Esperado 393 linhas em laya_route_knowledge.json, obtido {len(lines)}"
+
+    line_185 = lines.get("185")
+    assert isinstance(line_185, dict), "Linha 185 ausente em laya_route_knowledge.json"
+    assert "Ti Cabo" in (line_185.get("full_label") or "")
+    assert "Cais de Santa Rita" in (line_185.get("full_label") or "")
+    assert "Ti Cabo" in (line_185.get("origin_place") or "")
+    assert "Cais de Santa Rita" in (line_185.get("dest_place") or "")
+
+    status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
+    assert isinstance(status.get("teacher_mae"), (int, float)) and status["teacher_mae"] > 0, (
+        f"teacher_mae inválido: {status.get('teacher_mae')!r}"
+    )
+    assert isinstance(status.get("student_mae"), (int, float)) and status["student_mae"] > 0, (
+        f"student_mae inválido: {status.get('student_mae')!r}"
+    )
+    assert isinstance(status.get("distillation_alpha"), (int, float)) and 0 < status["distillation_alpha"] <= 1, (
+        f"distillation_alpha ausente ou inválido: {status.get('distillation_alpha')!r}"
+    )
+    assert status.get("knowledge_lines_covered") == 393, (
+        f"knowledge_lines_covered esperado 393, obtido {status.get('knowledge_lines_covered')!r}"
+    )
+
+    with tempfile.TemporaryDirectory(prefix="gp_db_v37_") as tmp_dir:
+        tmp_db = Path(tmp_dir) / "v37_learning_gaps.db"
+        init_db(tmp_db)
+
+        gap_ev = record_app_event(
+            {
+                "user_id": "usr_v37_gap",
+                "event_type": "laya_query_feedback",
+                "route_code": "185",
+                "stop_id": "030613",
+                "query": "Qual ônibus vai para o Paiva de madrugada?",
+                "understood": False,
+                "reason": "unresolved_route",
+                "channel": "laya_chat",
+            },
+            db_path=tmp_db,
+        )
+        assert gap_ev["event_type"] == "laya_query_feedback"
+
+        ok_ev = record_app_event(
+            {
+                "user_id": "usr_v37_ok",
+                "event_type": "laya_query_feedback",
+                "route_code": "185",
+                "query": "me fala sobre a 185",
+                "understood": True,
+                "matched_intent": "line_info",
+                "channel": "laya_chat",
+            },
+            db_path=tmp_db,
+        )
+        assert ok_ev["event_type"] == "laya_query_feedback"
+
+        summary = get_laya_learning_gaps(db_path=tmp_db)
+        assert summary["event_type"] == "laya_query_feedback"
+        assert summary["total_feedback_events"] == 2
+        assert summary["total_learning_gaps"] == 1
+        assert summary["unique_gap_queries"] == 1
+        assert len(summary["gaps"]) == 1
+        assert summary["gaps"][0]["query"] == "Qual ônibus vai para o Paiva de madrugada?"
+        assert summary["gaps"][0]["is_gap"] is True
+        assert summary["top_queries"][0]["occurrences"] == 1
+
+        all_summary = get_laya_learning_gaps(db_path=tmp_db, include_understood=True)
+        assert len(all_summary["gaps"]) == 2
+
+
 def run_cli_audit() -> int:
     html = _load_html()
     print("=" * 70)
@@ -687,6 +765,7 @@ def run_cli_audit() -> int:
         ("Bloco 7: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
         ("Bloco 8: v3.3 Métricas Estratificadas & Schema SQLite (app_events/colunas)", test_v33_metricas_estratificadas_e_schema_sqlite),
         ("Bloco 9: v3.5 Calibração ST-GCN Priors & Conformal P90 Status", test_v35_calibracao_stgcn_priors_e_conformal_status),
+        ("Bloco 10: v3.7 Conhecimento Laya (393), Destilação & Learning Gaps", test_v37_conhecimento_laya_distilacao_e_learning_gaps),
     ]
 
     aprovados = 0

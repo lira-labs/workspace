@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from stgcn_official import STGCN, compute_normalized_laplacian  # noqa: E402
+from stgcn_official import STConvBlock, STGCN, compute_normalized_laplacian  # noqa: E402
 
 try:
     from db_manager import (
@@ -75,11 +75,32 @@ NETWORK_JSON = WEB_DATA_DIR / "gtfs_real_network.json"
 SCHEDULES_JSON = WEB_DATA_DIR / "gtfs_schedules.json"
 STATUS_JSON = WEB_DATA_DIR / "model_training_status.json"
 PRIORS_JSON = WEB_DATA_DIR / "stgcn_calibration_priors.json"
+KNOWLEDGE_JSON = WEB_DATA_DIR / "laya_route_knowledge.json"
 
 EXPECTED_LINES = 393
 HISTORY_LEN = 12
 HORIZON = 3
 TRAVA_HIBRIDA_LIMIAR_MIN = 15.0
+DISTILLATION_ALPHA = 0.65
+
+
+class TeacherSTGCN(nn.Module):
+    """Modelo Teacher mais profundo/largo (3 blocos STConvBlock) para destilacao local gratuita."""
+
+    def __init__(self, num_nodes: int, in_channels: int, out_horizon: int = 3):
+        super().__init__()
+        self.num_nodes = num_nodes
+        self.block1 = STConvBlock(c_in=in_channels, c_spatial=32, c_out=64, kernel_size=3)
+        self.block2 = STConvBlock(c_in=64, c_spatial=64, c_out=96, kernel_size=3)
+        self.block3 = STConvBlock(c_in=96, c_spatial=64, c_out=128, kernel_size=2)
+        self.out_conv = nn.Conv2d(128, out_horizon, kernel_size=(2, 1), padding=0)
+
+    def forward(self, x: torch.Tensor, l_matrix: torch.Tensor) -> torch.Tensor:
+        h = self.block1(x, l_matrix)
+        h = self.block2(h, l_matrix)
+        h = self.block3(h, l_matrix)
+        out = self.out_conv(h)
+        return out.squeeze(2)
 
 
 def approx_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -583,13 +604,60 @@ def train_and_evaluate_models(
     x_te_t = torch.tensor((x_test - mean_x) / std_x, dtype=torch.float32)
 
     epochs = 72
+    teacher_epochs = 72
+
+    # 3a. Teacher Model maior (TeacherSTGCN com 3 blocos STConvBlock)
+    teacher_model = TeacherSTGCN(num_nodes=num_nodes, in_channels=in_channels, out_horizon=HORIZON)
+    teacher_opt = torch.optim.AdamW(teacher_model.parameters(), lr=0.008, weight_decay=1e-4)
+    teacher_sched = torch.optim.lr_scheduler.CosineAnnealingLR(teacher_opt, T_max=teacher_epochs, eta_min=5e-5)
+    l1_criterion = nn.L1Loss()
+    smooth_l1_criterion = nn.SmoothL1Loss(beta=0.5)
+
+    teacher_gen = torch.Generator().manual_seed(42)
+    teacher_ds = torch.utils.data.TensorDataset(x_tr_t, y_tr_t)
+    teacher_loader = torch.utils.data.DataLoader(teacher_ds, batch_size=64, shuffle=True, generator=teacher_gen)
+
+    best_teacher_loss = float("inf")
+    best_teacher_state: dict[str, torch.Tensor] | None = None
+    for _epoch in range(teacher_epochs):
+        teacher_model.train()
+        epoch_loss = 0.0
+        n_batches = 0
+        for x_batch, y_batch in teacher_loader:
+            teacher_opt.zero_grad()
+            out = teacher_model(x_batch, l_matrix)
+            loss = l1_criterion(out, y_batch)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(teacher_model.parameters(), 2.0)
+            teacher_opt.step()
+            epoch_loss += float(loss.item())
+            n_batches += 1
+        teacher_sched.step()
+        avg_loss = epoch_loss / max(1, n_batches)
+        if avg_loss < best_teacher_loss:
+            best_teacher_loss = avg_loss
+            best_teacher_state = {k: v.detach().clone() for k, v in teacher_model.state_dict().items()}
+
+    if best_teacher_state is not None:
+        teacher_model.load_state_dict(best_teacher_state)
+
+    teacher_model.eval()
+    with torch.no_grad():
+        pred_teacher_tr = teacher_model(x_tr_t, l_matrix).detach()
+        pred_teacher_te_norm = teacher_model(x_te_t, l_matrix).numpy()
+    pred_teacher_test = np.repeat(last_wait_test[:, None, :], HORIZON, axis=1) + (
+        pred_teacher_te_norm * std_dy + mean_dy
+    )
+    teacher_mae = float(np.mean(np.abs(y_test - pred_teacher_test)))
+
+    # 3b. Student Model (STGCN leve de producao) via Knowledge Distillation (Teacher -> Student)
+    distillation_alpha = DISTILLATION_ALPHA
     model = STGCN(num_nodes=num_nodes, in_channels=in_channels, out_horizon=HORIZON)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.01, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=5e-5)
-    criterion = nn.L1Loss()
 
     train_gen = torch.Generator().manual_seed(42)
-    train_ds = torch.utils.data.TensorDataset(x_tr_t, y_tr_t)
+    train_ds = torch.utils.data.TensorDataset(x_tr_t, y_tr_t, pred_teacher_tr)
     train_loader = torch.utils.data.DataLoader(train_ds, batch_size=64, shuffle=True, generator=train_gen)
 
     best_train_loss = float("inf")
@@ -599,10 +667,12 @@ def train_and_evaluate_models(
         model.train()
         epoch_loss = 0.0
         n_batches = 0
-        for x_batch, y_batch in train_loader:
+        for x_batch, y_batch, y_teacher_batch in train_loader:
             optimizer.zero_grad()
             out = model(x_batch, l_matrix)
-            loss = criterion(out, y_batch)
+            loss = distillation_alpha * l1_criterion(out, y_batch) + (1.0 - distillation_alpha) * smooth_l1_criterion(
+                out, y_teacher_batch
+            )
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 2.0)
             optimizer.step()
@@ -623,6 +693,7 @@ def train_and_evaluate_models(
     pred_stgcn = np.repeat(last_wait_test[:, None, :], HORIZON, axis=1) + (pred_dy_norm * std_dy + mean_dy)
     abs_residuals = np.abs(y_test - pred_stgcn)
     stgcn_mae = float(np.mean(abs_residuals))
+    student_mae = stgcn_mae
 
     # Intervalos de incerteza conformal (quantil 90% dos residuos absolutos no teste purgado)
     conformal_p90_margin_min = float(np.quantile(abs_residuals, 0.90))
@@ -734,6 +805,9 @@ def train_and_evaluate_models(
         "test_windows": int(len(x_test)),
         "purge_gap_windows": int(purge_gap),
         "stgcn_mae": round(stgcn_mae, 4),
+        "teacher_mae": round(teacher_mae, 4),
+        "student_mae": round(student_mae, 4),
+        "distillation_alpha": round(distillation_alpha, 4),
         "ols_mae": round(ols_mae, 4),
         "persistence_mae": round(persistence_mae, 4),
         "mae_pico": round(mae_pico, 4),
@@ -910,13 +984,25 @@ def run_continuous_training() -> dict[str, Any]:
 
     ti_hubs_indexed = int(mesh_report.get("ti_hubs_indexed", 0))
     gtfs_prior_enabled = ti_hubs_indexed > 0
+    knowledge_lines_covered = mesh_report["lines_covered"]
+    if KNOWLEDGE_JSON.is_file():
+        try:
+            with open(KNOWLEDGE_JSON, encoding="utf-8") as f:
+                kdata = json.load(f)
+            knowledge_lines_covered = int(kdata.get("total_lines", len(kdata.get("lines", {}))))
+        except Exception:
+            pass
 
     status_payload = {
         "lines_covered": mesh_report["lines_covered"],
         "schedules_indexed": mesh_report["schedules_indexed"],
+        "knowledge_lines_covered": knowledge_lines_covered,
         "real_observations": real_observations_count,
         "routines_count": routines_count,
         "stgcn_mae": metrics["stgcn_mae"],
+        "teacher_mae": metrics["teacher_mae"],
+        "student_mae": metrics["student_mae"],
+        "distillation_alpha": metrics["distillation_alpha"],
         "ols_mae": metrics["ols_mae"],
         "persistence_mae": metrics["persistence_mae"],
         "mae_pico": metrics["mae_pico"],

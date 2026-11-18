@@ -20,6 +20,34 @@ from pathlib import Path
 from typing import Any, Iterator
 
 DEFAULT_DB_PATH = Path(__file__).resolve().parent / "data" / "grafoparada.db"
+LAYA_FEEDBACK_EVENT_TYPE = "laya_query_feedback"
+_LAYA_FEEDBACK_FIELDS = (
+    "query",
+    "utterance",
+    "text",
+    "user_query",
+    "understood",
+    "matched_intent",
+    "intent",
+    "confidence",
+    "reason",
+    "feedback",
+    "notes",
+    "channel",
+    "context",
+    "suggested_intent",
+    "stop_name",
+    "route_label",
+    "source",
+)
+_LAYA_UNRESOLVED_REASONS = {
+    "not_understood",
+    "unknown_intent",
+    "no_match",
+    "fallback",
+    "unrecognized",
+    "low_confidence",
+}
 
 _SCHEMA_STATEMENTS = (
     """
@@ -431,6 +459,14 @@ def record_app_event(
         payload_json = json.dumps(event_dict["payload"], ensure_ascii=False)[:8000]
     else:
         payload_json = _optional_str(raw_payload, 8000)
+    if payload_json is None and event_type == LAYA_FEEDBACK_EVENT_TYPE:
+        laya_payload = {
+            key: event_dict[key].strip()[:1000] if isinstance(event_dict[key], str) else event_dict[key]
+            for key in _LAYA_FEEDBACK_FIELDS
+            if key in event_dict and event_dict[key] is not None and event_dict[key] != ""
+        }
+        if laya_payload:
+            payload_json = json.dumps(laya_payload, ensure_ascii=False)[:8000]
     now = _optional_str(event_dict.get("created_at"), max_len=64) or _utc_now_iso()
 
     resolved = init_db(db_path)
@@ -510,6 +546,142 @@ def log_training_run(
     return dict(row)
 
 
+def _parse_laya_feedback_row(row: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
+    """Extrai e normaliza campos de aprendizado da Laya a partir de um registro de `app_events`."""
+    item = dict(row)
+    raw_json = item.get("payload_json")
+    payload: dict[str, Any] = {}
+    if isinstance(raw_json, str) and raw_json.strip():
+        try:
+            parsed = json.loads(raw_json)
+            if isinstance(parsed, dict):
+                payload = parsed
+        except (ValueError, TypeError):
+            payload = {}
+
+    query_text = ""
+    for key in ("query", "utterance", "user_query", "text"):
+        val = payload.get(key)
+        if isinstance(val, str) and val.strip():
+            query_text = val.strip()
+            break
+
+    raw_understood = payload.get("understood")
+    understood: bool | None
+    if isinstance(raw_understood, bool):
+        understood = raw_understood
+    elif isinstance(raw_understood, (int, float)) and raw_understood in (0, 1):
+        understood = bool(raw_understood)
+    elif isinstance(raw_understood, str) and raw_understood.strip().lower() in (
+        "true",
+        "1",
+        "sim",
+        "false",
+        "0",
+        "nao",
+        "não",
+    ):
+        understood = raw_understood.strip().lower() in ("true", "1", "sim")
+    else:
+        understood = None
+
+    matched_intent = _optional_str(payload.get("matched_intent") or payload.get("intent"), 120)
+    reason = _optional_str(payload.get("reason") or payload.get("feedback"), 120)
+    is_gap = (
+        understood is False
+        or (
+            understood is None
+            and (
+                (reason is not None and reason.lower() in _LAYA_UNRESOLVED_REASONS)
+                or (bool(query_text) and not matched_intent)
+            )
+        )
+    )
+
+    return {
+        "id": item.get("id"),
+        "user_id": item.get("user_id"),
+        "route_code": item.get("route_code"),
+        "stop_id": item.get("stop_id"),
+        "created_at": item.get("created_at"),
+        "query": query_text,
+        "understood": understood,
+        "is_gap": is_gap,
+        "matched_intent": matched_intent,
+        "reason": reason,
+        "channel": _optional_str(payload.get("channel"), 64),
+        "confidence": payload.get("confidence"),
+        "suggested_intent": _optional_str(payload.get("suggested_intent"), 120),
+        "notes": _optional_str(payload.get("notes"), 500),
+        "payload": payload,
+    }
+
+
+def get_laya_learning_gaps(
+    db_path: str | Path | None = None,
+    limit: int = 100,
+    include_understood: bool = False,
+) -> dict[str, Any]:
+    """
+    Lista e agrega consultas reais que a Laya não entendeu (`event_type = 'laya_query_feedback'`),
+    alimentando o pipeline contínuo de melhoria de intents e vocabulário metropolitano.
+    """
+    max_limit = max(1, min(int(limit), 500))
+    resolved = init_db(db_path)
+    with _connect(resolved) as conn:
+        rows = conn.execute(
+            "SELECT * FROM app_events WHERE event_type = ? ORDER BY id DESC",
+            (LAYA_FEEDBACK_EVENT_TYPE,),
+        ).fetchall()
+
+    all_items = [_parse_laya_feedback_row(r) for r in rows]
+    gaps = [item for item in all_items if item["is_gap"]]
+
+    grouped: dict[str, dict[str, Any]] = {}
+    for item in gaps:
+        q_display = item["query"] or f"(sem texto · evento #{item['id']})"
+        q_key = q_display.lower()
+        bucket = grouped.get(q_key)
+        if bucket is None:
+            bucket = {
+                "query": q_display,
+                "occurrences": 0,
+                "last_seen_at": item["created_at"] or "",
+                "route_codes": [],
+                "stop_ids": [],
+                "reasons": [],
+                "channels": [],
+            }
+            grouped[q_key] = bucket
+        bucket["occurrences"] += 1
+        if item["created_at"] and str(item["created_at"]) > str(bucket["last_seen_at"]):
+            bucket["last_seen_at"] = item["created_at"]
+        if item["route_code"] and item["route_code"] not in bucket["route_codes"]:
+            bucket["route_codes"].append(item["route_code"])
+        if item["stop_id"] and item["stop_id"] not in bucket["stop_ids"]:
+            bucket["stop_ids"].append(item["stop_id"])
+        if item["reason"] and item["reason"] not in bucket["reasons"]:
+            bucket["reasons"].append(item["reason"])
+        if item["channel"] and item["channel"] not in bucket["channels"]:
+            bucket["channels"].append(item["channel"])
+
+    top_queries = sorted(
+        grouped.values(),
+        key=lambda g: (-int(g["occurrences"]), str(g["last_seen_at"])),
+    )
+
+    selected = all_items if include_understood else gaps
+    return {
+        "db_path": str(resolved),
+        "event_type": LAYA_FEEDBACK_EVENT_TYPE,
+        "total_feedback_events": len(all_items),
+        "total_learning_gaps": len(gaps),
+        "unique_gap_queries": len(top_queries),
+        "gaps": selected[:max_limit],
+        "top_queries": top_queries[:max_limit],
+    }
+
+
 def get_training_dataset(db_path: str | Path | None = None) -> dict[str, Any]:
     """Retorna observações e rotinas consolidadas para alimentação contínua do `transit-trainer`."""
     resolved = init_db(db_path)
@@ -550,6 +722,7 @@ def get_training_dataset(db_path: str | Path | None = None) -> dict[str, Any]:
         "total_observations": len(observations),
         "total_routines": len(routines),
         "lines_covered": lines_covered,
+        "laya_learning_gaps": get_laya_learning_gaps(db_path=resolved, limit=200),
         "latest_training_run": dict(latest_run_row) if latest_run_row else None,
     }
 
@@ -560,8 +733,14 @@ def get_db_summary(db_path: str | Path | None = None) -> dict[str, Any]:
     with _connect(resolved) as conn:
         counts = {
             table: int(conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
-            for table in ("users", "routines", "demand_observations", "training_runs")
+            for table in ("users", "routines", "demand_observations", "training_runs", "app_events")
         }
+        counts["laya_query_feedback"] = int(
+            conn.execute(
+                "SELECT COUNT(*) FROM app_events WHERE event_type = ?",
+                (LAYA_FEEDBACK_EVENT_TYPE,),
+            ).fetchone()[0]
+        )
         latest_run_row = conn.execute(
             "SELECT * FROM training_runs ORDER BY id DESC LIMIT 1"
         ).fetchone()
@@ -584,6 +763,7 @@ def get_db_summary(db_path: str | Path | None = None) -> dict[str, Any]:
         "lines_covered": distinct_lines,
         "latest_training_run": dict(latest_run_row) if latest_run_row else None,
         "recent_observations": recent_obs,
+        "laya_learning_gaps": get_laya_learning_gaps(db_path=resolved, limit=20),
     }
 
 
@@ -642,8 +822,22 @@ def sync_cloud_observations(
     resolved = init_db(db_path)
     routines_added = 0
     observations_added = 0
+    app_events_added = 0
 
     with _connect(resolved) as conn:
+        existing_event_keys = {
+            (
+                str(r[0] or ""),
+                str(r[1] or ""),
+                str(r[2] or ""),
+                str(r[3] or ""),
+                str(r[4] or ""),
+                str(r[5] or ""),
+            )
+            for r in conn.execute(
+                "SELECT event_type, user_id, route_code, stop_id, created_at, payload_json FROM app_events"
+            ).fetchall()
+        }
         existing_routine_ids = {
             str(r[0]) for r in conn.execute("SELECT id FROM routines").fetchall() if r[0]
         }
@@ -674,6 +868,34 @@ def sync_cloud_observations(
                 continue
 
     if isinstance(telemetry_payload, dict):
+        for ev in [
+            *(telemetry_payload.get("recent_app_events") or []),
+            *(telemetry_payload.get("laya_query_feedback") or []),
+        ]:
+            if not isinstance(ev, dict):
+                continue
+            ev_type = str(ev.get("event_type") or "").strip()
+            if not ev_type:
+                continue
+            raw_payload = ev.get("payload_json")
+            if raw_payload is None and isinstance(ev.get("payload"), (dict, list)):
+                raw_payload = json.dumps(ev["payload"], ensure_ascii=False)[:8000]
+            key = (
+                ev_type,
+                str(ev.get("user_id") or "").strip(),
+                str(ev.get("route_code") or "").strip(),
+                str(ev.get("stop_id") or "").strip(),
+                str(ev.get("created_at") or "").strip(),
+                str(raw_payload or "").strip(),
+            )
+            if key in existing_event_keys:
+                continue
+            try:
+                record_app_event(ev, db_path=resolved)
+                existing_event_keys.add(key)
+                app_events_added += 1
+            except Exception:
+                continue
         for obs in telemetry_payload.get("recent_observations") or []:
             if not isinstance(obs, dict):
                 continue
@@ -696,6 +918,7 @@ def sync_cloud_observations(
         "synced": True,
         "reason": "ok",
         "observations_added": observations_added,
+        "app_events_added": app_events_added,
         "routines_added": routines_added,
     }
 

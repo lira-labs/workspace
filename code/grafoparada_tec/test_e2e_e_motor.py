@@ -35,6 +35,7 @@ GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
 GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
 MODEL_STATUS_JSON = WEB_DIR / "data" / "model_training_status.json"
 CALIBRATION_PRIORS_JSON = WEB_DIR / "data" / "stgcn_calibration_priors.json"
+LAYA_KNOWLEDGE_JSON = WEB_DIR / "data" / "laya_route_knowledge.json"
 
 CHROME_PATHS = [
     Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
@@ -1053,6 +1054,76 @@ console.log(JSON.stringify({
 
 
 # ---------------------------------------------------------------------------
+    def test_v37_laya_route_knowledge_e_linha_185(self):
+        assert LAYA_KNOWLEDGE_JSON.is_file(), f"Arquivo ausente: {LAYA_KNOWLEDGE_JSON}"
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+const schedulesPath = process.argv[3];
+const knowledgePath = process.argv[4];
+
+global.window = {};
+global.document = { getElementById: () => null };
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); }
+};
+eval(fs.readFileSync(enginePath, 'utf8'));
+
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.schedulesData = JSON.parse(fs.readFileSync(schedulesPath, 'utf8'));
+window.RealTransit.routeKnowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf8'));
+window.RealTransit.loadRoute = () => {};
+window.RealTransit.selectStop = () => {};
+
+const display185 = window.RealTransit.getLineDisplayName('185');
+const queryCorridor = window.RealTransit.answerLayaQuery('TI Cabo Cais de Santa Rita');
+const queryAbout185 = window.RealTransit.answerLayaQuery('me fala sobre a 185');
+
+console.log(JSON.stringify({
+  display185,
+  corridorIntent: queryCorridor && queryCorridor.intent,
+  corridorCodes: (queryCorridor && queryCorridor.routeOptions ? queryCorridor.routeOptions : []).flatMap(o => o.codes || []),
+  corridorHtml: (queryCorridor && queryCorridor.html) || '',
+  aboutIntent: queryAbout185 && queryAbout185.intent,
+  aboutCodes: (queryAbout185 && queryAbout185.routeOptions ? queryAbout185.routeOptions : []).flatMap(o => o.codes || []),
+  aboutHtml: (queryAbout185 && queryAbout185.html) || ''
+}));
+"""
+        res = subprocess.run(
+            [
+                "node",
+                "-e",
+                js_harness,
+                str(ENGINE_JS),
+                str(GTFS_JSON),
+                str(GTFS_SCHEDULES_JSON),
+                str(LAYA_KNOWLEDGE_JSON),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=25,
+        )
+        assert res.returncode == 0, f"Erro executando teste v3.7 em Node.js: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert "Cais de Santa Rita" in (out["display185"] or ""), (
+            f"getLineDisplayName('185') esperado conter 'Cais de Santa Rita', obtido {out['display185']!r}"
+        )
+        assert "185" in (out["corridorCodes"] or []) or "185" in (out["corridorHtml"] or ""), (
+            f"answerLayaQuery('TI Cabo Cais de Santa Rita') não encontrou a linha 185: {out['corridorCodes']}"
+        )
+        about_html = out["aboutHtml"] or ""
+        assert "185" in about_html or "185" in (out["aboutCodes"] or [])
+        assert "ti cabo" in about_html.lower(), f"Origem 'Ti Cabo' ausente em answerLayaQuery('me fala sobre a 185'): {about_html!r}"
+        assert "cais de santa rita" in about_html.lower(), (
+            f"Destino 'Cais de Santa Rita' ausente em answerLayaQuery('me fala sobre a 185'): {about_html!r}"
+        )
+
+
 # 3. TESTE END-TO-END REAL NO CHROME HEADLESS VIA CDP + SERVIDOR HTTP LOCAL
 # ---------------------------------------------------------------------------
 
