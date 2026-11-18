@@ -3298,6 +3298,9 @@
       font-weight: 700;
       line-height: 1.3;
     }
+    .gp-line-transfer-meta.is-tight {
+      color: #b45309;
+    }
     .gp-resting-gtfs-meta {
       width: 100%;
       margin-top: 2px;
@@ -7932,7 +7935,9 @@
           last_departure: sched.lastDep || item.last_departure || item.lastDeparture || null,
           arrival_at_dest: sched.arrivalAtDestFormatted || item.arrival_at_dest || item.arrivalAtDestFormatted || null,
           ti_checkpoints: Array.isArray(sched.tiCheckpoints) ? sched.tiCheckpoints : (Array.isArray(item.ti_checkpoints) ? item.ti_checkpoints : null),
-          transfer_window: (item.transfer_window && typeof item.transfer_window === "object") ? item.transfer_window : null,
+          transfer_window: (item.transfer_window && typeof item.transfer_window === "object")
+            ? item.transfer_window
+            : ((item.transferWindow && typeof item.transferWindow === "object") ? item.transferWindow : null),
           is_transfer: Boolean(item.isDirect === false || item.is_transfer || item.transferHub || item.transfer_hub),
           transfer_hub: item.transfer_hub || item.transferHub || null,
           source_label: sched.provenanceLabel || item.source_label || "Horário Programado · GTFS"
@@ -8346,8 +8351,21 @@
                 const twWait = (tw.waitAtTiMin != null && Number.isFinite(Number(tw.waitAtTiMin)))
                   ? (" (" + Number(tw.waitAtTiMin) + " min)")
                   : "";
-                const twText = "Integração " + tw.tiName + ": chega " + tw.arrivesAtTiFormatted + " → sai " + tw.departsTiFormatted + twWait;
-                transferMetaHtml = '<div class="gp-line-transfer-meta">' + gpEscapeHtml(twText) + '</div>';
+                let riskSuffix = "";
+                let transferMetaClass = "gp-line-transfer-meta";
+                if (tw.riskLevel === "tight") {
+                  riskSuffix = " · Baldeação apertada";
+                  transferMetaClass += " is-tight";
+                  if (tw.recommendedBufferMin != null && Number.isFinite(Number(tw.recommendedBufferMin))) {
+                    riskSuffix += " (margem min. " + Math.round(Number(tw.recommendedBufferMin)) + " min)";
+                  }
+                } else if (tw.riskLevel === "comfortable") {
+                  riskSuffix = " · Baldeação segura";
+                } else if (tw.riskLevel === "long") {
+                  riskSuffix = " · Espera longa no TI";
+                }
+                const twText = "Integração " + tw.tiName + ": chega " + tw.arrivesAtTiFormatted + " → sai " + tw.departsTiFormatted + twWait + riskSuffix;
+                transferMetaHtml = '<div class="' + transferMetaClass + '">' + gpEscapeHtml(twText) + '</div>';
               }
             }
 
@@ -9003,6 +9021,9 @@
         el.style.display = "none";
         el.textContent = "";
         return;
+      }
+      if (sched.p90MarginMin != null && Number.isFinite(Number(sched.p90MarginMin))) {
+        parts.push("±" + Math.round(Number(sched.p90MarginMin)) + " min");
       }
       el.textContent = parts.join(" · ");
       el.style.display = "block";
