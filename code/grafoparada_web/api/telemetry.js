@@ -20,6 +20,61 @@ const {
   toNullableIso
 } = require('./_db');
 
+const LAYA_FEEDBACK_FIELDS = [
+  'query',
+  'utterance',
+  'text',
+  'user_query',
+  'understood',
+  'matched_intent',
+  'intent',
+  'confidence',
+  'reason',
+  'feedback',
+  'notes',
+  'channel',
+  'context',
+  'suggested_intent',
+  'stop_name',
+  'route_label',
+  'source'
+];
+
+function buildEventPayloadJson(body, eventType) {
+  if (typeof body.payload_json === 'string') {
+    return toNullableText(body.payload_json, 8000);
+  }
+  if (body.payload !== undefined && body.payload !== null) {
+    if (typeof body.payload === 'string') {
+      return toNullableText(body.payload, 8000);
+    }
+    try {
+      return JSON.stringify(body.payload).slice(0, 8000);
+    } catch (_) {
+      return null;
+    }
+  }
+  if (eventType === 'laya_query_feedback') {
+    const layaPayload = {};
+    let hasField = false;
+    for (const key of LAYA_FEEDBACK_FIELDS) {
+      const val = body[key];
+      if (val !== undefined && val !== null && val !== '') {
+        layaPayload[key] = typeof val === 'string' ? val.trim().slice(0, 1000) : val;
+        hasField = true;
+      }
+    }
+    if (hasField) {
+      try {
+        return JSON.stringify(layaPayload).slice(0, 8000);
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     handleOptions(res);
@@ -40,15 +95,20 @@ module.exports = async function handler(req, res) {
             users: 0,
             routines: 0,
             demand_observations: 0,
-            training_runs: 0
+            training_runs: 0,
+            app_events: 0,
+            laya_query_feedback: 0
           },
           latest_training_run: null,
-          recent_observations: []
+          recent_observations: [],
+          recent_app_events: [],
+          laya_query_feedback: []
         });
         return;
       }
 
       const routeCode = getQueryParam(req, 'route_code');
+      const eventType = sanitizeText(getQueryParam(req, 'event_type'), 80);
       const sinceIso = toNullableIso(getQueryParam(req, 'since'));
       const rawLimit = toNullableInt(getQueryParam(req, 'limit'));
       const limit = Number.isFinite(rawLimit) && rawLimit >= 1 ? Math.min(rawLimit, 500) : 100;
@@ -83,13 +143,61 @@ module.exports = async function handler(req, res) {
         `;
       }
 
-      const [userCnt, routineCnt, obsCnt, runCnt, latestRunRows, obsRows] = await Promise.all([
+      let eventsQuery;
+      if (eventType && sinceIso) {
+        eventsQuery = sql`
+          SELECT * FROM app_events
+          WHERE event_type = ${eventType} AND created_at >= ${sinceIso}
+          ORDER BY id DESC
+          LIMIT ${limit}
+        `;
+      } else if (eventType) {
+        eventsQuery = sql`
+          SELECT * FROM app_events
+          WHERE event_type = ${eventType}
+          ORDER BY id DESC
+          LIMIT ${limit}
+        `;
+      } else if (sinceIso) {
+        eventsQuery = sql`
+          SELECT * FROM app_events
+          WHERE created_at >= ${sinceIso}
+          ORDER BY id DESC
+          LIMIT ${limit}
+        `;
+      } else {
+        eventsQuery = sql`
+          SELECT * FROM app_events
+          ORDER BY id DESC
+          LIMIT ${limit}
+        `;
+      }
+
+      const layaFeedbackQuery = sinceIso
+        ? sql`
+            SELECT * FROM app_events
+            WHERE event_type = 'laya_query_feedback' AND created_at >= ${sinceIso}
+            ORDER BY id DESC
+            LIMIT ${limit}
+          `
+        : sql`
+            SELECT * FROM app_events
+            WHERE event_type = 'laya_query_feedback'
+            ORDER BY id DESC
+            LIMIT ${limit}
+          `;
+
+      const [userCnt, routineCnt, obsCnt, runCnt, appEventsCnt, layaFeedbackCnt, latestRunRows, obsRows, eventRows, layaFeedbackRows] = await Promise.all([
         sql`SELECT COUNT(*)::int AS total FROM users`,
         sql`SELECT COUNT(*)::int AS total FROM routines`,
         sql`SELECT COUNT(*)::int AS total FROM demand_observations`,
         sql`SELECT COUNT(*)::int AS total FROM training_runs`,
+        sql`SELECT COUNT(*)::int AS total FROM app_events`,
+        sql`SELECT COUNT(*)::int AS total FROM app_events WHERE event_type = 'laya_query_feedback'`,
         sql`SELECT * FROM training_runs ORDER BY id DESC LIMIT 1`,
-        obsQuery
+        obsQuery,
+        eventsQuery,
+        layaFeedbackQuery
       ]);
 
       sendJson(res, 200, {
@@ -101,10 +209,14 @@ module.exports = async function handler(req, res) {
           users: Number(userCnt[0] && userCnt[0].total) || 0,
           routines: Number(routineCnt[0] && routineCnt[0].total) || 0,
           demand_observations: Number(obsCnt[0] && obsCnt[0].total) || 0,
-          training_runs: Number(runCnt[0] && runCnt[0].total) || 0
+          training_runs: Number(runCnt[0] && runCnt[0].total) || 0,
+          app_events: Number(appEventsCnt[0] && appEventsCnt[0].total) || 0,
+          laya_query_feedback: Number(layaFeedbackCnt[0] && layaFeedbackCnt[0].total) || 0
         },
         latest_training_run: latestRunRows[0] || null,
-        recent_observations: obsRows
+        recent_observations: obsRows,
+        recent_app_events: eventRows,
+        laya_query_feedback: layaFeedbackRows
       });
     } catch (err) {
       console.error('[api/telemetry GET] error:', err && err.message ? err.message : err);
@@ -295,13 +407,17 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    if (payloadJson === null) {
+      payloadJson = buildEventPayloadJson(body, eventType);
+    }
+
     const localEvent = {
       user_id: toNullableText(body.user_id, 80),
       event_type: eventType,
       route_code: toNullableText(body.route_code, 32),
       stop_id: toNullableText(body.stop_id, 64),
       payload_json: payloadJson,
-      created_at: new Date().toISOString()
+      created_at: toNullableIso(body.created_at) || new Date().toISOString()
     };
 
     try {

@@ -10,6 +10,7 @@
   const RealTransit = {
     networkData: null,
     schedulesData: null,
+    routeKnowledge: null,
     modelTrainingStatus: null,
     calibrationPriors: null,
     stopsIndex: null,
@@ -268,16 +269,18 @@
       this.map = leafletMap || null;
       console.log('[RealTransit] Inicializando engine com dados reais do Grande Recife...');
 
-      const [networkData, schedulesData, trainingStatus, calibrationPriors] = await Promise.all([
+      const [networkData, schedulesData, trainingStatus, calibrationPriors, routeKnowledge] = await Promise.all([
         this._safeFetchJson('data/gtfs_real_network.json'),
         this._safeFetchJson('data/gtfs_schedules.json'),
         this._safeFetchJson('data/model_training_status.json'),
-        this._safeFetchJson('data/stgcn_calibration_priors.json')
+        this._safeFetchJson('data/stgcn_calibration_priors.json'),
+        this._safeFetchJson('data/laya_route_knowledge.json')
       ]);
 
       this.schedulesData = schedulesData || null;
       this.modelTrainingStatus = trainingStatus || null;
       this.calibrationPriors = (calibrationPriors && typeof calibrationPriors === 'object') ? calibrationPriors : null;
+      this.routeKnowledge = (routeKnowledge && typeof routeKnowledge === 'object') ? routeKnowledge : null;
 
       if (!networkData) {
         console.error('[RealTransit] Erro ao carregar gtfs_real_network.json (modo offline ou indisponível).');
@@ -1194,10 +1197,11 @@
         if (headerEl) headerEl.textContent = `Resultados para "${query}":`;
         const catalog = this.networkData.routes_catalog || [];
         catalog.forEach(r => {
-          if (this._matchesQueryText(`${r.code} ${r.label} ${r.name}`, q)) {
+          if (this._matchesQueryText(this._getLineSearchHaystack(r), q)) {
             items.push({
               code: r.code,
-              name: r.name
+              name: r.name,
+              displayName: this.getLineDisplayName(r.code)
             });
           }
         });
@@ -1223,7 +1227,7 @@
           <div style="display:flex; align-items:center; gap:10px; max-width:80%;">
             ${busSvgBadge}
             <div>
-              <div style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.2;">${p.code} · ${p.name}</div>
+              <div style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.2;">${this.escapeHtml(p.displayName || this.getLineDisplayName(p.code) || `${p.code} · ${p.name}`)}</div>
               <div style="font-size:11px; color:#64748b; margin-top:2px;">Dados Oficiais GTFS</div>
             </div>
           </div>
@@ -1385,12 +1389,13 @@
       // 2. Busca nas 393 Linhas do Catálogo GTFS
       if (this.networkData && this.networkData.routes_catalog) {
         this.networkData.routes_catalog.forEach(r => {
-          if (this._matchesQueryText(`${r.code} ${r.label} ${r.name}`, q)) {
+          if (this._matchesQueryText(this._getLineSearchHaystack(r), q)) {
+            const rk = this._getLineKnowledge(r.code);
             seenRouteCodes.add(String(r.code));
             results.push({
               type: 'route',
-              title: r.label,
-              sub: 'Linha Oficial GTFS Grande Recife',
+              title: this.getLineDisplayName(r.code) || r.label,
+              sub: (rk && rk.origin_place && rk.dest_place) ? 'Linha Oficial GTFS · ' + rk.origin_place + ' → ' + rk.dest_place : 'Linha Oficial GTFS Grande Recife',
               code: r.code
             });
           }
@@ -1412,7 +1417,7 @@
             seenRouteCodes.add(cStr);
             results.push({
               type: 'route',
-              title: cat.label,
+              title: this.getLineDisplayName(cat.code) || cat.label,
               sub: `Linha GTFS que atende ${p.label}`,
               code: cat.code
             });
@@ -1644,6 +1649,97 @@
       const meaningful = rawTokens.filter(t => t.length >= 2 && !stopWords.has(t));
       const tokens = meaningful.length > 0 ? meaningful : rawTokens;
       return tokens.length > 0 && tokens.every(t => h.includes(t));
+    },
+
+    _getLineKnowledge(code) {
+      const c = String(code || '').trim();
+      if (!c || !this.routeKnowledge || !this.routeKnowledge.lines) return null;
+      return this.routeKnowledge.lines[c] || null;
+    },
+
+    getLineDisplayName(code) {
+      const c = String(code || '').trim();
+      if (!c) return '';
+      const rk = this._getLineKnowledge(c);
+      if (rk && rk.full_label) {
+        const fl = String(rk.full_label).trim();
+        return (fl.startsWith(c + ' ') || fl.startsWith(c + '·')) ? fl : `${c} · ${fl}`;
+      }
+      if (rk && rk.origin_place && rk.dest_place) return `${c} · ${rk.origin_place} / ${rk.dest_place}`;
+      const catalog = this.networkData && Array.isArray(this.networkData.routes_catalog) ? this.networkData.routes_catalog : [];
+      const cat = catalog.find(r => String(r.code) === c);
+      if (cat && cat.label) return String(cat.label);
+      const pop = this.networkData && this.networkData.popular_lines && this.networkData.popular_lines[c];
+      const sched = this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[c];
+      const name = (pop && pop.name) || (sched && sched.name) || (cat && cat.name);
+      return name ? `${c} · ${name}` : c;
+    },
+
+    _getLineSearchHaystack(routeOrCode) {
+      if (!routeOrCode) return '';
+      const isObj = typeof routeOrCode === 'object';
+      const code = String(isObj ? (routeOrCode.code || '') : routeOrCode).trim();
+      const rk = this._getLineKnowledge(code);
+      const parts = [code];
+      if (isObj) {
+        if (routeOrCode.label) parts.push(routeOrCode.label);
+        if (routeOrCode.name) parts.push(routeOrCode.name);
+      }
+      if (rk) {
+        if (rk.full_label) parts.push(rk.full_label);
+        if (rk.origin_place) parts.push(rk.origin_place);
+        if (rk.dest_place) parts.push(rk.dest_place);
+        if (Array.isArray(rk.corridor_places) && rk.corridor_places.length) {
+          parts.push(rk.corridor_places.join(' '));
+        }
+        if (Array.isArray(rk.ti_hubs) && rk.ti_hubs.length) {
+          parts.push(rk.ti_hubs.join(' '));
+        }
+        if (rk.search_text) parts.push(rk.search_text);
+      }
+      return parts.filter(Boolean).join(' ');
+    },
+
+    _buildLineKnowledgeSummary(code) {
+      const c = String(code || '').trim();
+      const rk = this._getLineKnowledge(c);
+      const fullLabel = this.getLineDisplayName(c);
+      if (!rk) {
+        return {
+          fullLabel,
+          originPlace: '',
+          destPlace: '',
+          waypoints: [],
+          routePathText: ''
+        };
+      }
+      const originPlace = rk.origin_place ? String(rk.origin_place).trim() : '';
+      const destPlace = rk.dest_place ? String(rk.dest_place).trim() : '';
+      const rawWaypoints = []
+        .concat(Array.isArray(rk.ti_hubs) ? rk.ti_hubs : [])
+        .concat(Array.isArray(rk.corridor_places) ? rk.corridor_places : []);
+      const seen = new Set();
+      const origNorm = this.normalizeText(originPlace);
+      const destNorm = this.normalizeText(destPlace);
+      const waypoints = [];
+      for (let i = 0; i < rawWaypoints.length; i++) {
+        const wp = String(rawWaypoints[i] || '').trim();
+        const wpNorm = this.normalizeText(wp);
+        if (!wpNorm || seen.has(wpNorm) || wpNorm === origNorm || wpNorm === destNorm) continue;
+        seen.add(wpNorm);
+        waypoints.push(wp);
+        if (waypoints.length >= 6) break;
+      }
+      const routePathText = (originPlace && destPlace)
+        ? `${originPlace} → ${destPlace}`
+        : fullLabel;
+      return {
+        fullLabel,
+        originPlace,
+        destPlace,
+        waypoints,
+        routePathText
+      };
     },
 
     haversineKm(lat1, lon1, lat2, lon2) {
@@ -3233,9 +3329,9 @@
         const pNorm = this.normalizeText(placeNorm);
         const tokens = pNorm.split(/[\s-]+/).filter(t => t.length >= 3 && !['de', 'da', 'do', 'dos', 'das', 'para', 'ate', 'em', 'na', 'no', 'com', 'via', 'linha', 'onibus'].includes(t));
         this.networkData.routes_catalog.forEach(r => {
-          const labNorm = this.normalizeText(r.label);
-          if (r.code.toLowerCase() === pNorm || labNorm.includes(pNorm) || this._matchesQueryText(r.label, pNorm) || (tokens.length > 0 && tokens.every(t => labNorm.includes(t)))) {
-            addRoute(r.code, r.label, 'Catálogo GTFS Oficial');
+          const labNorm = this.normalizeText(this._getLineSearchHaystack(r));
+          if (r.code.toLowerCase() === pNorm || labNorm.includes(pNorm) || this._matchesQueryText(this._getLineSearchHaystack(r), pNorm) || (tokens.length > 0 && tokens.every(t => labNorm.includes(t)))) {
+            addRoute(r.code, this.getLineDisplayName(r.code) || r.label, 'Catálogo GTFS Oficial');
           }
         });
       }
@@ -3303,6 +3399,124 @@
         return targetText;
       }
       return null;
+    },
+
+    _extractTwoPlacesWithoutPreposition(rawText) {
+      const q = this.normalizeText(rawText);
+      if (!q || /\b\d{3,6}\b/.test(q)) return null;
+      if (/\b(stgcn|st gcn|over-smoothing|oversmoothing|lei 15878|15878|parada segura|farol noturno|cittamobi|como funciona)\b/.test(q)) {
+        return null;
+      }
+
+      const candidateMap = new Map();
+      const addCandidate = (rawName, priority = 1) => {
+        const rawFull = String(rawName || '').trim();
+        const rawStripped = rawFull.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+        const variants = rawStripped && rawStripped !== rawFull ? [rawStripped, rawFull] : [rawFull];
+        for (let v = 0; v < variants.length; v++) {
+          const raw = variants[v];
+          const norm = this.normalizeText(raw);
+          if (!norm || norm.length < 4) continue;
+          if (/^(onibus|busao|linha|linhas|horario|horarios|parada|ponto|terminal|rota|trajeto|qual|quais|como|quero|preciso)$/.test(norm)) continue;
+          const prev = candidateMap.get(norm);
+          if (!prev || priority > prev.priority) {
+            candidateMap.set(norm, { raw, norm, priority });
+          }
+        }
+      };
+
+      const places = (this.schedulesData && Array.isArray(this.schedulesData.rmr_places))
+        ? this.schedulesData.rmr_places
+        : [];
+      for (let i = 0; i < places.length; i++) {
+        const p = places[i];
+        if (!p) continue;
+        addCandidate(p.name, p.type === 'terminal' ? 4 : 3);
+        if (p.neighborhood) addCandidate(p.neighborhood, 2);
+        if (p.city) addCandidate(p.city, 1);
+      }
+
+      const terminals = (this.networkData && Array.isArray(this.networkData.terminals_sei))
+        ? this.networkData.terminals_sei
+        : [];
+      for (let i = 0; i < terminals.length; i++) {
+        if (terminals[i] && terminals[i].name) addCandidate(terminals[i].name, 4);
+      }
+
+      if (this.routeKnowledge && this.routeKnowledge.lines) {
+        const rkVals = Object.values(this.routeKnowledge.lines);
+        for (let i = 0; i < rkVals.length; i++) {
+          const rk = rkVals[i];
+          if (!rk) continue;
+          if (rk.origin_place) addCandidate(rk.origin_place, 3);
+          if (rk.dest_place) addCandidate(rk.dest_place, 3);
+          if (Array.isArray(rk.ti_hubs)) {
+            for (let j = 0; j < rk.ti_hubs.length; j++) addCandidate(rk.ti_hubs[j], 4);
+          }
+        }
+      }
+
+      const candidates = Array.from(candidateMap.values())
+        .sort((a, b) => (b.norm.length - a.norm.length) || (b.priority - a.priority));
+
+      const occupied = [];
+      const overlaps = (s, e) => occupied.some(([os, oe]) => s < oe && e > os);
+      const hits = [];
+
+      for (let i = 0; i < candidates.length; i++) {
+        const c = candidates[i];
+        const escaped = c.norm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(?:^|\\s)(${escaped})(?=\\s|$)`, 'g');
+        let m;
+        while ((m = re.exec(q)) !== null) {
+          const lead = m[0].length - m[1].length;
+          const start = m.index + lead;
+          const end = start + m[1].length;
+          if (!overlaps(start, end)) {
+            occupied.push([start, end]);
+            hits.push({ raw: c.raw, norm: c.norm, start, end });
+            break;
+          }
+        }
+      }
+
+      if (hits.length < 2) return null;
+      hits.sort((a, b) => a.start - b.start);
+      const first = hits[0];
+      const second = hits.find(h => h.norm !== first.norm);
+      if (!second) return null;
+      return { origin: first.raw, dest: second.raw };
+    },
+
+    _findStrongKnowledgeLineMatch(rawText) {
+      if (!this.routeKnowledge || !this.routeKnowledge.lines) return null;
+      const qNorm = this.normalizeText(rawText);
+      if (!qNorm) return null;
+      const stopWords = new Set(['de', 'da', 'do', 'dos', 'das', 'para', 'pra', 'pro', 'em', 'no', 'na', 'nos', 'nas', 'com', 'ate', 'qual', 'quais', 'que', 'horas', 'horario', 'horarios', 'onibus', 'busao', 'linha', 'linhas', 'passa', 'vai', 'tem', 'proximo', 'proxima']);
+      const tokens = qNorm.split(/[\s-]+/).filter(t => t.length >= 2 && !stopWords.has(t));
+      if (tokens.length < 3) return null;
+
+      let bestCode = null;
+      let bestScore = 0;
+      const entries = Object.values(this.routeKnowledge.lines);
+      for (let i = 0; i < entries.length; i++) {
+        const rk = entries[i];
+        if (!rk || !rk.code) continue;
+        const coreNorm = this.normalizeText(`${rk.origin_place || ''} ${rk.dest_place || ''} ${rk.full_label || ''}`);
+        if (!coreNorm) continue;
+        if (!tokens.every(t => coreNorm.includes(t))) continue;
+        const isBac = /bacurau/i.test(rk.full_label || rk.name || '') ? 1 : 0;
+        const origNorm = this.normalizeText(rk.origin_place || '');
+        const destNorm = this.normalizeText(rk.dest_place || '');
+        const hitsOrigin = origNorm && tokens.some(t => origNorm.includes(t));
+        const hitsDest = destNorm && tokens.some(t => destNorm.includes(t));
+        const score = (hitsOrigin && hitsDest ? 100 : 20) + tokens.length * 5 - (isBac ? 50 : 0);
+        if (score > bestScore) {
+          bestScore = score;
+          bestCode = String(rk.code);
+        }
+      }
+      return bestCode;
     },
 
     // Classificador semântico da Laya (SEPARAÇÃO DE RESPONSABILIDADES: Laya interpreta a fala; RoutePlanner calcula a rota por grafo A*)
@@ -3405,9 +3619,9 @@
           const fromCat = origCatalog.find(x => x.code === code) || destCatalog.find(x => x.code === code);
           if (fromCat) return fromCat;
           const pop = this.networkData.popular_lines && this.networkData.popular_lines[code];
-          if (pop) return { code, label: `${code} · ${pop.name}`, name: pop.name };
+          if (pop) return { code, label: this.getLineDisplayName(code), name: pop.name };
           const cat = (this.networkData.routes_catalog || []).find(r => r.code === code);
-          return { code, label: cat ? cat.label : code, name: cat ? cat.name : code };
+          return { code, label: this.getLineDisplayName(code), name: cat ? cat.name : code };
         };
 
         const isNightOrRail = (code) => {
@@ -3900,6 +4114,10 @@
         }
       }
 
+      if (!tripPair) {
+        tripPair = this._extractTwoPlacesWithoutPreposition(text);
+      }
+
       if (tripPair) {
         const plan = this.RoutePlanner.plan(tripPair.origin, tripPair.dest, telemetryStops);
         const safeDest = this.escapeHtml(plan.destLabel);
@@ -4030,6 +4248,7 @@
       // 4. Consulta específica por localidade RMR, parada ou código de linha citada na pergunta
       const isKnownLineCode = (code) => Boolean(
         code && (
+          (this.routeKnowledge && this.routeKnowledge.lines && this.routeKnowledge.lines[code]) ||
           (this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[code]) ||
           (this.networkData && (
             (this.networkData.popular_lines && this.networkData.popular_lines[code]) ||
@@ -4056,7 +4275,7 @@
               const name = (popLine && popLine.name) || (schedLine && schedLine.name) || code;
               return {
                 code,
-                label: `${code} · ${name}`,
+                label: this.getLineDisplayName(code) || `${code} · ${name}`,
                 reason: `Atende ${rmrPlaceMatch.label}`,
                 stopHint: { name: rmrPlaceMatch.label, lat: rmrPlaceMatch.lat, lon: rmrPlaceMatch.lon }
               };
@@ -4078,6 +4297,13 @@
       };
 
       const buildGtfsScheduleCard = (sched, stopLabel, extraBlockHtml) => {
+        const rkSummary = this._buildLineKnowledgeSummary(sched.routeCode);
+        const rkPathHtml = rkSummary.routePathText
+          ? `• <strong>Trajeto completo:</strong> ${this.escapeHtml(rkSummary.routePathText)}<br>`
+          : '';
+        const rkWaypointsHtml = rkSummary.waypoints.length > 0
+          ? `• <strong>Principais pontos de passagem:</strong> ${this.escapeHtml(rkSummary.waypoints.join(' · '))}<br>`
+          : '';
         const bandTxt = bandLabels[sched.timeBand] || sched.timeBand;
         const headwayTxt = sched.headwayMin != null ? `${sched.headwayMin} min` : 'sem intervalo regular nesta faixa';
         const upcomingTxt = Array.isArray(sched.upcomingFormatted) && sched.upcomingFormatted.length
@@ -4093,9 +4319,11 @@
         const tiCheckpointsHtml = (isAskingArrivalOrTi && Array.isArray(sched.tiCheckpoints) && sched.tiCheckpoints.length > 0)
           ? `• <strong>Checkpoints em TIs (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.tiCheckpoints.slice(0, 5).map(cp => `${this.escapeHtml(cp.stop_name)} (<strong>${this.escapeHtml(cp.estimatedPassFormatted)}</strong>)`).join(' → ')}<br>`
           : '';
-        return `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('clock', 14)}<span>Linha ${this.escapeHtml(sched.routeCode)} · ${this.escapeHtml(sched.routeName)}</span></div><br>` +
+        return `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('clock', 14)}<span>Linha ${this.escapeHtml(rkSummary.fullLabel || `${sched.routeCode} · ${sched.routeName}`)}</span></div><br>` +
           `<span class="gp-badge-gtfs" style="display:inline-block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 6px; border-radius:5px; font-size:10px; font-weight:800; margin-bottom:6px;">${this.escapeHtml(sched.provenanceLabel)} · ${this.escapeHtml(sched.direction.toUpperCase())} (${this.escapeHtml(sched.serviceDay)})</span><br>` +
           (stopLabel ? `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopLabel)}<br>` : '') +
+          rkPathHtml +
+          rkWaypointsHtml +
           `• <strong>Próxima partida programada:</strong> ${nextNote}<br>` +
           arrivalLineHtml +
           tiCheckpointsHtml +
@@ -4121,7 +4349,18 @@
               ? ` Não é possível calcular a integração com a linha ${knownLineCodes.join(', ')}.`
               : '';
             return {
-              intent: 'integration_line_not_found',
+            intent: 'integration_line_not_found',
+              telemetrySent: (() => {
+                void this.recordTelemetryEvent({
+                  event_type: 'laya_query_feedback',
+                  route_code: (missingLineCodes && missingLineCodes[0]) || this.activeRouteCode || '199',
+                  source: 'laya_assistant',
+                  intent: 'integration_line_not_found',
+                  requested_line: (missingLineCodes && missingLineCodes[0]) || null,
+                  query_text: text.slice(0, 240)
+                });
+                return true;
+              })(),
               type: 'not_found',
               missingLines: missingLineCodes,
               knownLines: knownLineCodes,
@@ -4158,6 +4397,17 @@
           const missingCode = missingLineCodes[0];
           return {
             intent: 'line_not_found',
+            telemetrySent: (() => {
+              void this.recordTelemetryEvent({
+                event_type: 'laya_query_feedback',
+                route_code: missingCode || this.activeRouteCode || '199',
+                source: 'laya_assistant',
+                intent: 'line_not_found',
+                requested_line: missingCode,
+                query_text: text.slice(0, 240)
+              });
+              return true;
+            })(),
             type: 'not_found',
             requestedLine: missingCode,
             decision: layaDecision,
@@ -4197,8 +4447,40 @@
               provenanceLabel: sched.provenanceLabel,
               html: buildGtfsScheduleCard(sched, stopHintName, crowdInfoHtml),
               speechTone: 'info',
-              speech: this._formatBriefSpeech(`Na linha ${sched.routeCode}, próxima saída às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos. Opera de ${sched.firstDep} até ${sched.lastDep}.${arrivalSpeech}`)
+              speech: (() => {
+                const rkSummary = this._buildLineKnowledgeSummary(sched.routeCode);
+                const routeDescSpeech = (rkSummary.originPlace && rkSummary.destPlace)
+                  ? `faz o trajeto ${rkSummary.originPlace} até ${rkSummary.destPlace}`
+                  : (rkSummary.fullLabel ? `(${rkSummary.fullLabel})` : '');
+                const waypointsSpeech = rkSummary.waypoints.length > 0
+                  ? `, passando por ${rkSummary.waypoints.slice(0, 4).join(', ')}`
+                  : '';
+                return this._formatBriefSpeech(`A linha ${sched.routeCode} ${routeDescSpeech}${waypointsSpeech}. Próxima saída às ${sched.nextDepFormatted}, em ${sched.waitMin} minutos, operando de ${sched.firstDep} até ${sched.lastDep}.${arrivalSpeech}`, 360);
+              })()
             };
+          }
+        }
+
+        if (!hasExplicitLine) {
+          const strongRkCode = this._findStrongKnowledgeLineMatch(text);
+          if (strongRkCode) {
+            const strongSched = this.getScheduledEstimate(strongRkCode, dirHint);
+            if (strongSched) {
+              const rkSummary = this._buildLineKnowledgeSummary(strongRkCode);
+              const routeDescSpeech = (rkSummary.originPlace && rkSummary.destPlace)
+                ? `faz o trajeto ${rkSummary.originPlace} até ${rkSummary.destPlace}`
+                : (rkSummary.fullLabel ? `(${rkSummary.fullLabel})` : '');
+              return {
+                intent: 'schedule_lookup',
+                type: 'bus_status',
+                routeCode: strongSched.routeCode,
+                schedule: strongSched,
+                provenanceLabel: strongSched.provenanceLabel,
+                html: buildGtfsScheduleCard(strongSched, null, ''),
+                speechTone: 'info',
+                speech: this._formatBriefSpeech(`A linha ${strongSched.routeCode} ${routeDescSpeech}. Próxima saída às ${strongSched.nextDepFormatted}, em ${strongSched.waitMin} minutos.`, 360)
+              };
+            }
           }
         }
 
@@ -4220,7 +4502,7 @@
             const mainSched = enriched[0];
             const linesListHtml = enriched.map(s =>
               `<div style="padding:5px 7px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:4px; font-size:11px; background:#fff;">` +
-                `<strong>${this.escapeHtml(s.routeCode)} · ${this.escapeHtml(s.routeName)}</strong><br>` +
+                `<strong>${this.escapeHtml(this.getLineDisplayName(s.routeCode) || `${s.routeCode} · ${s.routeName}`)}</strong><br>` +
                 `Próx. <strong>${this.escapeHtml(s.nextDepFormatted)}</strong> (${s.waitMin} min) · 1º ${this.escapeHtml(s.firstDep)} / Último ${this.escapeHtml(s.lastDep)}${s.headwayMin != null ? ` · Intervalo ${s.headwayMin} min` : ''}` +
               `</div>`
             ).join('');
@@ -4459,6 +4741,16 @@
 
       return {
         intent: 'fallback_guide',
+        telemetrySent: (() => {
+          void this.recordTelemetryEvent({
+            event_type: 'laya_query_feedback',
+            route_code: this.activeRouteCode || '199',
+            source: 'laya_assistant',
+            intent: 'fallback_guide',
+            query_text: text.slice(0, 240)
+          });
+          return true;
+        })(),
         html: `Consulto o grafo completo das <strong>393 linhas, horários programados GTFS e 236 localidades da RMR</strong>.<br><br>` +
           `Exemplos de consulta:<br>` +
           `• <em>"Quero ir do Recife Antigo para Olinda"</em><br>` +

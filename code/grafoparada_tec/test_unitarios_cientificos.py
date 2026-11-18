@@ -261,7 +261,10 @@ class TestDatabaseManagerSQLite:
         db_manager.init_db(db_file)
 
         summary = db_manager.get_db_summary(db_file)
-        assert summary["counts"] == {
+        counts = summary["counts"]
+        assert counts["app_events"] == 0
+        assert counts["laya_query_feedback"] == 0
+        assert {k: counts[k] for k in ("users", "routines", "demand_observations", "training_runs")} == {
             "users": 0,
             "routines": 0,
             "demand_observations": 0,
@@ -361,7 +364,10 @@ class TestDatabaseManagerSQLite:
         assert dataset["latest_training_run"]["weights_hash"] == "sha256:abc123"
 
         summary = db_manager.get_db_summary(db_file)
-        assert summary["counts"] == {
+        counts = summary["counts"]
+        assert counts["app_events"] == 0
+        assert counts["laya_query_feedback"] == 0
+        assert {k: counts[k] for k in ("users", "routines", "demand_observations", "training_runs")} == {
             "users": 1,
             "routines": 1,
             "demand_observations": 1,
