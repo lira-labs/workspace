@@ -58,6 +58,7 @@ ENGINE_JS = WEB_DIR / "real_transit_engine.js"
 GTFS_JSON = WEB_DIR / "data" / "gtfs_real_network.json"
 GTFS_SCHEDULES_JSON = WEB_DIR / "data" / "gtfs_schedules.json"
 MODEL_STATUS_JSON = WEB_DIR / "data" / "model_training_status.json"
+CALIBRATION_PRIORS_JSON = WEB_DIR / "data" / "stgcn_calibration_priors.json"
 DECK_PATH = WEB_DIR / "GrafoParada_Seminario2_CauaLira.pptx"
 
 FORBIDDEN_HARDCODED_TOKENS = [
@@ -635,6 +636,40 @@ def test_v33_metricas_estratificadas_e_schema_sqlite():
             assert json.loads(row[4]) == {"source": "test_v33", "ti_hub": "TI Cabo"}
 
 
+def test_v35_calibracao_stgcn_priors_e_conformal_status():
+    assert CALIBRATION_PRIORS_JSON.is_file(), f"Arquivo ausente: {CALIBRATION_PRIORS_JSON}"
+    priors = json.loads(CALIBRATION_PRIORS_JSON.read_text(encoding="utf-8"))
+    assert isinstance(priors, dict)
+
+    hourly = priors.get("hourly_multipliers")
+    assert isinstance(hourly, dict), "hourly_multipliers deve ser um objeto JSON"
+    expected_hours = [str(h) for h in range(24)]
+    for h_key in expected_hours:
+        assert h_key in hourly, f"Hora '{h_key}' ausente em hourly_multipliers"
+        entry = hourly[h_key]
+        assert isinstance(entry.get("peak_factor"), (int, float)) and entry["peak_factor"] > 0
+        assert isinstance(entry.get("p90_margin_min"), (int, float)) and entry["p90_margin_min"] > 0
+
+    hub_priors = priors.get("hub_priors")
+    assert isinstance(hub_priors, dict), "hub_priors deve ser um objeto JSON"
+    assert len(hub_priors) >= 133, f"Esperado >= 133 entradas em hub_priors, obtido {len(hub_priors)}"
+
+    ti_safety = priors.get("ti_transfer_safety_min")
+    assert isinstance(ti_safety, (int, float)) and ti_safety > 0, (
+        f"ti_transfer_safety_min deve ser > 0, obtido {ti_safety!r}"
+    )
+
+    status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
+    p90_margin = status.get("conformal_p90_margin_min")
+    coverage_90 = status.get("conformal_coverage_90_pct")
+    assert isinstance(p90_margin, (int, float)) and p90_margin > 0, (
+        f"conformal_p90_margin_min ausente ou inválido: {p90_margin!r}"
+    )
+    assert isinstance(coverage_90, (int, float)) and 0 < coverage_90 <= 100, (
+        f"conformal_coverage_90_pct ausente ou inválido: {coverage_90!r}"
+    )
+
+
 def run_cli_audit() -> int:
     html = _load_html()
     print("=" * 70)
@@ -651,6 +686,7 @@ def run_cli_audit() -> int:
         ("Bloco 6: Sincronização Cloud/Neon -> SQLite (Offline + Mock HTTP)", test_db_manager_sync_cloud_observations_offline_e_http_mock),
         ("Bloco 7: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
         ("Bloco 8: v3.3 Métricas Estratificadas & Schema SQLite (app_events/colunas)", test_v33_metricas_estratificadas_e_schema_sqlite),
+        ("Bloco 9: v3.5 Calibração ST-GCN Priors & Conformal P90 Status", test_v35_calibracao_stgcn_priors_e_conformal_status),
     ]
 
     aprovados = 0
