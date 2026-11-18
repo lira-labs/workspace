@@ -9,7 +9,7 @@
  */
 
 const MAX_TEXT_LENGTH = 600;
-const UPSTREAM_TIMEOUT_MS = 8000;
+const UPSTREAM_TIMEOUT_MS = 6000;
 const DEFAULT_PCM_SAMPLE_RATE = 24000;
 const DEFAULT_VOICE_PRESET = 'ptbr_warm';
 const DEFAULT_TONE = 'info';
@@ -132,7 +132,8 @@ function wrapPcmL16AsWav(pcmBuffer, sampleRate = DEFAULT_PCM_SAMPLE_RATE) {
 function buildTtsPrompt(text, toneDirection) {
   return (
     `[AUDIO PROFILE: ${toneDirection.audioProfile}]\n` +
-    `[DIRECTOR'S NOTES: ${toneDirection.directorsNotes}]\n\n` +
+    `[DIRECTOR'S NOTES: ${toneDirection.directorsNotes} ` +
+    `Pronuncie em português brasileiro natural do Recife, com pausas curtas e claras em horários, códigos de linha, terminais e avenidas.]\n\n` +
     `Say: ${text}`
   );
 }

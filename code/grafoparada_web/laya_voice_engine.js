@@ -69,6 +69,7 @@
   ]);
 
   const VOICE_STATES = Object.freeze({
+    idle: Object.freeze({ state: 'idle', label: 'Pronta' }),
     muted: Object.freeze({ state: 'muted', label: 'Silenciada' }),
     loading: Object.freeze({ state: 'loading', label: 'Sintetizando...' }),
     static: Object.freeze({ state: 'static', label: 'Estático <30ms' }),
@@ -139,12 +140,20 @@
       currentAudio = null;
     }
 
-    async function play(url) {
+    async function play(url, playOpts = {}) {
       stop();
       const myToken = playToken;
+      const onEndedCb = typeof playOpts.onEnded === 'function'
+        ? playOpts.onEnded
+        : (typeof options.onEnded === 'function' ? options.onEnded : null);
 
       if (customPlay) {
-        return customPlay(url, { token: myToken, isCancelled: () => myToken !== playToken });
+        const res = await customPlay(url, {
+          token: myToken,
+          isCancelled: () => myToken !== playToken,
+          onEnded: onEndedCb
+        });
+        return res;
       }
       if (!audioFactory) {
         throw new Error('Audio playback API unavailable');
@@ -179,6 +188,9 @@
 
         audio.onended = () => {
           cleanupIfCurrent();
+          if (myToken === playToken && onEndedCb) {
+            try { onEndedCb(url); } catch (_err) {}
+          }
         };
         audio.onerror = () => {
           if (myToken !== playToken) return;
@@ -278,7 +290,7 @@
       if (!url) {
         throw new Error(`Static clip "${clipId}" unavailable for profile "${profileId}"`);
       }
-      await this._player.play(url);
+      await this._player.play(url, { onEnded: options.onEnded });
       return {
         provider: 'static',
         mode: 'static',
@@ -297,7 +309,7 @@
     constructor(options = {}) {
       super('cloud');
       this.endpoint = options.endpoint || '/api/tts';
-      this.timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 6000;
+      this.timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 7000;
       this.cooldownMs = typeof options.cooldownMs === 'number' ? options.cooldownMs : 60000;
       this.maxCacheEntries = typeof options.maxCacheEntries === 'number' ? options.maxCacheEntries : 40;
       this.maxTextLength = typeof options.maxTextLength === 'number' ? options.maxTextLength : 600;
@@ -406,7 +418,7 @@
 
       const cachedUrl = this._cacheGet(cacheKey);
       if (cachedUrl) {
-        await this._player.play(cachedUrl);
+        await this._player.play(cachedUrl, { onEnded: options.onEnded });
         return {
           provider: 'cloud',
           mode: 'cloud',
@@ -421,32 +433,11 @@
         throw new Error('Cloud TTS proxy temporarily unavailable');
       }
 
-      if (this._proxyCapability === false && this._now() >= this._proxyUnavailableUntil) {
-        this._proxyCapability = null;
-      }
-
-      // Em browser remoto, consulta GET /api/tts antes de POST para evitar 501 vermelho no console
-      if (!this.skipCapabilityCheck && this._proxyCapability === null) {
-        try {
-          const capRes = await this._fetchFn(this.endpoint, { method: 'GET' });
-          if (capRes && capRes.ok) {
-            const capData = typeof capRes.json === 'function' ? await capRes.json() : null;
-            if (capData && capData.available === false) {
-              this._proxyCapability = false;
-              this._proxyUnavailableUntil = this._now() + this.cooldownMs;
-              throw new Error('Cloud TTS proxy key not configured');
-            }
-            this._proxyCapability = true;
-          } else if (capRes && (capRes.status === 404 || capRes.status === 405 || capRes.status === 501 || capRes.status === 503)) {
-            this._proxyCapability = false;
-            this._proxyUnavailableUntil = this._now() + this.cooldownMs;
-            throw new Error(`Cloud TTS proxy unavailable (HTTP ${capRes.status})`);
-          }
-        } catch (capErr) {
-          if (this._proxyCapability === false) throw capErr;
+      if (this._proxyCapability === false) {
+        if (this._now() < this._proxyUnavailableUntil) {
+          throw new Error('Cloud TTS proxy key not configured');
         }
-      } else if (this._proxyCapability === false && this._now() < this._proxyUnavailableUntil) {
-        throw new Error('Cloud TTS proxy key not configured');
+        this._proxyCapability = null;
       }
 
       const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -481,6 +472,7 @@
       }
 
       if (response.status === 501 || response.status === 503 || response.status === 404 || response.status === 405) {
+        this._proxyCapability = false;
         this._proxyUnavailableUntil = this._now() + this.cooldownMs;
         throw new Error(`Cloud TTS proxy unavailable (HTTP ${response.status})`);
       }
@@ -507,7 +499,7 @@
       }
 
       this._cacheSet(cacheKey, blobUrl);
-      await this._player.play(blobUrl);
+      await this._player.play(blobUrl, { onEnded: options.onEnded });
 
       return {
         provider: 'cloud',
@@ -758,7 +750,13 @@
 
       let idx = 0;
       const speakNextChunk = () => {
-        if (myToken !== this._playToken || idx >= chunks.length) return;
+        if (myToken !== this._playToken) return;
+        if (idx >= chunks.length) {
+          if (typeof options.onEnded === 'function') {
+            try { options.onEnded(); } catch (_err) {}
+          }
+          return;
+        }
         try {
           const utter = new UtteranceCtor(chunks[idx++]);
           utter.lang = 'pt-BR';
@@ -954,13 +952,110 @@
     formatForSpeech(raw) {
       if (!raw) return '';
       let s = String(raw);
+
+      // 1. HTML, entidades, setas, emojis e separadores visuais
       s = s.replace(/<[^>]+>/g, ' ');
       s = s.replace(/&nbsp;/gi, ' ');
       s = s.replace(/&amp;/gi, ' e ');
       s = s.replace(/&lt;|&gt;/gi, ' ');
       s = s.replace(/\s*(?:➔|→|->)\s*/g, ', depois ');
       s = s.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}]/gu, ' ');
-      s = s.replace(/\bT[Ii]\s+/g, 'T I ');
+      s = s.replace(/\s*[·|]\s*/g, ', ');
+
+      // 2. Unidades antes de converter "/" entre palavras (protege km/h)
+      s = s.replace(/(\d+(?:[.,]\d+)?)\s*km\/h\b/gi, (_m, n) => `${n} ${n === '1' ? 'quilômetro' : 'quilômetros'} por hora`);
+      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*min\.?\b/gi, (_m, n) => `${n} ${n === '1' ? 'minuto' : 'minutos'}`);
+      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*km\b/gi, (_m, n) => `${n} ${n === '1' ? 'quilômetro' : 'quilômetros'}`);
+      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*ms\b/gi, (_m, n) => `${n} milissegundos`);
+      s = s.replace(/(\d+(?:[.,]\d+)?)\s*µs\b/gi, (_m, n) => `${n} microssegundos`);
+      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*m\b/gi, (_m, n) => `${n} ${n === '1' ? 'metro' : 'metros'}`);
+      s = s.replace(/(\d+(?:[.,]\d+)?)\s*%/g, '$1 por cento');
+      s = s.replace(/%/g, ' por cento');
+
+      // Barra entre palavras -> " ou "
+      s = s.replace(/([A-Za-zÀ-ÖØ-öø-ÿ])\s*\/\s*([A-Za-zÀ-ÖØ-öø-ÿ])/g, '$1 ou $2');
+
+      // 3. Ordinais comuns (1º/1ª, 2º/2ª, ...)
+      const ordMasc = ['', 'primeiro', 'segundo', 'terceiro', 'quarto', 'quinto', 'sexto', 'sétimo', 'oitavo', 'nono', 'décimo'];
+      const ordFem = ['', 'primeira', 'segunda', 'terceira', 'quarta', 'quinta', 'sexta', 'sétima', 'oitava', 'nona', 'décima'];
+      s = s.replace(/\b(10|[1-9])([ºª])(?![A-Za-zÀ-ÖØ-öø-ÿ0-9_])/g, (_m, numStr, suf) => {
+        const idx = Number.parseInt(numStr, 10);
+        return suf === 'ª' ? (ordFem[idx] || _m) : (ordMasc[idx] || _m);
+      });
+
+      // 4. Horários PT-BR (HH:MM e HHhMM / HHh)
+      const formatTimeParts = (h, m) => {
+        if (h === 0) {
+          if (m === 0) return 'meia-noite';
+          if (m === 30) return 'meia-noite e meia';
+          return `meia-noite e ${m}`;
+        }
+        if (h === 12) {
+          if (m === 0) return 'meio-dia';
+          if (m === 30) return 'meio-dia e meia';
+          return `meio-dia e ${m}`;
+        }
+        if (m === 0) return `${h} ${h === 1 ? 'hora' : 'horas'}`;
+        if (m === 30) return `${h} e meia`;
+        return `${h} e ${m}`;
+      };
+      s = s.replace(/\b(\d{1,2}):(\d{2})\b/g, (mFull, hh, mm) => {
+        const h = Number.parseInt(hh, 10);
+        const m = Number.parseInt(mm, 10);
+        if (h < 0 || h > 23 || m < 0 || m > 59) return mFull;
+        return formatTimeParts(h, m);
+      });
+      s = s.replace(/\b(\d{1,2})h(\d{2})?\b/gi, (mFull, hh, mm) => {
+        const h = Number.parseInt(hh, 10);
+        const m = mm === undefined ? 0 : Number.parseInt(mm, 10);
+        if (h < 0 || h > 23 || m < 0 || m > 59) return mFull;
+        return formatTimeParts(h, m);
+      });
+
+      // 5. Códigos de linha após "linha" (preservar zero à esquerda e quebrar 4 dígitos em pares)
+      const twoDigitPtBr = (num) => {
+        const units = ['zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove',
+          'dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+        const tens = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+        if (num < 20) return units[num];
+        const t = Math.floor(num / 10);
+        const u = num % 10;
+        return u === 0 ? tens[t] : `${tens[t]} e ${units[u]}`;
+      };
+      s = s.replace(/\b(linha)\s+(\d{3,4})\b/gi, (_m, prefix, code) => {
+        if (/^0/.test(code)) {
+          const rest = Number.parseInt(code.slice(1), 10);
+          if (code.length === 3 && rest >= 0 && rest <= 99) {
+            return `${prefix} zero ${twoDigitPtBr(rest)}`;
+          }
+          return `${prefix} zero ${rest}`;
+        }
+        if (code.length === 4) {
+          const fullNum = Number.parseInt(code, 10);
+          if (fullNum % 1000 === 0) return `${prefix} ${code}`;
+          const p1 = code.slice(0, 2);
+          const p2 = code.slice(2, 4);
+          const p2Spoken = /^0/.test(p2) ? `zero ${Number.parseInt(p2, 10)}` : p2;
+          return `${prefix} ${p1}, ${p2Spoken}`;
+        }
+        return `${prefix} ${code}`;
+      });
+
+      // 6. Correção de colisões antes de expandir siglas
+      s = s.replace(/\bHor[áa]rio\s+Programado\s+GTFS\b/gi, 'horário programado');
+      s = s.replace(/\brede\s+ST-?GCN\b/gi, 'rede neural espaço-temporal');
+
+      // 7. Siglas e logradouros
+      s = s.replace(/\bTIs\b/g, 'Terminais Integrados');
+      s = s.replace(/\bT[Ii]\b/g, 'Terminal Integrado');
+      s = s.replace(/\bBRT\b/g, 'B R T');
+      s = s.replace(/\bPcD\b/gi, 'pessoas com deficiência');
+      s = s.replace(/\bAv\.?\s+/gi, 'Avenida ');
+      s = s.replace(/\bR\.\s+/gi, 'Rua ');
+      s = s.replace(/\bEst\.?\s+/gi, 'Estrada ');
+      s = s.replace(/\bRod\.?\s+/gi, 'Rodovia ');
+      s = s.replace(/\bSent\.?\s+/gi, 'sentido ');
+      s = s.replace(/\bPr[oó]x\.?\s+/gi, 'próximo a ');
       s = s.replace(/\bPE-?60\b/gi, 'P E sessenta');
       s = s.replace(/\bPE-(\d+)\b/gi, 'P E $1');
       s = s.replace(/\bBR-(\d+)\b/gi, 'B R $1');
@@ -975,12 +1070,14 @@
       s = s.replace(/\bCDU\b/gi, 'C D U');
       s = s.replace(/\bSEI\b/g, 'sistema SEI');
       s = s.replace(/\bVEM\b/g, 'cartão VEM');
-      s = s.replace(/(\d+(?:[.,]\d+)?)\s*km\/h\b/gi, (_m, n) => `${n} ${n === '1' ? 'quilômetro' : 'quilômetros'} por hora`);
-      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*min\.?\b/gi, (_m, n) => `${n} ${n === '1' ? 'minuto' : 'minutos'}`);
-      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*km\b/gi, (_m, n) => `${n} ${n === '1' ? 'quilômetro' : 'quilômetros'}`);
-      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*ms\b/gi, (_m, n) => `${n} milissegundos`);
-      s = s.replace(/(\d+(?:[.,]\d+)?)\s*µs\b/gi, (_m, n) => `${n} microssegundos`);
-      s = s.replace(/\b(\d+(?:[.,]\d+)?)\s*m\b/gi, (_m, n) => `${n} ${n === '1' ? 'metro' : 'metros'}`);
+
+      // 8. CAIXA ALTA (> 3 letras que não sejam siglas conhecidas) -> Title Case
+      const KNOWN_ACRONYMS = new Set(['UFRPE', 'UFPE', 'GTFS', 'GNSS', 'HTTP', 'JSON', 'HTML', 'LSTM', 'MQTT', 'SSID']);
+      s = s.replace(/\b([A-ZÁÉÍÓÚÂÊÔÃÕÇ]{4,})\b/g, (word) => {
+        if (KNOWN_ACRONYMS.has(word)) return word;
+        return word.charAt(0) + word.slice(1).toLowerCase();
+      });
+
       s = s.replace(/\s+/g, ' ').trim();
       return s;
     }
@@ -1044,6 +1141,11 @@
 
       this.stopAll();
       const mySeq = this._speakSeq;
+      const emitIdleIfCurrent = () => {
+        if (mySeq === this._speakSeq && !this._muted) {
+          this._emitState('idle', { profileId: profile.id });
+        }
+      };
       this._emitState('loading', { tone, profileId: profile.id });
 
       // 1. Provedor estático pré-gerado (latência <30ms, sem misturar timbres entre perfis)
@@ -1058,7 +1160,8 @@
             clipId: opts.clipId,
             voicePreset: profile.id,
             profileId: profile.id,
-            tone
+            tone,
+            onEnded: emitIdleIfCurrent
           });
           if (mySeq !== this._speakSeq) {
             return { spoken: false, muted: this._muted, cancelled: true };
@@ -1091,7 +1194,8 @@
         try {
           const cloudRes = await this.cloudProvider.synthesize(formatted, {
             voicePreset: profile.id,
-            tone
+            tone,
+            onEnded: emitIdleIfCurrent
           });
           if (mySeq !== this._speakSeq) {
             return { spoken: false, muted: this._muted, cancelled: true };
@@ -1126,7 +1230,8 @@
       try {
         const offlineRes = await this.offlineProvider.synthesize(formatted, {
           tone,
-          profileId: profile.id
+          profileId: profile.id,
+          onEnded: emitIdleIfCurrent
         });
         return {
           spoken: Boolean(offlineRes && offlineRes.spoken !== false),

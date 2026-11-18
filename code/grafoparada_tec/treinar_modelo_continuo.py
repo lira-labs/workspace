@@ -17,6 +17,7 @@ import json
 import math
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -179,16 +180,56 @@ def validate_full_mesh(network: dict[str, Any], schedules: dict[str, Any]) -> di
     }
 
 
+def _normalize_hub_name(name: str) -> str:
+    """Normaliza nome de hub/terminal para deduplicacao robusta (sem acentos, maiusculas)."""
+    nfkd = unicodedata.normalize("NFKD", str(name or ""))
+    ascii_str = "".join(ch for ch in nfkd if not unicodedata.combining(ch))
+    return " ".join(ascii_str.upper().strip().split())
+
+
 def build_metropolitan_hub_graph(
-    network: dict[str, Any], max_nodes: int = 12
+    network: dict[str, Any],
+    max_nodes: int = 24,
+    schedules: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], np.ndarray, torch.Tensor]:
     """Constroi grafo espacial dos principais hubs/terminais metropolitanos reais do GTFS."""
-    hubs_raw = [h for h in network.get("hub_graph", []) if h.get("lines")]
-    # Dedup por proximidade <= 0.2km mantendo hub mais conectado
+    candidates: list[dict[str, Any]] = []
+    for h in network.get("hub_graph", []):
+        lines = [str(c).strip() for c in h.get("lines", []) if str(c).strip()]
+        if lines and h.get("lat") is not None and h.get("lon") is not None:
+            candidates.append({
+                "name": str(h.get("name") or "").strip(),
+                "lat": float(h["lat"]),
+                "lon": float(h["lon"]),
+                "lines": sorted(set(lines)),
+            })
+
+    if schedules:
+        for th in schedules.get("ti_hubs", []):
+            codes = sorted({
+                str(entry.get("code") or "").strip()
+                for entry in th.get("lines", [])
+                if isinstance(entry, dict) and str(entry.get("code") or "").strip()
+            })
+            if codes and th.get("lat") is not None and th.get("lon") is not None:
+                candidates.append({
+                    "name": str(th.get("name") or "").strip(),
+                    "lat": float(th["lat"]),
+                    "lon": float(th["lon"]),
+                    "lines": codes,
+                })
+
+    # Dedup por nome normalizado e proximidade < 0.35 km, mantendo hub mais conectado
     dedup_hubs: list[dict[str, Any]] = []
-    for h in sorted(hubs_raw, key=lambda x: len(x.get("lines", [])), reverse=True):
-        if any(approx_km(h["lat"], h["lon"], u["lat"], u["lon"]) < 0.20 for u in dedup_hubs):
+    seen_names: set[str] = set()
+    for h in sorted(candidates, key=lambda x: len(x.get("lines", [])), reverse=True):
+        norm_name = _normalize_hub_name(h["name"])
+        if norm_name and norm_name in seen_names:
             continue
+        if any(approx_km(h["lat"], h["lon"], u["lat"], u["lon"]) < 0.35 for u in dedup_hubs):
+            continue
+        if norm_name:
+            seen_names.add(norm_name)
         dedup_hubs.append(h)
         if len(dedup_hubs) >= max_nodes:
             break
@@ -238,9 +279,13 @@ def build_spatiotemporal_series(
     step_min: int = 10,
 ) -> tuple[np.ndarray, int]:
     """
-    Gera serie cronologica [total_steps, 2, num_nodes] cobrindo 72h (DUT -> SAB -> DOM):
-      - Canal 0: tempo de espera na parada/hub (min) combinado de headways GTFS + propagacao no grafo + observacoes reais do banco
-      - Canal 1: pressao de demanda (partidas/10min GTFS + rotinas/observacoes persistidas)
+    Gera serie cronologica [total_steps, 6, num_nodes] cobrindo 72h+ (DUT -> SAB -> DOM):
+      - Canal 0: tempo de espera na parada/hub (min) combinado de headways GTFS (IDA/VOLTA) + propagacao no grafo + observacoes reais do banco
+      - Canal 1: pressao de demanda (partidas/10min GTFS IDA/VOLTA + rotinas/observacoes persistidas)
+      - Canal 2: sin(2 * pi * minuto_do_dia / 1440)
+      - Canal 3: cos(2 * pi * minuto_do_dia / 1440)
+      - Canal 4: is_peak (1.0 em pico_manha/pico_tarde, 0.0 caso contrario)
+      - Canal 5: is_weekend (1.0 em SAB/DOM, 0.0 em DUT)
     """
     rng = np.random.default_rng(2026)
     num_nodes = len(hubs)
@@ -308,12 +353,15 @@ def build_spatiotemporal_series(
             for band_name in ("madrugada", "pico_manha", "entre_picos", "pico_tarde", "noite"):
                 hws = []
                 for code in hub.get("lines", []):
-                    svc_data = sched_lines.get(code, {}).get("ida", {}).get(svc)
-                    if not svc_data:
-                        svc_data = sched_lines.get(code, {}).get("ida", {}).get("DUT", {})
-                    hw = svc_data.get("headways_min", {}).get(band_name)
-                    if hw is not None and hw > 0:
-                        hws.append(float(hw))
+                    line_sched = sched_lines.get(code, {})
+                    for dkey in ("ida", "volta"):
+                        dir_sched = line_sched.get(dkey, {})
+                        if not dir_sched:
+                            continue
+                        svc_data = dir_sched.get(svc) or dir_sched.get("DUT", {})
+                        hw = svc_data.get("headways_min", {}).get(band_name)
+                        if hw is not None and hw > 0:
+                            hws.append(float(hw))
                 base_hw = float(np.median(hws)) if hws else 35.0
                 base_wait = min(45.0, max(5.0, 0.5 * base_hw))
 
@@ -331,12 +379,15 @@ def build_spatiotemporal_series(
                 hub_band_wait[(idx, svc, band_name)] = base_wait
 
             for code in hub.get("lines", []):
-                svc_data = sched_lines.get(code, {}).get("ida", {}).get(svc)
-                if not svc_data:
-                    svc_data = sched_lines.get(code, {}).get("ida", {}).get("DUT", {})
-                for dm in svc_data.get("dep_mins", []):
-                    slot = (int(dm) % 1440) // step_min
-                    hub_slot_deps[svc][idx, slot] += 1.0
+                line_sched = sched_lines.get(code, {})
+                for dkey in ("ida", "volta"):
+                    dir_sched = line_sched.get(dkey, {})
+                    if not dir_sched:
+                        continue
+                    svc_data = dir_sched.get(svc) or dir_sched.get("DUT", {})
+                    for dm in svc_data.get("dep_mins", []):
+                        slot = (int(dm) % 1440) // step_min
+                        hub_slot_deps[svc][idx, slot] += 0.65 if dkey == "volta" else 1.0
 
         hub_slot_deps[svc] = np.clip(hub_slot_deps[svc] * 0.40, 0.5, 45.0)
 
@@ -345,7 +396,7 @@ def build_spatiotemporal_series(
     row_sum[row_sum == 0] = 1.0
     adj_norm = adj / row_sum
 
-    series = np.zeros((total_steps, 2, num_nodes), dtype=np.float32)
+    series = np.zeros((total_steps, 6, num_nodes), dtype=np.float32)
     congestion_state = np.zeros(num_nodes, dtype=np.float32)
 
     # Pre-indexa observacoes reais e rotinas do banco por slot/hub
@@ -356,7 +407,21 @@ def build_spatiotemporal_series(
     for obs in observations:
         code = str(obs.get("route_code") or "").strip()
         wait_obs = obs.get("observed_wait_min")
-        if wait_obs is None:
+        delay_obs = obs.get("delay_min")
+        pred_wait = obs.get("predicted_wait_min")
+        eff_wait: float | None = None
+        try:
+            if wait_obs is not None:
+                eff_wait = float(wait_obs)
+            elif delay_obs is not None:
+                delay_val = float(delay_obs)
+                if pred_wait is not None:
+                    eff_wait = max(2.0, float(pred_wait) + delay_val)
+                else:
+                    eff_wait = max(2.0, delay_val)
+        except (TypeError, ValueError):
+            eff_wait = None
+        if eff_wait is None:
             continue
         target_hubs = line_to_hubs.get(code) or [0]
         created_str = str(obs.get("created_at") or "")
@@ -369,9 +434,12 @@ def build_spatiotemporal_series(
                     slot_mod = (m_day % 1440) // step_min
             except Exception:
                 pass
-        occ = float(obs.get("occupancy_est") or 2)
+        try:
+            occ = float(obs.get("occupancy_est") or 2)
+        except (TypeError, ValueError):
+            occ = 2.0
         for h_idx in target_hubs:
-            obs_residuals.setdefault((slot_mod, h_idx), []).append(float(wait_obs))
+            obs_residuals.setdefault((slot_mod, h_idx), []).append(eff_wait)
             obs_pressure[(slot_mod, h_idx)] = obs_pressure.get((slot_mod, h_idx), 0.0) + occ * 1.5
         db_rows_used += 1
 
@@ -432,6 +500,11 @@ def build_spatiotemporal_series(
 
         series[t, 0, :] = np.clip(wait_t, 2.0, 90.0)
         series[t, 1, :] = np.clip(demand, 0.5, 60.0)
+        angle = 2.0 * math.pi * (minute_of_day / 1440.0)
+        series[t, 2, :] = math.sin(angle)
+        series[t, 3, :] = math.cos(angle)
+        series[t, 4, :] = 1.0 if band in ("pico_manha", "pico_tarde") else 0.0
+        series[t, 5, :] = 1.0 if svc in ("SAB", "DOM") else 0.0
 
     return series, db_rows_used
 
@@ -451,7 +524,7 @@ def make_sliding_windows(
 
 
 def train_and_evaluate_models(
-    series: np.ndarray, l_matrix: torch.Tensor
+    series: np.ndarray, l_matrix: torch.Tensor, adj: np.ndarray | None = None
 ) -> dict[str, Any]:
     """Executa split temporal estrito (70% treino / purge gap / 30% teste) e avalia ST-GCN vs OLS vs Persistencia."""
     torch.manual_seed(42)
@@ -476,11 +549,11 @@ def train_and_evaluate_models(
     pred_pers = np.repeat(last_wait_test[:, None, :], HORIZON, axis=1)
     persistence_mae = float(np.mean(np.abs(y_test - pred_pers)))
 
-    # 2. OLS (regressao linear tabular por no sobre ultimos 4 lags dos 2 canais)
+    # 2. OLS (regressao linear tabular por no sobre ultimos 4 lags dos 2 canais endogenos)
     num_nodes = x_train.shape[3]
+    in_channels = x_train.shape[1]
     pred_ols = np.zeros_like(y_test)
     for node_i in range(num_nodes):
-        # [W, 4*2 + 1]
         feat_tr = np.column_stack([
             x_train[:, 0, -4:, node_i],
             x_train[:, 1, -4:, node_i],
@@ -508,17 +581,25 @@ def train_and_evaluate_models(
     y_tr_t = torch.tensor((dy_train - mean_dy) / std_dy, dtype=torch.float32)
     x_te_t = torch.tensor((x_test - mean_x) / std_x, dtype=torch.float32)
 
-    model = STGCN(num_nodes=num_nodes, in_channels=2, out_horizon=HORIZON)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.004, weight_decay=1e-3)
-    criterion = nn.SmoothL1Loss(beta=1.0)
+    epochs = 60
+    model = STGCN(num_nodes=num_nodes, in_channels=in_channels, out_horizon=HORIZON)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.01, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-4)
+    criterion = nn.L1Loss()
 
-    model.train()
-    for _epoch in range(90):
-        optimizer.zero_grad()
-        out = model(x_tr_t, l_matrix)
-        loss = criterion(out, y_tr_t)
-        loss.backward()
-        optimizer.step()
+    train_ds = torch.utils.data.TensorDataset(x_tr_t, y_tr_t)
+    train_loader = torch.utils.data.DataLoader(train_ds, batch_size=64, shuffle=True)
+
+    for _epoch in range(epochs):
+        model.train()
+        for x_batch, y_batch in train_loader:
+            optimizer.zero_grad()
+            out = model(x_batch, l_matrix)
+            loss = criterion(out, y_batch)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 2.0)
+            optimizer.step()
+        scheduler.step()
 
     model.eval()
     with torch.no_grad():
@@ -526,9 +607,53 @@ def train_and_evaluate_models(
     pred_stgcn = np.repeat(last_wait_test[:, None, :], HORIZON, axis=1) + (pred_dy_norm * std_dy + mean_dy)
     stgcn_mae = float(np.mean(np.abs(y_test - pred_stgcn)))
 
-    # Auditoria da Trava Hibrida Defensiva (|pred - gps_bruto| > 15 min)
-    delta_trava = np.abs(pred_stgcn[:, -1, :] - last_wait_test)
-    trava_triggers = int(np.sum(delta_trava > TRAVA_HIBRIDA_LIMIAR_MIN))
+    # Metricas estratificadas por horizonte (+10, +20, +30 min) e regime (pico vs vale)
+    mae_h10 = float(np.mean(np.abs(y_test[:, 0, :] - pred_stgcn[:, 0, :])))
+    mae_h20 = float(np.mean(np.abs(y_test[:, 1, :] - pred_stgcn[:, 1, :])))
+    mae_h30 = float(np.mean(np.abs(y_test[:, 2, :] - pred_stgcn[:, 2, :])))
+    peak_mask = x_test[:, 4, -1, 0] > 0.5
+    mae_pico = float(np.mean(np.abs(y_test[peak_mask] - pred_stgcn[peak_mask]))) if np.any(peak_mask) else stgcn_mae
+    mae_vale = float(np.mean(np.abs(y_test[~peak_mask] - pred_stgcn[~peak_mask]))) if np.any(~peak_mask) else stgcn_mae
+
+    # Avaliacao controlada de choque severo (> 40 min) e auditoria da Trava Hibrida Defensiva
+    trava_triggers_normal = int(np.sum(np.abs(pred_stgcn[:, -1, :] - last_wait_test) > TRAVA_HIBRIDA_LIMIAR_MIN))
+    x_stress = x_test.copy()
+    y_stress = y_test.copy()
+    stress_indices = list(range(0, len(x_stress), 8))
+    if adj is not None and adj.shape[0] == num_nodes:
+        row_s = adj.sum(axis=1, keepdims=True)
+        row_s[row_s == 0] = 1.0
+        adj_n = adj / row_s
+    else:
+        adj_n = np.eye(num_nodes, dtype=np.float32)
+
+    for idx in stress_indices:
+        s_node = idx % num_nodes
+        orig_last = float(x_stress[idx, 0, -1, s_node])
+        shocked_val = max(55.0, min(90.0, orig_last + 42.0))
+        excess = shocked_val - orig_last
+        x_stress[idx, 0, -1, s_node] = shocked_val
+        # Propagacao controlada do choque para horizontes futuros
+        shock_vec = np.zeros(num_nodes, dtype=np.float32)
+        shock_vec[s_node] = excess
+        neighbor_spill = adj_n @ shock_vec
+        for h_i, decay in enumerate((0.55, 0.35, 0.20)):
+            y_stress[idx, h_i, :] = np.clip(
+                y_stress[idx, h_i, :] + decay * (0.75 * shock_vec + 0.25 * neighbor_spill),
+                2.0,
+                90.0,
+            )
+
+    last_wait_stress = x_stress[:, 0, -1, :]
+    x_stress_t = torch.tensor((x_stress - mean_x) / std_x, dtype=torch.float32)
+    with torch.no_grad():
+        pred_stress_dy_norm = model(x_stress_t, l_matrix).numpy()
+    pred_stress = np.repeat(last_wait_stress[:, None, :], HORIZON, axis=1) + (pred_stress_dy_norm * std_dy + mean_dy)
+    mae_choque_severo = float(np.mean(np.abs(y_stress[stress_indices, :, :] - pred_stress[stress_indices, :, :])))
+    trava_triggers_stress = int(
+        np.sum(np.abs(pred_stress[stress_indices, -1, :] - last_wait_stress[stress_indices, :]) > TRAVA_HIBRIDA_LIMIAR_MIN)
+    )
+    trava_triggers = trava_triggers_normal + trava_triggers_stress
 
     # Hash deterministico dos pesos treinados (sem gravar .pt pesado no Git)
     hasher = hashlib.sha256()
@@ -546,6 +671,12 @@ def train_and_evaluate_models(
         "stgcn_mae": round(stgcn_mae, 4),
         "ols_mae": round(ols_mae, 4),
         "persistence_mae": round(persistence_mae, 4),
+        "mae_pico": round(mae_pico, 4),
+        "mae_vale": round(mae_vale, 4),
+        "mae_h10": round(mae_h10, 4),
+        "mae_h20": round(mae_h20, 4),
+        "mae_h30": round(mae_h30, 4),
+        "mae_choque_severo": round(mae_choque_severo, 4),
         "trava_hibrida_triggers": trava_triggers,
         "weights_hash": weights_hash,
     }
@@ -594,7 +725,7 @@ def run_continuous_training() -> dict[str, Any]:
     )
 
     print("[4/5] Construindo grafo metropolitano e avaliando ST-GCN vs OLS vs Persistencia (split temporal estrito)...")
-    hubs, adj, l_matrix = build_metropolitan_hub_graph(network, max_nodes=12)
+    hubs, adj, l_matrix = build_metropolitan_hub_graph(network, max_nodes=24, schedules=schedules)
     series, db_rows_used = build_spatiotemporal_series(
         hubs=hubs,
         adj=adj,
@@ -604,7 +735,7 @@ def run_continuous_training() -> dict[str, Any]:
         total_steps=576,
         step_min=10,
     )
-    metrics = train_and_evaluate_models(series, l_matrix)
+    metrics = train_and_evaluate_models(series, l_matrix, adj=adj)
     trained_at_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     ti_hubs_indexed = int(mesh_report.get("ti_hubs_indexed", 0))
@@ -618,6 +749,12 @@ def run_continuous_training() -> dict[str, Any]:
         "stgcn_mae": metrics["stgcn_mae"],
         "ols_mae": metrics["ols_mae"],
         "persistence_mae": metrics["persistence_mae"],
+        "mae_pico": metrics["mae_pico"],
+        "mae_vale": metrics["mae_vale"],
+        "mae_h10": metrics["mae_h10"],
+        "mae_h20": metrics["mae_h20"],
+        "mae_h30": metrics["mae_h30"],
+        "mae_choque_severo": metrics["mae_choque_severo"],
         "weights_hash": metrics["weights_hash"],
         "trained_at_utc": trained_at_utc,
         "dataset_rows": metrics["dataset_rows"],

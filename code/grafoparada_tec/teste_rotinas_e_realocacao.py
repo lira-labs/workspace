@@ -19,10 +19,12 @@ import http.server
 import json
 import os
 import socketserver
+import sqlite3
 import subprocess
 import sys
 import tempfile
 import threading
+from contextlib import closing
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -37,6 +39,7 @@ if str(TEC_DIR) not in sys.path:
 from db_manager import (  # noqa: E402
     get_training_dataset,
     init_db,
+    record_app_event,
     record_observation,
     register_user,
     save_routine,
@@ -552,6 +555,83 @@ def test_laya_ia_gtfs_gps_e_webmcp():
     assert bool(arb_plan.get("origCorridor")) and bool(arb_plan.get("destCorridor")) and (len(arb_plan.get("routeOptions") or []) >= 1)
 
 
+def test_v33_metricas_estratificadas_e_schema_sqlite():
+    status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
+    assert status.get("graph_nodes") == 24
+    for metric_key in (
+        "mae_pico",
+        "mae_vale",
+        "mae_h10",
+        "mae_h20",
+        "mae_h30",
+        "mae_choque_severo",
+    ):
+        val = status.get(metric_key)
+        assert isinstance(val, (int, float)) and val > 0, (
+            f"Métrica estratificada ausente ou inválida em model_training_status.json: {metric_key}={val!r}"
+        )
+    assert float(status["stgcn_mae"]) <= float(status["ols_mae"]), (
+        f"ST-GCN MAE ({status['stgcn_mae']}) deve ser <= OLS MAE ({status['ols_mae']})"
+    )
+
+    with tempfile.TemporaryDirectory(prefix="gp_db_v33_") as tmp_dir:
+        tmp_db = Path(tmp_dir) / "v33_schema.db"
+        init_db(tmp_db)
+
+        with closing(sqlite3.connect(str(tmp_db))) as conn:
+            tables = {
+                row[0]
+                for row in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+            }
+            assert "app_events" in tables, "Tabela app_events não criada por init_db()"
+
+            def _cols(table_name: str) -> set[str]:
+                return {
+                    row[1]
+                    for row in conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+                }
+
+            obs_cols = _cols("demand_observations")
+            for col in ("delay_min", "wait_report_type", "ti_hub_id", "transfer_ok", "notes"):
+                assert col in obs_cols, f"Coluna '{col}' ausente em demand_observations"
+
+            rtn_cols = _cols("routines")
+            for col in ("legs_json", "transfer_hub_name", "return_origin_name", "updated_at"):
+                assert col in rtn_cols, f"Coluna '{col}' ausente em routines"
+
+            usr_cols = _cols("users")
+            assert "consent_at" in usr_cols, "Coluna 'consent_at' ausente em users"
+
+        ev = record_app_event(
+            {
+                "user_id": "usr_v33_test",
+                "event_type": "routine_saved",
+                "route_code": "199",
+                "stop_id": "030613",
+                "payload_json": {"source": "test_v33", "ti_hub": "TI Cabo"},
+            },
+            db_path=tmp_db,
+        )
+        assert ev["event_type"] == "routine_saved"
+        assert ev["route_code"] == "199"
+        assert ev["stop_id"] == "030613"
+        assert "TI Cabo" in (ev.get("payload_json") or "")
+
+        with closing(sqlite3.connect(str(tmp_db))) as conn:
+            row = conn.execute(
+                "SELECT user_id, event_type, route_code, stop_id, payload_json FROM app_events WHERE id = ?",
+                (ev["id"],),
+            ).fetchone()
+            assert row is not None
+            assert row[0] == "usr_v33_test"
+            assert row[1] == "routine_saved"
+            assert row[2] == "199"
+            assert row[3] == "030613"
+            assert json.loads(row[4]) == {"source": "test_v33", "ti_hub": "TI Cabo"}
+
+
 def run_cli_audit() -> int:
     html = _load_html()
     print("=" * 70)
@@ -567,6 +647,7 @@ def run_cli_audit() -> int:
         ("Bloco 5b: GTFS TIs Multi-Linha (133), Checkpoints & Chegadas", test_gtfs_schedules_ti_hubs_checkpoints_e_chegadas),
         ("Bloco 6: Sincronização Cloud/Neon -> SQLite (Offline + Mock HTTP)", test_db_manager_sync_cloud_observations_offline_e_http_mock),
         ("Bloco 7: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
+        ("Bloco 8: v3.3 Métricas Estratificadas & Schema SQLite (app_events/colunas)", test_v33_metricas_estratificadas_e_schema_sqlite),
     ]
 
     aprovados = 0

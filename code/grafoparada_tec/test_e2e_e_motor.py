@@ -481,7 +481,7 @@ const { CloudProxyTTSProvider } = require(path.resolve(process.argv[1]));
   });
 
   const errors = [];
-  // 1a tentativa: GET /api/tts retorna available=false -> entra em cooldown sem POST
+  // 1a tentativa (v3.3): POST /api/tts direto (sem GET bloqueante) -> 501 entra em cooldown
   try {
     await provider.synthesize('Primeira fala de teste');
   } catch (err) {
@@ -498,7 +498,7 @@ const { CloudProxyTTSProvider } = require(path.resolve(process.argv[1]));
   }
   const callsBeforeExpiry = fetchLog.slice();
 
-  // 3a tentativa após expirar cooldownMs: deve refazer GET /api/tts antes de qualquer POST
+  // 3a tentativa após expirar cooldownMs: refaz POST /api/tts direto sem GET bloqueante
   fakeNow = 11001;
   const availableAfterCooldown = provider.isAvailable();
   try {
@@ -531,10 +531,48 @@ const { CloudProxyTTSProvider } = require(path.resolve(process.argv[1]));
 
         assert out["availableDuringCooldown"] is False
         assert out["availableAfterCooldown"] is True
-        assert [c["method"] for c in out["callsBeforeExpiry"]] == ["GET"]
-        assert [c["method"] for c in out["fetchLog"]] == ["GET", "GET"]
-        assert all(c["method"] != "POST" for c in out["fetchLog"])
+        assert [c["method"] for c in out["callsBeforeExpiry"]] == ["POST"]
+        assert [c["method"] for c in out["fetchLog"]] == ["POST", "POST"]
+        assert all(c["method"] != "GET" for c in out["fetchLog"])
         assert len(out["errors"]) == 3
+
+    def test_laya_voice_format_for_speech_ptbr(self):
+        js_harness = r"""
+const path = require('path');
+const { LayaVoice } = require(path.resolve(process.argv[1]));
+
+const cases = {
+  t1009: LayaVoice.formatForSpeech('10:09'),
+  t0430: LayaVoice.formatForSpeech('04:30'),
+  t22h: LayaVoice.formatForSpeech('22h'),
+  l1062: LayaVoice.formatForSpeech('linha 1062'),
+  l044: LayaVoice.formatForSpeech('linha 044'),
+  tiPelopidas: LayaVoice.formatForSpeech('TI Pelópidas'),
+  avRecife: LayaVoice.formatForSpeech('AV. RECIFE - SENT. BOA VIAGEM'),
+  redeStgcn: LayaVoice.formatForSpeech('rede ST-GCN'),
+};
+console.log(JSON.stringify(cases));
+"""
+        res = subprocess.run(
+            ["node", "-e", js_harness, str(LAYA_VOICE_JS)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=15,
+        )
+        assert res.returncode == 0, f"Erro testando LayaVoice.formatForSpeech: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        assert out["t1009"] == "10 e 9"
+        assert out["t0430"] == "4 e meia"
+        assert out["t22h"] == "22 horas"
+        assert out["l1062"] == "linha 10, 62"
+        assert out["l044"] == "linha zero quarenta e quatro"
+        assert out["tiPelopidas"] == "Terminal Integrado Pelópidas"
+        assert out["avRecife"] == "Avenida Recife - sentido BOA Viagem"
+        assert out["redeStgcn"] == "rede neural espaço-temporal"
+        assert "neural neural" not in out["redeStgcn"].lower()
+        assert "espaço-temporal espaço-temporal" not in out["redeStgcn"].lower()
 
     def test_novos_metodos_rmr_horarios_gtfs_e_status_treino(self):
         js_harness = r"""
@@ -1161,6 +1199,30 @@ class TestRealBrowserE2E:
                     err_msg="Passo 2 (#onboarding-step-routine) não abriu após clicar #btn-onb-register-continue",
                 )
 
+                # v3.3: Valida #btn-onb-save-routine visível no viewport 390x844 quando Passo 2 abre
+                step2_btn_audit = eval_js("""(() => {
+                  const btn = document.getElementById('btn-onb-save-routine');
+                  const r = btn ? btn.getBoundingClientRect() : null;
+                  return {
+                    exists: Boolean(btn),
+                    width: r ? r.width : 0,
+                    height: r ? r.height : 0,
+                    inViewport: Boolean(
+                      r && r.width > 0 && r.height > 0 &&
+                      r.top >= 0 && r.bottom <= window.innerHeight &&
+                      r.left >= 0 && r.right <= window.innerWidth
+                    ),
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert step2_btn_audit["exists"] is True
+                assert step2_btn_audit["inViewport"] is True, (
+                    f"#btn-onb-save-routine fora do viewport 390x844 no Passo 2: {step2_btn_audit}"
+                )
+                assert step2_btn_audit["overflowX"] <= 2, (
+                    f"Overflow horizontal mobile no Passo 2 do onboarding: {step2_btn_audit['overflowX']}px"
+                )
+
                 # Busca origem em #onb-origin-place -> seleciona em #onb-origin-place-list -> seleciona parada em #onb-origin-stops-list
                 eval_js("""(() => {
                   const inp = document.getElementById('onb-origin-place');
@@ -1223,8 +1285,8 @@ class TestRealBrowserE2E:
                   const greet = (document.getElementById('home-dynamic-greeting') || {}).textContent || '';
                   const brief = (document.getElementById('home-routine-brief') || {}).textContent || '';
                   const favRow = document.getElementById('favorites-pills-row');
-                  const favPills = favRow ? favRow.querySelectorAll('.fav-stop-pill').length : -1;
-                  const favEmpty = Boolean(favRow && favRow.querySelector('.gp-fav-empty'));
+                  const favPills = favRow ? favRow.querySelectorAll('button.fav-stop-pill:not(.gp-fav-empty-chip)').length : -1;
+                  const favEmpty = Boolean(favRow && favRow.querySelector('.gp-fav-empty-chip'));
                   const overflowPx = document.documentElement.scrollWidth - window.innerWidth;
                   return { greet, brief, favPills, favEmpty, overflowPx };
                 })()""")
@@ -1623,6 +1685,28 @@ class TestRealBrowserE2E:
                 eval_js("document.getElementById('mode-btn-passenger').click()")
                 time.sleep(0.2)
                 assert eval_js("document.body ? document.body.dataset.appMode : ''") == "passenger"
+
+                # v3.3: No modo passenger, rótulos exibem "Previsão IA" e "Horário Oficial" sem overflow
+                passenger_labels_audit = eval_js("""(() => {
+                  const predLabels = Array.from(document.querySelectorAll('[data-passenger-label="Previsão IA"]'))
+                    .map(el => el.textContent.trim());
+                  const realLabels = Array.from(document.querySelectorAll('[data-passenger-label="Horário Oficial"]'))
+                    .map(el => el.textContent.trim());
+                  return {
+                    predLabels,
+                    realLabels,
+                    overflowX: document.documentElement.scrollWidth - window.innerWidth
+                  };
+                })()""")
+                assert passenger_labels_audit["predLabels"] and all(
+                    t == "Previsão IA" for t in passenger_labels_audit["predLabels"]
+                ), f"Rótulos Previsão IA divergentes no modo passenger: {passenger_labels_audit['predLabels']}"
+                assert passenger_labels_audit["realLabels"] and all(
+                    t == "Horário Oficial" for t in passenger_labels_audit["realLabels"]
+                ), f"Rótulos Horário Oficial divergentes no modo passenger: {passenger_labels_audit['realLabels']}"
+                assert passenger_labels_audit["overflowX"] <= 2, (
+                    f"Overflow horizontal ao retornar para passenger: {passenger_labels_audit['overflowX']}px"
+                )
 
                 # Filtra apenas erros locais reais (ignora eventuais bloqueios de tiles externos se offline)
                 local_console_errors = [e for e in console_errors if "tile" not in e.lower()]

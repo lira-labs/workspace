@@ -58,6 +58,7 @@ async function ensureSchema(sql) {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         contact_hint TEXT,
+        consent_at TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -82,6 +83,10 @@ async function ensureSchema(sql) {
         return_time TEXT,
         preferred_line TEXT,
         frequency TEXT,
+        legs_json TEXT,
+        transfer_hub_name TEXT,
+        return_origin_name TEXT,
+        updated_at TEXT,
         created_at TEXT NOT NULL
       )
     `;
@@ -95,6 +100,11 @@ async function ensureSchema(sql) {
         observed_wait_min DOUBLE PRECISION,
         predicted_wait_min DOUBLE PRECISION,
         occupancy_est INTEGER,
+        delay_min DOUBLE PRECISION,
+        wait_report_type TEXT,
+        ti_hub_id TEXT,
+        transfer_ok BOOLEAN,
+        notes TEXT,
         source TEXT NOT NULL,
         created_at TEXT NOT NULL
       )
@@ -113,9 +123,37 @@ async function ensureSchema(sql) {
         created_at TEXT NOT NULL
       )
     `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS app_events (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT,
+        event_type TEXT NOT NULL,
+        route_code TEXT,
+        stop_id TEXT,
+        payload_json TEXT,
+        created_at TEXT NOT NULL
+      )
+    `;
+
+    // Migrações idempotentes para bancos já provisionados
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_at TEXT`;
+    await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS legs_json TEXT`;
+    await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS transfer_hub_name TEXT`;
+    await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS return_origin_name TEXT`;
+    await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS updated_at TEXT`;
+    await sql`ALTER TABLE demand_observations ADD COLUMN IF NOT EXISTS delay_min DOUBLE PRECISION`;
+    await sql`ALTER TABLE demand_observations ADD COLUMN IF NOT EXISTS wait_report_type TEXT`;
+    await sql`ALTER TABLE demand_observations ADD COLUMN IF NOT EXISTS ti_hub_id TEXT`;
+    await sql`ALTER TABLE demand_observations ADD COLUMN IF NOT EXISTS transfer_ok BOOLEAN`;
+    await sql`ALTER TABLE demand_observations ADD COLUMN IF NOT EXISTS notes TEXT`;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_users_contact_hint_lower ON users (LOWER(TRIM(contact_hint)))`;
     await sql`CREATE INDEX IF NOT EXISTS idx_routines_user_id ON routines (user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_routines_created_at ON routines (created_at)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_obs_route_code ON demand_observations (route_code)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_obs_created_at ON demand_observations (created_at)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_obs_stop_created ON demand_observations (stop_id, created_at)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_app_events_type_created ON app_events (event_type, created_at)`;
     return true;
   })().catch((err) => {
     _schemaReadyPromise = null;
@@ -204,6 +242,29 @@ function toNullableInt(value) {
   return Number.isFinite(num) ? num : NaN;
 }
 
+function toNullableBool(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') {
+    if (value === 1) return true;
+    if (value === 0) return false;
+    return null;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized === 'true' || normalized === '1' || normalized === 'sim') return true;
+  if (normalized === 'false' || normalized === '0' || normalized === 'nao' || normalized === 'não') return false;
+  return null;
+}
+
+function toNullableIso(value) {
+  if (value === undefined || value === null || value === '') return null;
+  const raw = String(value).trim().slice(0, 64);
+  if (!raw) return null;
+  const parsed = Date.parse(raw);
+  if (!Number.isFinite(parsed)) return null;
+  return new Date(parsed).toISOString();
+}
+
 function generateId(prefix) {
   return `${prefix}_${crypto.randomBytes(6).toString('hex')}`;
 }
@@ -221,5 +282,7 @@ module.exports = {
   toNullableText,
   toNullableNumber,
   toNullableInt,
+  toNullableBool,
+  toNullableIso,
   generateId
 };

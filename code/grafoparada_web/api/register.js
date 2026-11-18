@@ -19,7 +19,7 @@ const {
 
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') {
-    handleOptions(res);
+    handleOptions(res, 'GET, POST, DELETE, OPTIONS');
     return;
   }
 
@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
       const userId = getQueryParam(req, 'user_id');
       if (userId) {
         const rows = await sql`
-          SELECT id, name, contact_hint, created_at, updated_at
+          SELECT id, name, contact_hint, consent_at, created_at, updated_at
           FROM users
           WHERE id = ${userId}
           LIMIT 1
@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
       const contactHint = getQueryParam(req, 'contact_hint');
       if (contactHint.length >= 3) {
         const rows = await sql`
-          SELECT id, name, contact_hint, created_at, updated_at
+          SELECT id, name, contact_hint, consent_at, created_at, updated_at
           FROM users
           WHERE LOWER(TRIM(contact_hint)) = LOWER(TRIM(${contactHint}))
           ORDER BY updated_at DESC
@@ -96,8 +96,64 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  if (req.method === 'DELETE') {
+    const userId = getQueryParam(req, 'user_id');
+    if (!userId) {
+      sendJson(res, 400, {
+        ok: false,
+        error: 'missing_user_id',
+        message: 'Informe user_id para exclusão LGPD.'
+      });
+      return;
+    }
+
+    try {
+      const { sql, reason } = await getReadyDb();
+      if (!sql) {
+        sendJson(res, 200, {
+          ok: true,
+          deleted: false,
+          available: false,
+          db_configured: false,
+          reason,
+          storage: 'client_local',
+          user_id: userId
+        });
+        return;
+      }
+
+      const deletedRoutines = await sql`
+        DELETE FROM routines WHERE user_id = ${userId} RETURNING id
+      `;
+      const deletedUsers = await sql`
+        DELETE FROM users WHERE id = ${userId} RETURNING id
+      `;
+
+      sendJson(res, 200, {
+        ok: true,
+        available: true,
+        db_configured: true,
+        storage: 'neon_postgres',
+        deleted: deletedUsers.length > 0,
+        user_id: userId,
+        deleted_users: deletedUsers.length,
+        deleted_routines: deletedRoutines.length
+      });
+    } catch (err) {
+      console.error('[api/register DELETE] error:', err && err.message ? err.message : err);
+      sendJson(res, 503, {
+        ok: false,
+        available: false,
+        db_configured: true,
+        reason: 'db_query_error',
+        storage: 'client_local'
+      });
+    }
+    return;
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'GET, POST, OPTIONS');
+    res.setHeader('Allow', 'GET, POST, DELETE, OPTIONS');
     sendJson(res, 405, { ok: false, error: 'method_not_allowed' });
     return;
   }
@@ -129,11 +185,15 @@ module.exports = async function handler(req, res) {
   const explicitUserId = toNullableText(body.user_id || body.id, 80);
   let userId = explicitUserId || generateId('usr');
   const now = new Date().toISOString();
+  const consentAt =
+    toNullableText(body.consent_at, 64) ||
+    (body.consent === true || body.lgpd_consent === true ? now : null);
 
   const localRecord = {
     id: userId,
     name,
     contact_hint: contactHint,
+    consent_at: consentAt,
     created_at: now,
     updated_at: now
   };
@@ -168,13 +228,14 @@ module.exports = async function handler(req, res) {
     }
 
     const rows = await sql`
-      INSERT INTO users (id, name, contact_hint, created_at, updated_at)
-      VALUES (${userId}, ${name}, ${contactHint}, ${now}, ${now})
+      INSERT INTO users (id, name, contact_hint, consent_at, created_at, updated_at)
+      VALUES (${userId}, ${name}, ${contactHint}, ${consentAt}, ${now}, ${now})
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
         contact_hint = EXCLUDED.contact_hint,
+        consent_at = COALESCE(EXCLUDED.consent_at, users.consent_at),
         updated_at = EXCLUDED.updated_at
-      RETURNING id, name, contact_hint, created_at, updated_at
+      RETURNING id, name, contact_hint, consent_at, created_at, updated_at
     `;
 
     const saved = rows[0] || localRecord;

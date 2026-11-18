@@ -4,9 +4,9 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 18/11/2026 09:55
+- **Última Atualização:** 18/11/2026 10:15
 - **Data da Apresentação:** Quarta-feira (18/11/2026) · Seminário Iteração 3 (`sem3`) / Tópicos Avançados em IA (AI4Good) / UFRPE
-- **Branch Ativo:** `main` (v3.2 integrada via `feature/grafoparada-v3.2-integracoes-horarios` — horários públicos GTFS de chegada e janelas de integração em `133` TIs + `treinar_modelo_continuo.py` + UI + Laya IA + `va2/sem3.md` e deck Canva `DAHbI8w542g` · `https://grafoparadaweb.vercel.app`)
+- **Branch Ativo:** `main` (v3.3 integrada via `feature/grafoparada-v3.3-audit-refinamento` — UX/Usabilidade + Voz PT-BR natural + DB `app_events`/check-in/LGPD + ST-GCN 24 nós `stgcn_mae=1.1164` < OLS `1.1505` · `https://grafoparadaweb.vercel.app`)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -14,7 +14,7 @@
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
   - Subagentes Especializados Ativos (`.agents/agents/`): `ux-spec-planner`, `frontend-layout-ui`, `frontend-map-engine`, `backend-engineer`, `db-data-manager`, `transit-trainer`, `qa-gatekeeper`, `visual-design-critic` (acionamento automático garantido em `AGENTS.md` e `.agents/rules/ui_ux_design_system.md`).
 - **Contratos Compartilhados (OpenAPI v2.2.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy (v3.2):** `pre_flight_check.py` (7/7 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 42/42 PASS) + `hook_continuous_train.py --quick` (`27.5 ms`) + Auditoria Visual Chrome CDP (`390x844` e `1280x800`: 0 overflow, 0 console/JS errors) + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
+- **Gatekeeper Pré-Deploy (v3.3):** `pre_flight_check.py` (8/8 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 44/44 PASS) + `hook_continuous_train.py --quick` (`32.1 ms`) + Auditoria Visual Chrome CDP (`390x844` e `1280x800`: 0 overflow, 0 console/JS errors) + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)
