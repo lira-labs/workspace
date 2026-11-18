@@ -3082,6 +3082,10 @@
       line-height: 1.35;
       margin-bottom: 10px;
     }
+    .field-input.is-invalid {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
     .gp-sync-notice {
       background: var(--warning-bg);
       color: #92400e;
@@ -4069,7 +4073,7 @@
         <form id="onb-register-form" onsubmit="handleOnboardingRegisterSubmit(event)" novalidate>
           <div class="field-group">
             <label for="inp-name" class="field-label">Seu nome</label>
-            <input type="text" id="inp-name" class="field-input" placeholder="Seu nome completo" maxlength="120" required autocomplete="name" />
+            <input type="text" id="inp-name" class="field-input" placeholder="Seu nome completo" maxlength="120" required autocomplete="name" oninput="clearOnboardingRegisterError()" />
           </div>
 
           <div class="field-group">
@@ -4147,11 +4151,11 @@
             </div>
           </div>
 
-          <div id="onb-routine-error" class="gp-field-error" role="alert"></div>
           <div id="onb-routine-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
         </div>
 
         <div class="gp-onb-sticky-footer">
+          <div id="onb-routine-error" class="gp-field-error" role="alert"></div>
           <button type="button" id="btn-onb-save-routine" class="btn-primary" onclick="handleOnboardingRoutineSave()">
             <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             <span>Salvar rotina e começar</span>
@@ -4250,11 +4254,11 @@
             </div>
           </div>
 
-          <div id="rtn-routine-error" class="gp-field-error" role="alert"></div>
           <div id="rtn-routine-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
         </div>
 
         <div class="gp-onb-sticky-footer">
+          <div id="rtn-routine-error" class="gp-field-error" role="alert"></div>
           <button type="button" class="btn-primary" onclick="applyCustomRoutineProfile()">
             <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             <span>Salvar rotina completa</span>
@@ -5687,6 +5691,9 @@
             };
             window.RealTransit.__gpWrappedRenderStopsDrawer = true;
           }
+          if (typeof gpPatchRealTransitSearch === "function") {
+            gpPatchRealTransitSearch();
+          }
           window.RealTransit.init(leafletMap);
         } else {
           drawRoute(TELEMETRIA);
@@ -5924,18 +5931,228 @@
       return;
     }
 
+    // SEARCH NORMALIZATION & MULTI-TOKEN MATCHING (SEM ACENTOS / PREPOSIÇÕES CURTAS)
+    function gpNormalizeSearch(str) {
+      return String(str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function gpSearchTokens(query) {
+      const rawTokens = gpNormalizeSearch(query).split(/\s+/).filter(Boolean);
+      if (rawTokens.length <= 1) return rawTokens;
+      const stopWords = new Set(["de", "da", "do", "das", "dos"]);
+      const filtered = rawTokens.filter(function(t) { return !stopWords.has(t); });
+      return filtered.length ? filtered : rawTokens;
+    }
+
+    function gpMatchesSearch(text, tokensOrQuery) {
+      const tokens = Array.isArray(tokensOrQuery) ? tokensOrQuery : gpSearchTokens(tokensOrQuery);
+      if (!tokens.length) return true;
+      const normText = gpNormalizeSearch(text);
+      if (!normText) return false;
+      return tokens.every(function(tok) { return normText.indexOf(tok) !== -1; });
+    }
+
+    function gpPatchRealTransitSearch() {
+      const rt = window.RealTransit;
+      if (!rt) return;
+
+      if (typeof rt.handleSearch === "function" && !rt.__gpWrappedHandleSearch) {
+        const origHandleSearch = rt.handleSearch.bind(rt);
+        rt.handleSearch = function(query) {
+          const qNorm = gpNormalizeSearch(query);
+          if (!qNorm) return origHandleSearch(query);
+
+          const drop = document.getElementById("search-results-dropdown");
+          const clearBtn = document.getElementById("search-clear-btn");
+          if (!drop) return;
+
+          if (clearBtn) clearBtn.style.display = "block";
+          const tokens = gpSearchTokens(query);
+          const results = [];
+
+          if (this.networkData && Array.isArray(this.networkData.terminals_sei)) {
+            this.networkData.terminals_sei.forEach(function(t) {
+              const hay = [t.name, t.city, t.municipio, t.neighborhood, t.bairro].filter(Boolean).join(" ");
+              if (gpMatchesSearch(hay, tokens)) {
+                results.push({
+                  type: "terminal",
+                  title: t.name,
+                  sub: "Terminal Integrado do SEI · Integração Temporal VEM",
+                  lat: t.lat,
+                  lon: t.lon
+                });
+              }
+            });
+          }
+
+          if (this.networkData && Array.isArray(this.networkData.routes_catalog)) {
+            this.networkData.routes_catalog.forEach(function(r) {
+              const hay = [r.code, r.label, r.name].filter(Boolean).join(" ");
+              if (gpMatchesSearch(hay, tokens)) {
+                results.push({
+                  type: "route",
+                  title: r.label,
+                  sub: "Linha Oficial GTFS Grande Recife",
+                  code: r.code
+                });
+              }
+            });
+          }
+
+          if (this.activeRoute && Array.isArray(this.activeRoute.stops)) {
+            const activeCode = this.activeRouteCode;
+            this.activeRoute.stops.forEach(function(st, idx) {
+              const hay = [st.name, st.stop_id, st.city, st.neighborhood].filter(Boolean).join(" ");
+              if (gpMatchesSearch(hay, tokens)) {
+                results.push({
+                  type: "stop",
+                  title: st.name,
+                  sub: "Parada #" + (idx + 1) + " da Linha " + activeCode + " · Cód " + st.stop_id,
+                  index: idx,
+                  lat: st.lat,
+                  lon: st.lon
+                });
+              }
+            });
+          }
+
+          if (results.length === 0) {
+            drop.innerHTML =
+              '<div style="padding:16px; text-align:center; color:#64748b;">' +
+                '<div style="display:flex; justify-content:center; margin-bottom:6px; color:#64748b;">' + this._layaSvgIcon("compass", 20) + "</div>" +
+                '<div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha ou parada para "' + this.escapeHtml(query) + '"</div>' +
+                '<div style="font-size:11.5px; color:#64748b; line-height:1.4; margin-bottom:10px;">Dica: Digite o número (ex: 522, 060, 2040) ou nome do terminal (ex: Macaxeira, CDU, Derby).</div>' +
+                '<button type="button" onclick="window.RealTransit.openLinePickerModal(); if(window.clearQuickSearch) window.clearQuickSearch();" style="background:#0284c7; color:#ffffff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">Abrir Catálogo de 393 Linhas →</button>' +
+              "</div>";
+            drop.style.display = "flex";
+            return;
+          }
+
+          const topResults = results.slice(0, 10);
+          window.currentRealSearchResults = topResults;
+          const self = this;
+
+          drop.innerHTML = topResults.map(function(r, idx) {
+            if (r.type === "terminal") {
+              return (
+                '<div class="search-item" onclick="window.RealTransit.selectSearchResult(' + idx + ')">' +
+                  '<div style="min-width:0;">' +
+                    '<div style="display:flex; align-items:center; gap:5px; color:var(--blue-accent); font-weight:800;">' + self._layaSvgIcon("map", 13) + "<span>" + self.escapeHtml(r.title) + "</span></div>" +
+                    '<div style="font-size:11px; color:var(--text-secondary);">' + self.escapeHtml(r.sub) + "</div>" +
+                  "</div>" +
+                  '<span style="font-size:11.5px; font-weight:700; color:var(--blue-accent); background:#e0f2fe; padding:2px 8px; border-radius:6px;">T.I. SEI</span>' +
+                "</div>"
+              );
+            }
+            if (r.type === "stop") {
+              return (
+                '<div class="search-item" onclick="window.RealTransit.selectSearchResult(' + idx + ')">' +
+                  '<div style="min-width:0;">' +
+                    '<div style="display:flex; align-items:center; gap:5px; color:var(--brand-green-dark); font-weight:800;">' + self._layaSvgIcon("pin", 13) + "<span>" + self.escapeHtml(r.title) + "</span></div>" +
+                    '<div style="font-size:11px; color:var(--text-secondary);">' + self.escapeHtml(r.sub) + "</div>" +
+                  "</div>" +
+                  '<span style="font-size:11.5px; font-weight:800; color:var(--brand-green-dark); background:#dcfce7; padding:2px 8px; border-radius:6px;">Parada</span>' +
+                "</div>"
+              );
+            }
+            return (
+              '<div class="search-item" onclick="window.RealTransit.selectSearchResult(' + idx + ')">' +
+                '<div style="min-width:0;">' +
+                  '<div style="display:flex; align-items:center; gap:5px; color:#0f172a; font-weight:800;">' + self._layaSvgIcon("bus", 13) + "<span>" + self.escapeHtml(r.title) + "</span></div>" +
+                  '<div style="font-size:11px; color:var(--text-secondary);">' + self.escapeHtml(r.sub) + "</div>" +
+                "</div>" +
+                '<span style="font-size:11.5px; font-weight:700; color:#059669; background:#ecfdf5; padding:2px 8px; border-radius:6px;">Linha</span>' +
+              "</div>"
+            );
+          }).join("");
+
+          drop.style.display = "flex";
+        };
+        rt.__gpWrappedHandleSearch = true;
+      }
+
+      if (typeof rt.filterModalLines === "function" && !rt.__gpWrappedFilterModalLines) {
+        const origFilterModalLines = rt.filterModalLines.bind(rt);
+        rt.filterModalLines = function(query) {
+          const qNorm = gpNormalizeSearch(query);
+          if (!qNorm) return origFilterModalLines(query);
+
+          const listEl = document.getElementById("modal-lines-list");
+          const headerEl = document.getElementById("modal-lines-list-header");
+          if (!listEl || !this.networkData) return;
+
+          if (headerEl) headerEl.textContent = 'Resultados para "' + query + '":';
+          const tokens = gpSearchTokens(query);
+          const catalog = this.networkData.routes_catalog || [];
+          const items = [];
+          catalog.forEach(function(r) {
+            const hay = [r.code, r.label, r.name].filter(Boolean).join(" ");
+            if (gpMatchesSearch(hay, tokens)) {
+              items.push({ code: r.code, name: r.name });
+            }
+          });
+
+          if (items.length === 0) {
+            listEl.innerHTML =
+              '<div style="padding:24px 16px; text-align:center; color:#64748b;">' +
+                '<div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-bottom:4px;">Nenhuma linha encontrada para "' + this.escapeHtml(query) + '"</div>' +
+                '<div style="font-size:11.5px; color:#64748b; line-height:1.45; margin-bottom:12px;">Verifique o número da linha (ex: 522, 060, 2040) ou o nome do corredor (ex: Dois Irmãos, Derby, CDU).</div>' +
+                '<button type="button" onclick="document.getElementById(\'modal-line-search-input\').value=\'\'; window.RealTransit.filterModalLines(\'\');" style="background:#0284c7; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:11.5px; font-weight:800; cursor:pointer;">Ver Linhas Populares</button>' +
+              "</div>";
+            return;
+          }
+
+          const busSvgBadge = '<span style="width:28px; height:28px; border-radius:8px; background:#e0f2fe; color:#0284c7; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="gp-svg" style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M16 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg></span>';
+          const self = this;
+
+          listEl.innerHTML = items.slice(0, 30).map(function(p) {
+            return (
+              '<div onclick="window.RealTransit.loadRoute(\'' + self.escapeHtml(p.code) + '\'); document.getElementById(\'line-picker-modal\').style.display=\'none\';" style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.15s ease;">' +
+                '<div style="display:flex; align-items:center; gap:10px; max-width:80%;">' +
+                  busSvgBadge +
+                  "<div>" +
+                    '<div style="font-size:14px; font-weight:800; color:#0f172a; line-height:1.2;">' + self.escapeHtml(p.code) + " · " + self.escapeHtml(p.name) + "</div>" +
+                    '<div style="font-size:11px; color:#64748b; margin-top:2px;">Dados Oficiais GTFS</div>' +
+                  "</div>" +
+                "</div>" +
+                '<span style="font-size:12px; font-weight:800; color:#059669;">Ver →</span>' +
+              "</div>"
+            );
+          }).join("");
+        };
+        rt.__gpWrappedFilterModalLines = true;
+      }
+
+      if (typeof rt.searchRmrPlaces === "function" && !rt.__gpWrappedSearchRmrPlaces) {
+        const origSearchRmrPlaces = rt.searchRmrPlaces.bind(rt);
+        rt.searchRmrPlaces = function(query, limit) {
+          const tokens = gpSearchTokens(query);
+          const normalizedQuery = tokens.length ? tokens.join(" ") : query;
+          return origSearchRmrPlaces(normalizedQuery, limit);
+        };
+        rt.__gpWrappedSearchRmrPlaces = true;
+      }
+    }
+
+    gpPatchRealTransitSearch();
+
     // SEARCH AUTOCOMPLETE LOGIC (RODADA: NOMES DE PARADAS, LOCALIDADES E TERMINAIS SEI)
     function handleQuickSearch(query) {
+      gpPatchRealTransitSearch();
       if (window.RealTransit && window.RealTransit.networkData) {
         window.RealTransit.handleSearch(query);
         return;
       }
 
-      const q = (query || "").trim().toLowerCase();
+      const tokens = gpSearchTokens(query);
       const drop = document.getElementById("search-results-dropdown");
       const clearBtn = document.getElementById("search-clear-btn");
 
-      if (!q) {
+      if (!tokens.length) {
         drop.style.display = "none";
         clearBtn.style.display = "none";
         return;
@@ -5947,8 +6164,8 @@
       // 1. Check terminals SEI (26 TIs)
       if (typeof SEI_TERMINALS !== "undefined" && SEI_TERMINALS) {
         SEI_TERMINALS.forEach(function(t) {
-          const full = (t.ti_name + " " + t.municipio + " " + (t.bairro || "")).toLowerCase();
-          if (full.includes(q) || ("ti " + full).includes(q)) {
+          const full = t.ti_name + " " + t.municipio + " " + (t.bairro || "");
+          if (gpMatchesSearch(full, tokens) || gpMatchesSearch("ti " + full, tokens)) {
             results.push({
               type: "terminal",
               title: t.ti_name,
@@ -5963,8 +6180,8 @@
       // 2. Check PE-60 Stops (43 Authentic Stops)
       if (typeof TELEMETRIA_199 !== "undefined" && TELEMETRIA_199.stops) {
         TELEMETRIA_199.stops.forEach(function(st) {
-          const stopSearch = ((st.name || "") + " " + (st.ref || "") + " " + (st.bairro || "") + " " + (st.municipio || "") + " " + (st.stop_id || "")).toLowerCase();
-          if (stopSearch.includes(q)) {
+          const stopSearch = (st.name || "") + " " + (st.ref || "") + " " + (st.bairro || "") + " " + (st.municipio || "") + " " + (st.stop_id || "");
+          if (gpMatchesSearch(stopSearch, tokens)) {
             results.push({
               type: "stop",
               title: st.name,
@@ -5988,7 +6205,8 @@
       ];
 
       priorityLines.forEach(function(l) {
-        if (l.terms.some(function(term) { return q.includes(term) || term.includes(q); })) {
+        const lineHay = l.code + " " + l.title + " " + l.sub + " " + l.terms.join(" ");
+        if (gpMatchesSearch(lineHay, tokens)) {
           results.push({ type: "route", title: l.title, sub: l.sub, code: l.code });
         }
       });
@@ -6517,6 +6735,19 @@
       }, 6500);
     }
 
+    function clearOnboardingRegisterError() {
+      const nameInput = document.getElementById("inp-name");
+      const errBox = document.getElementById("onb-register-error");
+      if (nameInput) {
+        nameInput.classList.remove("is-invalid");
+        nameInput.removeAttribute("aria-invalid");
+      }
+      if (errBox) {
+        errBox.style.display = "none";
+        errBox.textContent = "";
+      }
+    }
+
     async function handleOnboardingRegisterSubmit(e) {
       if (e && typeof e.preventDefault === "function") e.preventDefault();
       const nameInput = document.getElementById("inp-name");
@@ -6525,7 +6756,7 @@
       const noticeBox = document.getElementById("onb-register-notice");
       const submitBtn = document.getElementById("btn-onb-register-continue");
 
-      if (errBox) { errBox.style.display = "none"; errBox.textContent = ""; }
+      clearOnboardingRegisterError();
       if (noticeBox) { noticeBox.style.display = "none"; noticeBox.textContent = ""; }
 
       const name = nameInput ? nameInput.value.trim() : "";
@@ -6652,7 +6883,11 @@
           errBox.textContent = "Informe seu nome (mínimo 2 caracteres) para continuar.";
           errBox.style.display = "block";
         }
-        if (nameInput) nameInput.focus();
+        if (nameInput) {
+          nameInput.classList.add("is-invalid");
+          nameInput.setAttribute("aria-invalid", "true");
+          nameInput.focus();
+        }
         return;
       }
 
@@ -6938,13 +7173,14 @@
       const activeRegion = region || window.currentSeiRegionFilter || "all";
       const box = document.getElementById("sei-terminals-list-box");
       if (!box || !SEI_TERMINALS) return;
-      const searchVal = (document.getElementById("sei-terminal-search-input")?.value || "").trim().toLowerCase();
+      const searchVal = (document.getElementById("sei-terminal-search-input")?.value || "").trim();
+      const searchTokens = gpSearchTokens(searchVal);
 
       // Enriquece cada Terminal SEI com TODAS as linhas reais extraídas no hub_graph do GTFS (evita lista incompleta)
       const hubs = (window.RealTransit && window.RealTransit.networkData && Array.isArray(window.RealTransit.networkData.hub_graph))
         ? window.RealTransit.networkData.hub_graph
         : [];
-      const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const norm = gpNormalizeSearch;
 
       const enriched = SEI_TERMINALS.map(function(t) {
         const tRoot = norm(t.ti_name).replace(/^ti\s+/, "").trim();
@@ -6968,8 +7204,8 @@
         else if (activeRegion === "norte") regionOk = mun.includes("olinda") || mun.includes("paulista") || mun.includes("abreu") || mun.includes("igarassu");
         else if (activeRegion === "oeste") regionOk = mun.includes("camaragibe") || mun.includes("jaboatão") || nm.includes("tip") || nm.includes("caxangá");
         if (!regionOk) return false;
-        if (!searchVal) return true;
-        return nm.includes(searchVal) || mun.includes(searchVal) || t.all_lines.some(function(code) { return String(code).toLowerCase().includes(searchVal); });
+        if (!searchTokens.length) return true;
+        return gpMatchesSearch([t.ti_name, t.municipio, t.bairro || "", (t.all_lines || []).join(" ")].join(" "), searchTokens);
       });
 
       window.currentFilteredTerminals = filtered;
@@ -7507,12 +7743,13 @@
     }
 
     function gpFallbackLocalPlaceSearch(query) {
-      const q = String(query || "").trim().toLowerCase();
-      if (q.length < 2) return [];
+      const qNorm = gpNormalizeSearch(query);
+      if (qNorm.length < 2) return [];
+      const tokens = gpSearchTokens(query);
       const results = [];
       const seen = new Set();
       const pushPlace = function(p) {
-        const key = String(p.label || "").toLowerCase() + "|" + String(p.city || "").toLowerCase();
+        const key = gpNormalizeSearch(p.label) + "|" + gpNormalizeSearch(p.city);
         if (!p.label || seen.has(key)) return;
         seen.add(key);
         results.push(p);
@@ -7520,8 +7757,8 @@
 
       if (typeof SEI_TERMINALS !== "undefined" && Array.isArray(SEI_TERMINALS)) {
         SEI_TERMINALS.forEach(function(t) {
-          const hay = (t.ti_name + " " + (t.municipio || "") + " " + (t.bairro || "")).toLowerCase();
-          if (hay.includes(q)) {
+          const hay = t.ti_name + " " + (t.municipio || "") + " " + (t.bairro || "");
+          if (gpMatchesSearch(hay, tokens)) {
             pushPlace({
               label: t.ti_name,
               city: t.municipio || "Recife",
@@ -7538,8 +7775,8 @@
 
       if (window.RealTransit && typeof window.RealTransit.getSemanticCorridors === "function") {
         window.RealTransit.getSemanticCorridors().forEach(function(c) {
-          const hay = (c.label + " " + c.stopName + " " + (c.keys || []).join(" ")).toLowerCase();
-          if (hay.includes(q)) {
+          const hay = c.label + " " + c.stopName + " " + (c.keys || []).join(" ");
+          if (gpMatchesSearch(hay, tokens)) {
             pushPlace({
               label: c.label,
               city: c.city || "Região Metropolitana",
@@ -7558,7 +7795,8 @@
         for (let i = 0; i < window.RealTransit.networkData.stops_index.length; i++) {
           const s = window.RealTransit.networkData.stops_index[i];
           const sName = String(s[0] || "");
-          if (sName.toLowerCase().includes(q)) {
+          const hay = [sName, s[4] || "", s[5] || "", s[6] || ""].join(" ");
+          if (gpMatchesSearch(hay, tokens)) {
             pushPlace({
               label: sName,
               city: s[4] || "RMR",
@@ -7651,7 +7889,7 @@
         const sLon = Number(s[2]);
         if (!Number.isFinite(sLat) || !Number.isFinite(sLon)) continue;
         const dist = hasCoords ? gpHaversineKm(lat, lon, sLat, sLon) : 99;
-        const nameMatch = placeHint && String(s[0] || "").toLowerCase().includes(String(placeHint).toLowerCase());
+        const nameMatch = placeHint && gpMatchesSearch([s[0], s[4], s[5]].filter(Boolean).join(" "), placeHint);
         if ((hasCoords && dist <= 2.5) || nameMatch) {
           scored.push({
             stop_id: String(s[6] || ("GTFS-" + i)),
@@ -7758,13 +7996,35 @@
           err.style.display = "none";
           err.textContent = "";
         }
+        ["origin-place", "dest-place"].forEach(function(s) {
+          const el = getEl(s);
+          if (el) {
+            el.classList.remove("is-invalid");
+            el.removeAttribute("aria-invalid");
+          }
+        });
       };
 
-      const showError = function(msg) {
+      const showError = function(msg, focusRole) {
         const err = getEl("routine-error");
         if (err) {
           err.textContent = msg;
           err.style.display = "block";
+        }
+        ["origin-place", "dest-place"].forEach(function(s) {
+          const el = getEl(s);
+          if (el) {
+            el.classList.remove("is-invalid");
+            el.removeAttribute("aria-invalid");
+          }
+        });
+        if (focusRole) {
+          const targetEl = getEl(focusRole + "-place");
+          if (targetEl) {
+            targetEl.classList.add("is-invalid");
+            targetEl.setAttribute("aria-invalid", "true");
+            targetEl.focus();
+          }
         }
       };
 
@@ -8122,6 +8382,7 @@
           inp.dataset.cascadeBound = "1";
           inp.addEventListener("input", function() {
             const val = inp.value;
+            clearError();
             if (role === "origin") {
               state.originPlace = null;
               state.originStop = null;
@@ -8286,17 +8547,35 @@
       };
     }
 
+    function gpAreStopsIdentical(oStop, dStop) {
+      if (!oStop || !dStop) return false;
+      const oId = gpNormalizeSearch(oStop.stop_id);
+      const dId = gpNormalizeSearch(dStop.stop_id);
+      if (oId && dId && oId === dId) return true;
+      const oName = gpNormalizeSearch(oStop.name);
+      const dName = gpNormalizeSearch(dStop.name);
+      if (!oName || !dName || oName !== dName) return false;
+      if (Number.isFinite(oStop.lat) && Number.isFinite(oStop.lon) && Number.isFinite(dStop.lat) && Number.isFinite(dStop.lon)) {
+        return gpHaversineKm(oStop.lat, oStop.lon, dStop.lat, dStop.lon) < 0.05;
+      }
+      return true;
+    }
+
     async function saveRoutineFromCascade(controller, opts) {
       if (!controller) return;
       controller.clearError();
       const s = controller.state;
 
       if (!s.originStop) {
-        controller.showError("Busque o local de origem e selecione uma parada de embarque.");
+        controller.showError("Busque o local de origem e selecione uma parada de embarque.", "origin");
         return;
       }
       if (!s.destStop) {
-        controller.showError("Busque o local de destino e selecione uma parada de chegada.");
+        controller.showError("Busque o local de destino e selecione uma parada de chegada.", "dest");
+        return;
+      }
+      if (gpAreStopsIdentical(s.originStop, s.destStop)) {
+        controller.showError("Origem e destino não podem ser idênticos. Escolha uma parada de chegada diferente.", "dest");
         return;
       }
 
