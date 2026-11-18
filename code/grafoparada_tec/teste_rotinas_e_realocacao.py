@@ -348,6 +348,52 @@ def test_db_manager_sqlite_temporario_e_gtfs_schedules():
     assert status.get("lines_covered") == 393
 
 
+def test_gtfs_schedules_ti_hubs_checkpoints_e_chegadas():
+    sched = json.loads(GTFS_SCHEDULES_JSON.read_text(encoding="utf-8"))
+    ti_hubs = sched.get("ti_hubs") or []
+    assert isinstance(ti_hubs, list) and len(ti_hubs) == 133, (
+        f"Esperado 133 ti_hubs em gtfs_schedules.json, obtido {len(ti_hubs)}"
+    )
+    for hub in ti_hubs:
+        hub_lines = hub.get("lines") or []
+        distinct_codes = {str(item.get("code") or "").strip() for item in hub_lines if item.get("code")}
+        assert len(distinct_codes) >= 2, f"Hub {hub.get('name')} não é multi-linha: {distinct_codes}"
+
+    lines = sched.get("lines") or {}
+    assert len(lines) == 393
+    dirs_with_checkpoints = 0
+    non_empty_ti_checkpoints = 0
+    for code, line_obj in lines.items():
+        has_any_dir = False
+        for dir_key in ("ida", "volta"):
+            dir_obj = line_obj.get(dir_key)
+            if not isinstance(dir_obj, dict):
+                continue
+            has_any_dir = True
+            if "ti_checkpoints" in dir_obj:
+                cps = dir_obj.get("ti_checkpoints")
+                assert isinstance(cps, list), f"Linha {code} ({dir_key}) sem lista ti_checkpoints"
+                dirs_with_checkpoints += 1
+                if cps:
+                    non_empty_ti_checkpoints += 1
+                    assert any(cp.get("stop_id") and cp.get("stop_name") for cp in cps), (
+                        f"Linha {code} ({dir_key}) com ti_checkpoints malformados"
+                    )
+            for day_key in ("DUT", "SAB", "DOM"):
+                day_obj = dir_obj.get(day_key)
+                if isinstance(day_obj, dict) and day_obj.get("dep_mins"):
+                    assert day_obj.get("first_arr"), f"Linha {code} ({dir_key}/{day_key}) sem first_arr"
+                    assert day_obj.get("last_arr"), f"Linha {code} ({dir_key}/{day_key}) sem last_arr"
+        assert has_any_dir, f"Linha {code} sem direções ida/volta"
+
+    assert dirs_with_checkpoints >= 393
+    assert non_empty_ti_checkpoints >= 100
+
+    status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
+    assert int(status.get("ti_hubs_indexed") or 0) == 133
+    assert status.get("gtfs_schedule_prior_enabled") is True
+
+
 def test_db_manager_sync_cloud_observations_offline_e_http_mock():
     with tempfile.TemporaryDirectory(prefix="gp_db_sync_") as tmp_dir:
         tmp_db = Path(tmp_dir) / "sync_test.db"
@@ -481,7 +527,9 @@ def test_laya_ia_gtfs_gps_e_webmcp():
     assert t2.get("provenanceLabel") == "Horário Programado · GTFS" and t2.get("routeCode") in ("199", "178", "191", "195", "196") and ("522" not in t2.get("html", ""))
     assert t2_199.get("routeCode") == "199" and t2_199.get("provenanceLabel") == "Horário Programado · GTFS" and ("522" not in t2_199.get("html", ""))
     ai_html = t3.get("html", "")
-    assert ("1,285 min" in ai_html or "1,29 min" in ai_html) and ("393" in ai_html) and ("Kim et al." in ai_html)
+    status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
+    expected_mae_br = str(status["stgcn_mae"]).replace(".", ",") + " min"
+    assert (expected_mae_br in ai_html) and ("393" in ai_html) and ("Kim et al." in ai_html)
     assert (t_imp.get("intent") in ("trip_plan", "trip_direct", "trip_transfer")) and (len(t_imp.get("routeOptions") or []) >= 1) and ("Casa Caiada" in t_imp.get("html", ""))
     assert bool(p_ibu.get("origCorridor")) and bool(p_ibu.get("destCorridor")) and (len(p_ibu.get("routeOptions") or []) >= 1)
 
@@ -516,6 +564,7 @@ def run_cli_audit() -> int:
         ("Bloco 2: Deck Oficial da Banca (.pptx >= 1 MB)", test_deck_oficial_banca),
         ("Bloco 3/4: Modelos Yap & Cats, Kim et al., Trava Híbrida e Despacho CTM", test_modelos_cientificos_yap_kim_trava_ctm),
         ("Bloco 5: Persistência SQLite Temporária & Horários GTFS (393/14/236)", test_db_manager_sqlite_temporario_e_gtfs_schedules),
+        ("Bloco 5b: GTFS TIs Multi-Linha (133), Checkpoints & Chegadas", test_gtfs_schedules_ti_hubs_checkpoints_e_chegadas),
         ("Bloco 6: Sincronização Cloud/Neon -> SQLite (Offline + Mock HTTP)", test_db_manager_sync_cloud_observations_offline_e_http_mock),
         ("Bloco 7: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
     ]

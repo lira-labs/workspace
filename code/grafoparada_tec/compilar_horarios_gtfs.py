@@ -312,6 +312,16 @@ def compute_headways_by_band(dep_mins: list[int]) -> dict[str, float | None]:
     return headways
 
 
+TI_STATION_RE = re.compile(
+    r"(\bTI\s+|\bTERMINAL\b|\bESTA[CÇ][AÃ]O\b|\bINTEGRA[CÇ][AÃ]O\b)",
+    re.IGNORECASE,
+)
+
+
+def is_ti_or_station_name(name: str) -> bool:
+    return bool(name and TI_STATION_RE.search(name))
+
+
 def clean_stop_root_name(raw_name: str) -> str:
     name = " ".join((raw_name or "").strip().split())
     # Remove sufixo numerico padrao GTFS (" - 020000")
@@ -418,13 +428,13 @@ def build_schedules_and_places() -> dict:
     print(f"  -> stop_times.txt lido em {time.time() - t0:.2f}s ({len(trip_stops)} viagens).")
 
     print("[3/5] Agregando horarios por linha, sentido (IDA/VOLTA), servico (DUT/SAB/DOM) e offsets...")
-    # Estrutura: agg[(code, dkey, svc)] -> {"deps": [], "durs": []}
-    agg_svc = defaultdict(lambda: {"deps": [], "durs": []})
+    # Estrutura: agg[(code, dkey, svc)] -> {"deps": [], "arrs": [], "durs": []}
+    agg_svc = defaultdict(lambda: {"deps": [], "arrs": [], "durs": []})
     # Fallback de sequencia canonica caso alguma linha nao tenha no network_json
     fallback_seq: dict[tuple[str, str], list[str]] = {}
     fallback_seq_score: dict[tuple[str, str], tuple[int, int]] = {}
 
-    # Primeiro passo: ordena paradas de cada trip e coleta partidas/duracoes + melhor sequencia canonica
+    # Primeiro passo: ordena paradas de cada trip e coleta partidas/chegadas/duracoes + melhor sequencia canonica
     for tid, pts in trip_stops.items():
         pts.sort(key=lambda x: x[0])
         rid, dkey, svcs = trip_info[tid]
@@ -433,10 +443,12 @@ def build_schedules_and_places() -> dict:
         first_dep_sec = pts[0][3]
         last_arr_sec = pts[-1][2]
         dep_min = int(round(first_dep_sec / 60.0))
+        arr_min = int(round(last_arr_sec / 60.0))
         dur_min = max(1.0, (last_arr_sec - first_dep_sec) / 60.0)
 
         for svc in svcs:
             agg_svc[(code, dkey, svc)]["deps"].append(dep_min)
+            agg_svc[(code, dkey, svc)]["arrs"].append(arr_min)
             agg_svc[(code, dkey, svc)]["durs"].append(dur_min)
 
         is_dut = 1 if "DUT" in svcs else 0
@@ -516,10 +528,15 @@ def build_schedules_and_places() -> dict:
                     continue
                 has_dir = True
                 deps_sorted = sorted(bucket["deps"])
+                arrs_sorted = sorted(bucket["arrs"]) if bucket["arrs"] else []
                 dur_med = round(float(statistics.median(bucket["durs"])), 1)
+                first_arr_min = arrs_sorted[0] if arrs_sorted else int(round(deps_sorted[0] + dur_med))
+                last_arr_min = arrs_sorted[-1] if arrs_sorted else int(round(deps_sorted[-1] + dur_med))
                 dir_obj[svc] = {
                     "first_dep": format_hhmm(deps_sorted[0]),
                     "last_dep": format_hhmm(deps_sorted[-1]),
+                    "first_arr": format_hhmm(first_arr_min),
+                    "last_arr": format_hhmm(last_arr_min),
                     "trip_count": len(deps_sorted),
                     "duration_min": dur_med,
                     "headways_min": compute_headways_by_band(deps_sorted),
@@ -528,8 +545,8 @@ def build_schedules_and_places() -> dict:
 
             sums = offset_sum.get((code, dkey))
             cnts = offset_cnt.get((code, dkey))
+            offsets: list[float] = []
             if sums and cnts:
-                offsets = []
                 last_val = 0.0
                 for s_val, c_val in zip(sums, cnts):
                     if c_val > 0:
@@ -541,6 +558,30 @@ def build_schedules_and_places() -> dict:
                 dir_obj["stop_offsets_min"] = offsets
             elif has_dir:
                 dir_obj["stop_offsets_min"] = []
+
+            if has_dir or offsets:
+                seq_ids = canonical_stops_by_code.get((code, dkey)) or fallback_seq.get((code, dkey)) or []
+                n_seq = len(seq_ids)
+                ti_cps = []
+                for stop_idx, sid in enumerate(seq_ids):
+                    raw_sname = stops_dict.get(sid, {}).get("name", "")
+                    if not is_ti_or_station_name(raw_sname):
+                        continue
+                    if stop_idx == 0:
+                        role = "origem"
+                    elif stop_idx == n_seq - 1:
+                        role = "destino"
+                    else:
+                        role = "integracao"
+                    off_val = offsets[stop_idx] if stop_idx < len(offsets) else 0.0
+                    ti_cps.append({
+                        "stop_id": sid,
+                        "stop_name": clean_stop_root_name(raw_sname) or raw_sname,
+                        "stop_idx": stop_idx,
+                        "offset_min": off_val,
+                        "role": role,
+                    })
+                dir_obj["ti_checkpoints"] = ti_cps
 
             line_entry[dkey] = dir_obj
 
@@ -675,6 +716,62 @@ def build_schedules_and_places() -> dict:
     named_places.sort(key=lambda x: (x["city"], -len(x["lines"]), x["name"]))
     rmr_places.extend(named_places)
 
+    # Constroi indice compacto de Terminais de Integracao / Estacoes SEI (ti_hubs) para cruzamento chegada x saida
+    ti_hub_clusters: dict[str, list[dict]] = defaultdict(list)
+    for code, line_obj in lines_payload.items():
+        for dkey in ("ida", "volta"):
+            dir_obj = line_obj.get(dkey, {})
+            for cp in dir_obj.get("ti_checkpoints", []):
+                sid = cp["stop_id"]
+                smeta = stops_dict.get(sid)
+                if not smeta:
+                    continue
+                cname = cp["stop_name"]
+                norm = cname.upper()
+                slat, slon = smeta["lat"], smeta["lon"]
+                matched_hub = None
+                for ex in ti_hub_clusters.get(norm, []):
+                    if approx_km(slat, slon, ex["lat"], ex["lon"]) <= 0.45:
+                        matched_hub = ex
+                        break
+                if matched_hub is None:
+                    matched_hub = {
+                        "name": cname,
+                        "lat": slat,
+                        "lon": slon,
+                        "coords": [(slat, slon)],
+                        "line_offsets": {},
+                    }
+                    ti_hub_clusters[norm].append(matched_hub)
+                else:
+                    matched_hub["coords"].append((slat, slon))
+                ld_key = (code, dkey)
+                prev_off = matched_hub["line_offsets"].get(ld_key)
+                if prev_off is None or cp["offset_min"] < prev_off:
+                    matched_hub["line_offsets"][ld_key] = cp["offset_min"]
+
+    ti_hubs = []
+    for cands in ti_hub_clusters.values():
+        for hub in cands:
+            distinct_codes = {c for c, _ in hub["line_offsets"]}
+            if len(distinct_codes) < 2:
+                continue
+            clat = sum(c[0] for c in hub["coords"]) / len(hub["coords"])
+            clon = sum(c[1] for c in hub["coords"]) / len(hub["coords"])
+            ti_hubs.append({
+                "name": hub["name"],
+                "lat": round(clat, 5),
+                "lon": round(clon, 5),
+                "lines": [
+                    {"code": c, "direction": d, "offset_min": off}
+                    for (c, d), off in sorted(hub["line_offsets"].items())
+                ],
+                "_n_codes": len(distinct_codes),
+            })
+    ti_hubs.sort(key=lambda x: (-x["_n_codes"], x["name"]))
+    for h in ti_hubs:
+        h.pop("_n_codes", None)
+
     payload = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "source": "GTFS CTM Grande Recife",
@@ -685,6 +782,7 @@ def build_schedules_and_places() -> dict:
         "time_bands": {b[0]: [b[1], b[2]] for b in TIME_BANDS},
         "lines": lines_payload,
         "rmr_places": rmr_places,
+        "ti_hubs": ti_hubs,
     }
 
     print(f"[5/5] Gravando JSON compacto em {OUTPUT_JSON}...")
@@ -697,6 +795,7 @@ def build_schedules_and_places() -> dict:
     print(f"  -> Tamanho: {size_kb:.1f} KB ({OUTPUT_JSON.stat().st_size:,} bytes)")
     print(f"  -> Linhas compiladas: {len(lines_payload)}/393")
     print(f"  -> Lugares RMR indexados: {len(rmr_places)} ({len(RMR_CITIES_META)} cidades + {len(named_places)} terminais/estacoes/polos)")
+    print(f"  -> TIs de integracao indexados (ti_hubs): {len(ti_hubs)}")
     return payload
 
 

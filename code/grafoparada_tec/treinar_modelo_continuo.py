@@ -157,6 +157,12 @@ def validate_full_mesh(network: dict[str, Any], schedules: dict[str, Any]) -> di
     if len(rmr_cities) != 14:
         raise RuntimeError(f"Esperadas 14 cidades oficiais da RMR em rmr_places; encontradas {len(rmr_cities)}.")
 
+    ti_hubs = schedules.get("ti_hubs", [])
+    ti_checkpoints_total = sum(
+        len(sl.get("ida", {}).get("ti_checkpoints", [])) + len(sl.get("volta", {}).get("ti_checkpoints", []))
+        for sl in sched_lines.values()
+    )
+
     return {
         "lines_covered": len(net_lines),
         "schedules_indexed": len(sched_lines),
@@ -168,6 +174,8 @@ def validate_full_mesh(network: dict[str, Any], schedules: dict[str, Any]) -> di
         "stops_aligned_393": stops_aligned,
         "rmr_cities": len(rmr_cities),
         "rmr_places_total": len(rmr_places),
+        "ti_hubs_indexed": len(ti_hubs),
+        "ti_checkpoints_total": ti_checkpoints_total,
     }
 
 
@@ -244,7 +252,35 @@ def build_spatiotemporal_series(
         for code in hub.get("lines", []):
             line_to_hubs.setdefault(code, []).append(idx)
 
-    # Pre-calcula headway medio por (hub, servico, faixa) e histograma de partidas por slot de 10 min (144 slots)
+    # Mapeia cada hub do grafo para seu TI correspondente em ti_hubs (e checkpoints GTFS)
+    ti_hubs = schedules.get("ti_hubs", [])
+    hub_ti_entries: dict[int, list[dict[str, Any]]] = {}
+    for idx, hub in enumerate(hubs):
+        h_name = str(hub.get("name") or "").strip().upper()
+        matched = None
+        for th in ti_hubs:
+            th_name = str(th.get("name") or "").strip().upper()
+            if th_name == h_name or approx_km(hub["lat"], hub["lon"], th["lat"], th["lon"]) <= 0.45:
+                matched = th
+                break
+        if matched:
+            hub_ti_entries[idx] = matched.get("lines", [])
+        else:
+            # Fallback via ti_checkpoints das linhas que servem este hub
+            cps_fallback: list[dict[str, Any]] = []
+            for code in hub.get("lines", []):
+                for dkey in ("ida", "volta"):
+                    for cp in sched_lines.get(code, {}).get(dkey, {}).get("ti_checkpoints", []):
+                        cp_name = str(cp.get("stop_name") or "").strip().upper()
+                        if cp_name and (cp_name in h_name or h_name in cp_name):
+                            cps_fallback.append({
+                                "code": code,
+                                "direction": dkey,
+                                "offset_min": cp.get("offset_min", 0.0),
+                            })
+            hub_ti_entries[idx] = cps_fallback
+
+    # Pre-calcula headway medio por (hub, servico, faixa) e histograma de partidas/chegadas por slot de 10 min (144 slots)
     hub_band_wait: dict[tuple[int, str, str], float] = {}
     hub_slot_deps: dict[str, np.ndarray] = {
         svc: np.zeros((num_nodes, 144), dtype=np.float32) for svc in ("DUT", "SAB", "DOM")
@@ -252,6 +288,23 @@ def build_spatiotemporal_series(
 
     for svc in ("DUT", "SAB", "DOM"):
         for idx, hub in enumerate(hubs):
+            ti_lines = hub_ti_entries.get(idx, [])
+            ti_passages_by_band: dict[str, list[int]] = {
+                b: [] for b in ("madrugada", "pico_manha", "entre_picos", "pico_tarde", "noite")
+            }
+            for entry in ti_lines:
+                code = entry["code"]
+                dkey = entry.get("direction", "ida")
+                off_m = float(entry.get("offset_min", 0.0))
+                svc_data = sched_lines.get(code, {}).get(dkey, {}).get(svc)
+                if not svc_data:
+                    svc_data = sched_lines.get(code, {}).get(dkey, {}).get("DUT", {})
+                for dm in svc_data.get("dep_mins", []):
+                    pass_min = int(round(dm + off_m)) % 1440
+                    slot = pass_min // step_min
+                    hub_slot_deps[svc][idx, slot] += 0.65
+                    ti_passages_by_band[band_for_minute(pass_min)].append(pass_min)
+
             for band_name in ("madrugada", "pico_manha", "entre_picos", "pico_tarde", "noite"):
                 hws = []
                 for code in hub.get("lines", []):
@@ -262,7 +315,20 @@ def build_spatiotemporal_series(
                     if hw is not None and hw > 0:
                         hws.append(float(hw))
                 base_hw = float(np.median(hws)) if hws else 35.0
-                hub_band_wait[(idx, svc, band_name)] = min(45.0, max(5.0, 0.5 * base_hw))
+                base_wait = min(45.0, max(5.0, 0.5 * base_hw))
+
+                # Prior programado GTFS no TI: densidade de chegadas/saidas reais na faixa
+                band_pass = sorted(ti_passages_by_band[band_name])
+                if len(band_pass) >= 2:
+                    gaps = [
+                        band_pass[k + 1] - band_pass[k]
+                        for k in range(len(band_pass) - 1)
+                        if 0 < (band_pass[k + 1] - band_pass[k]) <= 120
+                    ]
+                    if gaps:
+                        ti_prior_wait = min(45.0, max(3.5, 0.5 * float(np.median(gaps))))
+                        base_wait = 0.65 * base_wait + 0.35 * ti_prior_wait
+                hub_band_wait[(idx, svc, band_name)] = base_wait
 
             for code in hub.get("lines", []):
                 svc_data = sched_lines.get(code, {}).get("ida", {}).get(svc)
@@ -272,7 +338,7 @@ def build_spatiotemporal_series(
                     slot = (int(dm) % 1440) // step_min
                     hub_slot_deps[svc][idx, slot] += 1.0
 
-        hub_slot_deps[svc] = np.clip(hub_slot_deps[svc] * 0.45, 0.5, 45.0)
+        hub_slot_deps[svc] = np.clip(hub_slot_deps[svc] * 0.40, 0.5, 45.0)
 
     # Matriz de propagacao espacial linha-normalizada
     row_sum = adj.sum(axis=1, keepdims=True)
@@ -541,6 +607,9 @@ def run_continuous_training() -> dict[str, Any]:
     metrics = train_and_evaluate_models(series, l_matrix)
     trained_at_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    ti_hubs_indexed = int(mesh_report.get("ti_hubs_indexed", 0))
+    gtfs_prior_enabled = ti_hubs_indexed > 0
+
     status_payload = {
         "lines_covered": mesh_report["lines_covered"],
         "schedules_indexed": mesh_report["schedules_indexed"],
@@ -557,6 +626,8 @@ def run_continuous_training() -> dict[str, Any]:
         "temporal_split": "strict_70_30_purged",
         "graph_nodes": len(hubs),
         "rmr_places_indexed": mesh_report["rmr_places_total"],
+        "ti_hubs_indexed": ti_hubs_indexed,
+        "gtfs_schedule_prior_enabled": gtfs_prior_enabled,
         "trava_hibrida_triggers": metrics["trava_hibrida_triggers"],
         "db_connected": db_connected,
         "db_rows_integrated": db_rows_used,
@@ -578,7 +649,8 @@ def run_continuous_training() -> dict[str, Any]:
                 "persistence_mae": metrics["persistence_mae"],
                 "weights_hash": metrics["weights_hash"],
                 "notes": (
-                    f"strict_70_30_purged | hubs={len(hubs)} | routines={routines_count} | "
+                    f"strict_70_30_purged | hubs={len(hubs)} | ti_hubs={ti_hubs_indexed} | "
+                    f"gtfs_prior={gtfs_prior_enabled} | routines={routines_count} | "
                     f"rmr_places={mesh_report['rmr_places_total']} | trava={metrics['trava_hibrida_triggers']}"
                 ),
                 "created_at": trained_at_utc,
