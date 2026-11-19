@@ -3096,6 +3096,32 @@
       font-weight: 600;
       line-height: 1.35;
     }
+    .gp-remember-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 2px 0 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-page);
+      cursor: pointer;
+      user-select: none;
+    }
+    .gp-remember-row input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--brand-green-dark);
+      flex-shrink: 0;
+      cursor: pointer;
+      margin: 0;
+    }
+    .gp-remember-row span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
     .gp-cascade-block {
       padding: 11px 0;
       border-top: 1px solid var(--border-color);
@@ -4048,9 +4074,9 @@
           <span id="label-senior-pill">Aa Fácil</span>
         </button>
 
-        <button class="btn-secondary" style="color:var(--danger-red); border-color:var(--danger-border); display:flex; align-items:center; justify-content:center; gap:7px;" onclick="logoutAndRestart()">
+        <button type="button" id="btn-logout-device" class="btn-secondary" style="color:var(--danger-red); border-color:var(--danger-border); display:flex; align-items:center; justify-content:center; gap:7px;" onclick="logoutAndRestart()">
           <svg class="gp-svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span>Sair da Conta / Limpar Dados</span>
+          <span>Sair / Trocar conta neste dispositivo</span>
         </button>
       </div>
     </div>
@@ -4087,6 +4113,11 @@
               <span>Sem CPF. Dados usados apenas para sua rotina (LGPD). Se já tiver conta com este contato, seus dados e rotina são restaurados automaticamente.</span>
             </div>
           </div>
+
+          <label class="gp-remember-row" for="chk-remember-device">
+            <input type="checkbox" id="chk-remember-device" checked />
+            <span>Lembrar este dispositivo automaticamente</span>
+          </label>
 
           <div id="onb-register-error" class="gp-field-error" role="alert"></div>
           <div id="onb-register-notice" class="gp-sync-notice" style="display:none; margin-bottom:10px;"></div>
@@ -5151,6 +5182,573 @@
     let busAnimIndex = 0;
     let isSlide3FailureActive = false;
 
+    // =========================================================================
+    // PERSISTÊNCIA RESILIENTE DO DISPOSITIVO (localStorage + Cookie 1 ano + IndexedDB)
+    // =========================================================================
+    const GP_AUTH_IDB_NAME = "grafoparada_auth_db";
+    const GP_AUTH_IDB_STORE = "session";
+    const GP_AUTH_IDB_KEY = "current";
+    const GP_COOKIE_MAX_AGE = 31536000;
+    window._gpAuthSessionEpoch = window._gpAuthSessionEpoch || 0;
+    window._gpRememberDevice = true;
+
+    function gpReadCookie(name) {
+      try {
+        if (typeof document === "undefined" || !document.cookie) return "";
+        const prefix = name + "=";
+        const parts = document.cookie.split(";");
+        for (let i = 0; i < parts.length; i++) {
+          const item = parts[i].trim();
+          if (item.indexOf(prefix) === 0) {
+            return decodeURIComponent(item.slice(prefix.length));
+          }
+        }
+      } catch (e) {}
+      return "";
+    }
+
+    function gpSetCookie(name, value, maxAgeSec) {
+      try {
+        if (typeof document === "undefined") return;
+        const ttl = Number.isFinite(Number(maxAgeSec)) ? Number(maxAgeSec) : GP_COOKIE_MAX_AGE;
+        document.cookie = name + "=" + encodeURIComponent(String(value || "")) + "; path=/; max-age=" + ttl + "; SameSite=Lax";
+      } catch (e) {}
+    }
+
+    function gpDeleteCookie(name) {
+      try {
+        if (typeof document === "undefined") return;
+        document.cookie = name + "=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+      } catch (e) {}
+    }
+
+    function gpOpenAuthIdb() {
+      return new Promise(function(resolve) {
+        try {
+          if (typeof indexedDB === "undefined" || !indexedDB) {
+            resolve(null);
+            return;
+          }
+          let settled = false;
+          const finish = function(val) {
+            if (!settled) {
+              settled = true;
+              resolve(val);
+            }
+          };
+          const timer = setTimeout(function() { finish(null); }, 1200);
+          const req = indexedDB.open(GP_AUTH_IDB_NAME, 1);
+          req.onupgradeneeded = function(ev) {
+            try {
+              const db = ev.target.result;
+              if (!db.objectStoreNames.contains(GP_AUTH_IDB_STORE)) {
+                db.createObjectStore(GP_AUTH_IDB_STORE);
+              }
+            } catch (e) {}
+          };
+          req.onsuccess = function(ev) {
+            clearTimeout(timer);
+            finish(ev.target.result || null);
+          };
+          req.onerror = function() {
+            clearTimeout(timer);
+            finish(null);
+          };
+          req.onblocked = function() {
+            clearTimeout(timer);
+            finish(null);
+          };
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    async function gpIdbWriteSession(sessionObj) {
+      const db = await gpOpenAuthIdb();
+      if (!db) return false;
+      return new Promise(function(resolve) {
+        try {
+          const tx = db.transaction(GP_AUTH_IDB_STORE, "readwrite");
+          const store = tx.objectStore(GP_AUTH_IDB_STORE);
+          store.put(sessionObj, GP_AUTH_IDB_KEY);
+          tx.oncomplete = function() { try { db.close(); } catch (e) {} resolve(true); };
+          tx.onerror = function() { try { db.close(); } catch (e) {} resolve(false); };
+          tx.onabort = function() { try { db.close(); } catch (e) {} resolve(false); };
+        } catch (e) {
+          try { db.close(); } catch (_e) {}
+          resolve(false);
+        }
+      });
+    }
+
+    async function gpIdbReadSession() {
+      const db = await gpOpenAuthIdb();
+      if (!db) return null;
+      return new Promise(function(resolve) {
+        try {
+          const tx = db.transaction(GP_AUTH_IDB_STORE, "readonly");
+          const store = tx.objectStore(GP_AUTH_IDB_STORE);
+          const req = store.get(GP_AUTH_IDB_KEY);
+          req.onsuccess = function() {
+            const val = req.result || null;
+            try { db.close(); } catch (e) {}
+            resolve(val && typeof val === "object" ? val : null);
+          };
+          req.onerror = function() {
+            try { db.close(); } catch (e) {}
+            resolve(null);
+          };
+        } catch (e) {
+          try { db.close(); } catch (_e) {}
+          resolve(null);
+        }
+      });
+    }
+
+    async function gpIdbClearSession() {
+      const db = await gpOpenAuthIdb();
+      if (!db) return false;
+      return new Promise(function(resolve) {
+        try {
+          const tx = db.transaction(GP_AUTH_IDB_STORE, "readwrite");
+          const store = tx.objectStore(GP_AUTH_IDB_STORE);
+          store.delete(GP_AUTH_IDB_KEY);
+          tx.oncomplete = function() { try { db.close(); } catch (e) {} resolve(true); };
+          tx.onerror = function() { try { db.close(); } catch (e) {} resolve(false); };
+          tx.onabort = function() { try { db.close(); } catch (e) {} resolve(false); };
+        } catch (e) {
+          try { db.close(); } catch (_e) {}
+          resolve(false);
+        }
+      });
+    }
+
+    function gpGetOrCreateDeviceId() {
+      let existingId = "";
+      try {
+        existingId = String(localStorage.getItem("gp_device_id") || "").trim();
+      } catch (e) {}
+      if (!existingId) {
+        existingId = String(gpReadCookie("gp_device_id") || "").trim();
+      }
+      if (!existingId) {
+        try {
+          const rawGp = localStorage.getItem("gp_user_profile") || localStorage.getItem("grafoparada_user_profile");
+          if (rawGp) {
+            const parsed = JSON.parse(rawGp);
+            if (parsed && parsed.device_id) {
+              existingId = String(parsed.device_id).trim();
+            }
+          }
+        } catch (e) {}
+      }
+      if (existingId && existingId.length >= 6) {
+        try { localStorage.setItem("gp_device_id", existingId); } catch (e) {}
+        return existingId;
+      }
+
+      let generated = "";
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        generated = "dev_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16);
+      } else {
+        generated = "dev_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      }
+      try { localStorage.setItem("gp_device_id", generated); } catch (e) {}
+      return generated;
+    }
+
+    async function gpPersistDeviceSession(profile) {
+      const p = (profile && typeof profile === "object") ? profile : {};
+      const deviceId = String(p.device_id || gpGetOrCreateDeviceId()).trim();
+      const userId = String(p.user_id || p.id || "").trim();
+      const name = String(p.name || "").trim();
+      const contactHint = p.contact_hint ? String(p.contact_hint).trim() : null;
+      const onboardingDone = typeof p.onboarding_done === "boolean"
+        ? p.onboarding_done
+        : (localStorage.getItem("grafoparada_logged") === "true");
+
+      const sessionObj = {
+        device_id: deviceId,
+        user_id: userId,
+        name: name,
+        contact_hint: contactHint,
+        onboarding_done: onboardingDone,
+        updated_at: new Date().toISOString()
+      };
+
+      // 1) localStorage (preservando chaves existentes)
+      try {
+        localStorage.setItem("gp_device_id", deviceId);
+        localStorage.setItem("gp_user_profile", JSON.stringify(sessionObj));
+        if (userId && name.length >= 2) {
+          let prevProfile = {};
+          try {
+            const rawPrev = localStorage.getItem("grafoparada_user_profile");
+            if (rawPrev) prevProfile = JSON.parse(rawPrev) || {};
+          } catch (_e) {}
+          const mergedProfile = Object.assign({}, prevProfile, {
+            id: userId,
+            device_id: deviceId,
+            name: name,
+            contact_hint: contactHint,
+            onboarding_done: onboardingDone,
+            updated_at: sessionObj.updated_at
+          });
+          localStorage.setItem("grafoparada_user_profile", JSON.stringify(mergedProfile));
+          localStorage.setItem("grafoparada_user_data", JSON.stringify({
+            id: userId,
+            name: name,
+            contact_hint: contactHint
+          }));
+        }
+        if (onboardingDone) {
+          localStorage.setItem("grafoparada_logged", "true");
+        }
+      } catch (e) {}
+
+      // 2) Cookie first-party (1 ano = 31536000s)
+      gpSetCookie("gp_device_id", deviceId, GP_COOKIE_MAX_AGE);
+      if (userId) {
+        gpSetCookie("gp_user_id", userId, GP_COOKIE_MAX_AGE);
+      }
+
+      // 3) IndexedDB backup resiliente
+      await gpIdbWriteSession(sessionObj);
+      return sessionObj;
+    }
+
+    async function gpReadDeviceSession() {
+      let lsDeviceId = "";
+      let lsProfile = null;
+      let lsLogged = false;
+      try {
+        lsDeviceId = String(localStorage.getItem("gp_device_id") || "").trim();
+        lsLogged = localStorage.getItem("grafoparada_logged") === "true";
+        const rawNew = localStorage.getItem("gp_user_profile");
+        const rawOld = localStorage.getItem("grafoparada_user_profile");
+        const parsedNew = rawNew ? JSON.parse(rawNew) : null;
+        const parsedOld = rawOld ? JSON.parse(rawOld) : null;
+        if (parsedNew || parsedOld) {
+          lsProfile = Object.assign({}, parsedOld || {}, parsedNew || {});
+        }
+      } catch (e) {}
+
+      const cookieDeviceId = String(gpReadCookie("gp_device_id") || "").trim();
+      const cookieUserId = String(gpReadCookie("gp_user_id") || "").trim();
+      const idbSession = await gpIdbReadSession();
+
+      const deviceId = (lsProfile && lsProfile.device_id)
+        || lsDeviceId
+        || cookieDeviceId
+        || (idbSession && idbSession.device_id)
+        || "";
+      const userId = (lsProfile && (lsProfile.user_id || lsProfile.id))
+        || cookieUserId
+        || (idbSession && (idbSession.user_id || idbSession.id))
+        || "";
+      const name = String(
+        (lsProfile && lsProfile.name)
+        || (idbSession && idbSession.name)
+        || ""
+      ).trim();
+      const contactHint = (lsProfile && lsProfile.contact_hint !== undefined && lsProfile.contact_hint !== null)
+        ? lsProfile.contact_hint
+        : ((idbSession && idbSession.contact_hint) || null);
+      const onboardingDone = Boolean(
+        lsLogged
+        || (lsProfile && lsProfile.onboarding_done === true)
+        || (idbSession && idbSession.onboarding_done === true)
+      );
+
+      if (!deviceId && !userId && !name) {
+        return null;
+      }
+
+      return {
+        device_id: deviceId,
+        user_id: userId,
+        name: name,
+        contact_hint: contactHint,
+        onboarding_done: onboardingDone
+      };
+    }
+
+    async function gpClearDeviceSession() {
+      // 1) Limpa localStorage
+      try {
+        localStorage.removeItem("gp_device_id");
+        localStorage.removeItem("gp_user_profile");
+        localStorage.removeItem("grafoparada_logged");
+        localStorage.removeItem("grafoparada_user_profile");
+        localStorage.removeItem("grafoparada_user_data");
+        localStorage.removeItem("grafoparada_custom_routine");
+      } catch (e) {}
+
+      // 2) Limpa cookies first-party
+      gpDeleteCookie("gp_device_id");
+      gpDeleteCookie("gp_user_id");
+
+      // 3) Limpa IndexedDB
+      await gpIdbClearSession();
+      return true;
+    }
+
+    function gpApplyRestoredRoutine(firstRoutine, userId) {
+      if (!firstRoutine || typeof firstRoutine !== "object") return null;
+      const depTime = firstRoutine.departure_time || "06:30";
+      const retTime = firstRoutine.return_time || "17:40";
+      let win = { saia: depTime, bus: depTime };
+      if (typeof gpComputeDepartureWindow === "function") {
+        win = gpComputeDepartureWindow(depTime);
+      } else if (typeof computeDepartureWindow === "function") {
+        win = computeDepartureWindow(depTime);
+      }
+      const oPlace = (typeof gpCleanPlaceFallback === "function")
+        ? gpCleanPlaceFallback(firstRoutine.origin_neighborhood, firstRoutine.origin_city, firstRoutine.origin_stop_name)
+        : (firstRoutine.origin_city || firstRoutine.origin_stop_name || "");
+      const dPlace = (typeof gpCleanPlaceFallback === "function")
+        ? gpCleanPlaceFallback(firstRoutine.dest_neighborhood, firstRoutine.dest_city, firstRoutine.dest_stop_name)
+        : (firstRoutine.dest_city || firstRoutine.dest_stop_name || "");
+
+      const restoredRoutine = {
+        id: firstRoutine.id || undefined,
+        user_id: userId || firstRoutine.user_id || "",
+        origin_stop_id: firstRoutine.origin_stop_id || "",
+        origin_stop_name: firstRoutine.origin_stop_name || "",
+        origin_city: firstRoutine.origin_city || "",
+        origin_neighborhood: firstRoutine.origin_neighborhood || "",
+        origin_place_label: oPlace,
+        origin_lat: Number.isFinite(Number(firstRoutine.origin_lat)) ? Number(firstRoutine.origin_lat) : null,
+        origin_lon: Number.isFinite(Number(firstRoutine.origin_lon)) ? Number(firstRoutine.origin_lon) : null,
+        dest_stop_id: firstRoutine.dest_stop_id || "",
+        dest_stop_name: firstRoutine.dest_stop_name || "",
+        dest_city: firstRoutine.dest_city || "",
+        dest_neighborhood: firstRoutine.dest_neighborhood || "",
+        dest_place_label: dPlace,
+        dest_lat: Number.isFinite(Number(firstRoutine.dest_lat)) ? Number(firstRoutine.dest_lat) : null,
+        dest_lon: Number.isFinite(Number(firstRoutine.dest_lon)) ? Number(firstRoutine.dest_lon) : null,
+        departure_time: depTime,
+        return_time: retTime,
+        preferred_line: firstRoutine.preferred_line || "199",
+        frequency: firstRoutine.frequency || "Seg a Sex",
+        legs_json: firstRoutine.legs_json || null,
+        transfer_hub_name: firstRoutine.transfer_hub_name || null,
+        return_origin_name: firstRoutine.return_origin_name || null,
+        origin: firstRoutine.origin_stop_name || "",
+        dest: firstRoutine.dest_stop_name || "",
+        time: depTime,
+        returnTime: retTime,
+        boardingStop: firstRoutine.origin_stop_name || "",
+        preferredLine: firstRoutine.preferred_line || "199",
+        freq: firstRoutine.frequency || "Seg a Sex",
+        saia: win.saia,
+        bus: win.bus
+      };
+      try {
+        localStorage.setItem("grafoparada_custom_routine", JSON.stringify(restoredRoutine));
+      } catch (_rErr) {}
+
+      if (window._gpCascadeFlows && window._gpCascadeFlows.rtn && typeof window._gpCascadeFlows.rtn.hydrateFromRoutine === "function") {
+        window._gpCascadeFlows.rtn.hydrateFromRoutine(restoredRoutine);
+      }
+      if (window.RealTransit) {
+        if (restoredRoutine.preferred_line && typeof window.RealTransit.loadRoute === "function") {
+          try { window.RealTransit.loadRoute(restoredRoutine.preferred_line); } catch (_lErr) {}
+        }
+        if (Number.isFinite(restoredRoutine.origin_lat) && Number.isFinite(restoredRoutine.origin_lon) && typeof window.RealTransit.adaptToUserLocation === "function") {
+          try {
+            window.RealTransit.adaptToUserLocation(restoredRoutine.origin_lat, restoredRoutine.origin_lon, restoredRoutine.origin_stop_name, {
+              fit: false,
+              isManual: true,
+              originSource: "manual"
+            });
+          } catch (_aErr) {}
+        }
+      }
+      return restoredRoutine;
+    }
+
+    async function gpRestorePersistedSessionOnBoot() {
+      const startEpoch = window._gpAuthSessionEpoch || 0;
+      const isHttp = typeof window !== "undefined" && String(window.location.protocol || "").startsWith("http");
+
+      const existingLogged = localStorage.getItem("grafoparada_logged") === "true";
+      const existingProfile = getStoredUserProfile();
+      if (existingLogged && existingProfile && existingProfile.name) {
+        try {
+          const hasDeviceBackup = Boolean(localStorage.getItem("gp_device_id") || gpReadCookie("gp_device_id"));
+          if (hasDeviceBackup) {
+            gpPersistDeviceSession({
+              device_id: existingProfile.device_id || gpGetOrCreateDeviceId(),
+              user_id: existingProfile.id || existingProfile.user_id || "",
+              name: existingProfile.name,
+              contact_hint: existingProfile.contact_hint || null,
+              onboarding_done: true
+            });
+          }
+          if (!localStorage.getItem("grafoparada_custom_routine") && existingProfile.id && isHttp) {
+            const rCtrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const rTimer = rCtrl ? setTimeout(function() { rCtrl.abort(); }, 4000) : null;
+            const rResp = await fetch("/api/routine?user_id=" + encodeURIComponent(existingProfile.id), {
+              method: "GET",
+              signal: rCtrl ? rCtrl.signal : undefined
+            }).catch(function() { return null; });
+            if (rTimer) clearTimeout(rTimer);
+            if (rResp && rResp.ok && (window._gpAuthSessionEpoch || 0) === startEpoch) {
+              const rData = await rResp.json().catch(function() { return null; });
+              const firstR = rData && Array.isArray(rData.routines) && rData.routines.length > 0 ? rData.routines[0] : null;
+              if (firstR) {
+                gpApplyRestoredRoutine(firstR, existingProfile.id);
+                loadUserData();
+                if (typeof updateHomeGreeting === "function") updateHomeGreeting();
+              }
+            }
+          }
+        } catch (e) {}
+        return { restored: false, alreadyLogged: true };
+      }
+
+      // localStorage sem sessão ativa: tenta recuperar do Cookie / IndexedDB
+      const persisted = await gpReadDeviceSession();
+      if (!persisted || (!persisted.device_id && !persisted.user_id && !persisted.name)) {
+        return { restored: false, cleanContext: true };
+      }
+      if ((window._gpAuthSessionEpoch || 0) !== startEpoch) {
+        return { restored: false, aborted: true };
+      }
+
+      let serverUser = null;
+      if (isHttp) {
+        const fetchUserByQuery = async function(queryStr) {
+          try {
+            const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(function() { ctrl.abort(); }, 4000) : null;
+            const resp = await fetch("/api/register?" + queryStr, {
+              method: "GET",
+              signal: ctrl ? ctrl.signal : undefined
+            });
+            if (timer) clearTimeout(timer);
+            if (resp && resp.ok) {
+              const data = await resp.json().catch(function() { return null; });
+              if (data && data.user && data.user.id && data.user.name) {
+                return data.user;
+              }
+            }
+          } catch (e) {}
+          return null;
+        };
+
+        if (persisted.device_id) {
+          serverUser = await fetchUserByQuery("device_id=" + encodeURIComponent(persisted.device_id));
+        }
+        if (!serverUser && persisted.user_id) {
+          serverUser = await fetchUserByQuery("user_id=" + encodeURIComponent(persisted.user_id));
+        }
+      }
+
+      if ((window._gpAuthSessionEpoch || 0) !== startEpoch) {
+        return { restored: false, aborted: true };
+      }
+
+      const resolvedId = (serverUser && serverUser.id) || persisted.user_id || "";
+      const resolvedName = String((serverUser && serverUser.name) || persisted.name || "").trim();
+      const resolvedContact = (serverUser && serverUser.contact_hint !== undefined)
+        ? serverUser.contact_hint
+        : (persisted.contact_hint || null);
+      const resolvedDeviceId = (serverUser && serverUser.device_id) || persisted.device_id || gpGetOrCreateDeviceId();
+
+      const canAutoLogin = Boolean(
+        resolvedId &&
+        resolvedName.length >= 2 &&
+        (serverUser || persisted.onboarding_done === true)
+      );
+
+      if (!canAutoLogin) {
+        if (resolvedName) {
+          const nameInp = document.getElementById("inp-name");
+          if (nameInp && !nameInp.value) nameInp.value = resolvedName;
+        }
+        if (resolvedContact) {
+          const contactInp = document.getElementById("inp-sync-contact");
+          if (contactInp && !contactInp.value) contactInp.value = resolvedContact;
+        }
+        return { restored: false, incomplete: true };
+      }
+
+      const nowIso = new Date().toISOString();
+      const restoredProfile = {
+        id: resolvedId,
+        device_id: resolvedDeviceId,
+        name: resolvedName,
+        contact_hint: resolvedContact,
+        created_at: (serverUser && serverUser.created_at) || nowIso,
+        updated_at: (serverUser && serverUser.updated_at) || nowIso,
+        onboarding_done: true,
+        sync_status: serverUser ? "synced" : "restored_local"
+      };
+
+      try {
+        localStorage.setItem("grafoparada_user_profile", JSON.stringify(restoredProfile));
+        localStorage.setItem("grafoparada_user_data", JSON.stringify({
+          id: restoredProfile.id,
+          name: restoredProfile.name,
+          contact_hint: restoredProfile.contact_hint
+        }));
+        localStorage.setItem("grafoparada_logged", "true");
+      } catch (e) {}
+
+      let restoredRoutine = null;
+      if (isHttp && resolvedId) {
+        try {
+          const rCtrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+          const rTimer = rCtrl ? setTimeout(function() { rCtrl.abort(); }, 4000) : null;
+          const rResp = await fetch("/api/routine?user_id=" + encodeURIComponent(resolvedId), {
+            method: "GET",
+            signal: rCtrl ? rCtrl.signal : undefined
+          });
+          if (rTimer) clearTimeout(rTimer);
+          if (rResp && rResp.ok) {
+            const rData = await rResp.json().catch(function() { return null; });
+            const firstR = rData && Array.isArray(rData.routines) && rData.routines.length > 0 ? rData.routines[0] : null;
+            if (firstR) {
+              restoredRoutine = gpApplyRestoredRoutine(firstR, resolvedId);
+            }
+          }
+        } catch (e) {}
+      }
+
+      if ((window._gpAuthSessionEpoch || 0) !== startEpoch) {
+        return { restored: false, aborted: true };
+      }
+
+      await gpPersistDeviceSession({
+        device_id: resolvedDeviceId,
+        user_id: resolvedId,
+        name: resolvedName,
+        contact_hint: resolvedContact,
+        onboarding_done: true
+      });
+
+      loadUserData();
+      if (typeof updateHomeGreeting === "function") updateHomeGreeting();
+      const onbModal = document.getElementById("modal-onboarding");
+      if (onbModal) onbModal.style.display = "none";
+      if (typeof leafletMap !== "undefined" && leafletMap) {
+        setTimeout(function() { leafletMap.invalidateSize(); }, 180);
+      }
+      if (typeof showHomeRecoveryBanner === "function") {
+        const firstName = resolvedName.split(/\s+/)[0];
+        showHomeRecoveryBanner(
+          restoredRoutine
+            ? ("Bem-vindo de volta, " + firstName + "! Rotina restaurada: " + restoredRoutine.origin_stop_name + " → " + restoredRoutine.dest_stop_name + ".")
+            : ("Bem-vindo de volta, " + firstName + "! Sessão restaurada automaticamente neste dispositivo.")
+        );
+      }
+      if (typeof refreshCloudTelemetryUI === "function") refreshCloudTelemetryUI();
+      return { restored: true, profile: restoredProfile, routine: restoredRoutine };
+    }
+
     // INIT APP ON LOAD
     window.addEventListener("DOMContentLoaded", function() {
       initMap();
@@ -5158,6 +5756,7 @@
         initCascadeFlows();
       }
       checkAuthStatus();
+      gpRestorePersistedSessionOnBoot();
       startBusAnimation();
       if (typeof loadFavoriteStops === "function") {
         loadFavoriteStops();
@@ -5170,10 +5769,11 @@
 
     function getStoredUserProfile() {
       try {
-        const raw = localStorage.getItem("grafoparada_user_profile");
+        const raw = localStorage.getItem("grafoparada_user_profile") || localStorage.getItem("gp_user_profile");
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === "object" && String(parsed.name || "").trim().length >= 2) {
+          if (!parsed.id && parsed.user_id) parsed.id = parsed.user_id;
           return parsed;
         }
       } catch (e) {}
@@ -5322,6 +5922,39 @@
     let liveBusMarker = null;
     let busAnimationTimer = null;
     let userCurrentCoords = [-8.0475, -34.8980]; // Ponto de partida padrão: Derby / Recife
+
+    function gpSyncRealTransitUserLocation(lat, lon, accuracy, options) {
+      const numLat = Number(lat);
+      const numLon = Number(lon);
+      if (!Number.isFinite(numLat) || !Number.isFinite(numLon)) return null;
+      const numAcc = (accuracy != null && Number.isFinite(Number(accuracy))) ? Number(accuracy) : null;
+      const locObj = {
+        lat: numLat,
+        lon: numLon,
+        accuracy: numAcc,
+        timestamp: Date.now()
+      };
+      window._gpLastRealUserLocation = locObj;
+      try {
+        localStorage.setItem("grafoparada_last_coords", JSON.stringify({
+          lat: numLat,
+          lon: numLon,
+          accuracy: numAcc,
+          ts: locObj.timestamp
+        }));
+      } catch (e) {}
+
+      const opts = options || {};
+      if (window.RealTransit) {
+        window.RealTransit.userLocation = locObj;
+        if (opts.adaptReal !== false && typeof window.RealTransit.adaptToRealUserLocation === "function") {
+          try {
+            window.RealTransit.adaptToRealUserLocation(numLat, numLon);
+          } catch (e) {}
+        }
+      }
+      return locObj;
+    }
 
     function updateUserLocationMarker(lat, lon, animate) {
       if (!leafletMap) return;
@@ -5579,6 +6212,7 @@
           if (typeof last.lat === "number" && typeof last.lon === "number") {
             defaultLat = last.lat;
             defaultLon = last.lon;
+            gpSyncRealTransitUserLocation(last.lat, last.lon, last.accuracy != null ? last.accuracy : null, { adaptReal: false });
           }
         }
       } catch(e) {}
@@ -5601,6 +6235,8 @@
           function(pos) {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
+            const acc = pos.coords.accuracy;
+            gpSyncRealTransitUserLocation(lat, lon, acc, { adaptReal: !window.grafoparadaManualOrigin });
             updateUserLocationMarker(lat, lon, false);
             if (!window.grafoparadaManualOrigin && window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
               window.RealTransit.adaptToUserLocation(lat, lon, "GPS Inicial", { fit: true });
@@ -5620,12 +6256,14 @@
             function(pos) {
               const lat = pos.coords.latitude;
               const lon = pos.coords.longitude;
-              updateUserLocationMarker(lat, lon, false);
-              if (window.grafoparadaManualOrigin) return;
+              const acc = pos.coords.accuracy;
               const dLat = (lat - lastWatchedLat) * 111.32;
               const dLon = (lon - lastWatchedLon) * 111.32 * Math.cos(lat * Math.PI / 180);
               const movedKm = Math.sqrt(dLat * dLat + dLon * dLon);
-              if (movedKm >= 0.08 && window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+              const shouldAdapt = !window.grafoparadaManualOrigin && movedKm >= 0.08;
+              gpSyncRealTransitUserLocation(lat, lon, acc, { adaptReal: shouldAdapt });
+              updateUserLocationMarker(lat, lon, false);
+              if (shouldAdapt && window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
                 lastWatchedLat = lat;
                 lastWatchedLon = lon;
                 window.RealTransit.adaptToUserLocation(lat, lon, "GPS Contínuo", { fit: false });
@@ -5640,6 +6278,7 @@
 
     window.setCustomOriginPoint = function(lat, lon) {
       window.grafoparadaManualOrigin = true;
+      gpSyncRealTransitUserLocation(lat, lon, null, { adaptReal: true });
       updateUserLocationMarker(lat, lon, true);
       if (leafletMap) leafletMap.closePopup();
       if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
@@ -6872,6 +7511,10 @@
 
       const name = nameInput ? nameInput.value.trim() : "";
       const contactHint = contactInput ? contactInput.value.trim() : "";
+      const rememberChk = document.getElementById("chk-remember-device");
+      const shouldRemember = rememberChk ? Boolean(rememberChk.checked) : true;
+      window._gpRememberDevice = shouldRemember;
+      const deviceId = gpGetOrCreateDeviceId();
 
       if (contactHint.length >= 3 && window.RealTransit && typeof window.RealTransit.recoverUserByContact === "function") {
         if (submitBtn) submitBtn.disabled = true;
@@ -6882,10 +7525,12 @@
             const nowRecIso = new Date().toISOString();
             const recoveredProfile = {
               id: u.id,
+              device_id: deviceId,
               name: u.name || name || "Passageiro",
               contact_hint: u.contact_hint || contactHint,
               created_at: u.created_at || nowRecIso,
               updated_at: u.updated_at || nowRecIso,
+              onboarding_done: true,
               sync_status: "synced"
             };
             try {
@@ -6898,72 +7543,34 @@
               localStorage.setItem("grafoparada_logged", "true");
             } catch (_storageErr) {}
 
-            let restoredRoutine = null;
-            const firstRoutine = Array.isArray(recovered.routines) && recovered.routines.length > 0 ? recovered.routines[0] : null;
-            if (firstRoutine) {
-              const depTime = firstRoutine.departure_time || "06:30";
-              const retTime = firstRoutine.return_time || "17:40";
-              const win = (typeof gpComputeDepartureWindow === "function")
-                ? gpComputeDepartureWindow(depTime)
-                : { saia: depTime, bus: depTime };
-              const oPlace = (typeof gpCleanPlaceFallback === "function")
-                ? gpCleanPlaceFallback(firstRoutine.origin_neighborhood, firstRoutine.origin_city, firstRoutine.origin_stop_name)
-                : (firstRoutine.origin_city || firstRoutine.origin_stop_name || "");
-              const dPlace = (typeof gpCleanPlaceFallback === "function")
-                ? gpCleanPlaceFallback(firstRoutine.dest_neighborhood, firstRoutine.dest_city, firstRoutine.dest_stop_name)
-                : (firstRoutine.dest_city || firstRoutine.dest_stop_name || "");
-
-              restoredRoutine = {
-                id: firstRoutine.id || undefined,
+            if (shouldRemember) {
+              await gpPersistDeviceSession({
+                device_id: deviceId,
                 user_id: recoveredProfile.id,
-                origin_stop_id: firstRoutine.origin_stop_id || "",
-                origin_stop_name: firstRoutine.origin_stop_name || "",
-                origin_city: firstRoutine.origin_city || "",
-                origin_neighborhood: firstRoutine.origin_neighborhood || "",
-                origin_place_label: oPlace,
-                origin_lat: Number.isFinite(Number(firstRoutine.origin_lat)) ? Number(firstRoutine.origin_lat) : null,
-                origin_lon: Number.isFinite(Number(firstRoutine.origin_lon)) ? Number(firstRoutine.origin_lon) : null,
-                dest_stop_id: firstRoutine.dest_stop_id || "",
-                dest_stop_name: firstRoutine.dest_stop_name || "",
-                dest_city: firstRoutine.dest_city || "",
-                dest_neighborhood: firstRoutine.dest_neighborhood || "",
-                dest_place_label: dPlace,
-                dest_lat: Number.isFinite(Number(firstRoutine.dest_lat)) ? Number(firstRoutine.dest_lat) : null,
-                dest_lon: Number.isFinite(Number(firstRoutine.dest_lon)) ? Number(firstRoutine.dest_lon) : null,
-                departure_time: depTime,
-                return_time: retTime,
-                preferred_line: firstRoutine.preferred_line || "199",
-                frequency: firstRoutine.frequency || "Seg a Sex",
-                origin: firstRoutine.origin_stop_name || "",
-                dest: firstRoutine.dest_stop_name || "",
-                time: depTime,
-                returnTime: retTime,
-                boardingStop: firstRoutine.origin_stop_name || "",
-                preferredLine: firstRoutine.preferred_line || "199",
-                freq: firstRoutine.frequency || "Seg a Sex",
-                saia: win.saia,
-                bus: win.bus
-              };
+                name: recoveredProfile.name,
+                contact_hint: recoveredProfile.contact_hint,
+                onboarding_done: true
+              });
               try {
-                localStorage.setItem("grafoparada_custom_routine", JSON.stringify(restoredRoutine));
-              } catch (_rErr) {}
-
-              if (window._gpCascadeFlows && window._gpCascadeFlows.rtn && typeof window._gpCascadeFlows.rtn.hydrateFromRoutine === "function") {
-                window._gpCascadeFlows.rtn.hydrateFromRoutine(restoredRoutine);
-              }
-              if (restoredRoutine.preferred_line && typeof window.RealTransit.loadRoute === "function") {
-                try { window.RealTransit.loadRoute(restoredRoutine.preferred_line); } catch (_lErr) {}
-              }
-              if (Number.isFinite(restoredRoutine.origin_lat) && Number.isFinite(restoredRoutine.origin_lon) && typeof window.RealTransit.adaptToUserLocation === "function") {
-                try {
-                  window.RealTransit.adaptToUserLocation(restoredRoutine.origin_lat, restoredRoutine.origin_lon, restoredRoutine.origin_stop_name, {
-                    fit: false,
-                    isManual: true,
-                    originSource: "manual"
-                  });
-                } catch (_aErr) {}
-              }
+                fetch("/api/register", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    user_id: recoveredProfile.id,
+                    device_id: deviceId,
+                    name: recoveredProfile.name,
+                    contact_hint: recoveredProfile.contact_hint || undefined
+                  })
+                }).catch(function() {});
+              } catch (_bindErr) {}
+            } else {
+              gpDeleteCookie("gp_device_id");
+              gpDeleteCookie("gp_user_id");
+              gpIdbClearSession();
             }
+
+            const firstRoutine = Array.isArray(recovered.routines) && recovered.routines.length > 0 ? recovered.routines[0] : null;
+            const restoredRoutine = firstRoutine ? gpApplyRestoredRoutine(firstRoutine, recoveredProfile.id) : null;
 
             loadUserData();
             if (typeof updateHomeGreeting === "function") updateHomeGreeting();
@@ -7008,10 +7615,12 @@
 
       let profile = {
         id: fallbackId,
+        device_id: deviceId,
         name: name,
         contact_hint: contactHint || null,
         created_at: (existing && existing.created_at) ? existing.created_at : nowIso,
         updated_at: nowIso,
+        onboarding_done: false,
         sync_status: "pending_local"
       };
 
@@ -7026,6 +7635,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: fallbackId,
+            device_id: deviceId,
             name: name,
             contact_hint: contactHint || undefined
           }),
@@ -7037,6 +7647,7 @@
           const srvRec = data && (data.record || data.user);
           if (srvRec && srvRec.id) {
             profile = Object.assign({}, profile, srvRec, {
+              device_id: srvRec.device_id || deviceId,
               sync_status: data.persisted === "neon_postgres" ? "synced" : "pending_local"
             });
           }
@@ -7060,6 +7671,20 @@
           contact_hint: profile.contact_hint
         }));
       } catch (err) {}
+
+      if (shouldRemember) {
+        await gpPersistDeviceSession({
+          device_id: profile.device_id || deviceId,
+          user_id: profile.id,
+          name: profile.name,
+          contact_hint: profile.contact_hint,
+          onboarding_done: false
+        });
+      } else {
+        gpDeleteCookie("gp_device_id");
+        gpDeleteCookie("gp_user_id");
+        gpIdbClearSession();
+      }
 
       const routineNotice = document.getElementById("onb-routine-notice");
       if (routineNotice) {
@@ -7158,18 +7783,19 @@
     }
 
     function logoutAndRestart() {
-      localStorage.removeItem("grafoparada_logged");
-      localStorage.removeItem("grafoparada_user_profile");
-      localStorage.removeItem("grafoparada_user_data");
-      localStorage.removeItem("grafoparada_custom_routine");
+      window._gpAuthSessionEpoch = (window._gpAuthSessionEpoch || 0) + 1;
+      gpClearDeviceSession();
       closeProfileModal();
 
       const nameEl = document.getElementById("inp-name");
       const contactEl = document.getElementById("inp-sync-contact");
+      const rememberEl = document.getElementById("chk-remember-device");
       const errEl = document.getElementById("onb-register-error");
       const noticeEl = document.getElementById("onb-register-notice");
       if (nameEl) nameEl.value = "";
       if (contactEl) contactEl.value = "";
+      if (rememberEl) rememberEl.checked = true;
+      window._gpRememberDevice = true;
       if (errEl) { errEl.style.display = "none"; errEl.textContent = ""; }
       if (noticeEl) { noticeEl.style.display = "none"; noticeEl.textContent = ""; }
 
@@ -7230,6 +7856,14 @@
           window.grafoparadaManualOrigin = false;
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
+          const acc = pos.coords.accuracy;
+          gpSyncRealTransitUserLocation(lat, lon, acc, { adaptReal: true });
+          if (typeof updateUserLocationMarker === "function") {
+            updateUserLocationMarker(lat, lon, false);
+          }
+          if (window.RealTransit && typeof window.RealTransit.adaptToUserLocation === "function") {
+            try { window.RealTransit.adaptToUserLocation(lat, lon, "GPS Real", { fit: false }); } catch (e) {}
+          }
           if (leafletMap) {
             leafletMap.flyTo([lat, lon], 16, { animate: true });
             if (userMarker) leafletMap.removeLayer(userMarker);
@@ -8807,6 +9441,18 @@
         localStorage.setItem("grafoparada_logged", "true");
       } catch (e) {}
 
+      const rememberChkSave = document.getElementById("chk-remember-device");
+      const keepRemember = (window._gpRememberDevice !== false) && (!rememberChkSave || rememberChkSave.checked);
+      if (keepRemember && profile && profile.name) {
+        gpPersistDeviceSession({
+          device_id: profile.device_id || gpGetOrCreateDeviceId(),
+          user_id: userId,
+          name: profile.name,
+          contact_hint: profile.contact_hint || null,
+          onboarding_done: true
+        });
+      }
+
       if (window.RealTransit && typeof window.RealTransit.recordTelemetryEvent === "function") {
         try {
           window.RealTransit.recordTelemetryEvent({
@@ -9436,6 +10082,8 @@
           window.grafoparadaManualOrigin = false;
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
+          const acc = pos.coords.accuracy;
+          gpSyncRealTransitUserLocation(lat, lon, acc, { adaptReal: true });
           if (typeof updateUserLocationMarker === "function") {
             updateUserLocationMarker(lat, lon, false);
           }
@@ -10488,13 +11136,17 @@
       const activeEta = restingEtaEl ? parseInt(restingEtaEl.textContent, 10) || 4 : 4;
       const activeCode = (window.RealTransit && window.RealTransit.activeRouteCode) || activeRouteCode || "199";
 
+      if (window.RealTransit && !window.RealTransit.userLocation && window._gpLastRealUserLocation) {
+        window.RealTransit.userLocation = window._gpLastRealUserLocation;
+      }
       let res = null;
       if (window.RealTransit && typeof window.RealTransit.answerLayaQuery === "function") {
         res = window.RealTransit.answerLayaQuery(text, {
           telemetryStops: (typeof TELEMETRIA_199 !== "undefined" && TELEMETRIA_199.stops) ? TELEMETRIA_199.stops : [],
           activeRouteCode: activeCode,
           activeStopName: activeStopName,
-          activeEta: activeEta
+          activeEta: activeEta,
+          userLocation: window.RealTransit.userLocation || null
         });
       }
 
@@ -10865,6 +11517,13 @@
     }
 
     // Exposição global no window
+    window.gpGetOrCreateDeviceId = gpGetOrCreateDeviceId;
+    window.gpPersistDeviceSession = gpPersistDeviceSession;
+    window.gpReadDeviceSession = gpReadDeviceSession;
+    window.gpClearDeviceSession = gpClearDeviceSession;
+    window.gpRestorePersistedSessionOnBoot = gpRestorePersistedSessionOnBoot;
+    window.gpSyncRealTransitUserLocation = gpSyncRealTransitUserLocation;
+    window.logoutAndRestart = logoutAndRestart;
     window.setAppMode = setAppMode;
     window.submitStopTelemetryCheckin = submitStopTelemetryCheckin;
     window.refreshCloudTelemetryUI = refreshCloudTelemetryUI;

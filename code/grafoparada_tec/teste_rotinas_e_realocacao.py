@@ -18,6 +18,7 @@ from __future__ import annotations
 import http.server
 import json
 import os
+import re
 import socketserver
 import sqlite3
 import subprocess
@@ -39,6 +40,7 @@ if str(TEC_DIR) not in sys.path:
 from db_manager import (  # noqa: E402
     get_training_dataset,
     get_laya_learning_gaps,
+    get_user_by_device_id,
     init_db,
     record_app_event,
     record_observation,
@@ -346,7 +348,7 @@ def test_db_manager_sqlite_temporario_e_gtfs_schedules():
     cities = {str(p.get("city")).strip() for p in rmr_places if isinstance(p, dict) and p.get("city")}
     assert sched.get("total_lines") == 393
     assert len(lines) == 393
-    assert len(rmr_places) == 236
+    assert len(rmr_places) >= 236
     assert len(cities) == 14
 
     status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
@@ -682,9 +684,9 @@ def test_v37_conhecimento_laya_distilacao_e_learning_gaps():
 
     line_185 = lines.get("185")
     assert isinstance(line_185, dict), "Linha 185 ausente em laya_route_knowledge.json"
-    assert "Ti Cabo" in (line_185.get("full_label") or "")
+    assert "TI Cabo" in (line_185.get("full_label") or "")
     assert "Cais de Santa Rita" in (line_185.get("full_label") or "")
-    assert "Ti Cabo" in (line_185.get("origin_place") or "")
+    assert "TI Cabo" in (line_185.get("origin_place") or "")
     assert "Cais de Santa Rita" in (line_185.get("dest_place") or "")
 
     status = json.loads(MODEL_STATUS_JSON.read_text(encoding="utf-8"))
@@ -748,6 +750,87 @@ def test_v37_conhecimento_laya_distilacao_e_learning_gaps():
         assert len(all_summary["gaps"]) == 2
 
 
+def test_v38_maranguape_normalizacao_horarios_e_device_id():
+    assert LAYA_KNOWLEDGE_JSON.is_file(), f"Arquivo ausente: {LAYA_KNOWLEDGE_JSON}"
+    knowledge = json.loads(LAYA_KNOWLEDGE_JSON.read_text(encoding="utf-8"))
+    line_1953 = (knowledge.get("lines") or {}).get("1953")
+    assert isinstance(line_1953, dict), "Linha 1953 ausente em laya_route_knowledge.json"
+
+    full_label_1953 = line_1953.get("full_label") or ""
+    origin_1953 = line_1953.get("origin_place") or ""
+    dest_1953 = line_1953.get("dest_place") or ""
+    name_1953 = line_1953.get("name") or ""
+    assert "Maranguape II" in full_label_1953 and "TI Pelópidas" in full_label_1953, (
+        f"full_label inesperado na linha 1953: {full_label_1953!r}"
+    )
+    assert "Maranguape II" in origin_1953
+    assert "TI Pelópidas" in dest_1953
+    for field_val in (
+        name_1953,
+        full_label_1953,
+        origin_1953,
+        dest_1953,
+        *(line_1953.get("corridor_places") or []),
+        *(line_1953.get("ti_hubs") or []),
+    ):
+        assert "Ii" not in str(field_val), f"Normalização romana falhou em 1953: {field_val!r}"
+
+    sched = json.loads(GTFS_SCHEDULES_JSON.read_text(encoding="utf-8"))
+    lines = sched.get("lines") or {}
+    over_24h = []
+    for code, line_obj in lines.items():
+        if not isinstance(line_obj, dict):
+            continue
+        for dir_key in ("ida", "volta"):
+            dir_obj = line_obj.get(dir_key)
+            if not isinstance(dir_obj, dict):
+                continue
+            for day_key in ("DUT", "SAB", "DOM"):
+                day_obj = dir_obj.get(day_key)
+                if not isinstance(day_obj, dict):
+                    continue
+                for time_key in ("first_dep", "last_dep", "first_arr", "last_arr"):
+                    val = day_obj.get(time_key)
+                    if isinstance(val, str):
+                        m = re.match(r"^(\d{2,}):(\d{2})$", val.strip())
+                        if m and int(m.group(1)) >= 24:
+                            over_24h.append((code, dir_key, day_key, time_key, val))
+    assert over_24h == [], f"Horários >= 24:00 encontrados em gtfs_schedules.json: {over_24h[:5]}"
+
+    sched_1953 = lines.get("1953") or {}
+    ida_dut_1953 = (sched_1953.get("ida") or {}).get("DUT") or {}
+    assert ida_dut_1953.get("last_dep") == "00:20", (
+        f"Esperado last_dep == '00:20' na linha 1953 (ida/DUT), obtido {ida_dut_1953.get('last_dep')!r}"
+    )
+
+    rmr_places = sched.get("rmr_places") or []
+    assert len(rmr_places) >= 236
+    place_names = {str(p.get("name") or "").strip() for p in rmr_places if isinstance(p, dict)}
+    assert "Maranguape II" in place_names, "Maranguape II ausente em rmr_places de gtfs_schedules.json"
+
+    with tempfile.TemporaryDirectory(prefix="gp_db_v38_") as tmp_dir:
+        tmp_db = Path(tmp_dir) / "v38_device_id.db"
+        init_db(tmp_db)
+
+        user = register_user(
+            name="Ana Paula",
+            contact_hint="ana.paula@paulista.pe",
+            device_id="dev_test_v38",
+            db_path=tmp_db,
+        )
+        assert user["id"].startswith("usr_")
+        assert user["device_id"] == "dev_test_v38"
+
+        recovered = get_user_by_device_id("dev_test_v38", db_path=tmp_db)
+        assert recovered is not None
+        assert recovered["id"] == user["id"]
+        assert recovered["name"] == "Ana Paula"
+        assert recovered["contact_hint"] == "ana.paula@paulista.pe"
+        assert recovered["device_id"] == "dev_test_v38"
+
+        assert get_user_by_device_id("dev_inexistente_v38", db_path=tmp_db) is None
+
+
 def run_cli_audit() -> int:
     html = _load_html()
     print("=" * 70)
@@ -759,13 +842,14 @@ def run_cli_audit() -> int:
         ("Bloco 1: Zero Hardcoding & Fluxo Guiado Cascata RMR", test_interface_zero_hardcoded_e_fluxo_guiado),
         ("Bloco 2: Deck Oficial da Banca (.pptx >= 1 MB)", test_deck_oficial_banca),
         ("Bloco 3/4: Modelos Yap & Cats, Kim et al., Trava Híbrida e Despacho CTM", test_modelos_cientificos_yap_kim_trava_ctm),
-        ("Bloco 5: Persistência SQLite Temporária & Horários GTFS (393/14/236)", test_db_manager_sqlite_temporario_e_gtfs_schedules),
+        ("Bloco 5: Persistência SQLite Temporária & Horários GTFS (393/14/236+)", test_db_manager_sqlite_temporario_e_gtfs_schedules),
         ("Bloco 5b: GTFS TIs Multi-Linha (133), Checkpoints & Chegadas", test_gtfs_schedules_ti_hubs_checkpoints_e_chegadas),
         ("Bloco 6: Sincronização Cloud/Neon -> SQLite (Offline + Mock HTTP)", test_db_manager_sync_cloud_observations_offline_e_http_mock),
         ("Bloco 7: Laya IA GTFS, Adaptação GPS, Ida/Volta & WebMCP", test_laya_ia_gtfs_gps_e_webmcp),
         ("Bloco 8: v3.3 Métricas Estratificadas & Schema SQLite (app_events/colunas)", test_v33_metricas_estratificadas_e_schema_sqlite),
         ("Bloco 9: v3.5 Calibração ST-GCN Priors & Conformal P90 Status", test_v35_calibracao_stgcn_priors_e_conformal_status),
         ("Bloco 10: v3.7 Conhecimento Laya (393), Destilação & Learning Gaps", test_v37_conhecimento_laya_distilacao_e_learning_gaps),
+        ("Bloco 11: v3.8 Maranguape II, Normalização <24h & device_id SQLite", test_v38_maranguape_normalizacao_horarios_e_device_id),
     ]
 
     aprovados = 0
