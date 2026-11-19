@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
       const userId = getQueryParam(req, 'user_id');
       if (userId) {
         const rows = await sql`
-          SELECT id, name, contact_hint, consent_at, created_at, updated_at
+          SELECT id, name, contact_hint, consent_at, device_id, created_at, updated_at
           FROM users
           WHERE id = ${userId}
           LIMIT 1
@@ -59,9 +59,28 @@ module.exports = async function handler(req, res) {
       const contactHint = getQueryParam(req, 'contact_hint');
       if (contactHint.length >= 3) {
         const rows = await sql`
-          SELECT id, name, contact_hint, consent_at, created_at, updated_at
+          SELECT id, name, contact_hint, consent_at, device_id, created_at, updated_at
           FROM users
           WHERE LOWER(TRIM(contact_hint)) = LOWER(TRIM(${contactHint}))
+          ORDER BY updated_at DESC
+          LIMIT 1
+        `;
+        sendJson(res, 200, {
+          ok: true,
+          available: true,
+          db_configured: true,
+          storage: 'neon_postgres',
+          user: rows[0] || null
+        });
+        return;
+      }
+
+      const deviceId = toNullableText(getQueryParam(req, 'device_id'), 120);
+      if (deviceId) {
+        const rows = await sql`
+          SELECT id, name, contact_hint, consent_at, device_id, created_at, updated_at
+          FROM users
+          WHERE device_id = ${deviceId}
           ORDER BY updated_at DESC
           LIMIT 1
         `;
@@ -182,6 +201,8 @@ module.exports = async function handler(req, res) {
   }
 
   const contactHint = toNullableText(body.contact_hint, 120);
+  const hasExplicitDeviceId = Object.prototype.hasOwnProperty.call(body, 'device_id');
+  const deviceId = toNullableText(body.device_id, 120);
   const explicitUserId = toNullableText(body.user_id || body.id, 80);
   let userId = explicitUserId || generateId('usr');
   const now = new Date().toISOString();
@@ -194,6 +215,7 @@ module.exports = async function handler(req, res) {
     name,
     contact_hint: contactHint,
     consent_at: consentAt,
+    device_id: deviceId,
     created_at: now,
     updated_at: now
   };
@@ -228,14 +250,18 @@ module.exports = async function handler(req, res) {
     }
 
     const rows = await sql`
-      INSERT INTO users (id, name, contact_hint, consent_at, created_at, updated_at)
-      VALUES (${userId}, ${name}, ${contactHint}, ${consentAt}, ${now}, ${now})
+      INSERT INTO users (id, name, contact_hint, consent_at, device_id, created_at, updated_at)
+      VALUES (${userId}, ${name}, ${contactHint}, ${consentAt}, ${deviceId}, ${now}, ${now})
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
         contact_hint = EXCLUDED.contact_hint,
         consent_at = COALESCE(EXCLUDED.consent_at, users.consent_at),
+        device_id = CASE
+          WHEN ${hasExplicitDeviceId} THEN EXCLUDED.device_id
+          ELSE COALESCE(EXCLUDED.device_id, users.device_id)
+        END,
         updated_at = EXCLUDED.updated_at
-      RETURNING id, name, contact_hint, consent_at, created_at, updated_at
+      RETURNING id, name, contact_hint, consent_at, device_id, created_at, updated_at
     `;
 
     const saved = rows[0] || localRecord;

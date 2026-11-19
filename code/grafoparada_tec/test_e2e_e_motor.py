@@ -269,8 +269,9 @@ window.RealTransit.adaptToUserLocation(-8.0631, -34.8711, 'Recife Antigo');
 const impTrip = window.RealTransit.answerLayaQuery('Quero ir para Casa Caiada');
 const okImp = impTrip && (impTrip.routeOptions || []).length >= 1 && (impTrip.html || '').includes('Casa Caiada');
 
-// Verifica current_stop sob gps_denied (sem coords em cache) sem vazar código 160107 nem "GPS indisponível"
+// Verifica "onde estou" sob gps_denied (v3.8: pede Detectar Posição Real com need_location, sem vazar 160107 nem "GPS indisponível")
 window.userCurrentCoords = null;
+window.RealTransit.userLocation = null;
 localStorage._store = {};
 window.RealTransit.userAdaptState = {
   status: 'gps_denied',
@@ -284,8 +285,8 @@ const currentStopDeniedRes = window.RealTransit.answerLayaQuery('onde estou', { 
 const currentStopDeniedHtml = (currentStopDeniedRes && currentStopDeniedRes.html) || '';
 const currentStopDeniedOk = Boolean(
   currentStopDeniedRes &&
-  currentStopDeniedRes.intent === 'current_stop' &&
-  currentStopDeniedHtml.includes('sua região atual') &&
+  (currentStopDeniedRes.intent === 'need_location' || currentStopDeniedRes.intent === 'current_stop') &&
+  (currentStopDeniedHtml.includes('Detectar Posição Real') || currentStopDeniedHtml.includes('sua região atual')) &&
   !currentStopDeniedHtml.includes('160107') &&
   !/gps indispon[ií]vel/i.test(currentStopDeniedHtml)
 );
@@ -1121,6 +1122,147 @@ console.log(JSON.stringify({
         assert "ti cabo" in about_html.lower(), f"Origem 'Ti Cabo' ausente em answerLayaQuery('me fala sobre a 185'): {about_html!r}"
         assert "cais de santa rita" in about_html.lower(), (
             f"Destino 'Cais de Santa Rita' ausente em answerLayaQuery('me fala sobre a 185'): {about_html!r}"
+        )
+
+    def test_v38_laya_ufrpe_maranguape_gps_e_correcao_1953(self):
+        assert LAYA_KNOWLEDGE_JSON.is_file(), f"Arquivo ausente: {LAYA_KNOWLEDGE_JSON}"
+        js_harness = r"""
+const fs = require('fs');
+const enginePath = process.argv[1];
+const gtfsPath = process.argv[2];
+const schedulesPath = process.argv[3];
+const knowledgePath = process.argv[4];
+
+global.window = {};
+global.document = { getElementById: () => null };
+global.localStorage = {
+  _store: {},
+  getItem(k) { return this._store[k] || null; },
+  setItem(k, v) { this._store[k] = String(v); }
+};
+eval(fs.readFileSync(enginePath, 'utf8'));
+
+window.RealTransit.networkData = JSON.parse(fs.readFileSync(gtfsPath, 'utf8'));
+window.RealTransit.schedulesData = JSON.parse(fs.readFileSync(schedulesPath, 'utf8'));
+window.RealTransit.routeKnowledge = JSON.parse(fs.readFileSync(knowledgePath, 'utf8'));
+window.RealTransit.loadRoute = () => {};
+window.RealTransit.selectStop = () => {};
+
+// 1. Origem explicita UFRPE + destino Maranguape 2 (sem cair em Rio Doce)
+const qUfrpeMaranguape = window.RealTransit.answerLayaQuery(
+  'Hoje estou na UFRPE pode ver por onde estou no Mapa, e quero ir daqui pra Maranguape 2'
+);
+
+// 2. GPS real (userLocation) na UFRPE prevalece sobre rotina salva em Maranguape II
+window.RealTransit.userLocation = {
+  lat: -8.0176,
+  lon: -34.9491,
+  source: 'gps',
+  ts: Date.now()
+};
+window.RealTransit.userAdaptState = {
+  status: 'adapted',
+  stopName: 'Maranguape II (Paulista)',
+  lat: -7.92711,
+  lon: -34.85052,
+  originSource: 'manual',
+  isManualOrigin: true
+};
+localStorage.setItem('gp_user_routine', JSON.stringify({
+  origin_city: 'Paulista',
+  origin_neighborhood: 'Maranguape II',
+  origin_stop_name: 'Maranguape II',
+  origin_lat: -7.92711,
+  origin_lon: -34.85052,
+  dest_city: 'Paulista',
+  dest_neighborhood: 'TI Pelópidas',
+  dest_stop_name: 'TI Pelópidas',
+  preferred_line: '1953'
+}));
+const qGpsPelopidas = window.RealTransit.answerLayaQuery(
+  'Oi Laya, quero ir de onde estou agora, pra Pelópidas'
+);
+
+// 3. Correcao explicita de linha pelo passageiro (1953 -> Maranguape II sem 24: nem Maranguape Ii)
+const qCorrection1953 = window.RealTransit.answerLayaQuery(
+  'Está errado, Maranguape II é 1953'
+);
+
+console.log(JSON.stringify({
+  q1: {
+    intent: qUfrpeMaranguape && qUfrpeMaranguape.intent,
+    origLabel: qUfrpeMaranguape && qUfrpeMaranguape.tripPlan && qUfrpeMaranguape.tripPlan.origCorridor
+      ? qUfrpeMaranguape.tripPlan.origCorridor.label : '',
+    destLabel: qUfrpeMaranguape && qUfrpeMaranguape.tripPlan && qUfrpeMaranguape.tripPlan.destCorridor
+      ? qUfrpeMaranguape.tripPlan.destCorridor.label : '',
+    optCount: qUfrpeMaranguape && Array.isArray(qUfrpeMaranguape.routeOptions)
+      ? qUfrpeMaranguape.routeOptions.length : 0,
+    html: (qUfrpeMaranguape && qUfrpeMaranguape.html) || ''
+  },
+  q2: {
+    intent: qGpsPelopidas && qGpsPelopidas.intent,
+    origSource: qGpsPelopidas && qGpsPelopidas.tripPlan && qGpsPelopidas.tripPlan.origCorridor
+      ? qGpsPelopidas.tripPlan.origCorridor.source : '',
+    origLabel: qGpsPelopidas && qGpsPelopidas.tripPlan && qGpsPelopidas.tripPlan.origCorridor
+      ? qGpsPelopidas.tripPlan.origCorridor.label : '',
+    origLat: qGpsPelopidas && qGpsPelopidas.tripPlan && qGpsPelopidas.tripPlan.origCorridor
+      ? qGpsPelopidas.tripPlan.origCorridor.lat : null,
+    destLabel: qGpsPelopidas && qGpsPelopidas.tripPlan && qGpsPelopidas.tripPlan.destCorridor
+      ? qGpsPelopidas.tripPlan.destCorridor.label : '',
+    optCount: qGpsPelopidas && Array.isArray(qGpsPelopidas.routeOptions)
+      ? qGpsPelopidas.routeOptions.length : 0,
+    html: (qGpsPelopidas && qGpsPelopidas.html) || ''
+  },
+  q3: {
+    intent: qCorrection1953 && qCorrection1953.intent,
+    routeCode: qCorrection1953 && qCorrection1953.routeCode,
+    html: (qCorrection1953 && qCorrection1953.html) || ''
+  }
+}));
+"""
+        res = subprocess.run(
+            [
+                "node",
+                "-e",
+                js_harness,
+                str(ENGINE_JS),
+                str(GTFS_JSON),
+                str(GTFS_SCHEDULES_JSON),
+                str(LAYA_KNOWLEDGE_JSON),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=25,
+        )
+        assert res.returncode == 0, f"Erro executando teste v3.8 em Node.js: {res.stderr}"
+        out = json.loads(res.stdout.strip().splitlines()[-1])
+
+        q1 = out["q1"]
+        assert q1["optCount"] >= 1, f"Nenhuma opção retornada para UFRPE -> Maranguape 2: {q1}"
+        assert "UFRPE" in (q1["origLabel"] or ""), f"Origem esperada UFRPE, obtido {q1['origLabel']!r}"
+        assert "Maranguape II" in (q1["destLabel"] or ""), f"Destino esperado Maranguape II, obtido {q1['destLabel']!r}"
+        assert "Rio Doce" not in (q1["destLabel"] or ""), f"Destino confundido com Rio Doce: {q1['destLabel']!r}"
+        assert "Maranguape Ii" not in (q1["html"] or ""), "Capitalização incorreta 'Maranguape Ii' encontrada"
+
+        q2 = out["q2"]
+        assert q2["optCount"] >= 1, f"Nenhuma opção retornada para GPS UFRPE -> Pelópidas: {q2}"
+        assert q2["origSource"] == "gps", f"Esperado origSource == 'gps', obtido {q2['origSource']!r}"
+        assert "UFRPE" in (q2["origLabel"] or ""), f"Origem GPS esperada UFRPE, obtido {q2['origLabel']!r}"
+        assert "Maranguape" not in (q2["origLabel"] or ""), (
+            f"Rotina salva em Maranguape II vazou na origem GPS: {q2['origLabel']!r}"
+        )
+        assert q2["origLat"] is not None and abs(float(q2["origLat"]) - (-8.0176)) < 0.01
+        assert "Pelópidas" in (q2["destLabel"] or ""), f"Destino esperado Pelópidas, obtido {q2['destLabel']!r}"
+
+        q3 = out["q3"]
+        assert q3["intent"] == "user_line_correction", f"Intent esperado 'user_line_correction', obtido {q3['intent']!r}"
+        assert q3["routeCode"] == "1953", f"routeCode esperado '1953', obtido {q3['routeCode']!r}"
+        assert "1953" in (q3["html"] or "")
+        assert "Maranguape II" in (q3["html"] or "")
+        assert "24:" not in (q3["html"] or ""), f"Horário >= 24: vazou na resposta da 1953: {q3['html']!r}"
+        assert "Maranguape Ii" not in (q3["html"] or ""), (
+            f"Capitalização 'Maranguape Ii' vazou na resposta da 1953: {q3['html']!r}"
         )
 
 

@@ -22,6 +22,7 @@
     activeBusCoordIndex: 0,
     activeBoardingLatLon: null,
     activeBusLatLon: null,
+    userLocation: null, // Coordenadas reais do GPS no mapa ({ lat, lon, source, ts }) — prioridade absoluta sobre rotina salva
     userAdaptState: {
       status: 'initializing',
       stopName: null,
@@ -67,6 +68,31 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+    },
+
+    _normalizeTimeStr(raw) {
+      if (raw == null) return raw;
+      const s = String(raw).trim();
+      const m = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (!m) return s;
+      const hh = parseInt(m[1], 10);
+      const mm = parseInt(m[2], 10);
+      if (!Number.isFinite(hh) || !Number.isFinite(mm)) return s;
+      const normH = ((hh % 24) + 24) % 24;
+      const base = `${String(normH).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+      return m[3] != null ? `${base}:${m[3]}` : base;
+    },
+
+    _formatDisplayName(raw) {
+      if (raw == null) return '';
+      return String(raw)
+        .replace(/\bIii\b/g, 'III')
+        .replace(/\bIi\b/g, 'II')
+        .replace(/\bIv\b/g, 'IV')
+        .replace(/\bTi\b/g, 'TI')
+        .replace(/\bBr-(\d+)/g, 'BR-$1')
+        .replace(/\bPe-(\d+)/g, 'PE-$1')
+        .replace(/\bUr-(\d+)/g, 'UR-$1');
     },
 
     _getCondensedHubGraph() {
@@ -347,6 +373,7 @@
         if (typeof navigator !== 'undefined' && navigator.geolocation && typeof navigator.geolocation.getCurrentPosition === 'function') {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
+              this.userLocation = { lat: pos.coords.latitude, lon: pos.coords.longitude, source: 'gps', ts: Date.now() };
               if (window.grafoparadaManualOrigin) return;
               this.adaptToUserLocation(pos.coords.latitude, pos.coords.longitude, 'GPS em tempo real', { fit: true, originSource: 'gps' });
             },
@@ -921,18 +948,20 @@
           icon: customIcon,
           zIndexOffset: isBoard ? 950 : (isActiveSel ? 600 : (isTerminal ? 400 : 0))
         });
-        const displayStopName = (st.name && !/^\d+$/.test(String(st.name).trim()))
-          ? st.name
-          : `Parada ${st.stop_id}`;
+        const displayStopName = self._formatDisplayName(
+          (st.name && !/^\d+$/.test(String(st.name).trim()))
+            ? st.name
+            : `Parada ${st.stop_id}`
+        );
 
         const popupContent = `
           <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:220px; padding:2px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px;">CÓD ${st.stop_id}</span>
-              <span style="font-size:10.5px; font-weight:700; color:${dirColor};">Linha ${self.activeRouteCode} (${self.activeDirection === 'volta' ? 'Volta' : 'Ida'})</span>
+              <span style="font-size:10px; font-weight:800; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px;">CÓD ${self.escapeHtml(st.stop_id)}</span>
+              <span style="font-size:10.5px; font-weight:700; color:${dirColor};">Linha ${self.escapeHtml(self.activeRouteCode)} (${self.activeDirection === 'volta' ? 'Volta' : 'Ida'})</span>
             </div>
-            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px; line-height:1.2;">${displayStopName}</div>
-            <div style="font-size:11px; color:#64748b; margin-bottom:8px;">Programado GTFS: <strong>${st.arr_time || 'Regular'}</strong></div>
+            <div style="font-size:13px; font-weight:800; color:#0f172a; margin-bottom:4px; line-height:1.2;">${self.escapeHtml(displayStopName)}</div>
+            <div style="font-size:11px; color:#64748b; margin-bottom:8px;">Programado GTFS: <strong>${self.escapeHtml(self._normalizeTimeStr(st.arr_time) || 'Regular')}</strong></div>
             <button onclick="window.RealTransit.selectStop(${idx}, true); if(leafletMap) leafletMap.closePopup();" style="width:100%; background:${dirColor}; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:800; cursor:pointer;">
               Embarcar nesta Parada →
             </button>
@@ -960,8 +989,8 @@
         ? st.name
         : `Parada ${st.stop_id} (${this.activeRoute.name || 'Linha ' + this.activeRouteCode})`;
       const dirLabel = dirData.dir === 'volta' ? 'VOLTA' : 'IDA';
-      const cleanStopLabel = String(rawStopLabel).replace(/\bTi\b/g, 'TI');
-      const displayHeadsign = String(dirData.headsign || this.activeRoute.name || dirLabel).replace(/\bTi\b/g, 'TI');
+      const cleanStopLabel = this._formatDisplayName(rawStopLabel);
+      const displayHeadsign = this._formatDisplayName(dirData.headsign || this.activeRoute.name || dirLabel);
       const remainingCount = Math.max(0, activeStops.length - 1 - index);
 
       // Atualiza o card de parada atual em 2 linhas compactas para caber no Bottom Sheet em repouso (205px)
@@ -1058,16 +1087,16 @@
         const isSel = idx === this.activeStopIndex;
         const isBoard = idx === boardIdx;
         const eta = Math.max(2, (((idx - boardIdx + 6) % 6) * 3) + 2);
-        const stLabel = (st.name && !/^\d+$/.test(String(st.name).trim())) ? st.name : `Parada ${st.stop_id}`;
+        const stLabel = this._formatDisplayName((st.name && !/^\d+$/.test(String(st.name).trim())) ? st.name : `Parada ${st.stop_id}`);
         return `
           <div style="background:${isSel ? '#ecfdf5' : 'var(--bg-page)'}; border:${isSel ? `2px solid ${dirColor}` : '1px solid var(--border-color)'}; opacity:${isPassed ? '0.62' : '1'}; border-radius:12px; padding:10px 12px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all 0.15s ease;" onclick="window.RealTransit.selectStop(${idx}, true)">
             <div style="max-width:75%;">
               <div style="display:flex; align-items:center; gap:5px; margin-bottom:2px; flex-wrap:wrap;">
                 <span style="font-size:10px; font-weight:800; background:${isBoard ? dirColor : '#f1f5f9'}; color:${isBoard ? '#ffffff' : '#475569'}; padding:1px 6px; border-radius:4px;">${isBoard ? 'SEU EMBARQUE #' + (idx + 1) : '#' + String(idx + 1).padStart(2, '0')}</span>
-                <span style="font-size:10px; font-weight:800; color:#0369a1;">CÓD ${st.stop_id}</span>
+                <span style="font-size:10px; font-weight:800; color:#0369a1;">CÓD ${this.escapeHtml(st.stop_id)}</span>
               </div>
-              <div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25;">${stLabel}</div>
-              <div style="font-size:11px; color:#64748b; margin-top:2px;">Previsto GTFS: ${st.arr_time || 'Regular'}</div>
+              <div style="font-size:13px; font-weight:800; color:#0f172a; line-height:1.25;">${this.escapeHtml(stLabel)}</div>
+              <div style="font-size:11px; color:#64748b; margin-top:2px;">Previsto GTFS: ${this.escapeHtml(this._normalizeTimeStr(st.arr_time) || 'Regular')}</div>
             </div>
             <div style="text-align:right;">
               <div style="font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:800; color:${isSel ? dirColor : 'var(--text-main)'};">${eta} <span style="font-size:11px;">min</span></div>
@@ -1630,13 +1659,18 @@
     // MOTOR INTELIGENTE DE CONSULTA GTFS, ROTEAMENTO & BASE DA LAYA IA
     // =========================================================================
     normalizeText(str) {
+      const romanMap = { '1': 'i', '2': 'ii', '3': 'iii', '4': 'iv', '5': 'v' };
       return String(str || '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
         .replace(/[^\w\s-]/g, ' ')
         .replace(/\s+/g, ' ')
-        .trim();
+        .trim()
+        .replace(
+          /\b(maranguape|cohab|jardim(?:\s+brasil|\s+paulista)?|cabo|ur|janga|candeias|curado|caetes|arthur\s+lundgren|lundgren|jatoba|joao\s+paulo)\s+([1-5])\b/g,
+          (_m, place, digit) => `${place} ${romanMap[digit] || digit}`
+        );
     },
 
     _matchesQueryText(haystack, query) {
@@ -1661,18 +1695,25 @@
       const c = String(code || '').trim();
       if (!c) return '';
       const rk = this._getLineKnowledge(c);
-      if (rk && rk.full_label) {
-        const fl = String(rk.full_label).trim();
-        return (fl.startsWith(c + ' ') || fl.startsWith(c + '·')) ? fl : `${c} · ${fl}`;
-      }
-      if (rk && rk.origin_place && rk.dest_place) return `${c} · ${rk.origin_place} / ${rk.dest_place}`;
       const catalog = this.networkData && Array.isArray(this.networkData.routes_catalog) ? this.networkData.routes_catalog : [];
       const cat = catalog.find(r => String(r.code) === c);
-      if (cat && cat.label) return String(cat.label);
       const pop = this.networkData && this.networkData.popular_lines && this.networkData.popular_lines[c];
       const sched = this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[c];
-      const name = (pop && pop.name) || (sched && sched.name) || (cat && cat.name);
-      return name ? `${c} · ${name}` : c;
+      const rawGtfsName = (pop && pop.name) || (sched && sched.name) || (cat && cat.name) || (rk && rk.name) || '';
+      const formattedGtfs = this._formatDisplayName(rawGtfsName);
+      if (rk && rk.full_label) {
+        const fl = this._formatDisplayName(String(rk.full_label).trim());
+        if (formattedGtfs && formattedGtfs.includes('/')) {
+          const gtfsFirstPart = this.normalizeText(formattedGtfs.split('/')[0].trim());
+          if (gtfsFirstPart && !this.normalizeText(fl).includes(gtfsFirstPart)) {
+            return `${c} · ${formattedGtfs}`;
+          }
+        }
+        return (fl.startsWith(c + ' ') || fl.startsWith(c + '·')) ? fl : `${c} · ${fl}`;
+      }
+      if (rk && rk.origin_place && rk.dest_place) return this._formatDisplayName(`${c} · ${rk.origin_place} / ${rk.dest_place}`);
+      if (cat && cat.label) return this._formatDisplayName(String(cat.label));
+      return formattedGtfs ? `${c} · ${formattedGtfs}` : c;
     },
 
     _getLineSearchHaystack(routeOrCode) {
@@ -1713,8 +1754,8 @@
           routePathText: ''
         };
       }
-      const originPlace = rk.origin_place ? String(rk.origin_place).trim() : '';
-      const destPlace = rk.dest_place ? String(rk.dest_place).trim() : '';
+      const originPlace = rk.origin_place ? this._formatDisplayName(String(rk.origin_place).trim()) : '';
+      const destPlace = rk.dest_place ? this._formatDisplayName(String(rk.dest_place).trim()) : '';
       const rawWaypoints = []
         .concat(Array.isArray(rk.ti_hubs) ? rk.ti_hubs : [])
         .concat(Array.isArray(rk.corridor_places) ? rk.corridor_places : []);
@@ -1723,7 +1764,7 @@
       const destNorm = this.normalizeText(destPlace);
       const waypoints = [];
       for (let i = 0; i < rawWaypoints.length; i++) {
-        const wp = String(rawWaypoints[i] || '').trim();
+        const wp = this._formatDisplayName(String(rawWaypoints[i] || '').trim());
         const wpNorm = this.normalizeText(wp);
         if (!wpNorm || seen.has(wpNorm) || wpNorm === origNorm || wpNorm === destNorm) continue;
         seen.add(wpNorm);
@@ -1819,16 +1860,41 @@
 
         candidates.push({
           _score: score,
-          label: p.name,
-          sublabel,
+          label: this._formatDisplayName(p.name),
+          sublabel: this._formatDisplayName(sublabel),
           type: p.type || 'pole',
           city: p.city || null,
-          neighborhood: cleanNeighborhood || null,
+          neighborhood: cleanNeighborhood ? this._formatDisplayName(cleanNeighborhood) : null,
           lat: Number(p.lat),
           lon: Number(p.lon),
           stopId: null,
           stopCount,
           lines
+        });
+      }
+
+      // Complementa com corredores semânticos da RMR (ex.: Maranguape II, UFRPE, Recife Antigo)
+      const corridors = this.getSemanticCorridors();
+      for (let i = 0; i < corridors.length; i++) {
+        const c = corridors[i];
+        if (!c || !c.label) continue;
+        const fields = [this.normalizeText(c.label), this.normalizeText(c.key)]
+          .concat((c.keys || []).map(k => this.normalizeText(k)));
+        const baseScore = scoreText(fields);
+        if (baseScore <= 0) continue;
+        const cLines = Array.from(new Set([c.defaultLine].concat(c.alsoServedBy || []).filter(Boolean)));
+        candidates.push({
+          _score: baseScore + 45,
+          label: this._formatDisplayName(c.label),
+          sublabel: this._formatDisplayName(`${c.hub || 'RMR'} · ${cLines.length} linhas`),
+          type: 'pole',
+          city: null,
+          neighborhood: this._formatDisplayName(c.label),
+          lat: Number(c.lat),
+          lon: Number(c.lon),
+          stopId: null,
+          stopCount: cLines.length,
+          lines: cLines
         });
       }
 
@@ -2126,7 +2192,7 @@
       const rawCheckpoints = Array.isArray(dirObj.ti_checkpoints) ? dirObj.ti_checkpoints : [];
       const tiCheckpoints = rawCheckpoints.map(cp => ({
         stop_id: cp && cp.stop_id != null ? String(cp.stop_id) : null,
-        stop_name: (cp && cp.stop_name) || '',
+        stop_name: this._formatDisplayName((cp && cp.stop_name) || ''),
         stop_idx: cp && cp.stop_idx != null ? Number(cp.stop_idx) : null,
         offset_min: cp && cp.offset_min != null ? Number(cp.offset_min) : 0,
         role: (cp && cp.role) || 'integracao',
@@ -2141,13 +2207,13 @@
 
       const result = {
         routeCode: resolvedCode,
-        routeName: lineSched.name || resolvedCode,
+        routeName: this._formatDisplayName(lineSched.name || resolvedCode),
         direction: usedDir,
         serviceDay,
-        firstDep: offsetMin > 0 ? fmtMin(adjustedDeps[0]) : (sched.first_dep || fmtMin(adjustedDeps[0])),
-        lastDep: offsetMin > 0 ? fmtMin(adjustedDeps[adjustedDeps.length - 1]) : (sched.last_dep || fmtMin(adjustedDeps[adjustedDeps.length - 1])),
-        firstArr: sched.first_arr || null,
-        lastArr: sched.last_arr || null,
+        firstDep: offsetMin > 0 ? fmtMin(adjustedDeps[0]) : this._normalizeTimeStr(sched.first_dep || fmtMin(adjustedDeps[0])),
+        lastDep: offsetMin > 0 ? fmtMin(adjustedDeps[adjustedDeps.length - 1]) : this._normalizeTimeStr(sched.last_dep || fmtMin(adjustedDeps[adjustedDeps.length - 1])),
+        firstArr: sched.first_arr ? this._normalizeTimeStr(sched.first_arr) : null,
+        lastArr: sched.last_arr ? this._normalizeTimeStr(sched.last_arr) : null,
         tripCount: sched.trip_count || adjustedDeps.length,
         durationMin: sched.duration_min != null ? sched.duration_min : null,
         timeBand,
@@ -2898,6 +2964,10 @@
         ? opts.originSource
         : (isManualOrigin ? 'manual' : (isCachedOrigin ? 'cached' : (isLiveGps ? 'gps' : 'gtfs_estimate')));
 
+      if (isLiveGps && Number.isFinite(Number(lat)) && Number.isFinite(Number(lon))) {
+        this.userLocation = { lat: Number(lat), lon: Number(lon), source: 'gps', ts: Date.now() };
+      }
+
       if (ctx.outOfCoverage) {
         this.userAdaptState = {
           status: 'out_of_coverage',
@@ -2919,14 +2989,16 @@
 
       const best = ctx.best;
       const rawStopName = (best.stop && best.stop.name) ? String(best.stop.name).trim() : '';
-      const friendlyStopName = (rawStopName && !/^\d+$/.test(rawStopName))
-        ? rawStopName
-        : `Parada ${best.stop ? best.stop.stop_id : best.code} · ${best.name}`;
+      const friendlyStopName = this._formatDisplayName(
+        (rawStopName && !/^\d+$/.test(rawStopName))
+          ? rawStopName
+          : `Parada ${best.stop ? best.stop.stop_id : best.code} · ${best.name}`
+      );
       this.userAdaptState = {
         status: 'adapted',
         sourceLabel: sourceLabel || 'GPS Atual',
         lineCode: best.code,
-        lineName: best.name,
+        lineName: this._formatDisplayName(best.name),
         direction: best.direction || 'ida',
         stopName: friendlyStopName,
         distanceKm: best.distanceKm,
@@ -2969,7 +3041,7 @@
         { key: 'olinda', keys: ['olinda', 'carmo', 'varadouro', 'sitio historico', 'praca do carmo', 'alto da se', 'amparo'], label: 'Olinda (Carmo / Sítio Histórico)', defaultLine: '1971', alsoServedBy: ['1967', '1983', '1992', '1973', '1100'], hub: 'Praça do Carmo / TI PE-15', stopName: 'Praça do Carmo / Sítio Histórico de Olinda', lat: -8.0125, lon: -34.8520, waitMin: 5, seatsFree: 14 },
         { key: 'bairro novo', keys: ['bairro novo', 'casa caiada', 'jardim atlantico', 'beira mar olinda', 'getulio vargas', 'patteo olinda', 'shopping patteo'], label: 'Olinda (Bairro Novo / Casa Caiada)', defaultLine: '1973', alsoServedBy: ['1992', '1994', '1974', '1982'], hub: 'TI Rio Doce / TI PE-15', stopName: 'Av. Getúlio Vargas (Bairro Novo / Casa Caiada)', lat: -7.9940, lon: -34.8420, waitMin: 4, seatsFree: 15 },
         { key: 'janga', keys: ['janga', 'pau amarelo', 'maria farinha', 'nossa senhora da conceicao'], label: 'Paulista (Janga / Pau Amarelo)', defaultLine: '1992', alsoServedBy: ['1982', '1994', '1983'], hub: 'TI Rio Doce', stopName: 'Av. Cláudio José Gueiros Leite (Janga / Pau Amarelo)', lat: -7.9348, lon: -34.8285, waitMin: 6, seatsFree: 15 },
-        { key: 'rio doce', keys: ['rio doce', 'ti rio doce', 'maranguape'], label: 'Olinda / TI Rio Doce', defaultLine: '1983', alsoServedBy: ['030', '1966', '2930', '1987'], hub: 'TI Rio Doce', stopName: 'TI Rio Doce (Olinda)', lat: -7.9598, lon: -34.8415, waitMin: 4, seatsFree: 19 },
+        { key: 'rio doce', keys: ['rio doce', 'ti rio doce'], label: 'Olinda / TI Rio Doce', defaultLine: '1983', alsoServedBy: ['030', '1966', '2930', '1987'], hub: 'TI Rio Doce', stopName: 'TI Rio Doce (Olinda)', lat: -7.9598, lon: -34.8415, waitMin: 4, seatsFree: 19 },
         { key: 'pe-15', keys: ['pe-15', 'pe 15', 'ti pe-15', 'ti pe 15', 'fragoso', 'ouro preto'], label: 'TI PE-15 (Olinda)', defaultLine: '1100', alsoServedBy: ['050', '1966', '1913', '914'], hub: 'TI PE-15', stopName: 'Terminal Integrado PE-15', lat: -7.9912, lon: -34.8576, waitMin: 3, seatsFree: 20 },
         { key: 'xamba', keys: ['xamba', 'ti xamba', 'peixinhos', 'aguazinha', 'aguas compridas'], label: 'TI Xambá (Olinda)', defaultLine: '812', alsoServedBy: ['861', '881'], hub: 'TI Xambá', stopName: 'Terminal Integrado Xambá', lat: -8.0078, lon: -34.8655, waitMin: 5, seatsFree: 16 },
         { key: 'paulista', keys: ['paulista', 'pelopidas', 'ti pelopidas', 'shopping north way', 'north way'], label: 'Paulista / TI Pelópidas', defaultLine: '1907', alsoServedBy: ['1967', '1977', '1950'], hub: 'TI Pelópidas Silveira', stopName: 'TI Pelópidas Silveira (Paulista)', lat: -7.9408, lon: -34.8732, waitMin: 5, seatsFree: 17 },
@@ -3008,7 +3080,8 @@
         { key: 'santo amaro', keys: ['santo amaro', 'tacaruna', 'hospital oswaldo cruz', 'huoc', 'procape', 'joao de barros', 'escola tecnica'], label: 'Santo Amaro / HUOC / Tacaruna', defaultLine: '050', alsoServedBy: ['1973', '1983', '612', '710'], hub: 'Praça do Derby', stopName: 'Av. Cruz Cabugá / HUOC Santo Amaro', lat: -8.0462, lon: -34.8812, waitMin: 4, seatsFree: 15 },
         { key: 'tamarineira', keys: ['tamarineira', 'parnamirim', 'jaqueira', 'santana', 'hospital agamenon', 'estrada do encanamento'], label: 'Tamarineira / Jaqueira / Parnamirim', defaultLine: '522', alsoServedBy: ['516', '532', '640'], hub: 'TI Macaxeira', stopName: 'Estrada do Arraial / Tamarineira', lat: -8.0285, lon: -34.9062, waitMin: 4, seatsFree: 16 },
         { key: 'guabiraba', keys: ['guabiraba', 'passarinho', 'brejo da guabiraba', 'alto do pascoal', 'morro da conceicao', 'alto jose do pinho'], label: 'Zona Norte Alta (Brejo / Passarinho)', defaultLine: '622', alsoServedBy: ['642', '645', '611'], hub: 'TI Macaxeira', stopName: 'Av. Norte / Morro da Conceição', lat: -8.0112, lon: -34.9185, waitMin: 6, seatsFree: 14 },
-        { key: 'maranguape', keys: ['maranguape', 'maranguape i', 'maranguape ii', 'nobre', 'paratibe', 'arthur lundgren', 'mirueira'], label: 'Paulista (Maranguape / Arthur Lundgren)', defaultLine: '1922', alsoServedBy: ['1950', '1952', '1955'], hub: 'TI Pelópidas Silveira', stopName: 'Maranguape I / Av. Brasil', lat: -7.9432, lon: -34.8645, waitMin: 5, seatsFree: 16 },
+        { key: 'maranguape ii', keys: ['maranguape ii', 'maranguape 2'], label: 'Maranguape II (Paulista)', defaultLine: '1953', alsoServedBy: ['1928', '1922', '1950', '1955', '1978'], hub: 'TI Pelópidas Silveira', stopName: 'Maranguape II (Terminal Linha 1953)', lat: -7.927331, lon: -34.849903, waitMin: 5, seatsFree: 16 },
+        { key: 'maranguape', keys: ['maranguape', 'maranguape i', 'maranguape 1', 'engenho maranguape', 'nobre', 'paratibe', 'arthur lundgren', 'mirueira'], label: 'Paulista (Maranguape I / Arthur Lundgren)', defaultLine: '1922', alsoServedBy: ['1953', '1950', '1952', '1955'], hub: 'TI Pelópidas Silveira', stopName: 'Maranguape I / Av. Brasil', lat: -7.9432, lon: -34.8645, waitMin: 5, seatsFree: 16 },
         { key: 'caetes', keys: ['caetes', 'caetes i', 'caetes ii', 'caetes iii'], label: 'Caetés I / II / III (Abreu e Lima)', defaultLine: '1918', alsoServedBy: ['1913', '1967'], hub: 'TI Abreu e Lima', stopName: 'Terminal Caetés I', lat: -7.9085, lon: -34.9225, waitMin: 6, seatsFree: 15 },
         { key: 'muribeca', keys: ['muribeca', 'vila rica', 'engenhoca', 'guararapes', 'porta larga'], label: 'Muribeca / Guararapes', defaultLine: '162', alsoServedBy: ['163', '165', '185'], hub: 'TI Cajueiro Seco', stopName: 'Integração Muribeca / Av. Barreto de Menezes', lat: -8.1742, lon: -34.9562, waitMin: 6, seatsFree: 15 },
         { key: 'moreno', keys: ['moreno', 'bonanca', 'engenho novo'], label: 'Moreno / Bonança', defaultLine: '201', alsoServedBy: ['200', '290'], hub: 'TI Jaboatão', stopName: 'Centro de Moreno (BR-232)', lat: -8.1185, lon: -35.0915, waitMin: 9, seatsFree: 16 },
@@ -3074,33 +3147,138 @@
       return raw;
     },
 
+    _getRealGpsCoords() {
+      const u = this.userLocation;
+      if (u) {
+        if (Array.isArray(u) && u.length >= 2 && Number.isFinite(Number(u[0])) && Number.isFinite(Number(u[1]))) {
+          return { lat: Number(u[0]), lon: Number(u[1]), source: 'gps' };
+        }
+        if (typeof u === 'object') {
+          const lat = Number(u.lat != null ? u.lat : u.latitude);
+          const lon = Number(u.lon != null ? u.lon : (u.lng != null ? u.lng : u.longitude));
+          if (Number.isFinite(lat) && Number.isFinite(lon)) {
+            return { lat, lon, source: u.source || 'gps' };
+          }
+        }
+      }
+      if (
+        this.userAdaptState &&
+        this.userAdaptState.status === 'adapted' &&
+        this.userAdaptState.originSource === 'gps' &&
+        !this.userAdaptState.isManualOrigin &&
+        Number.isFinite(Number(this.userAdaptState.lat)) &&
+        Number.isFinite(Number(this.userAdaptState.lon))
+      ) {
+        return {
+          lat: Number(this.userAdaptState.lat),
+          lon: Number(this.userAdaptState.lon),
+          source: 'gps'
+        };
+      }
+      return null;
+    },
+
+    _resolveGpsLocation(lat, lon) {
+      const nLat = Number(lat);
+      const nLon = Number(lon);
+      if (!Number.isFinite(nLat) || !Number.isFinite(nLon)) return null;
+
+      let nearestCorridor = null;
+      let minCorrDist = Infinity;
+      const corridors = this.getSemanticCorridors();
+      for (let i = 0; i < corridors.length; i++) {
+        const c = corridors[i];
+        if (!c || !Number.isFinite(c.lat) || !Number.isFinite(c.lon)) continue;
+        const d = this.haversineKm(nLat, nLon, c.lat, c.lon);
+        if (d < minCorrDist) {
+          minCorrDist = d;
+          nearestCorridor = c;
+        }
+      }
+
+      const ctx = this.findNearestTransitContext(nLat, nLon);
+      const best = ctx && ctx.best ? ctx.best : null;
+      const rawStopName = (best && best.stop && best.stop.name) ? String(best.stop.name).trim() : '';
+      const hasRichStopName = Boolean(rawStopName && !/^\d+$/.test(rawStopName));
+      const stopIdStr = (best && best.stop && best.stop.stop_id) ? String(best.stop.stop_id) : '';
+
+      let label;
+      let stopName;
+      if (hasRichStopName) {
+        stopName = this._formatDisplayName(rawStopName);
+        label = (nearestCorridor && minCorrDist <= 0.8 && !this.normalizeText(stopName).includes(this.normalizeText(nearestCorridor.key)))
+          ? `${stopName} (${this._formatDisplayName(nearestCorridor.label)})`
+          : stopName;
+      } else if (nearestCorridor && minCorrDist <= 0.9) {
+        const corrLabel = this._formatDisplayName(nearestCorridor.label);
+        stopName = stopIdStr ? `Parada ${stopIdStr} · ${corrLabel}` : corrLabel;
+        label = stopName;
+      } else if (stopIdStr && best) {
+        stopName = this._formatDisplayName(`Parada ${stopIdStr} · ${best.name}`);
+        label = stopName;
+      } else {
+        stopName = 'Sua parada mais próxima (GPS)';
+        label = 'Sua posição atual (GPS)';
+      }
+
+      return {
+        key: 'current_gps',
+        label,
+        lat: nLat,
+        lon: nLon,
+        stopName,
+        stopId: stopIdStr || null,
+        lineCode: best ? best.code : null,
+        distanceKm: best ? best.distanceKm : null,
+        source: 'gps'
+      };
+    },
+
+    _isLiveLocationPhrase(raw) {
+      const p = this.normalizeText(raw);
+      if (!p) return false;
+      return /^(?:de\s+)?(?:aqui|daqui|estou aqui|onde estou|onde estou agora|onde estou no mapa|minha parada|minha localizacao|meu local|localizacao atual|posicao atual|atual)$/.test(p);
+    },
+
+    _isExplicitLiveGpsPhrase(raw) {
+      const p = this.normalizeText(raw);
+      if (!p) return false;
+      return /\b(?:onde estou(?:\s+agora|\s+no\s+mapa)?|daqui|estou aqui|onde estou no mapa|minha localizacao|meu local|posicao real|posicao atual)\b/.test(p);
+    },
+
     resolvePlaceLocation(rawPlace) {
       const pNorm = this.normalizeText(rawPlace);
       if (!pNorm) return null;
 
-      // Suporte explícito a "aqui / onde estou / minha localizacao"
-      if (/^(aqui|daqui|onde estou|minha parada|minha localizacao|meu local|atual)$/.test(pNorm) || /\b(minha localizacao|onde estou|daqui)\b/.test(pNorm)) {
-        let lat = (this.userAdaptState && this.userAdaptState.lat) || (window.userCurrentCoords && window.userCurrentCoords[0]);
-        let lon = (this.userAdaptState && this.userAdaptState.lon) || (window.userCurrentCoords && window.userCurrentCoords[1]);
-        if ((!lat || !lon) && typeof localStorage !== 'undefined') {
-          try {
-            const last = JSON.parse(localStorage.getItem('grafoparada_last_coords') || 'null');
-            if (last && typeof last.lat === 'number' && typeof last.lon === 'number') {
-              lat = last.lat;
-              lon = last.lon;
-            }
-          } catch (e) {}
+      // Suporte explícito a "aqui / daqui / onde estou agora / onde estou no mapa / estou aqui"
+      // PRIORIDADE ABSOLUTA: this.userLocation (GPS real), NUNCA parada de rotina salva em outro bairro!
+      if (this._isLiveLocationPhrase(pNorm)) {
+        const realGps = this._getRealGpsCoords();
+        if (realGps) {
+          return this._resolveGpsLocation(realGps.lat, realGps.lon);
         }
-        if (lat && lon) {
-          const isAdapted = Boolean(this.userAdaptState && this.userAdaptState.status === 'adapted');
-          const safeOrigin = isAdapted
-            ? this._sanitizeOriginName(this.userAdaptState && this.userAdaptState.stopName)
-            : 'sua região atual';
+        // Se a pessoa pediu explicitamente sua posição real no mapa ("onde estou agora", "daqui", "estou aqui"),
+        // nunca finge que está na parada da rotina salva
+        if (this._isExplicitLiveGpsPhrase(pNorm)) {
+          return null;
+        }
+        // Para origem implícita ("aqui" sem GPS ativo), só aceita userAdaptState se NÃO for rotina manual nem cache obsoleto
+        const st = this.userAdaptState;
+        if (
+          st &&
+          st.status === 'adapted' &&
+          !st.isManualOrigin &&
+          st.originSource !== 'manual' &&
+          st.originSource !== 'cached' &&
+          Number.isFinite(Number(st.lat)) &&
+          Number.isFinite(Number(st.lon))
+        ) {
+          const safeOrigin = this._formatDisplayName(this._sanitizeOriginName(st.stopName));
           return {
             key: 'current_gps',
             label: safeOrigin,
-            lat,
-            lon,
+            lat: Number(st.lat),
+            lon: Number(st.lon),
             stopName: safeOrigin === 'sua região atual' ? 'Sua parada atual' : safeOrigin
           };
         }
@@ -3112,15 +3290,31 @@
         return this.geocodeCache[pNorm];
       }
 
-      // 1. Match em polos georreferenciados da RMR (evita match falso de palavras curtas)
+      // 1. Match em polos georreferenciados da RMR (prioriza match mais específico/longo para evitar colisões como Maranguape II vs Maranguape)
       const corridors = this.getSemanticCorridors();
       const wordSafeMatch = (haystack, key) => {
         if (haystack === key) return true;
         if (key.length >= 4 && haystack.includes(key)) return true;
         return new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(haystack);
       };
-      const exactCorridor = corridors.find(c => c.keys.some(k => wordSafeMatch(pNorm, k)))
-        || (pNorm.length >= 5 ? corridors.find(c => c.keys.some(k => k.includes(pNorm))) : null);
+      let exactCorridor = null;
+      let bestCorrScore = 0;
+      for (let i = 0; i < corridors.length; i++) {
+        const c = corridors[i];
+        const keys = Array.isArray(c.keys) ? c.keys : [];
+        for (let j = 0; j < keys.length; j++) {
+          const kNorm = this.normalizeText(keys[j]);
+          if (!kNorm) continue;
+          let sc = 0;
+          if (pNorm === kNorm) sc = 2000 + kNorm.length;
+          else if (wordSafeMatch(pNorm, kNorm)) sc = 1000 + kNorm.length;
+          else if (pNorm.length >= 5 && kNorm.includes(pNorm)) sc = 400 + pNorm.length;
+          if (sc > bestCorrScore) {
+            bestCorrScore = sc;
+            exactCorridor = c;
+          }
+        }
+      }
       if (exactCorridor) return exactCorridor;
 
       // 2. Match nos Hubs do Grafo SEI ou Terminais SEI do GTFS
@@ -3238,10 +3432,11 @@
         }
         if (minDist <= maxKm) {
           const isBacurau = /bacurau/i.test(lineObj.name || '');
+          const cleanLineName = this._formatDisplayName(lineObj.name);
           hits.push({
             code,
-            label: `${code} · ${lineObj.name}`,
-            name: lineObj.name,
+            label: `${code} · ${cleanLineName}`,
+            name: cleanLineName,
             isBacurau,
             distanceKm: minDist,
             nearestStop,
@@ -3340,22 +3535,66 @@
     },
 
     extractOriginDest(rawText) {
-      const clean = this.normalizeText(rawText)
-        .replace(/\b(estou perdid[oa]|tou perdid[oa]|to perdid[oa]|me perdi|nao sei onde estou|socorro|me ajude|me ajuda|agora a noite|nesta noite|a noite|de noite|pela noite|hoje a noite|vamos la|por favor|agora|hoje|pode ser|me diz|me fale|como faco para voltar|como faco pra voltar|como faco para ir|como faco pra ir|como volto|como chego|como fico|como ir|quero voltar|quero ir|preciso voltar|preciso ir|gostaria de|gostaria|qual busao pega|qual onibus pega|qual linha pega|qual busao|qual onibus|qual linha|qual|quais)\b/g, ' ')
-        .replace(/\b(?:para|pra)\s+(?:ir|voltar|chegar)\s+(?:para o|para a|para|pra|pro|ate o|ate a|ate|no|na|em|ao)\b/g, ' para ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      const fullNorm = this.normalizeText(rawText);
+      if (!fullNorm) return null;
 
-      const sanitizePlace = (s) => String(s || '')
-        .replace(/\b(a noite|de noite|agora a noite|nesta noite|como volto|como faco|como chego|como ir|quero voltar|quero ir|preciso voltar|preciso ir|por favor|agora|hoje)\b.*$/i, '')
-        .replace(/^(?:saindo|partindo|sair|ir|voltar|indo|viajar|chegar|pegar|pega|estou)\s+/i, '')
-        .replace(/^(?:no|na|em|de|da|do|o|a|ao)\s+/i, '')
+      // Remove cláusula negada ("nao estou em X") quando seguida por outra localização explícita ou destino
+      const withoutNegated = fullNorm.replace(
+        /\b(?:eu\s+)?nao\s+(?:estou|to|tou)\s+(?:em|no|na|nos|nas)\s+[^]+?(?=\b(?:estou|to|tou|mas\s+estou|e\s+estou|quero|preciso|vou)\b)/i,
+        ' '
+      ).replace(/\s+/g, ' ').trim();
+
+      const sanitizePlace = (s) => {
+        let out = String(s || '')
+          .replace(/^(?:oi|ola|ei|fala)\s+(?:laya\s+)?/i, '')
+          .replace(/^laya\s+/i, '')
+          .replace(/\b(a noite|de noite|agora a noite|nesta noite|como volto|como faco|como chego|como ir|quero voltar|quero ir|preciso voltar|preciso ir|por favor)\b.*$/i, '')
+          .replace(/^(?:saindo|partindo|sair|ir|voltar|indo|viajar|chegar|pegar|pega|estou|tou|to)\s+/i, '')
+          .replace(/^(?:no|na|em|de|da|do|o|a|ao)\s+/i, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!/\bonde estou agora\b/i.test(out)) {
+          out = out.replace(/\s+\b(?:agora|hoje)\s*$/i, '').trim();
+        }
+        out = out.replace(/\s+\b(?:e|mas)\s*$/i, '').trim();
+        if (!this._isLiveLocationPhrase(out)) {
+          const beforeMeta = out.replace(
+            /\s+\b(?:pode\s+ver|ver\s+por\s+onde|por\s+onde\s+estou|onde\s+estou\s+no\s+mapa|no\s+mapa|e\s+daqui|daqui)\b.*$/i,
+            ''
+          ).replace(/\s+\b(?:e|mas)\s*$/i, '').trim();
+          if (beforeMeta.length >= 2) {
+            out = beforeMeta;
+          }
+        }
+        return out;
+      };
+
+      // 0. Origem explícita na frase ("estou na/no/em <ORIGEM> ... (ir|voltar) ... (pra|para|pro|ate) <DESTINO>") vence "daqui"
+      const explicitOriginRe = /\b(?:estou|tou|to|estava|cheguei|fico|fiquei|vim)\s+(?:aqui\s+)?(?:na|no|em)\s+([a-z0-9\s.-]+?)(?=\s+(?:(?:e\s+)?(?:pode|ver|veja|olhe|olha|por\s+onde|onde\s+estou|no\s+mapa|quero|preciso|vou|gostaria|como|ir|voltar|sair|chegar|pra|para|pro|ate|rumo|daqui)\b)|$)/i;
+      const expOrigMatch = withoutNegated.match(explicitOriginRe);
+      if (expOrigMatch && expOrigMatch[1]) {
+        const candOrigin = sanitizePlace(expOrigMatch[1]);
+        const afterOrig = withoutNegated.slice((expOrigMatch.index || 0) + expOrigMatch[0].length);
+        const destMatch = afterOrig.match(/\b(?:para\s+o|para\s+a|para|pra|pro|ate\s+o|ate\s+a|ate|rumo\s+a|->)\s+([a-z0-9\s.-]{2,60})$/i)
+          || afterOrig.match(/\b(?:ir|voltar|chegar|sair|seguir|daqui|aqui)\b.*?\b(?:para\s+o|para\s+a|para|pra|pro|ate\s+o|ate\s+a|ate|rumo\s+a|->)\s+([a-z0-9\s.-]{2,60})/i);
+        const isGenericOrigin = /^(aqui|daqui|mapa|no mapa|onde estou|onde estou agora|onde estou no mapa|minha parada|minha localizacao|meu local|atual|casa|rua|onibus|busao|ponto|parada)$/i.test(candOrigin);
+        if (candOrigin.length >= 2 && !isGenericOrigin && destMatch && destMatch[1]) {
+          const candDest = sanitizePlace(destMatch[1]);
+          if (candDest.length >= 2) {
+            return { origin: candOrigin, dest: candDest };
+          }
+        }
+      }
+
+      const clean = withoutNegated
+        .replace(/\b(oi laya|ola laya|ei laya|laya|estou perdid[oa]|tou perdid[oa]|to perdid[oa]|me perdi|nao sei onde estou|socorro|me ajude|me ajuda|agora a noite|nesta noite|a noite|de noite|pela noite|hoje a noite|vamos la|por favor|hoje|pode ser|me diz|me fale|como faco para voltar|como faco pra voltar|como faco para ir|como faco pra ir|como volto|como chego|como fico|como ir|quero voltar|quero ir|preciso voltar|preciso ir|gostaria de|gostaria|qual busao pega|qual onibus pega|qual linha pega|qual busao|qual onibus|qual linha|qual|quais)\b/g, ' ')
+        .replace(/\b(?:para|pra)\s+(?:ir|voltar|chegar)\s+(?:para o|para a|para|pra|pro|ate o|ate a|ate|no|na|em|ao)\b/g, ' para ')
         .replace(/\s+/g, ' ')
         .trim();
 
       const patterns = [
         /\b(?:saindo de|saindo do|saindo da|partindo de|partindo do|partindo da|estou no|estou na|estou em|sair de|sair do|sair da|ir de|ir do|ir da|voltar de|voltar do|voltar da|indo de|indo do|indo da|viajar de|viajar do|viajar da|pega no|pega na|pega em|de|da|do|no|na|em)\s+(.+?)\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|rumo a|->)\s+(.+)/i,
-        /\b(daqui|aqui)\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|->)\s+([a-z0-9\s.-]{2,45})/i,
+        /\b(daqui|aqui|estou aqui|onde estou agora|onde estou no mapa|onde estou)(?:\s+e)?\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|->)\s+([a-z0-9\s.-]{2,45})/i,
         /^([a-z0-9\s.-]{2,40}?)\s+\b(?:para o|para a|para|pra|pro|ate o|ate a|ate|->|rumo a)\s+([a-z0-9\s.-]{2,40})$/i
       ];
 
@@ -3848,8 +4087,8 @@
       }
 
       return {
-        originLabel: origPlace ? origPlace.label : originRaw,
-        destLabel: destPlace ? destPlace.label : destRaw,
+        originLabel: this._formatDisplayName(origPlace ? origPlace.label : originRaw),
+        destLabel: this._formatDisplayName(destPlace ? destPlace.label : destRaw),
         origCorridor: origPlace,
         destCorridor: destPlace,
         directMatches,
@@ -3897,9 +4136,10 @@
 
     formatLayaSmartTripResponse(plan, layaDecision, rawQuery, tripPair) {
       const q = this.normalizeText(rawQuery || '');
-      const cleanOrigLabel = this._sanitizeOriginName(plan.originLabel);
+      const cleanOrigLabel = this._formatDisplayName(this._sanitizeOriginName(plan.originLabel));
+      const cleanDestLabel = this._formatDisplayName(plan.destLabel);
       const safeOrig = this.escapeHtml(cleanOrigLabel);
-      const safeDest = this.escapeHtml(plan.destLabel);
+      const safeDest = this.escapeHtml(cleanDestLabel);
       const isNightOrEmergency = Boolean(
         (layaDecision && layaDecision.is_lost) ||
         /\b(perdid[oa]|me perdi|socorro|noite|madrugada|escuro|medo|segur[oa]|21h|22h)\b/i.test(q)
@@ -3939,7 +4179,7 @@
         const schedExtraText = sched
           ? ` · ${sched.headwayMin != null ? `Intervalo ${sched.headwayMin} min · ` : ''}1º ${this.escapeHtml(sched.firstDep)} / Último ${this.escapeHtml(sched.lastDep)}`
           : '';
-        const cleanTag = String(opt.tag || '').replace(/^\s*[^\wÀ-ÿ]+/, '').trim() || `Opção ${idx + 1}`;
+        const cleanTag = this._formatDisplayName(String(opt.tag || '').replace(/^\s*[^\wÀ-ÿ]+/, '').trim() || `Opção ${idx + 1}`);
         return `<div style="background:${isPrimary ? '#f0fdf4' : '#ffffff'}; border:1.5px solid ${isPrimary ? '#86efac' : '#e2e8f0'}; border-radius:12px; padding:7px 9px; margin-top:5px;">` +
           `<div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:3px;">` +
             `<span style="min-width:0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10.5px; font-weight:800; color:${isPrimary ? '#047857' : '#334155'};">${this.escapeHtml(cleanTag)}</span>` +
@@ -3951,7 +4191,7 @@
             `<span style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; padding:1px 5px; border-radius:5px; font-size:9.5px; font-weight:800; line-height:1.25;">${this.escapeHtml(cpBadge)}</span>` +
             schedBadgeHtml +
           `</div>` +
-          `<div style="font-size:10.5px; line-height:1.3; color:#475569; margin-bottom:4px;">Caminhada ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.map(h => this.escapeHtml(h)).join(' → ') : 'Viagem direta sem troca'}${schedExtraText}</div>` +
+          `<div style="font-size:10.5px; line-height:1.3; color:#475569; margin-bottom:4px;">Caminhada ${opt.walkMeters}m (${opt.walkMin} min) até a parada · ${opt.hubs.length ? 'Baldeação: ' + opt.hubs.map(h => this.escapeHtml(this._formatDisplayName(h))).join(' → ') : 'Viagem direta sem troca'}${schedExtraText}</div>` +
           `<button type="button" onclick="if(window.RealTransit){window.RealTransit.renderMultiLegRoute(${codesJson}, ${hubsJson}, ${origCoordsArr}, ${destCoordsArr});} if(window.navigateToScreen){window.navigateToScreen('radar', {skipFit:true});} if(window.closeLayaModal){window.closeLayaModal();}" style="display:flex; align-items:center; justify-content:center; gap:5px; width:100%; background:${isPrimary ? '#059669' : '#0284c7'}; color:#fff; border:none; padding:5px 10px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Traçar Opção ${idx + 1} no Mapa</span></button>` +
           `</div>`;
       };
@@ -4019,9 +4259,9 @@
         let stepsHtml = '';
         const legCodesArr = legs.map(l => l.code);
         for (let i = 0; i < legs.length; i++) {
-          const targetPlace = i < hubs.length ? hubs[i] : plan.destLabel;
+          const targetPlace = this._formatDisplayName(i < hubs.length ? hubs[i] : cleanDestLabel);
           const actionPrefix = i === 0 ? 'Embarque inicial' : (i === legs.length - 1 ? 'Etapa final até o destino' : 'Conexão intermediária');
-          stepsHtml += `<div><strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${this.escapeHtml(legs[i].label)}</strong> → <strong>${this.escapeHtml(targetPlace)}</strong></div>`;
+          stepsHtml += `<div><strong>${i + 1}ª Etapa (${actionPrefix}):</strong> Linha <strong>${this.escapeHtml(this._formatDisplayName(legs[i].label))}</strong> → <strong>${this.escapeHtml(targetPlace)}</strong></div>`;
         }
 
         const optionsHtml = (plan.routeOptions && plan.routeOptions.length > 0)
@@ -4084,13 +4324,211 @@
       const telemetryStops = (ctx && Array.isArray(ctx.telemetryStops)) ? ctx.telemetryStops : [];
       const layaDecision = this.classifyLayaDecision(text);
 
+      const isKnownLineCodeEarly = (code) => Boolean(
+        code && (
+          (this.routeKnowledge && this.routeKnowledge.lines && this.routeKnowledge.lines[code]) ||
+          (this.schedulesData && this.schedulesData.lines && this.schedulesData.lines[code]) ||
+          (this.networkData && (
+            (this.networkData.popular_lines && this.networkData.popular_lines[code]) ||
+            (Array.isArray(this.networkData.routes_catalog) && this.networkData.routes_catalog.some(r => r.code === code))
+          ))
+        )
+      );
+
+      const bandLabels = {
+        madrugada: 'Madrugada · até 05h',
+        pico_manha: 'Pico Manhã · 05h–09h',
+        entre_picos: 'Entre-picos · 09h–16h',
+        pico_tarde: 'Pico Tarde · 16h–20h',
+        noite: 'Noite · a partir das 20h'
+      };
+
+      const isAskingArrivalOrTiEarly = /\b(chega|chegada|integracao|baldeacao|conexao)\b/.test(q) || /\bti\s+[a-z0-9]/.test(q);
+      const buildGtfsScheduleCard = (sched, stopLabel, extraBlockHtml) => {
+        const rkSummary = this._buildLineKnowledgeSummary(sched.routeCode);
+        const rkPathHtml = rkSummary.routePathText
+          ? `• <strong>Trajeto completo:</strong> ${this.escapeHtml(this._formatDisplayName(rkSummary.routePathText))}<br>`
+          : '';
+        const rkWaypointsHtml = rkSummary.waypoints.length > 0
+          ? `• <strong>Principais pontos de passagem:</strong> ${this.escapeHtml(rkSummary.waypoints.map(w => this._formatDisplayName(w)).join(' · '))}<br>`
+          : '';
+        const bandTxt = bandLabels[sched.timeBand] || sched.timeBand;
+        const headwayTxt = sched.headwayMin != null ? `${sched.headwayMin} min` : 'sem intervalo regular nesta faixa';
+        const upcomingTxt = Array.isArray(sched.upcomingFormatted) && sched.upcomingFormatted.length
+          ? sched.upcomingFormatted.join(', ')
+          : sched.nextDepFormatted;
+        const nextNote = sched.isNextDay
+          ? `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (1ª partida do dia seguinte · em ${sched.waitMin} min)`
+          : `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (em <strong>${sched.waitMin} min</strong>)`;
+        const cleanFirstDep = this._normalizeTimeStr(sched.firstDep);
+        const cleanLastDep = this._normalizeTimeStr(sched.lastDep);
+        const cleanFirstArr = sched.firstArr ? this._normalizeTimeStr(sched.firstArr) : null;
+        const cleanLastArr = sched.lastArr ? this._normalizeTimeStr(sched.lastArr) : null;
+        const arrivalLineHtml = (isAskingArrivalOrTiEarly && (sched.arrivalAtDestFormatted || cleanFirstArr || cleanLastArr))
+          ? `• <strong>Chegada prevista no terminal (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.arrivalAtDestFormatted ? `<strong>${this.escapeHtml(sched.arrivalAtDestFormatted)}</strong>` : 'n/d'}` +
+            (cleanFirstArr && cleanLastArr ? ` (1ª chegada: <strong>${this.escapeHtml(cleanFirstArr)}</strong> · Última: <strong>${this.escapeHtml(cleanLastArr)}</strong>)` : '') + `<br>`
+          : '';
+        const tiCheckpointsHtml = (isAskingArrivalOrTiEarly && Array.isArray(sched.tiCheckpoints) && sched.tiCheckpoints.length > 0)
+          ? `• <strong>Checkpoints em TIs (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.tiCheckpoints.slice(0, 5).map(cp => `${this.escapeHtml(this._formatDisplayName(cp.stop_name))} (<strong>${this.escapeHtml(cp.estimatedPassFormatted)}</strong>)`).join(' → ')}<br>`
+          : '';
+        const titleLabel = this._formatDisplayName(rkSummary.fullLabel || `${sched.routeCode} · ${sched.routeName}`);
+        return `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('clock', 14)}<span>Linha ${this.escapeHtml(titleLabel)}</span></div><br>` +
+          `<span class="gp-badge-gtfs" style="display:inline-block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 6px; border-radius:5px; font-size:10px; font-weight:800; margin-bottom:6px;">${this.escapeHtml(sched.provenanceLabel)} · ${this.escapeHtml(sched.direction.toUpperCase())} (${this.escapeHtml(sched.serviceDay)})</span><br>` +
+          (stopLabel ? `• <strong>Parada de referência:</strong> ${this.escapeHtml(this._formatDisplayName(stopLabel))}<br>` : '') +
+          rkPathHtml +
+          rkWaypointsHtml +
+          `• <strong>Próxima partida programada:</strong> ${nextNote}<br>` +
+          arrivalLineHtml +
+          tiCheckpointsHtml +
+          `• <strong>Primeiro / Último horário:</strong> <strong>${this.escapeHtml(cleanFirstDep)}</strong> às <strong>${this.escapeHtml(cleanLastDep)}</strong> (${sched.tripCount} viagens${sched.durationMin ? ` · ~${sched.durationMin} min de percurso` : ''})<br>` +
+          `• <strong>Intervalo na faixa (${this.escapeHtml(bandTxt)}):</strong> <strong>${this.escapeHtml(headwayTxt)}</strong><br>` +
+          `• <strong>Próximas saídas GTFS:</strong> ${this.escapeHtml(upcomingTxt)}<br>` +
+          (extraBlockHtml || '') +
+          `<div style="margin-top:7px; display:flex; flex-wrap:wrap; gap:6px;">` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(sched.routeCode)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(sched.routeCode)} no Mapa</span></button>` +
+          `</div>`;
+      };
+
+      // 0A. Correção de localização do usuário ("não estou em ..." / "eu não estou em ...")
+      const isNotAtPlaceCorrection = /\b(?:eu\s+)?nao\s+(?:estou|to|tou)\s+(?:em|no|na|nos|nas|ai|la|nessa|neste|nesta)\b/.test(q);
+      if (isNotAtPlaceCorrection) {
+        if (typeof window !== 'undefined') window.grafoparadaManualOrigin = false;
+        void this.recordTelemetryEvent({
+          event_type: 'laya_query_feedback',
+          route_code: this.activeRouteCode || '199',
+          source: 'laya_assistant',
+          intent: 'location_correction',
+          query_text: text.slice(0, 240)
+        });
+        const hasFollowUpTrip = Boolean(this.extractOriginDest(text));
+        const realGps = this._getRealGpsCoords();
+        if (!hasFollowUpTrip) {
+          if (realGps) {
+            const gpsLoc = this._resolveGpsLocation(realGps.lat, realGps.lon);
+            this.adaptToUserLocation(realGps.lat, realGps.lon, 'GPS Real', { fit: false, originSource: 'gps' });
+            const gpsStopLabel = (gpsLoc && gpsLoc.label) || 'sua posição real pelo GPS';
+            return {
+              intent: 'location_correction',
+              type: 'location_correction',
+              telemetrySent: true,
+              decision: layaDecision,
+              html: `<div style="display:flex; align-items:center; gap:5px; font-weight:800; color:#047857; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Obrigado pelo aviso! Parada anterior removida.</span></div>` +
+                `Atualizei sua referência para a parada mais próxima do seu <strong>GPS real no mapa</strong>: <strong>${this.escapeHtml(gpsStopLabel)}</strong>.<br><br>` +
+                `<button type="button" onclick="if(window.detectUserLocationForScreen2){window.detectUserLocationForScreen2();} else if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 13)}<span>Detectar Posição Real</span></button>`,
+              speechTone: 'info',
+              speech: this._formatBriefSpeech(`Obrigado pelo aviso! Limpei a parada anterior e atualizei para seu GPS real perto de ${gpsStopLabel}.`)
+            };
+          }
+          this.userAdaptState = {
+            status: 'awaiting_location',
+            stopName: 'Escolha ou ative seu GPS',
+            distanceKm: null,
+            originSource: null,
+            isManualOrigin: false,
+            gpsErrorCode: null
+          };
+          return {
+            intent: 'location_correction',
+            type: 'location_correction',
+            telemetrySent: true,
+            decision: layaDecision,
+            html: `<div style="display:flex; align-items:center; gap:5px; font-weight:800; color:#0f172a; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Obrigado pelo aviso! Limpei a parada anterior.</span></div>` +
+              `Ainda não obtive suas coordenadas reais de GPS. Toque em <strong>"Detectar Posição Real"</strong> ou me diga em qual bairro ou terminal você está agora:<br><br>` +
+              `<button type="button" onclick="if(window.detectUserLocationForScreen2){window.detectUserLocationForScreen2();} else if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 13)}<span>Detectar Posição Real</span></button>`,
+            speechTone: 'info',
+            speech: this._formatBriefSpeech('Obrigado pelo aviso! Limpei a parada anterior. Toque em Detectar Posição Real ou me diga em qual bairro ou terminal você está.')
+          };
+        } else if (!realGps) {
+          this.userAdaptState = {
+            status: 'awaiting_location',
+            stopName: 'Escolha ou ative seu GPS',
+            distanceKm: null,
+            originSource: null,
+            isManualOrigin: false,
+            gpsErrorCode: null
+          };
+        }
+      }
+
+      // 0B. Correção de linha/local pelo usuário (ex.: "Está errado, Maranguape II é 1953")
+      const isUserLineCorrection = /\b(?:esta\s+errad[oa]|ta\s+errad[oa]|voce\s+errou|informacao\s+errada|linha\s+errada|nao\s+e\s+essa\s+linha|a\s+linha\s+certa\s+e|linha\s+correta\s+e|errado)\b/.test(q);
+      if (isUserLineCorrection) {
+        const corrCodesRaw = [];
+        const corrRe = /\b(\d{3,4})\b/g;
+        let cm;
+        while ((cm = corrRe.exec(q)) !== null) {
+          const cNorm = (this.aliases && this.aliases[cm[1]]) || cm[1];
+          corrCodesRaw.push(cNorm);
+        }
+        const corrCode = corrCodesRaw.find(c => isKnownLineCodeEarly(c)) || corrCodesRaw[0] || null;
+        const cleanedForPlace = q
+          .replace(/\b(?:esta\s+errad[oa]|ta\s+errad[oa]|voce\s+errou|errad[oa]|linha|onibus|busao|a|o|e|eh|para|pra|de|do|da)\b/g, ' ')
+          .replace(/\b\d{3,4}\b/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const corrPlaceObj = cleanedForPlace ? (this.resolvePlaceLocation(cleanedForPlace) || this._findPlaceMentionInQuery(cleanedForPlace)) : null;
+        const corrPlaceLabel = corrPlaceObj ? this._formatDisplayName(corrPlaceObj.label) : '';
+
+        void this.recordTelemetryEvent({
+          event_type: 'laya_query_feedback',
+          route_code: corrCode || this.activeRouteCode || '199',
+          source: 'laya_assistant',
+          intent: 'user_line_correction',
+          requested_line: corrCode,
+          place_hint: corrPlaceLabel || null,
+          query_text: text.slice(0, 240)
+        });
+
+        const dirHintCorr = /\bvolta\b/.test(q) ? 'volta' : 'ida';
+        if (corrCode && isKnownLineCodeEarly(corrCode)) {
+          const corrSched = this.getScheduledEstimate(corrCode, dirHintCorr);
+          const ackBanner = `<div style="background:#f0fdf4; border:1px solid #86efac; color:#14532d; padding:8px 10px; border-radius:9px; font-size:11.5px; line-height:1.4; margin-bottom:8px;"><strong>Obrigado pela correção!</strong> Anotei sua observação sobre a linha <strong>${this.escapeHtml(corrCode)}</strong>${corrPlaceLabel ? ` para <strong>${this.escapeHtml(corrPlaceLabel)}</strong>` : ''} para melhorar o GrafoParada.</div>`;
+          const cardHtml = corrSched
+            ? buildGtfsScheduleCard(corrSched, corrPlaceLabel || null, '')
+            : `<div><strong>Linha ${this.escapeHtml(this.getLineDisplayName(corrCode))}</strong></div>`;
+          return {
+            intent: 'user_line_correction',
+            type: 'user_correction',
+            telemetrySent: true,
+            routeCode: corrCode,
+            schedule: corrSched,
+            provenanceLabel: corrSched ? corrSched.provenanceLabel : 'Catálogo GTFS',
+            decision: layaDecision,
+            html: ackBanner + cardHtml,
+            speechTone: 'info',
+            speech: this._formatBriefSpeech(
+              corrSched
+                ? `Obrigado pela correção! Anotei sua observação sobre a linha ${corrCode}${corrPlaceLabel ? ' para ' + corrPlaceLabel : ''}. Próxima saída às ${corrSched.nextDepFormatted}, operando de ${corrSched.firstDep} até ${corrSched.lastDep}.`
+                : `Obrigado pela correção! Anotei sua observação sobre a linha ${corrCode}${corrPlaceLabel ? ' para ' + corrPlaceLabel : ''}.`
+            )
+          };
+        }
+
+        return {
+          intent: 'user_line_correction',
+          type: 'user_correction',
+          telemetrySent: true,
+          routeCode: corrCode,
+          decision: layaDecision,
+          html: `<div style="background:#f0fdf4; border:1px solid #86efac; color:#14532d; padding:8px 10px; border-radius:9px; font-size:11.5px; line-height:1.4; margin-bottom:8px;"><strong>Obrigado pela correção!</strong> Anotei sua observação${corrCode ? ` sobre a linha <strong>${this.escapeHtml(corrCode)}</strong>` : ''}${corrPlaceLabel ? ` em <strong>${this.escapeHtml(corrPlaceLabel)}</strong>` : ''} para aprimorar o GrafoParada.</div>` +
+            `Você pode consultar todas as <strong>393 linhas GTFS</strong> no catálogo abaixo:<br><br>` +
+            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.openLinePickerModal();} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('compass', 13)}<span>Explorar Catálogo de 393 Linhas</span></button>`,
+          speechTone: 'info',
+          speech: this._formatBriefSpeech(`Obrigado pela correção! Anotei sua observação${corrCode ? ' sobre a linha ' + corrCode : ''} para melhorar o GrafoParada.`)
+        };
+      }
+
       // 1. Guia de Perdido (Laya interpreta a fala e delega cálculo de rota para o motor determinístico RoutePlanner)
       const isLostWithoutDest = layaDecision.is_lost && !this.extractOriginDest(text) && !this.extractDestinationOnly(text);
       if (isLostWithoutDest) {
-        const curStop = (this.userAdaptState && this.userAdaptState.status === 'adapted')
-          ? this._sanitizeOriginName(this.userAdaptState.stopName)
-          : 'sua região atual';
-        const curLine = this.activeRouteCode || '-';
+        const realGpsLost = this._getRealGpsCoords();
+        const gpsLostObj = realGpsLost ? this._resolveGpsLocation(realGpsLost.lat, realGpsLost.lon) : null;
+        const curStop = gpsLostObj
+          ? gpsLostObj.label
+          : ((this.userAdaptState && this.userAdaptState.status === 'adapted' && !this.userAdaptState.isManualOrigin)
+            ? this._formatDisplayName(this._sanitizeOriginName(this.userAdaptState.stopName))
+            : 'sua região atual');
+        const curLine = (gpsLostObj && gpsLostObj.lineCode) || this.activeRouteCode || '-';
         return {
           intent: 'lost_guide',
           type: 'lost_guide',
@@ -4120,19 +4558,20 @@
 
       if (tripPair) {
         const plan = this.RoutePlanner.plan(tripPair.origin, tripPair.dest, telemetryStops);
-        const safeDest = this.escapeHtml(plan.destLabel);
+        const safeDest = this.escapeHtml(this._formatDisplayName(plan.destLabel));
         const lostPrefix = layaDecision.is_lost
           ? `<div style="display:flex; align-items:center; gap:5px; background:#fef3c7; border:1px solid #fcd34d; color:#92400e; padding:6px 9px; border-radius:8px; font-size:11px; font-weight:700; margin-bottom:8px;">${this._layaSvgIcon('compass', 13)}<span>Modo Guia de Perdido · Rota calculada pelo grafo GTFS</span></div>`
           : '';
-        if (implicitFromHere && (!plan.origCorridor || !plan.origCorridor.lat)) {
+        const isLiveOriginQuery = implicitFromHere || this._isLiveLocationPhrase(tripPair.origin);
+        if (isLiveOriginQuery && (!plan.origCorridor || !plan.origCorridor.lat)) {
           return {
             intent: 'need_location',
             type: 'need_location',
             decision: layaDecision,
-            html: `${lostPrefix}<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Para traçar a rota até <strong>${safeDest}</strong>, informe sua localização de partida.</span></div>Ative o GPS ou escolha seu bairro de origem abaixo:<br><br>` +
-              `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 14)}<span>Informar Onde Estou Agora</span></button>`,
+            html: `${lostPrefix}<div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">${this._layaSvgIcon('pin', 14)}<span>Ainda não obtive sua localização real pelo GPS para traçar a rota até <strong>${safeDest}</strong>.</span></div>Toque em <strong>"Detectar Posição Real"</strong> ou me diga em qual bairro ou terminal você está agora:<br><br>` +
+              `<button type="button" onclick="if(window.detectUserLocationForScreen2){window.detectUserLocationForScreen2();} else if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#059669; color:#fff; border:none; padding:8px 14px; border-radius:10px; font-size:12px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 14)}<span>Detectar Posição Real</span></button>`,
             speechTone: 'info',
-            speech: this._formatBriefSpeech(`Para traçar sua rota até ${plan.destLabel}, me diga onde você está ou ative o GPS.`)
+            speech: this._formatBriefSpeech(`Ainda não obtive seu GPS real para traçar a rota até ${this._formatDisplayName(plan.destLabel)}. Toque em Detectar Posição Real ou me diga seu bairro ou terminal.`)
           };
         }
 
@@ -4288,53 +4727,7 @@
       const isAskingBus = isAskingSchedule || /\b(onibus|chega|lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|demora|demorando|mofar|esperando|cade|previsto|previsao)\b/.test(q);
       const isAskingCrowdOrWait = /\b(lotacao|vagas|lotado|lotada|cheio|cheia|vazio|vazia|assento|sentado|em pe|mofar|demora|demorando|esperando)\b/.test(q);
 
-      const bandLabels = {
-        madrugada: 'Madrugada (<05h)',
-        pico_manha: 'Pico Manhã (05h–09h)',
-        entre_picos: 'Entre-picos (09h–16h)',
-        pico_tarde: 'Pico Tarde (16h–20h)',
-        noite: 'Noite (>=20h)'
-      };
-
-      const buildGtfsScheduleCard = (sched, stopLabel, extraBlockHtml) => {
-        const rkSummary = this._buildLineKnowledgeSummary(sched.routeCode);
-        const rkPathHtml = rkSummary.routePathText
-          ? `• <strong>Trajeto completo:</strong> ${this.escapeHtml(rkSummary.routePathText)}<br>`
-          : '';
-        const rkWaypointsHtml = rkSummary.waypoints.length > 0
-          ? `• <strong>Principais pontos de passagem:</strong> ${this.escapeHtml(rkSummary.waypoints.join(' · '))}<br>`
-          : '';
-        const bandTxt = bandLabels[sched.timeBand] || sched.timeBand;
-        const headwayTxt = sched.headwayMin != null ? `${sched.headwayMin} min` : 'sem intervalo regular nesta faixa';
-        const upcomingTxt = Array.isArray(sched.upcomingFormatted) && sched.upcomingFormatted.length
-          ? sched.upcomingFormatted.join(', ')
-          : sched.nextDepFormatted;
-        const nextNote = sched.isNextDay
-          ? `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (1ª partida do dia seguinte · em ${sched.waitMin} min)`
-          : `<strong>${this.escapeHtml(sched.nextDepFormatted)}</strong> (em <strong>${sched.waitMin} min</strong>)`;
-        const arrivalLineHtml = (isAskingArrivalOrTi && (sched.arrivalAtDestFormatted || sched.firstArr || sched.lastArr))
-          ? `• <strong>Chegada prevista no terminal (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.arrivalAtDestFormatted ? `<strong>${this.escapeHtml(sched.arrivalAtDestFormatted)}</strong>` : 'n/d'}` +
-            (sched.firstArr && sched.lastArr ? ` (1ª chegada: <strong>${this.escapeHtml(sched.firstArr)}</strong> · Última: <strong>${this.escapeHtml(sched.lastArr)}</strong>)` : '') + `<br>`
-          : '';
-        const tiCheckpointsHtml = (isAskingArrivalOrTi && Array.isArray(sched.tiCheckpoints) && sched.tiCheckpoints.length > 0)
-          ? `• <strong>Checkpoints em TIs (${this.escapeHtml(sched.provenanceLabel)}):</strong> ${sched.tiCheckpoints.slice(0, 5).map(cp => `${this.escapeHtml(cp.stop_name)} (<strong>${this.escapeHtml(cp.estimatedPassFormatted)}</strong>)`).join(' → ')}<br>`
-          : '';
-        return `<div style="display:inline-flex; align-items:center; gap:5px; font-weight:800; margin-bottom:4px;">${this._layaSvgIcon('clock', 14)}<span>Linha ${this.escapeHtml(rkSummary.fullLabel || `${sched.routeCode} · ${sched.routeName}`)}</span></div><br>` +
-          `<span class="gp-badge-gtfs" style="display:inline-block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; padding:1px 6px; border-radius:5px; font-size:10px; font-weight:800; margin-bottom:6px;">${this.escapeHtml(sched.provenanceLabel)} · ${this.escapeHtml(sched.direction.toUpperCase())} (${this.escapeHtml(sched.serviceDay)})</span><br>` +
-          (stopLabel ? `• <strong>Parada de referência:</strong> ${this.escapeHtml(stopLabel)}<br>` : '') +
-          rkPathHtml +
-          rkWaypointsHtml +
-          `• <strong>Próxima partida programada:</strong> ${nextNote}<br>` +
-          arrivalLineHtml +
-          tiCheckpointsHtml +
-          `• <strong>Primeiro / Último horário:</strong> <strong>${this.escapeHtml(sched.firstDep)}</strong> às <strong>${this.escapeHtml(sched.lastDep)}</strong> (${sched.tripCount} viagens${sched.durationMin ? ` · ~${sched.durationMin} min de percurso` : ''})<br>` +
-          `• <strong>Intervalo na faixa (${this.escapeHtml(bandTxt)}):</strong> <strong>${this.escapeHtml(headwayTxt)}</strong><br>` +
-          `• <strong>Próximas saídas GTFS:</strong> ${this.escapeHtml(upcomingTxt)}<br>` +
-          (extraBlockHtml || '') +
-          `<div style="margin-top:7px; display:flex; flex-wrap:wrap; gap:6px;">` +
-            `<button type="button" onclick="if(window.RealTransit){window.RealTransit.loadRoute('${this.escapeHtml(sched.routeCode)}');} if(window.navigateToScreen){window.navigateToScreen('radar');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:5px; background:#059669; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('map', 13)}<span>Abrir Linha ${this.escapeHtml(sched.routeCode)} no Mapa</span></button>` +
-          `</div>`;
-      };
+      // bandLabels e buildGtfsScheduleCard definidos acima em answerLayaQuery
 
       if (isAskingBus || hasExplicitLine || hasLineCodeInQuery) {
         const isIntegrationQuery = /\b(integracao|baldeacao|conexao)\b/.test(q) || (mentionedCodes.length >= 2 && /\b(com|e|para|entre)\b/.test(q));
@@ -4651,29 +5044,28 @@
         };
       }
 
-      // 6. Qual minha parada / Onde estou
+      // 6. Qual minha parada / Onde estou (prioridade absoluta para GPS real this.userLocation)
       if (/\b(parada|ponto|onde estou|localizacao|gps)\b/.test(q)) {
-        const activeCode = this.activeRouteCode || '-';
-        const adaptStatus = this.userAdaptState && this.userAdaptState.status;
-        const detectBtnHtml = `<button type="button" onclick="if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 13)}<span>Detectar / Atualizar Posição Real</span></button>`;
-        if (adaptStatus !== 'adapted') {
+        const detectBtnHtml = `<button type="button" onclick="if(window.detectUserLocationForScreen2){window.detectUserLocationForScreen2();} else if(window.navigateToScreen){window.navigateToScreen('locate');} if(window.closeLayaModal){window.closeLayaModal();}" style="display:inline-flex; align-items:center; gap:6px; background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:9px; font-size:11.5px; font-weight:800; cursor:pointer;">${this._layaSvgIcon('pin', 13)}<span>Detectar Posição Real</span></button>`;
+        const realGpsNow = this._getRealGpsCoords();
+        if (realGpsNow) {
+          const gpsResolved = this._resolveGpsLocation(realGpsNow.lat, realGpsNow.lon);
+          const stopTxt = (gpsResolved && gpsResolved.label) || 'sua posição real pelo GPS';
+          const lineTxt = (gpsResolved && gpsResolved.lineCode) || this.activeRouteCode || '-';
           return {
             intent: 'current_stop',
             type: 'current_stop',
-            html: `<div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">${this._layaSvgIcon('pin', 14)}<span>No momento você está usando <strong>sua região atual</strong> como referência (Linha <strong>${this.escapeHtml(activeCode)}</strong> no mapa).</span></div>` + detectBtnHtml,
+            html: `<div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">${this._layaSvgIcon('pin', 14)}<span>Pelo seu <strong>GPS real no mapa</strong>, a parada mais próxima é: <strong>${this.escapeHtml(stopTxt)}</strong> (Linha próxima: <strong>${this.escapeHtml(lineTxt)}</strong>).</span></div>` + detectBtnHtml,
             speechTone: 'info',
-            speech: 'No momento você está usando sua região atual como referência. Toque em Detectar ou Atualizar Posição Real para ajustar.'
+            speech: this._formatBriefSpeech(`Pelo seu GPS real no mapa, você está perto de ${stopTxt}, com a linha ${lineTxt} próxima.`)
           };
         }
-        const activeStop = this._sanitizeOriginName(
-          (this.userAdaptState && this.userAdaptState.stopName) || (ctx && ctx.activeStopName) || 'sua região atual'
-        );
         return {
-          intent: 'current_stop',
-          type: 'current_stop',
-          html: `<div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">${this._layaSvgIcon('pin', 14)}<span>Sua referência atual adaptada é: <strong>${this.escapeHtml(activeStop)}</strong> (Linha <strong>${this.escapeHtml(activeCode)}</strong>).</span></div>` + detectBtnHtml,
+          intent: 'need_location',
+          type: 'need_location',
+          html: `<div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">${this._layaSvgIcon('pin', 14)}<span>Ainda não obtive sua localização real pelo GPS.</span></div>Toque em <strong>"Detectar Posição Real"</strong> ou me diga em qual bairro ou terminal você está agora:<br><br>` + detectBtnHtml,
           speechTone: 'info',
-          speech: `Sua posição atual está ajustada para ${activeStop}.`
+          speech: 'Ainda não obtive sua localização real pelo GPS. Toque em Detectar Posição Real ou me diga seu bairro ou terminal.'
         };
       }
 

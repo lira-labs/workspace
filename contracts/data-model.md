@@ -104,6 +104,7 @@ Banco local de desenvolvimento e treino: `code/grafoparada_tec/data/grafoparada.
 - `name` (`TEXT NOT NULL`): Nome ou apelido de tratamento informado voluntariamente pelo usuário.
 - `contact_hint` (`TEXT`): Dica opcional de contato (sem CPF nem documentos sensíveis). Indexado por `idx_users_contact_hint_lower`.
 - `consent_at` (`TEXT`): Carimbo ISO-8601 UTC de aceite do termo LGPD (opcional).
+- `device_id` (`TEXT`): Identificador pseudonimizado opcional do dispositivo para suporte a "Lembrar este dispositivo" / auto-login silencioso (máx. 120 caracteres). Indexado por `idx_users_device_id`.
 - `created_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC de criação.
 - `updated_at` (`TEXT NOT NULL`): Carimbo ISO-8601 UTC da última atualização.
 

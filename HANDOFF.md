@@ -4,9 +4,9 @@
 ---
 
 ## 📌 Metadados da Última Sessão
-- **Última Atualização:** 18/11/2026 17:12
+- **Última Atualização:** 18/11/2026 21:35
 - **Data da Apresentação:** Quarta-feira (18/11/2026) · Seminário Iteração 3 (`sem3`) / Tópicos Avançados em IA (AI4Good) / UFRPE
-- **Branch Ativo:** `main` (v3.7 integrada via `feature/grafoparada-v3.7-laya-185-knowledge-distill` — base completa `laya_route_knowledge.json` nas 393 linhas incluindo `185 · Ti Cabo / Cais de Santa Rita`, Knowledge Distillation `TeacherSTGCN -> Student STGCN`, `laya_query_feedback` no Neon/SQLite · `https://grafoparadaweb.vercel.app`)
+- **Branch Ativo:** `main` (v3.8 integrada via `feature/grafoparada-v3.8-gps-laya-maranguape-device-auth` — GPS real na Laya, `UFRPE -> Maranguape 2` / `1953 · Maranguape II / TI Pelópidas`, zero `24:xx`, "Lembrar este dispositivo" em 3 camadas + `device_id` no Neon/SQLite e deck Sem3 MinimalDark · `https://grafoparadaweb.vercel.app`)
 - **Repositórios GitHub:** [lira-labs/workspace](https://github.com/lira-labs/workspace.git)
 - **Harness Principal:** Google Antigravity (Turbo Mode)
 - **Harness de Contingência:** OpenCode (`core/harness/FAILOVER.md`)
@@ -14,7 +14,7 @@
 - **Sistema Full Stack Multiagente:** [`core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md`](core/engineering/SISTEMA_FULLSTACK_MULTIAGENTE.md)
   - Subagentes Especializados Ativos (`.agents/agents/`): `ux-spec-planner`, `frontend-layout-ui`, `frontend-map-engine`, `backend-engineer`, `db-data-manager`, `transit-trainer`, `qa-gatekeeper`, `visual-design-critic` (acionamento automático garantido em `AGENTS.md` e `.agents/rules/ui_ux_design_system.md`).
 - **Contratos Compartilhados (OpenAPI v2.2.0):** [`contracts/api-contract.yaml`](contracts/api-contract.yaml), [`contracts/data-model.md`](contracts/data-model.md) e [`contracts/integration-notes.md`](contracts/integration-notes.md)
-- **Gatekeeper Pré-Deploy (v3.7):** `pre_flight_check.py` (10/10 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 49/49 PASS) + `hook_continuous_train.py --quick` (`44.4 ms`) + Auditoria Visual Chrome CDP (`390x844` e `1280x800`: 0 overflow, 0 console/JS errors) + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
+- **Gatekeeper Pré-Deploy (v3.8):** `pre_flight_check.py` (11/11 blocos, 100% PASS) + Suíte Pytest completa (`test_unitarios_cientificos.py` + `teste_rotinas_e_realocacao.py` + `test_e2e_e_motor.py`: 51/51 PASS) + `hook_continuous_train.py --quick` (`47.2 ms`, `rmr_places=322`) + Auditoria Visual Chrome CDP (`390x844` e `1280x800`: 0 overflow, 0 console/JS errors) + Hooks Antigravity (`.agents/hooks.json` / `.agents/hooks/agent_guard.py`) + Skill `.agents/skills/unslop/`
 - **Ambientes Sincronizados:**
   - *Notebook*: `D:\workspace`
   - *Desktop*: `C:\Users\ccunh\Documents\workspace` (Instância Antigravity: `Desktop-Caua`)

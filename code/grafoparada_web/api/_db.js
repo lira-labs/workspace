@@ -59,6 +59,7 @@ async function ensureSchema(sql) {
         name TEXT NOT NULL,
         contact_hint TEXT,
         consent_at TEXT,
+        device_id TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -137,6 +138,7 @@ async function ensureSchema(sql) {
 
     // Migrações idempotentes para bancos já provisionados
     await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS consent_at TEXT`;
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS device_id TEXT`;
     await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS legs_json TEXT`;
     await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS transfer_hub_name TEXT`;
     await sql`ALTER TABLE routines ADD COLUMN IF NOT EXISTS return_origin_name TEXT`;
@@ -148,6 +150,7 @@ async function ensureSchema(sql) {
     await sql`ALTER TABLE demand_observations ADD COLUMN IF NOT EXISTS notes TEXT`;
 
     await sql`CREATE INDEX IF NOT EXISTS idx_users_contact_hint_lower ON users (LOWER(TRIM(contact_hint)))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_users_device_id ON users (device_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_routines_user_id ON routines (user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_routines_created_at ON routines (created_at)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_obs_route_code ON demand_observations (route_code)`;

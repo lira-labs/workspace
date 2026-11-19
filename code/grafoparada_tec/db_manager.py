@@ -56,6 +56,7 @@ _SCHEMA_STATEMENTS = (
         name TEXT NOT NULL,
         contact_hint TEXT,
         consent_at TEXT,
+        device_id TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
     )
@@ -136,6 +137,7 @@ _SCHEMA_STATEMENTS = (
 _MIGRATION_COLUMNS: dict[str, tuple[tuple[str, str], ...]] = {
     "users": (
         ("consent_at", "TEXT"),
+        ("device_id", "TEXT"),
     ),
     "routines": (
         ("legs_json", "TEXT"),
@@ -154,6 +156,7 @@ _MIGRATION_COLUMNS: dict[str, tuple[tuple[str, str], ...]] = {
 
 _INDEX_STATEMENTS = (
     "CREATE INDEX IF NOT EXISTS idx_users_contact_hint_lower ON users (contact_hint)",
+    "CREATE INDEX IF NOT EXISTS idx_users_device_id ON users (device_id)",
     "CREATE INDEX IF NOT EXISTS idx_routines_user_id ON routines (user_id)",
     "CREATE INDEX IF NOT EXISTS idx_routines_created_at ON routines (created_at)",
     "CREATE INDEX IF NOT EXISTS idx_obs_route_code ON demand_observations (route_code)",
@@ -271,33 +274,60 @@ def register_user(
     user_id: str | None = None,
     db_path: str | Path | None = None,
     consent_at: str | None = None,
+    device_id: str | None = None,
 ) -> dict[str, Any]:
     """Cadastra ou atualiza perfil leve LGPD (sem CPF) na tabela `users`."""
     clean_name = _require_str(name, "name", max_len=120)
     clean_hint = _optional_str(contact_hint, max_len=120)
     clean_id = _optional_str(user_id, max_len=80) or f"usr_{uuid.uuid4().hex[:12]}"
     clean_consent = _optional_str(consent_at, max_len=64)
+    clean_device_id = _optional_str(device_id, max_len=120)
     now = _utc_now_iso()
 
     resolved = init_db(db_path)
     with _connect(resolved) as conn:
         conn.execute(
             """
-            INSERT INTO users (id, name, contact_hint, consent_at, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO users (id, name, contact_hint, consent_at, device_id, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 name = excluded.name,
                 contact_hint = excluded.contact_hint,
                 consent_at = COALESCE(excluded.consent_at, users.consent_at),
+                device_id = COALESCE(excluded.device_id, users.device_id),
                 updated_at = excluded.updated_at
             """,
-            (clean_id, clean_name, clean_hint, clean_consent, now, now),
+            (clean_id, clean_name, clean_hint, clean_consent, clean_device_id, now, now),
         )
         row = conn.execute(
-            "SELECT id, name, contact_hint, consent_at, created_at, updated_at FROM users WHERE id = ?",
+            "SELECT id, name, contact_hint, consent_at, device_id, created_at, updated_at FROM users WHERE id = ?",
             (clean_id,),
         ).fetchone()
     return dict(row)
+
+
+def get_user_by_device_id(
+    device_id: str,
+    db_path: str | Path | None = None,
+) -> dict[str, Any] | None:
+    """Retorna o usuário mais recente associado ao `device_id` informado, ou None."""
+    clean_device_id = _optional_str(device_id, max_len=120)
+    if not clean_device_id:
+        return None
+
+    resolved = init_db(db_path)
+    with _connect(resolved) as conn:
+        row = conn.execute(
+            """
+            SELECT id, name, contact_hint, consent_at, device_id, created_at, updated_at
+            FROM users
+            WHERE device_id = ?
+            ORDER BY updated_at DESC, rowid DESC
+            LIMIT 1
+            """,
+            (clean_device_id,),
+        ).fetchone()
+    return dict(row) if row else None
 
 
 def save_routine(

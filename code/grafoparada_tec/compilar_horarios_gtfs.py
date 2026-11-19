@@ -16,6 +16,7 @@ import math
 import re
 import statistics
 import time
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
@@ -215,6 +216,8 @@ CITY_NAME_KEYWORDS = [
     ("PAULISTA", "Paulista"),
     ("PELÓPIDAS", "Paulista"),
     ("PELOPIDAS", "Paulista"),
+    ("MARANGUAPE I", "Paulista"),
+    ("ENGENHO MARANGUAPE", "Paulista"),
     ("ABREU E LIMA", "Abreu e Lima"),
     ("IGARASSU", "Igarassu"),
     ("CRUZ DE REBOUÇAS", "Igarassu"),
@@ -268,8 +271,9 @@ def parse_gtfs_seconds(tstr: str) -> int:
 
 
 def format_hhmm(minutes_from_midnight: int) -> str:
-    h = minutes_from_midnight // 60
-    m = minutes_from_midnight % 60
+    total_mins = int(minutes_from_midnight) % 1440
+    h = (total_mins // 60) % 24
+    m = total_mins % 60
     return f"{h:02d}:{m:02d}"
 
 
@@ -324,6 +328,101 @@ def compute_headways_by_band(dep_mins: list[int]) -> dict[str, float | None]:
     return headways
 
 
+_PTBR_CASING_RULES = (
+    (re.compile(r"\bViii\b"), "VIII"),
+    (re.compile(r"\bVii\b"), "VII"),
+    (re.compile(r"\bVi\b"), "VI"),
+    (re.compile(r"\bIv\b"), "IV"),
+    (re.compile(r"\bIii\b"), "III"),
+    (re.compile(r"\bIi\b"), "II"),
+    (re.compile(r"\bTi\b"), "TI"),
+    (re.compile(r"\bPe\b"), "PE"),
+    (re.compile(r"\bBr\b"), "BR"),
+    (re.compile(r"\bUr\b"), "UR"),
+)
+
+
+def _fix_ptbr_casing(text: str) -> str:
+    """Corrige algarismos romanos e siglas PT-BR (II, III, IV, VI, VII, TI, PE, BR, UR)."""
+    if not text:
+        return ""
+    out = " ".join(str(text).strip().split())
+    for pat, repl in _PTBR_CASING_RULES:
+        out = pat.sub(repl, out)
+    return out
+
+
+def _strip_accents_upper(text: str) -> str:
+    nfkd = unicodedata.normalize("NFKD", text or "")
+    return "".join(ch for ch in nfkd if not unicodedata.combining(ch)).upper()
+
+
+_OVERLAP_STOPWORDS = {
+    "DE", "DA", "DO", "DOS", "DAS", "E", "A", "O", "NO", "NA",
+    "TI", "TP", "TERMINAL", "ESTACAO", "PONTO", "RETORNO", "LINHA", "VIA",
+}
+
+
+def _endpoint_name_overlap(a: str, b: str) -> int:
+    """Retorna pontuacao de sobreposicao semantica entre dois nomes de extremos/paradas."""
+    na = _strip_accents_upper(a)
+    nb = _strip_accents_upper(b)
+    if not na or not nb:
+        return 0
+    if na == nb:
+        return 10
+    toks_a = [t for t in re.findall(r"[A-Z0-9]+", na) if t not in _OVERLAP_STOPWORDS and len(t) >= 2]
+    toks_b = [t for t in re.findall(r"[A-Z0-9]+", nb) if t not in _OVERLAP_STOPWORDS and len(t) >= 2]
+    if not toks_a or not toks_b:
+        return 0
+    set_a, set_b = set(toks_a), set(toks_b)
+    exact = len(set_a & set_b)
+    if exact:
+        return exact * 3
+    prefix_hits = 0
+    for ta in set_a:
+        if len(ta) >= 4 and any(tb.startswith(ta) or ta.startswith(tb) for tb in set_b if len(tb) >= 4):
+            prefix_hits += 1
+    return prefix_hits
+
+
+def _split_top_level_slash(text: str) -> list[str]:
+    """Divide uma string por '/' apenas fora de parenteses."""
+    parts: list[str] = []
+    buf: list[str] = []
+    depth = 0
+    for ch in text or "":
+        if ch == "(":
+            depth += 1
+            buf.append(ch)
+        elif ch == ")":
+            depth = max(0, depth - 1)
+            buf.append(ch)
+        elif ch == "/" and depth == 0:
+            part = "".join(buf).strip()
+            if part:
+                parts.append(part)
+            buf = []
+        else:
+            buf.append(ch)
+    tail = "".join(buf).strip()
+    if tail:
+        parts.append(tail)
+    return parts
+
+
+def _clean_endpoint_label(text: str) -> str:
+    """Remove observacoes entre parenteses/via e normaliza capitalizacao de um extremo."""
+    no_parens = re.sub(r"\s*\([^)]*\)\s*", " ", text or "")
+    no_via = re.sub(r"\s*-\s*Via\b.*$", "", no_parens, flags=re.IGNORECASE)
+    return _fix_ptbr_casing(no_via.strip(" -/"))
+
+
+def _is_named_endpoint(text: str) -> bool:
+    s = (text or "").strip()
+    return bool(s) and not s.isdigit() and any(ch.isalpha() for ch in s)
+
+
 TI_STATION_RE = re.compile(
     r"(\bTI\s+|\bTERMINAL\b|\bESTA[CÇ][AÃ]O\b|\bINTEGRA[CÇ][AÃ]O\b)",
     re.IGNORECASE,
@@ -343,7 +442,7 @@ def clean_stop_root_name(raw_name: str) -> str:
     name = re.sub(r"\s+(Ida|Volta|Retorno)\s*$", "", name, flags=re.IGNORECASE).strip()
     name = re.sub(r"\s+M[oó]dulo\s+[IVX0-9]+\s*$", "", name, flags=re.IGNORECASE).strip()
     name = re.sub(r"\s+(Embarque|Desembarque|Plataforma).*$", "", name, flags=re.IGNORECASE).strip()
-    return name.rstrip(" -")
+    return _fix_ptbr_casing(name.rstrip(" -"))
 
 
 def infer_neighborhood(name: str, fallback_city: str) -> str:
@@ -353,7 +452,7 @@ def infer_neighborhood(name: str, fallback_city: str) -> str:
             clean = clean[len(prefix):].strip()
             break
     clean = re.sub(r"^Linha\s+\d+\s*:?\s*", "", clean, flags=re.IGNORECASE).strip()
-    return clean if clean else fallback_city
+    return _fix_ptbr_casing(clean) if clean else _fix_ptbr_casing(fallback_city)
 
 
 def build_schedules_and_places() -> dict:
@@ -366,7 +465,7 @@ def build_schedules_and_places() -> dict:
             routes_meta[r["route_id"]] = {
                 "route_id": r["route_id"],
                 "code": r["route_short_name"],
-                "name": r["route_long_name"],
+                "name": _fix_ptbr_casing(r["route_long_name"]),
             }
 
     calendar_map = {}
@@ -380,12 +479,15 @@ def build_schedules_and_places() -> dict:
             sid = s["stop_id"]
             stops_dict[sid] = {
                 "id": sid,
-                "name": (s["stop_name"] or "").strip(),
+                "name": _fix_ptbr_casing(s["stop_name"]),
                 "lat": float(s["stop_lat"]),
                 "lon": float(s["stop_lon"]),
             }
 
     trip_info = {}  # trip_id -> (route_id, dir_key, [service_buckets])
+    maranguape1_trips: set[str] = set()
+    maranguape1_routes: set[str] = set()
+    maranguape1_re = re.compile(r"\bmaranguape\s+i\b(?!i)", re.IGNORECASE)
     with open(GTFS_DIR / "trips.txt", encoding="utf-8") as f:
         for t in csv.DictReader(f):
             rid = t["route_id"]
@@ -400,6 +502,9 @@ def build_schedules_and_places() -> dict:
                 dkey = "ida"
             svcs = resolve_service_buckets(calendar_map.get(t["service_id"]), t["service_id"])
             trip_info[tid] = (rid, dkey, svcs)
+            if maranguape1_re.search(t.get("trip_headsign") or ""):
+                maranguape1_trips.add(tid)
+                maranguape1_routes.add(rid)
 
     print(f"  -> {len(routes_meta)} rotas no catalogo, {len(trip_info)} viagens mapeadas, {len(stops_dict)} paradas.")
 
@@ -662,7 +767,7 @@ def build_schedules_and_places() -> dict:
 
     # Inclui polos extras do hub_graph que nao estejam duplicados
     for hub in hub_graph_raw:
-        hname = (hub.get("name") or "").strip()
+        hname = _fix_ptbr_casing(hub.get("name") or "")
         if not hname:
             continue
         hlat, hlon = float(hub["lat"]), float(hub["lon"])
@@ -690,6 +795,128 @@ def build_schedules_and_places() -> dict:
                 "source": "hub_graph",
             })
 
+    # 3. Bairros/polos reais nomeados nos extremos das linhas (ex.: Maranguape II pela 1953/1928)
+    rmr_city_names_upper = {_strip_accents_upper(c["city"]) for c in RMR_CITIES_META}
+
+    def _add_endpoint_place(ep_label: str, ep_stop: dict, line_code: str) -> None:
+        label = _fix_ptbr_casing(ep_label)
+        if not _is_named_endpoint(label) or len(label) < 3:
+            return
+        label_norm = _strip_accents_upper(label)
+        if label_norm in rmr_city_names_upper:
+            return
+        if label_norm.startswith(("CIRCULAR ", "ATENDIMENTO ", "EXPRESSO ", "BACURAU")):
+            return
+        slat, slon = float(ep_stop["lat"]), float(ep_stop["lon"])
+        sid = str(ep_stop.get("stop_id") or "")
+        norm = label.upper()
+
+        # Reaproveita cluster ja existente com nome compativel na mesma regiao
+        for ex in place_clusters.get(norm, []):
+            if approx_km(slat, slon, ex["lat"], ex["lon"]) <= 1.5:
+                ex["coords"].append((slat, slon))
+                ex["lines"].add(line_code)
+                if sid:
+                    ex["stop_ids"].add(sid)
+                return
+
+        # Evita duplicar terminal/estacao ja indexado no mesmo ponto (<= 0.45km) com nome sobreposto
+        for cands in place_clusters.values():
+            for ex in cands:
+                if approx_km(slat, slon, ex["lat"], ex["lon"]) <= 0.45 and _endpoint_name_overlap(label, ex["name"]) >= 3:
+                    ex["lines"].add(line_code)
+                    if sid:
+                        ex["stop_ids"].add(sid)
+                    return
+
+        place_clusters[norm].append({
+            "name": label,
+            "lat": slat,
+            "lon": slon,
+            "coords": [(slat, slon)],
+            "lines": {line_code},
+            "stop_ids": {sid} if sid else set(),
+            "source": "route_endpoint",
+        })
+
+    for code, nl in popular_lines_raw.items():
+        raw_lname = _fix_ptbr_casing(nl.get("name") or code_to_meta.get(code, {}).get("name") or "")
+        if not raw_lname:
+            continue
+        stops_ida = nl.get("stops", [])
+        stops_volta = nl.get("return_stops", [])
+        orig_stop = stops_ida[0] if stops_ida else (stops_volta[-1] if stops_volta else None)
+        dest_stop = stops_ida[-1] if stops_ida else (stops_volta[0] if stops_volta else None)
+        if not orig_stop or not dest_stop:
+            continue
+
+        orig_clean = clean_stop_root_name(orig_stop.get("name") or "")
+        dest_clean = clean_stop_root_name(dest_stop.get("name") or "")
+        orig_named = _is_named_endpoint(orig_clean)
+        dest_named = _is_named_endpoint(dest_clean)
+
+        top_parts = _split_top_level_slash(raw_lname)
+        if len(top_parts) == 2:
+            ep_a = _clean_endpoint_label(top_parts[0])
+            ep_b = _clean_endpoint_label(top_parts[1])
+            if orig_named and not dest_named:
+                ov_a = _endpoint_name_overlap(ep_a, orig_clean)
+                ov_b = _endpoint_name_overlap(ep_b, orig_clean)
+                if ov_b >= ov_a and ov_b > 0:
+                    _add_endpoint_place(ep_a, dest_stop, code)
+                elif ov_a > 0:
+                    _add_endpoint_place(ep_b, dest_stop, code)
+            elif dest_named and not orig_named:
+                ov_a = _endpoint_name_overlap(ep_a, dest_clean)
+                ov_b = _endpoint_name_overlap(ep_b, dest_clean)
+                if ov_b >= ov_a and ov_b > 0:
+                    _add_endpoint_place(ep_a, orig_stop, code)
+                elif ov_a > 0:
+                    _add_endpoint_place(ep_b, orig_stop, code)
+        elif len(top_parts) == 1 and "BACURAU" in _strip_accents_upper(raw_lname):
+            # Linhas Bacurau saem do Centro (Cais de Santa Rita) rumo ao bairro nomeado
+            ep_single = _clean_endpoint_label(top_parts[0])
+            if orig_named and not dest_named and "CAIS DE STA" in _strip_accents_upper(orig_clean):
+                _add_endpoint_place(ep_single, dest_stop, code)
+            elif dest_named and not orig_named and "CAIS DE STA" in _strip_accents_upper(dest_clean):
+                _add_endpoint_place(ep_single, orig_stop, code)
+
+    # 4. Maranguape I (Paulista) extraido das paradas reais GTFS exclusivas das viagens "Atende PE-22 e Maranguape I"
+    if maranguape1_trips and "MARANGUAPE I" not in place_clusters:
+        m1_stops: set[str] = set()
+        m1_base_stops: set[str] = set()
+        for tid, pts in trip_stops.items():
+            rid, _, _ = trip_info[tid]
+            if rid not in maranguape1_routes:
+                continue
+            sids = {p[1] for p in pts}
+            if tid in maranguape1_trips:
+                m1_stops.update(sids)
+            else:
+                m1_base_stops.update(sids)
+        m1_exclusive = [
+            stops_dict[sid]
+            for sid in sorted(m1_stops - m1_base_stops)
+            if sid in stops_dict
+            and sid.startswith("140")
+            and assign_rmr_city(stops_dict[sid]["lat"], stops_dict[sid]["lon"], stops_dict[sid]["name"]) == "Paulista"
+        ]
+        if m1_exclusive:
+            m1_lat = sum(s["lat"] for s in m1_exclusive) / len(m1_exclusive)
+            m1_lon = sum(s["lon"] for s in m1_exclusive) / len(m1_exclusive)
+            m1_lines = set()
+            for s in m1_exclusive:
+                m1_lines.update(stop_to_routes.get(s["id"], set()))
+            place_clusters["MARANGUAPE I"].append({
+                "name": "Maranguape I",
+                "lat": m1_lat,
+                "lon": m1_lon,
+                "coords": [(s["lat"], s["lon"]) for s in m1_exclusive],
+                "lines": m1_lines,
+                "stop_ids": {s["id"] for s in m1_exclusive},
+                "source": "gtfs_headsign",
+            })
+
     # Calcula stop_count real no raio de 0.45km e linhas reais para cada lugar
     all_stops_list = list(stops_dict.values())
     named_places = []
@@ -706,7 +933,8 @@ def build_schedules_and_places() -> dict:
             if not lines_here:
                 continue
 
-            uname = p["name"].upper()
+            pname = _fix_ptbr_casing(p["name"])
+            uname = pname.upper()
             if "ESTAÇÃO" in uname or "ESTACAO" in uname:
                 ptype = "station"
             elif "TI " in uname or "TERMINAL" in uname or "PÁTIO" in uname or "PONTO DE RETORNO" in uname:
@@ -714,10 +942,10 @@ def build_schedules_and_places() -> dict:
             else:
                 ptype = "pole"
 
-            pcity = assign_rmr_city(clat, clon, p["name"])
-            pneigh = infer_neighborhood(p["name"], pcity)
+            pcity = assign_rmr_city(clat, clon, pname)
+            pneigh = infer_neighborhood(pname, pcity)
             named_places.append({
-                "name": p["name"],
+                "name": pname,
                 "type": ptype,
                 "city": pcity,
                 "neighborhood": pneigh,
@@ -856,32 +1084,32 @@ def _resolve_endpoint_place(
         return min(ti_serving, key=lambda x: x[0])[1]
 
     hg_serving = [
-        (haversine_km(lat, lon, float(h["lat"]), float(h["lon"])), str(h["name"]).strip())
+        (haversine_km(lat, lon, float(h["lat"]), float(h["lon"])), _fix_ptbr_casing(str(h["name"])))
         for h in hub_graph_raw
         if code in [str(c) for c in h.get("lines", [])] and h.get("name")
     ]
     hg_serving = [c for c in hg_serving if c[0] <= max_km]
     if hg_serving:
-        return min(hg_serving, key=lambda x: x[0])[1]
+        return _fix_ptbr_casing(min(hg_serving, key=lambda x: x[0])[1])
 
     rmr_serving = [
-        (haversine_km(lat, lon, p["lat"], p["lon"]), p["name"])
+        (haversine_km(lat, lon, p["lat"], p["lon"]), _fix_ptbr_casing(p["name"]))
         for p in rmr_places_non_city
         if code in p.get("lines", [])
     ]
     rmr_serving = [c for c in rmr_serving if c[0] <= max_km]
     if rmr_serving:
-        return min(rmr_serving, key=lambda x: x[0])[1]
+        return _fix_ptbr_casing(min(rmr_serving, key=lambda x: x[0])[1])
 
-    ti_any = [(haversine_km(lat, lon, h["lat"], h["lon"]), h["name"]) for h in ti_hubs]
+    ti_any = [(haversine_km(lat, lon, h["lat"], h["lon"]), _fix_ptbr_casing(h["name"])) for h in ti_hubs]
     ti_any = [c for c in ti_any if c[0] <= max_km]
     if ti_any:
-        return min(ti_any, key=lambda x: x[0])[1]
+        return _fix_ptbr_casing(min(ti_any, key=lambda x: x[0])[1])
 
-    rmr_any = [(haversine_km(lat, lon, p["lat"], p["lon"]), p["name"]) for p in rmr_places_non_city]
+    rmr_any = [(haversine_km(lat, lon, p["lat"], p["lon"]), _fix_ptbr_casing(p["name"])) for p in rmr_places_non_city]
     rmr_any = [c for c in rmr_any if c[0] <= max_km]
     if rmr_any:
-        return min(rmr_any, key=lambda x: x[0])[1]
+        return _fix_ptbr_casing(min(rmr_any, key=lambda x: x[0])[1])
 
     stop_cands = []
     for st in extra_stops:
@@ -891,12 +1119,12 @@ def _resolve_endpoint_place(
             if d <= max_km:
                 stop_cands.append((d, sname))
     if stop_cands:
-        return min(stop_cands, key=lambda x: x[0])[1]
+        return _fix_ptbr_casing(min(stop_cands, key=lambda x: x[0])[1])
 
     if rmr_cities:
         nearest_city = min(rmr_cities, key=lambda c: haversine_km(lat, lon, c["lat"], c["lon"]))
-        return nearest_city["name"]
-    return assign_rmr_city(lat, lon)
+        return _fix_ptbr_casing(nearest_city["name"])
+    return _fix_ptbr_casing(assign_rmr_city(lat, lon))
 
 
 def build_laya_route_knowledge(
@@ -916,7 +1144,7 @@ def build_laya_route_knowledge(
         for entry in hub.get("lines", []):
             c = str(entry.get("code") or "")
             if c:
-                ti_by_code[c].append((float(entry.get("offset_min", 0.0)), hub["name"]))
+                ti_by_code[c].append((float(entry.get("offset_min", 0.0)), _fix_ptbr_casing(hub["name"])))
 
     knowledge_lines: dict[str, dict] = {}
     all_codes = sorted(set(popular_lines_raw.keys()) | set(lines_payload.keys()))
@@ -924,7 +1152,7 @@ def build_laya_route_knowledge(
     for code in all_codes:
         nl = popular_lines_raw.get(code, {})
         sl = lines_payload.get(code, {})
-        line_name = (nl.get("name") or sl.get("name") or code).strip()
+        line_name = _fix_ptbr_casing(nl.get("name") or sl.get("name") or code)
 
         stops_ida = nl.get("stops", [])
         stops_volta = nl.get("return_stops", [])
@@ -932,48 +1160,72 @@ def build_laya_route_knowledge(
         orig_stop = stops_ida[0] if stops_ida else (stops_volta[-1] if stops_volta else None)
         dest_stop = stops_ida[-1] if stops_ida else (stops_volta[0] if stops_volta else None)
 
-        origin_place = _resolve_endpoint_place(
-            code,
-            orig_stop,
-            stops_ida[:6] + stops_volta[-6:],
-            ti_hubs,
-            hub_graph_raw,
-            rmr_places_non_city,
-            rmr_cities,
-        )
-        dest_place = _resolve_endpoint_place(
-            code,
-            dest_stop,
-            stops_ida[-6:] + stops_volta[:6],
-            ti_hubs,
-            hub_graph_raw,
-            rmr_places_non_city,
-            rmr_cities,
-        )
+        # Se o nome oficial da linha ja possui 2 extremos nomeados separados por '/' (ex.: "Maranguape II / TI Pelópidas"),
+        # preserva esses extremos especificos em vez de substitui-los pelo nome generico da cidade.
+        top_parts = _split_top_level_slash(line_name)
+        named_orig = _clean_endpoint_label(top_parts[0]) if len(top_parts) >= 2 else ""
+        named_dest = _clean_endpoint_label(top_parts[-1]) if len(top_parts) >= 2 else ""
+        named_mids = [_clean_endpoint_label(p) for p in top_parts[1:-1]] if len(top_parts) > 2 else []
+        has_named_pair = _is_named_endpoint(named_orig) and _is_named_endpoint(named_dest)
 
-        # Se dest_place ficou vazio ou igual ao codigo, tenta return_stops[0]
-        if (not dest_place or dest_place.isdigit()) and stops_volta:
-            dest_place = _resolve_endpoint_place(
-                code,
-                stops_volta[0],
-                stops_volta[:6] + stops_ida[-6:],
-                ti_hubs,
-                hub_graph_raw,
-                rmr_places_non_city,
-                rmr_cities,
+        if has_named_pair:
+            origin_place = named_orig
+            dest_place = named_dest
+        else:
+            origin_place = (
+                named_orig
+                if _is_named_endpoint(named_orig)
+                else _resolve_endpoint_place(
+                    code,
+                    orig_stop,
+                    stops_ida[:6] + stops_volta[-6:],
+                    ti_hubs,
+                    hub_graph_raw,
+                    rmr_places_non_city,
+                    rmr_cities,
+                )
             )
+            dest_place = (
+                named_dest
+                if _is_named_endpoint(named_dest)
+                else _resolve_endpoint_place(
+                    code,
+                    dest_stop,
+                    stops_ida[-6:] + stops_volta[:6],
+                    ti_hubs,
+                    hub_graph_raw,
+                    rmr_places_non_city,
+                    rmr_cities,
+                )
+            )
+
+            # Se dest_place ficou vazio ou igual ao codigo, tenta return_stops[0]
+            if (not dest_place or dest_place.isdigit()) and stops_volta:
+                dest_place = _resolve_endpoint_place(
+                    code,
+                    stops_volta[0],
+                    stops_volta[:6] + stops_ida[-6:],
+                    ti_hubs,
+                    hub_graph_raw,
+                    rmr_places_non_city,
+                    rmr_cities,
+                )
+
+        origin_place = _fix_ptbr_casing(origin_place)
+        dest_place = _fix_ptbr_casing(dest_place)
 
         # TIs da linha (ordenados por offset)
         seen_ti: set[str] = set()
         line_ti_hubs: list[str] = []
         for _, tname in sorted(ti_by_code.get(code, []), key=lambda x: x[0]):
-            tkey = tname.upper()
-            if tkey not in seen_ti:
+            tclean = _fix_ptbr_casing(tname)
+            tkey = tclean.upper()
+            if tclean and tkey not in seen_ti:
                 seen_ti.add(tkey)
-                line_ti_hubs.append(tname)
+                line_ti_hubs.append(tclean)
         for dkey in ("ida", "volta"):
             for cp in sl.get(dkey, {}).get("ti_checkpoints", []):
-                cname = (cp.get("stop_name") or "").strip()
+                cname = _fix_ptbr_casing(cp.get("stop_name") or "")
                 if cname and cname.upper() not in seen_ti:
                     seen_ti.add(cname.upper())
                     line_ti_hubs.append(cname)
@@ -983,13 +1235,18 @@ def build_laya_route_knowledge(
         seen_corr: set[str] = set()
 
         def _add_corridor(place_name: str) -> None:
-            pn = (place_name or "").strip()
+            pn = _fix_ptbr_casing(place_name or "")
             if not pn or pn.isdigit():
                 return
             pk = pn.upper()
             if pk not in seen_corr:
                 seen_corr.add(pk)
                 corridor_places.append(pn)
+
+        if has_named_pair:
+            _add_corridor(origin_place)
+            for mid_name in named_mids:
+                _add_corridor(mid_name)
 
         for tname in line_ti_hubs:
             _add_corridor(tname)
@@ -1020,12 +1277,15 @@ def build_laya_route_knowledge(
         if dest_place:
             _add_corridor(dest_place)
 
-        if origin_place and dest_place and origin_place.lower() != dest_place.lower():
+        if has_named_pair:
+            full_label = line_name
+        elif origin_place and dest_place and origin_place.lower() != dest_place.lower():
             full_label = f"{origin_place} / {dest_place}"
         elif origin_place and origin_place.lower() not in line_name.lower():
             full_label = f"{line_name} ({origin_place})"
         else:
             full_label = line_name
+        full_label = _fix_ptbr_casing(full_label)
 
         cities_touched = sorted({
             assign_rmr_city(float(st["lat"]), float(st["lon"]), st.get("name") or "")

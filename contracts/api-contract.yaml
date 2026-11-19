@@ -243,6 +243,14 @@ paths:
             minLength: 3
             maxLength: 120
             example: "maria@teste.com"
+        - name: device_id
+          in: query
+          required: false
+          description: Identificador pseudonimizado do dispositivo para auto-login silencioso ("Lembrar este dispositivo").
+          schema:
+            type: string
+            maxLength: 120
+            example: "dev_9f8e7d6c5b4a"
       responses:
         '200':
           description: Estado da persistência e perfil opcional do usuário.
@@ -712,6 +720,12 @@ components:
           maxLength: 120
           description: Dica opcional de contato (ex. final do telefone ou e-mail mascarado).
           example: "whatsapp ****-1234"
+        device_id:
+          type: string
+          nullable: true
+          maxLength: 120
+          description: Identificador opcional do dispositivo para auto-login persistente ("Lembrar este dispositivo").
+          example: "dev_9f8e7d6c5b4a"
 
     UserProfileResponse:
       type: object
@@ -748,6 +762,9 @@ components:
             name:
               type: string
             contact_hint:
+              type: string
+              nullable: true
+            device_id:
               type: string
               nullable: true
             created_at:
